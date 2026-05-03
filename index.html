@@ -421,14 +421,8 @@ html,body{height:100%;font-family:"DM Sans",sans-serif;background:var(--navy);co
     <div class="auth-class">Class X — SBS · Digital Archive</div>
   </div>
 
-  <!-- Firebase Setup Info (shown if not configured) -->
-  <div id="firebaseSetupCard" style="display:none;background:rgba(74,158,255,0.08);border:1px solid rgba(74,158,255,0.25);border-radius:14px;padding:18px 22px;width:460px;max-width:96vw;margin-bottom:16px;position:relative;z-index:1;">
-    <div style="font-size:14px;font-weight:600;color:#4a9eff;margin-bottom:8px;">⚙️ Enable Cross-Device Sync</div>
-    <div style="font-size:12px;color:rgba(200,191,175,0.8);line-height:1.7;margin-bottom:10px;">
-      Currently running in <strong style="color:#ffa500;">offline mode</strong> — data only saved on this device.<br>
-     </div>
-    <button onclick="document.getElementById('firebaseSetupCard').style.display='none'" style="font-size:11px;background:transparent;border:1px solid rgba(74,158,255,0.3);color:#4a9eff;border-radius:7px;padding:4px 12px;cursor:pointer;">Got it, continue offline</button>
-  </div>
+  <!-- Firebase Connected Badge -->
+  <div id="firebaseSetupCard" style="display:none;"></div>
 
   <div class="auth-box">
     <div class="auth-tabs">
@@ -547,6 +541,7 @@ html,body{height:100%;font-family:"DM Sans",sans-serif;background:var(--navy);co
     <!-- teacher/monitor only -->
     <div class="sb-section perm-upload" style="display:none;">Manage</div>
     <button class="nav-btn perm-upload" data-page="upload" onclick="nav(this)" style="display:none;"><span class="nav-icon">⬆️</span><span class="nav-label sb-text">Upload Files</span></button>
+    <button class="nav-btn perm-monitor" data-page="copy_checking" onclick="nav(this)" style="display:none;"><span class="nav-icon">📋</span><span class="nav-label sb-text">Copy Checking</span></button>
     <button class="nav-btn perm-notice" data-page="post_notice" onclick="nav(this)" style="display:none;"><span class="nav-icon">📝</span><span class="nav-label sb-text">Post Notice</span></button>
     <button class="nav-btn perm-ct" data-page="manage_timetable" onclick="nav(this)" style="display:none;"><span class="nav-icon">🗓️</span><span class="nav-label sb-text">Set Timetable</span></button>
     <button class="nav-btn perm-results" data-page="manage_results" onclick="nav(this)" style="display:none;"><span class="nav-icon">✏️</span><span class="nav-label sb-text">Enter Results</span></button>
@@ -841,6 +836,49 @@ html,body{height:100%;font-family:"DM Sans",sans-serif;background:var(--navy);co
         </div>
       </div>
 
+      <!-- COPY CHECKING (monitor) -->
+      <div class="page" id="page-copy_checking">
+        <div class="hero" style="padding:20px 26px;margin-bottom:18px;">
+          <div class="hero-label">Class Monitor</div>
+          <div class="hero-h" style="font-size:22px;">Copy <span>Checking</span></div>
+          <div class="hero-sub">Track which students have submitted their copies for checking. Create a session per subject/date and mark submission status.</div>
+        </div>
+        <!-- Create new session -->
+        <div class="card" id="newCopySessionCard">
+          <div class="card-title">➕ New Copy Collection</div>
+          <div class="form-row-2">
+            <div class="form-group"><label class="form-label">Subject / Topic</label><input class="form-input" id="copySubjectName" placeholder="e.g. Maths Assignment, Hindi Notebook"></div>
+            <div class="form-group"><label class="form-label">Date</label><input class="form-input" type="date" id="copyDate"></div>
+          </div>
+          <div class="form-group"><label class="form-label">Note (optional)</label><input class="form-input" id="copyNote" placeholder="e.g. Chapter 3-5, Term 1 notebook"></div>
+          <button class="btn btn-gold" onclick="createCopySession()">📋 Start Collection Record</button>
+        </div>
+        <!-- Active / past sessions -->
+        <div class="card" style="margin-top:4px;">
+          <div class="card-title">📚 Collection Records</div>
+          <div id="copySessionsList"></div>
+        </div>
+        <!-- Detail view of a session -->
+        <div id="copyDetailView" style="display:none;">
+          <div style="display:flex;align-items:center;gap:10px;margin-bottom:14px;flex-wrap:wrap;">
+            <button class="btn btn-outline btn-sm" onclick="closeCopyDetail()">← All Records</button>
+            <div style="font-family:'Cormorant Garamond',serif;font-size:20px;" id="copyDetailTitle"></div>
+            <div style="flex:1;"></div>
+            <div id="copyDetailStats" style="display:flex;gap:8px;"></div>
+          </div>
+          <div class="card">
+            <div class="card-title">👥 Student Submission Status</div>
+            <div style="display:flex;gap:8px;margin-bottom:12px;flex-wrap:wrap;">
+              <button class="btn btn-sm" style="background:rgba(61,186,126,.18);color:#3dba7e;border:1px solid rgba(61,186,126,.3);" onclick="markAllCopy('submitted')">✓ All Submitted</button>
+              <button class="btn btn-sm" style="background:rgba(224,85,85,.15);color:#e05555;border:1px solid rgba(224,85,85,.25);" onclick="markAllCopy('not_submitted')">✗ None Submitted</button>
+              <button class="btn btn-sm btn-outline" onclick="markAllCopy('absent')">🏖️ All Absent</button>
+            </div>
+            <div id="copyStudentGrid"></div>
+            <button class="btn btn-gold" style="margin-top:14px;width:100%;" onclick="saveCopySession()">💾 Save Status</button>
+          </div>
+        </div>
+      </div>
+
     </div><!-- /pages -->
   </div><!-- /main-area -->
 </div><!-- /appScreen -->
@@ -867,12 +905,7 @@ html,body{height:100%;font-family:"DM Sans",sans-serif;background:var(--navy);co
 window.addEventListener("DOMContentLoaded", ()=>{
   initFirebase();
   setTimeout(setupFirebaseListeners, 2000);
-  setTimeout(()=>{
-    if(!_firebaseReady){
-      const card = document.getElementById("firebaseSetupCard");
-      if(card) card.style.display="";
-    }
-  }, 3500);
+  // Firebase is configured — no setup card needed
 });
 
 // ═══════════════════════════════════════════
@@ -888,12 +921,13 @@ document.querySelectorAll("img[src='data:image/png;base64,/9j/4AAQSkZJRgABAQAAAQ
 // FIREBASE REALTIME DATABASE — Cross-device sync
 // ═══════════════════════════════════════════
 
-// ⚙️ FIREBASE CONFIG — Replace with your own project config from console.firebase.google.com
+// ✅ FIREBASE CONFIG — USCD DAV Class X SBS
 const FIREBASE_CONFIG = {
   apiKey: "AIzaSyA7AgkFlnMttM0x-ScfbK9frDSpZEFnXNc",
-  authDomain: "[uscd-dav-class-x-sbs.firebaseapp.com](http://uscd-dav-class-x-sbs.firebaseapp.com)",
+  authDomain: "uscd-dav-class-x-sbs.firebaseapp.com",
+  databaseURL: "https://uscd-dav-class-x-sbs-default-rtdb.firebaseio.com",
   projectId: "uscd-dav-class-x-sbs",
-  storageBucket: "[uscd-dav-class-x-sbs.firebasestorage.app](http://uscd-dav-class-x-sbs.firebasestorage.app)",
+  storageBucket: "uscd-dav-class-x-sbs.firebasestorage.app",
   messagingSenderId: "732187424156",
   appId: "1:732187424156:web:0ebd0080c1e4649fbf8459"
 };
@@ -1168,10 +1202,12 @@ function initApp(){
   const canNotice   = ["teacher","classteacher"].includes(u.role);
   const isCT        = u.role==="classteacher";
   const canResults  = ["teacher","classteacher"].includes(u.role);
+  const canMonitor  = ["monitor","classteacher"].includes(u.role);
   show("perm-upload",   canUpload);
   show("perm-notice",   canNotice);
   show("perm-ct",       isCT);
   show("perm-results",  canResults);
+  show("perm-monitor",  canMonitor);
   // subject teacher: lock subject select to their subject if set
   if(u.role==="teacher"){
     const resHeroSub=document.getElementById("resHeroSub");
@@ -1191,6 +1227,7 @@ function initApp(){
   renderMyUploads();
   renderStudentsList();
   renderEnteredResults();
+  renderCopySessionsList();
   updateCTNotifBadge();
   if(u.role==="student") injectStudentProfileCard();
   // show student notification dot if any new results
@@ -1252,7 +1289,8 @@ const PAGE_TITLES = {
   dashboard:"Dashboard",subjects:"Subjects",notices:"Notice Board",gallery:"Gallery",
   timetable:"Timetable",attendance:"Attendance Record",results:"Results & Marks",
   upload:"Upload Files",post_notice:"Post Notice",manage_timetable:"Set Timetable",
-  manage_results:"Enter Results",manage_attendance:"Mark Attendance",manage_students:"Students"
+  manage_results:"Enter Results",manage_attendance:"Mark Attendance",manage_students:"Students",
+  copy_checking:"Copy Checking"
 };
 
 function nav(btn){
@@ -1265,7 +1303,7 @@ function nav(btn){
   document.getElementById("pageTitle").textContent = PAGE_TITLES[pid]||pid;
   // back button logic
   const backBtn = document.getElementById("backBtn");
-  const pagesWithBack = ["upload","post_notice","manage_timetable","manage_results","manage_attendance","manage_students","results"];
+  const pagesWithBack = ["upload","post_notice","manage_timetable","manage_results","manage_attendance","manage_students","results","copy_checking"];
   backBtn.classList.toggle("show", pagesWithBack.includes(pid));
   prevPage = pid;
   closeFolder();
@@ -1289,6 +1327,7 @@ function nav(btn){
   if(pid==="manage_results"){ renderEnteredResults(); backToResSetup(); }
   if(pid==="manage_students"){ renderStudentsList(); markNotifsRead(); updateCTNotifBadge(); }
   if(pid==="dashboard") renderDashboard();
+  if(pid==="copy_checking"){ closeCopyDetail(); renderCopySessionsList(); }
   const nd=document.getElementById("notifDot");
   if(nd) nd.style.display=(DB.get("notices")||[]).length?"":"none";
 }
@@ -2375,6 +2414,196 @@ function forceSyncFromFirebase(){
     showToast("✅ Synced from cloud!");
     if(currentUser){ renderDashboard(); renderStudentsList(); updateCTNotifBadge(); }
   }).catch(e=>{ if(btn) btn.textContent="☁️"; showToast("❌ Sync failed: "+e.message); });
+}
+
+// ═══════════════════════════════════════════
+// COPY CHECKING (monitor panel)
+// ═══════════════════════════════════════════
+let currentCopySessionId = null;
+let pendingCopyStatus = {}; // {studentId: "submitted"|"not_submitted"|"absent"}
+
+function createCopySession(){
+  const subject = document.getElementById("copySubjectName").value.trim();
+  const date    = document.getElementById("copyDate").value;
+  const note    = document.getElementById("copyNote").value.trim();
+  if(!subject){ showToast("❌ Enter subject or topic name"); return; }
+  const session = {
+    id: Date.now().toString(),
+    subject, note,
+    date: date || new Date().toLocaleDateString("en-IN"),
+    createdBy: currentUser.name,
+    createdAt: new Date().toLocaleString("en-IN"),
+    status: {}  // {studentId: "submitted"|"not_submitted"|"absent"}
+  };
+  DB.push("copySessions", session);
+  ["copySubjectName","copyDate","copyNote"].forEach(id=>{ const el=document.getElementById(id); if(el) el.value=""; });
+  showToast("📋 Collection record created!");
+  renderCopySessionsList();
+  // open the new session immediately
+  openCopyDetail(session.id);
+}
+
+function renderCopySessionsList(){
+  const el = document.getElementById("copySessionsList"); if(!el) return;
+  const sessions = DB.get("copySessions") || [];
+  if(!sessions.length){
+    el.innerHTML = `<div class="empty-state"><div class="empty-icon">📋</div><div class="empty-text">No copy collection records yet</div><div class="empty-sub">Create one above to start tracking submissions</div></div>`;
+    return;
+  }
+  el.innerHTML = `<div style="display:grid;gap:8px;">` +
+    sessions.map(s=>{
+      const students = DB.get("students") || [];
+      const total = students.length;
+      const submitted = Object.values(s.status||{}).filter(v=>v==="submitted").length;
+      const notSub = Object.values(s.status||{}).filter(v=>v==="not_submitted").length;
+      const absent = Object.values(s.status||{}).filter(v=>v==="absent").length;
+      const unmarked = total - Object.keys(s.status||{}).length;
+      const canDel = currentUser.role==="classteacher" || s.createdBy===currentUser.name;
+      return `<div style="background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.07);border-radius:11px;padding:13px 15px;cursor:pointer;transition:all .2s;" onclick="openCopyDetail('${s.id}')">
+        <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap;">
+          <div style="flex:1;">
+            <div style="font-size:14px;font-weight:600;">📋 ${s.subject}</div>
+            <div style="font-size:11px;color:var(--muted);margin-top:3px;">📅 ${s.date} · By ${s.createdBy}${s.note?" · "+s.note:""}</div>
+          </div>
+          <div style="display:flex;gap:6px;align-items:center;flex-wrap:wrap;">
+            <span style="font-size:11px;background:rgba(61,186,126,.18);color:#3dba7e;padding:2px 9px;border-radius:8px;">✓ ${submitted} submitted</span>
+            ${notSub?`<span style="font-size:11px;background:rgba(224,85,85,.15);color:#e05555;padding:2px 9px;border-radius:8px;">✗ ${notSub} pending</span>`:""}
+            ${absent?`<span style="font-size:11px;background:rgba(232,160,32,.15);color:var(--gold);padding:2px 9px;border-radius:8px;">🏖️ ${absent} absent</span>`:""}
+            ${unmarked?`<span style="font-size:11px;background:rgba(255,255,255,.07);color:var(--muted);padding:2px 9px;border-radius:8px;">? ${unmarked} unmarked</span>`:""}
+            ${canDel?`<button class="btn btn-danger btn-sm" onclick="event.stopPropagation();deleteCopySession('${s.id}')">🗑️</button>`:""}
+          </div>
+        </div>
+        <!-- progress bar -->
+        <div style="margin-top:10px;">
+          <div style="display:flex;justify-content:space-between;font-size:10px;color:var(--muted);margin-bottom:3px;">
+            <span>Submission progress</span>
+            <span>${total?Math.round(submitted/total*100):0}%</span>
+          </div>
+          <div style="height:4px;background:rgba(255,255,255,.08);border-radius:2px;overflow:hidden;">
+            <div style="height:100%;width:${total?submitted/total*100:0}%;background:linear-gradient(90deg,#3dba7e,#4ec98a);border-radius:2px;transition:width .4s;"></div>
+          </div>
+        </div>
+      </div>`;
+    }).join("") + `</div>`;
+}
+
+function openCopyDetail(sessionId){
+  const sessions = DB.get("copySessions") || [];
+  const session = sessions.find(s=>s.id===sessionId);
+  if(!session) return;
+  currentCopySessionId = sessionId;
+  pendingCopyStatus = {...(session.status||{})};
+  document.getElementById("copyDetailTitle").textContent = "📋 " + session.subject + " — " + session.date;
+  // hide list, show detail
+  document.getElementById("newCopySessionCard").style.display = "none";
+  document.querySelector(".card-title")?.parentElement; // keep list card hidden
+  const listCard = document.querySelector("#copySessionsList")?.closest(".card");
+  if(listCard) listCard.style.display="none";
+  document.getElementById("copyDetailView").style.display = "";
+  renderCopyStudentGrid(session);
+}
+
+function closeCopyDetail(){
+  currentCopySessionId = null;
+  pendingCopyStatus = {};
+  document.getElementById("copyDetailView").style.display = "none";
+  const listCard = document.querySelector("#copySessionsList")?.closest(".card");
+  if(listCard) listCard.style.display="";
+  document.getElementById("newCopySessionCard").style.display = "";
+  renderCopySessionsList();
+}
+
+function renderCopyStudentGrid(session){
+  const students = (DB.get("students")||[]).sort((a,b)=>parseInt(a.roll)-parseInt(b.roll));
+  const el = document.getElementById("copyStudentGrid"); if(!el) return;
+  if(!students.length){
+    el.innerHTML=`<div class="empty-state"><div class="empty-icon">👥</div><div class="empty-text">No students registered</div></div>`;
+    return;
+  }
+  el.innerHTML = `<div style="display:grid;gap:7px;">
+    <div style="display:grid;grid-template-columns:52px 1fr 130px 130px 110px;gap:8px;padding:5px 8px 8px;border-bottom:1px solid rgba(255,255,255,0.08);font-size:10px;color:var(--muted);font-weight:600;letter-spacing:.8px;text-transform:uppercase;">
+      <div>ROLL</div><div>NAME</div><div style="text-align:center;">SUBMITTED</div><div style="text-align:center;">NOT SUBMITTED</div><div style="text-align:center;">ABSENT</div>
+    </div>` +
+    students.map(s=>{
+      const cur = pendingCopyStatus[s.id] || "";
+      const subSel = cur==="submitted";
+      const notSel = cur==="not_submitted";
+      const absSel = cur==="absent";
+      return `<div style="display:grid;grid-template-columns:52px 1fr 130px 130px 110px;gap:8px;align-items:center;padding:8px;border-radius:9px;background:rgba(255,255,255,0.02);border:1px solid ${cur?"rgba(232,160,32,0.15)":"rgba(255,255,255,0.05)"};">
+        <div style="font-family:'Cormorant Garamond',serif;font-size:20px;color:var(--gold);text-align:center;">${s.roll}</div>
+        <div><div style="font-size:13px;font-weight:600;">${s.name}</div><div style="font-size:10px;color:var(--muted);">Adm: ${s.admNo}</div></div>
+        <div style="text-align:center;">
+          <button onclick="setCopyStatus('${s.id}','submitted')"
+            style="width:100px;padding:5px 0;border-radius:7px;border:1.5px solid ${subSel?"#3dba7e":"rgba(61,186,126,0.25)"};background:${subSel?"rgba(61,186,126,0.25)":"transparent"};color:${subSel?"#3dba7e":"var(--muted)"};font-size:12px;font-weight:${subSel?"700":"400"};cursor:pointer;">
+            ✓ Submitted
+          </button>
+        </div>
+        <div style="text-align:center;">
+          <button onclick="setCopyStatus('${s.id}','not_submitted')"
+            style="width:110px;padding:5px 0;border-radius:7px;border:1.5px solid ${notSel?"#e05555":"rgba(224,85,85,0.25)"};background:${notSel?"rgba(224,85,85,0.2)":"transparent"};color:${notSel?"#e05555":"var(--muted)"};font-size:12px;font-weight:${notSel?"700":"400"};cursor:pointer;">
+            ✗ Not Yet
+          </button>
+        </div>
+        <div style="text-align:center;">
+          <button onclick="setCopyStatus('${s.id}','absent')"
+            style="width:80px;padding:5px 0;border-radius:7px;border:1.5px solid ${absSel?"var(--gold)":"rgba(232,160,32,0.25)"};background:${absSel?"rgba(232,160,32,0.15)":"transparent"};color:${absSel?"var(--gold)":"var(--muted)"};font-size:12px;font-weight:${absSel?"700":"400"};cursor:pointer;">
+            🏖️ Absent
+          </button>
+        </div>
+      </div>`;
+    }).join("") + `</div>`;
+  updateCopyStats();
+}
+
+function setCopyStatus(studentId, status){
+  pendingCopyStatus[studentId] = status;
+  const sessions = DB.get("copySessions")||[];
+  const session = sessions.find(s=>s.id===currentCopySessionId);
+  if(session) renderCopyStudentGrid(session);
+}
+
+function markAllCopy(status){
+  const students = DB.get("students")||[];
+  students.forEach(s=>{ pendingCopyStatus[s.id]=status; });
+  const sessions = DB.get("copySessions")||[];
+  const session = sessions.find(s=>s.id===currentCopySessionId);
+  if(session) renderCopyStudentGrid(session);
+  showToast(status==="submitted"?"✓ All marked Submitted":status==="not_submitted"?"✗ All marked Not Submitted":"🏖️ All marked Absent");
+}
+
+function updateCopyStats(){
+  const students = DB.get("students")||[];
+  const total=students.length;
+  const submitted=Object.values(pendingCopyStatus).filter(v=>v==="submitted").length;
+  const notSub=Object.values(pendingCopyStatus).filter(v=>v==="not_submitted").length;
+  const absent=Object.values(pendingCopyStatus).filter(v=>v==="absent").length;
+  const el=document.getElementById("copyDetailStats"); if(!el) return;
+  el.innerHTML=
+    `<span style="font-size:12px;background:rgba(61,186,126,.18);color:#3dba7e;padding:3px 10px;border-radius:8px;">✓ ${submitted}/${total}</span>`+
+    (notSub?`<span style="font-size:12px;background:rgba(224,85,85,.15);color:#e05555;padding:3px 10px;border-radius:8px;">✗ ${notSub}</span>`:"")+
+    (absent?`<span style="font-size:12px;background:rgba(232,160,32,.15);color:var(--gold);padding:3px 10px;border-radius:8px;">🏖️ ${absent}</span>`:"");
+}
+
+function saveCopySession(){
+  if(!currentCopySessionId){ showToast("❌ No session selected"); return; }
+  if(!Object.keys(pendingCopyStatus).length){ showToast("❌ Mark at least one student"); return; }
+  const sessions = DB.get("copySessions")||[];
+  const idx = sessions.findIndex(s=>s.id===currentCopySessionId);
+  if(idx<0){ showToast("❌ Session not found"); return; }
+  sessions[idx].status = {...(sessions[idx].status||{}), ...pendingCopyStatus};
+  sessions[idx].lastUpdated = new Date().toLocaleString("en-IN");
+  DB.set("copySessions", sessions);
+  showToast("✅ Copy status saved!");
+  renderCopyStudentGrid(sessions[idx]);
+  renderCopySessionsList();
+}
+
+async function deleteCopySession(id){
+  if(!await customConfirm("Delete this copy collection record?","Delete Record","📋","Delete")) return;
+  const sessions=(DB.get("copySessions")||[]).filter(s=>s.id!==id);
+  DB.set("copySessions",sessions);
+  renderCopySessionsList();
+  showToast("🗑️ Record deleted");
 }
 
 // ═══════════════════════════════════════════
