@@ -1267,27 +1267,108 @@ function renderDashboard(){
 function fileItemHTML(f){
   const typeIcons={Notes:"📄",Assignment:"📝","Question Paper":"📋",Project:"🔬",Worksheet:"📃",Other:"📎"};
   const typeTags={Notes:"tag-note",Assignment:"tag-hw","Question Paper":"tag-exam",Project:"tag-new",Worksheet:"tag-hw",Other:"tag-note"};
-  const ico=typeIcons[f.type]||"📄", tag=typeTags[f.type]||"tag-note";
+  const ico=typeIcons[f.type]||"📄"; const tag=typeTags[f.type]||"tag-note";
   const s=SUBJECTS.find(x=>x.id===f.subject);
   const canDel=currentUser&&(currentUser.role==="classteacher"||(currentUser.name===f.uploader&&["teacher","monitor"].includes(currentUser.role)));
-  return `<div class="file-item"><div class="file-ico">${ico}</div><div class="file-info"><div class="file-name">${f.title}</div><div class="file-meta">${s?s.name:f.subject} · ${f.uploader} · ${f.date}${f.desc?" · "+f.desc:""}</div></div><div class="file-actions"><span class="tag ${tag}">${f.type}</span>${f.dataUrl?`<button class="btn btn-outline btn-sm" onclick="downloadFile('${f.id}')">⬇️</button>`:""} ${canDel?`<button class="btn btn-danger btn-sm" onclick="deleteFile('${f.id}')">🗑️</button>`:""}</div></div>`;
+  return `<div class="file-item">
+    <div class="file-ico">${ico}</div>
+    <div class="file-info"><div class="file-name">${f.title}</div>
+      <div class="file-meta">${s?s.name:f.subject} · ${f.uploader} · ${f.date}${f.desc?" · "+f.desc:""}</div></div>
+    <div class="file-actions">
+      <span class="tag ${tag}">${f.type}</span>
+      ${f.dataUrl?`<button class="btn btn-outline btn-sm" onclick="downloadFile('${f.id}')">⬇️</button>`:""}
+      ${canDel?`<button class="btn btn-danger btn-sm" onclick="deleteFile('${f.id}')">🗑️</button>`:""}
+    </div></div>`;
 }
 
-function handleFileSelect(input){ const file=input.files[0]; if(!file) return; if(file.size>10*1024*1024){ showToast("❌ File too large (max 10MB)"); input.value=""; return; } const p=document.getElementById("filePreview"); p.style.display="block"; p.textContent="📎 "+file.name+" ("+Math.round(file.size/1024)+" KB)"; }
+function handleFileSelect(input){
+  const file=input.files[0]; if(!file) return;
+  if(file.size>10*1024*1024){ showToast("❌ File too large (max 10MB)"); input.value=""; return; }
+  const p=document.getElementById("filePreview");
+  p.style.display="block"; p.textContent="📎 "+file.name+" ("+Math.round(file.size/1024)+" KB)";
+}
 
 function uploadFile(){
-  const title=document.getElementById("upTitle").value.trim(), subject=document.getElementById("upSubject").value, type=document.getElementById("upType").value, desc=document.getElementById("upDesc").value.trim(), input=document.getElementById("fileInput");
+  const title=document.getElementById("upTitle").value.trim();
+  const subject=document.getElementById("upSubject").value;
+  const type=document.getElementById("upType").value;
+  const desc=document.getElementById("upDesc").value.trim();
+  const input=document.getElementById("fileInput");
   if(!title||!subject){ showToast("❌ Fill in title and subject"); return; }
-  const save=(dataUrl,fname)=>{ DB.push("files",{id:Date.now().toString(),title,subject,type,desc,uploader:currentUser.name,date:new Date().toLocaleDateString("en-IN"),dataUrl:dataUrl||null,filename:fname||null}); document.getElementById("upTitle").value=""; document.getElementById("upDesc").value=""; document.getElementById("upSubject").value=""; document.getElementById("filePreview").style.display="none"; input.value=""; showToast("✅ Uploaded successfully!"); renderMyUploads(); renderDashboard(); };
-  if(input.files[0]){ const file=input.files[0],r=new FileReader(); r.onload=e=>save(e.target.result,file.name); r.readAsDataURL(file); } else save(null,null);
+  const save=(dataUrl,fname)=>{
+    DB.push("files",{id:Date.now().toString(),title,subject,type,desc,uploader:currentUser.name,date:new Date().toLocaleDateString("en-IN"),dataUrl:dataUrl||null,filename:fname||null});
+    document.getElementById("upTitle").value=""; document.getElementById("upDesc").value="";
+    document.getElementById("upSubject").value=""; document.getElementById("filePreview").style.display="none";
+    input.value=""; showToast("✅ Uploaded successfully!"); renderMyUploads(); renderDashboard();
+  };
+  if(input.files[0]){
+    const file=input.files[0]; const r=new FileReader();
+    r.onload=e=>save(e.target.result,file.name); r.readAsDataURL(file);
+  } else save(null,null);
 }
 
-function downloadFile(id){ const f=(DB.get("files")||[]).find(x=>x.id===id); if(!f||!f.dataUrl){ showToast("⚠️ No file attached"); return; } const a=document.createElement("a"); a.href=f.dataUrl; a.download=f.filename||f.title; a.click(); }
+function downloadFile(id){
+  const f=(DB.get("files")||[]).find(x=>x.id===id);
+  if(!f||!f.dataUrl){ showToast("⚠️ No file attached"); return; }
+  const a=document.createElement("a"); a.href=f.dataUrl; a.download=f.filename||f.title; a.click();
+}
 
-async function deleteFile(id){ if(!await customConfirm("This file will be permanently removed.","Delete File","📁","Delete")) return; DB.del("files",id); showToast("🗑️ File deleted"); renderMyUploads(); renderDashboard(); renderSubjectList(); if(currentFolder) renderFolder(currentFolder); }
+async function deleteFile(id){
+  if(!await customConfirm("This file will be permanently removed.","Delete File","📁","Delete")) return;
+  DB.del("files",id); showToast("🗑️ File deleted");
+  renderMyUploads(); renderDashboard(); renderSubjectList();
+  if(currentFolder) renderFolder(currentFolder);
+}
 
-function renderMyUploads(){ const el=document.getElementById("myUploads"); if(!el) return; const files=(DB.get("files")||[]).filter(f=>f.uploader===currentUser.name); el.innerHTML=files.length?files.map(f=>fileItemHTML(f)).join(""):`<div class="empty-state"><div class="empty-icon">📂</div><div class="empty-text">You haven't uploaded anything yet</div></div>`; }
+function renderMyUploads(){
+  const el=document.getElementById("myUploads"); if(!el) return;
+  const files=(DB.get("files")||[]).filter(f=>f.uploader===currentUser.name);
+  el.innerHTML=files.length?files.map(f=>fileItemHTML(f)).join(""):
+    `<div class="empty-state"><div class="empty-icon">📂</div><div class="empty-text">You haven't uploaded anything yet</div></div>`;
+}
 
+// ═══════════════════════════════════════════
+// SUBJECTS / FOLDER
+// ═══════════════════════════════════════════
+function renderSubjectList(){
+  const files=DB.get("files")||[];
+  document.getElementById("allSubjGrid").innerHTML=SUBJECTS.map(s=>{
+    const cnt=files.filter(f=>f.subject===s.id).length;
+    return `<div class="subj-card" onclick="openFolder('${s.id}')">
+      <span class="subj-emoji">${s.emoji}</span><div class="subj-num">${cnt}</div>
+      <div class="subj-name">${s.name}</div><div class="subj-count">${s.teacher} · ${cnt} file${cnt!==1?"s":""}</div></div>`;
+  }).join("");
+  document.getElementById("subjectListView").style.display="";
+  document.getElementById("folderView").style.display="none";
+}
+
+function openFolder(sid){
+  currentFolder=sid;
+  const s=SUBJECTS.find(x=>x.id===sid);
+  document.getElementById("folderTitle").textContent=(s?s.emoji+" "+s.name:sid);
+  renderFolder(sid);
+  document.getElementById("subjectListView").style.display="none";
+  document.getElementById("folderView").style.display="";
+  document.getElementById("backBtn").classList.add("show");
+  const ub=document.getElementById("folderUploadBtn");
+  if(ub) ub.style.display=["teacher","classteacher","monitor"].includes(currentUser.role)?"":"none";
+}
+
+function renderFolder(sid){
+  const files=(DB.get("files")||[]).filter(f=>f.subject===sid);
+  const el=document.getElementById("folderFiles");
+  el.innerHTML=files.length?`<div class="file-list">${files.map(f=>fileItemHTML(f)).join("")}</div>`:
+    `<div class="empty-state"><div class="empty-icon">📂</div><div class="empty-text">No files here yet</div><div class="empty-sub">Teacher or Monitor can upload files</div></div>`;
+}
+
+function closeFolder(){
+  currentFolder=null;
+  const slv=document.getElementById("subjectListView");
+  const fv=document.getElementById("folderView");
+  if(slv) slv.style.display="";
+  if(fv) fv.style.display="none";
+  document.getElementById("backBtn").classList.remove("show");
+}
 // ═══════════════════════════════════════════
 // SUBJECTS / FOLDER
 // ═══════════════════════════════════════════
@@ -1688,55 +1769,71 @@ function markNotifsRead(){ const notifs=DB.get("ct_notifications")||[]; notifs.f
 // ═══════════════════════════════════════════
 // FORCE SYNC
 // ═══════════════════════════════════════════
-function forceSyncFromFirebase(){
-  if(!_firebaseReady||!_db){ showToast("📴 Offline — using local data"); return; }
-  const btn=document.getElementById("appSyncBtn"); if(btn) btn.textContent="⏳";
-  showToast("🔄 Syncing...");
-  _db.ref("davx").once("value").then(snap=>{
-    const keysWrittenBack={};
-    if(snap.val()){
-      const remote=snap.val();
-      Object.keys(remote).forEach(k=>{
-        const local=_memCache[k];
-        if(Array.isArray(remote[k])){
-          // Always strip tombstoned items from remote — deleted items must STAY deleted
-          const cleanRemote = DB._applyTombs(k, remote[k]);
-          if(!Array.isArray(local)||local.length===0){
-            _memCache[k]=cleanRemote;
-          } else {
-            const localIds=new Set(local.map(x=>x&&x.id).filter(Boolean));
-            const merged=[...local]; let added=false;
-            cleanRemote.forEach(item=>{
-              if(item&&item.id&&!localIds.has(item.id)){ merged.push(item); added=true; }
-            });
-            _memCache[k]=merged;
-            // Write back if: we added items from remote OR local has fewer than remote (deletions need to propagate)
-            if(added || merged.length < cleanRemote.length || merged.length < remote[k].length){
-              keysWrittenBack[k]=merged;
-            }
-          }
-        } else if(local===null||local===undefined){
-          _memCache[k]=remote[k];
+function forceSyncFromFirebase() {
+  if (!_firebaseReady || !_db) {
+    showToast("📴 Offline — using local data only");
+    return;
+  }
+  const btn = document.getElementById("appSyncBtn");
+  if (btn) btn.textContent = "⏳";
+  showToast("🔄 Syncing from cloud...");
+
+  _db.ref("davx").once("value").then(snap => {
+    const remote = snap.val();
+    if (remote) {
+      // ✅ Replace each array key completely with remote version
+      const arrayKeys = ["files", "students", "notices", "results", "gallery", "copySessions", "timetable", "studentAttendance", "ct_notifications", "studentNotifications"];
+      
+      arrayKeys.forEach(key => {
+        if (remote[key] !== undefined) {
+          _memCache[key] = remote[key];
         }
       });
-      // Push all keys that need updating back to Firebase (per-key, never full overwrite)
-      Object.keys(keysWrittenBack).forEach(k=>{
-        _db.ref("davx/"+k).set(keysWrittenBack[k]).catch(e=>{});
+      
+      // For any other keys, also copy them
+      Object.keys(remote).forEach(key => {
+        if (!arrayKeys.includes(key)) {
+          _memCache[key] = remote[key];
+        }
       });
-    } else if(Object.keys(_memCache).length>0){
-      // Firebase is empty — upload local data
-      Object.keys(_memCache).forEach(k=>{
-        if(_memCache[k]!==null&&_memCache[k]!==undefined)
-          _db.ref("davx/"+k).set(_memCache[k]).catch(e=>{});
+      
+      // Save to localStorage
+      Object.keys(_memCache).forEach(k => {
+        try {
+          localStorage.setItem("davx_" + k, JSON.stringify(_memCache[k]));
+        } catch(e) { console.warn("localStorage write failed", k, e); }
       });
+      
+      showToast("✅ Sync complete - " + (remote.files?.length || 0) + " files loaded");
+    } else {
+      showToast("☁️ Cloud is empty — nothing to sync");
     }
-    Object.keys(_memCache).forEach(k=>{ try{ localStorage.setItem("davx_"+k,JSON.stringify(_memCache[k])); }catch(e){} });
-    if(btn) btn.textContent="☁️";
-    showToast("✅ Synced!");
-    if(currentUser){ renderDashboard(); renderStudentsList(); updateCTNotifBadge(); }
-  }).catch(e=>{ if(btn) btn.textContent="☁️"; showToast("❌ Sync failed"); });
+    if (btn) btn.textContent = "☁️";
+    
+    // 🔄 Refresh all UI components
+    if (currentUser) {
+      renderDashboard();
+      renderStudentsList();
+      renderMyUploads();
+      renderSubjectList();
+      renderNotices();
+      renderGallery();
+      renderTTDisplay();
+      renderAttView();
+      renderResults();
+      renderEnteredResults();
+      renderCopySessionsList();
+      updateCTNotifBadge();
+      
+      // Also refresh the current folder if open
+      if (currentFolder) renderFolder(currentFolder);
+    }
+  }).catch(e => {
+    if (btn) btn.textContent = "☁️";
+    showToast("❌ Sync failed: " + e.message);
+    console.error(e);
+  });
 }
-
 // ═══════════════════════════════════════════
 // COPY CHECKING
 // ═══════════════════════════════════════════
