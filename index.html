@@ -434,7 +434,7 @@ html,body{height:100%;font-family:"DM Sans",sans-serif;background:var(--navy);co
     <button class="nav-btn perm-ct" data-page="manage_attendance" onclick="nav(this)" style="display:none;"><span class="nav-icon">📋</span><span class="nav-label sb-text">Mark Attendance</span></button>
     <button class="nav-btn perm-ct" data-page="manage_students" onclick="nav(this)" style="display:none;" id="studentsNavBtn"><span class="nav-icon">👥</span><span class="nav-label sb-text">Students</span><span class="nav-badge sb-text" id="ctNotifBadge" style="display:none;background:#e05555;">0</span></button>
     <button class="nav-btn perm-ct" data-page="student_info" onclick="nav(this)" style="display:none;"><span class="nav-icon">👨‍👩‍👧</span><span class="nav-label sb-text">Student Info</span></button>
-    <button class="nav-btn perm-hw" data-page="homework" onclick="nav(this)" style="display:none;"><span class="nav-icon">📓</span><span class="nav-label sb-text">Homework Mgr</span><span class="nav-badge sb-text" id="hwBadge" style="display:none;">0</span></button>
+    <button class="nav-btn perm-hw" data-page="homework" onclick="nav(this)" style="display:none;"><span class="nav-icon">📓</span><span class="nav-label sb-text">Homework Manager</span><span class="nav-badge sb-text" id="hwBadge" style="display:none;">0</span></button>
     <button class="nav-btn perm-complain" data-page="complain" onclick="nav(this)" style="display:none;"><span class="nav-icon">⚠️</span><span class="nav-label sb-text">Complaints</span></button>
     <div class="sb-footer">
       <button class="logout-btn" onclick="doLogout()">Sign Out</button>
@@ -698,24 +698,12 @@ html,body{height:100%;font-family:"DM Sans",sans-serif;background:var(--navy);co
           <div class="hero-h" style="font-size:22px;">Student <span>Information</span></div>
           <div class="hero-sub">Full overview of all students with parent contact and performance data.</div>
         </div>
-        <!-- Weekly Report Card -->
-        <div class="card" style="background:rgba(37,211,102,0.05);border-color:rgba(37,211,102,0.25);">
-          <div class="card-title" style="color:#25d366;">📱 Weekly WhatsApp Report</div>
-          <p style="font-size:13px;color:var(--muted);margin-bottom:12px;">Send this week's attendance, test results, and copy-checking data to each student's parent via WhatsApp.</p>
-          <div style="display:flex;gap:10px;flex-wrap:wrap;align-items:center;">
-            <div>
-              <label class="form-label">Week Starting</label>
-              <input type="date" class="form-input" id="weeklyReportDate" style="max-width:160px;">
-            </div>
-            <button class="btn btn-wa" style="margin-top:18px;" onclick="sendWeeklyReportAll()">📲 Send All Weekly Reports</button>
-            <button class="btn btn-outline btn-sm" style="margin-top:18px;" onclick="previewWeeklyReport()">👁️ Preview Report</button>
-          </div>
-          <div id="weeklyReportPreview" style="display:none;margin-top:14px;background:rgba(37,211,102,0.07);border:1px solid rgba(37,211,102,0.2);border-radius:10px;padding:14px;font-size:12px;white-space:pre-wrap;font-family:monospace;color:var(--white);max-height:200px;overflow-y:auto;"></div>
+        <!-- Student Cards Grid -->
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;flex-wrap:wrap;gap:8px;">
+          <div style="font-family:'Cormorant Garamond',serif;font-size:20px;color:var(--white);">👨‍👩‍👧 Student Directory</div>
+          <div id="studentInfoStats" style="display:flex;gap:8px;flex-wrap:wrap;"></div>
         </div>
-        <div class="card">
-          <div class="card-title">📋 Student Directory</div>
-          <div id="studentInfoTable"></div>
-        </div>
+        <div id="studentInfoTable"></div>
       </div>
 
       <!-- COPY CHECKING -->
@@ -785,8 +773,66 @@ html,body{height:100%;font-family:"DM Sans",sans-serif;background:var(--navy);co
         <div class="hero" style="padding:20px 26px;margin-bottom:18px;">
           <div class="hero-label">Staff</div>
           <div class="hero-h" style="font-size:22px;">Complaints & <span>Reports</span></div>
-          <div class="hero-sub">Log complaints or disciplinary reports. Send directly to parents via WhatsApp.</div>
+          <div class="hero-sub">Log complaints, send disciplinary reports, and deliver weekly progress reports to parents via WhatsApp.</div>
         </div>
+
+        <!-- ══ WEEKLY WHATSAPP REPORT ══ -->
+        <div class="card" style="background:linear-gradient(135deg,rgba(37,211,102,0.06),rgba(37,211,102,0.02));border:1px solid rgba(37,211,102,0.3);position:relative;overflow:hidden;margin-bottom:14px;">
+          <div style="position:absolute;top:-20px;right:-20px;font-size:80px;opacity:0.05;pointer-events:none;">📱</div>
+          <div style="display:flex;align-items:center;gap:10px;margin-bottom:6px;">
+            <div style="width:36px;height:36px;background:rgba(37,211,102,0.15);border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:18px;">📲</div>
+            <div>
+              <div class="card-title" style="color:#25d366;margin-bottom:0;">Weekly WhatsApp Report</div>
+              <div style="font-size:11px;color:rgba(37,211,102,0.6);">Send weekly progress report directly to parents</div>
+            </div>
+          </div>
+          <p style="font-size:12px;color:var(--muted);margin-bottom:14px;line-height:1.6;">Each report includes <strong style="color:var(--off);">day-wise attendance</strong>, <strong style="color:var(--off);">test results</strong>, and <strong style="color:var(--off);">copy/homework status</strong> for the selected week.</p>
+
+          <!-- Week selector -->
+          <div style="display:flex;gap:12px;flex-wrap:wrap;align-items:flex-end;margin-bottom:14px;">
+            <div>
+              <label class="form-label">📅 Select Week</label>
+              <input type="date" class="form-input" id="weeklyReportDate" style="max-width:170px;" onchange="updateWeekLabel()">
+              <div id="weekRangeLabel" style="font-size:11px;color:rgba(37,211,102,0.7);margin-top:4px;"></div>
+            </div>
+            <div style="display:flex;gap:6px;flex-wrap:wrap;">
+              <button class="btn btn-sm" style="background:rgba(37,211,102,0.15);color:#25d366;border:1px solid rgba(37,211,102,0.35);" onclick="shiftWeek(-1)">◀ Prev Week</button>
+              <button class="btn btn-sm" style="background:rgba(37,211,102,0.15);color:#25d366;border:1px solid rgba(37,211,102,0.35);" onclick="shiftWeek(1)">Next Week ▶</button>
+              <button class="btn btn-sm" style="background:rgba(37,211,102,0.08);color:#25d366;border:1px solid rgba(37,211,102,0.2);" onclick="setCurrentWeek()">This Week</button>
+            </div>
+          </div>
+
+          <!-- Send All -->
+          <div style="padding:12px 14px;background:rgba(37,211,102,0.06);border:1px solid rgba(37,211,102,0.18);border-radius:10px;margin-bottom:12px;">
+            <div style="font-size:12px;font-weight:600;color:#25d366;margin-bottom:8px;">📢 Send to All Parents</div>
+            <div style="font-size:11px;color:var(--muted);margin-bottom:10px;">Opens WhatsApp one-by-one for every student who has a parent mobile on record.</div>
+            <div style="display:flex;gap:8px;flex-wrap:wrap;">
+              <button class="btn btn-wa" onclick="sendWeeklyReportAll()">📲 Send to All Parents</button>
+              <button class="btn btn-outline btn-sm" onclick="previewWeeklyReport()">👁️ Preview Sample</button>
+            </div>
+          </div>
+
+          <!-- Send to Single Student -->
+          <div style="padding:12px 14px;background:rgba(74,158,255,0.06);border:1px solid rgba(74,158,255,0.18);border-radius:10px;">
+            <div style="font-size:12px;font-weight:600;color:#4a9eff;margin-bottom:8px;">👤 Send to Single Student's Parent</div>
+            <div style="display:flex;gap:10px;flex-wrap:wrap;align-items:flex-end;">
+              <div class="form-group" style="margin:0;flex:1;min-width:160px;">
+                <label class="form-label">Select Student</label>
+                <select class="form-select" id="singleReportStudent">
+                  <option value="">— Select Student —</option>
+                </select>
+              </div>
+              <button class="btn btn-sm" style="background:rgba(74,158,255,0.18);color:#4a9eff;border:1px solid rgba(74,158,255,0.35);" onclick="sendSingleReportFromComplain()">📲 Send Report</button>
+              <button class="btn btn-outline btn-sm" onclick="previewSingleReport()">👁️ Preview</button>
+            </div>
+            <div id="singleReportParentInfo" style="display:none;margin-top:8px;font-size:11px;color:#4a9eff;"></div>
+          </div>
+
+          <!-- Preview box -->
+          <div id="weeklyReportPreview" style="display:none;margin-top:14px;background:rgba(37,211,102,0.06);border:1px solid rgba(37,211,102,0.2);border-radius:10px;padding:14px;font-size:11.5px;white-space:pre-wrap;font-family:monospace;color:var(--white);max-height:260px;overflow-y:auto;line-height:1.6;"></div>
+        </div>
+
+        <!-- ══ NEW COMPLAINT ══ -->
         <div class="card">
           <div class="card-title">➕ New Complaint / Report</div>
           <div class="form-row-2">
@@ -802,6 +848,8 @@ html,body{height:100%;font-family:"DM Sans",sans-serif;background:var(--navy);co
             <button class="btn btn-wa" onclick="sendComplaintWhatsApp()">📲 Send to Parent WhatsApp</button>
           </div>
         </div>
+
+        <!-- ══ COMPLAINT LOG ══ -->
         <div class="card" style="margin-top:13px;">
           <div class="card-title">📋 Complaint Log</div>
           <div style="margin-bottom:10px;display:flex;gap:8px;flex-wrap:wrap;">
@@ -991,7 +1039,7 @@ window.addEventListener("DOMContentLoaded",()=>{
   setTimeout(setupFirebaseListeners,2000);
   // Set default weekly report date to Monday of this week
   const wr=document.getElementById("weeklyReportDate");
-  if(wr){ const d=new Date(); d.setDate(d.getDate()-d.getDay()+1); wr.value=d.toISOString().split("T")[0]; }
+  if(wr){ const d=new Date(); d.setDate(d.getDate()-d.getDay()+1); wr.value=d.toISOString().split("T")[0]; updateWeekLabel(); }
 });
 
 // ═══════════════════════════════════════════
@@ -1178,6 +1226,21 @@ function populateAllSubjectSelects(){
   if(hwf) hwf.innerHTML=`<option value="">All Subjects</option>`+SUBJECTS.map(s=>`<option value="${s.id}">${s.emoji} ${s.name}</option>`).join("");
 }
 function populateSelects(){ populateAllSubjectSelects(); }
+
+function populateComplainSelects(){
+  const students=(DB.get("students")||[]).sort((a,b)=>parseInt(a.roll)-parseInt(b.roll));
+  const studentOpts=`<option value="">— Select Student —</option>`+students.map(s=>`<option value="${s.id}">${s.roll}. ${s.name}</option>`).join("");
+  const cs=document.getElementById("complainStudent"); if(cs) cs.innerHTML=studentOpts;
+  const cfs=document.getElementById("complainFilterStudent"); if(cfs) cfs.innerHTML=`<option value="">All Students</option>`+students.map(s=>`<option value="${s.id}">${s.roll}. ${s.name}</option>`).join("");
+  // Single report dropdown
+  const sr=document.getElementById("singleReportStudent");
+  if(sr){
+    sr.innerHTML=`<option value="">— Select Student —</option>`+students.map(s=>`<option value="${s.id}">${s.roll}. ${s.name}${s.parentMobile?" 📱":""}</option>`).join("");
+    sr.onchange=function(){ updateSingleReportInfo(this.value); };
+  }
+  // Also populate subject selects if not already done
+  populateAllSubjectSelects();
+}
 
 // ═══════════════════════════════════════════
 // AUTH
@@ -1680,7 +1743,89 @@ function renderEnteredResults(){
   const u=currentUser,results=DB.get("results")||[],el=document.getElementById("enteredResults"); if(!el) return;
   const filtered=u.role==="classteacher"?results:results.filter(r=>r.by===u.name);
   if(!filtered.length){ el.innerHTML=`<div class="empty-state"><div class="empty-icon">📊</div><div class="empty-text">No results entered yet</div></div>`; return; }
-  el.innerHTML=`<div style="display:grid;gap:7px;">`+filtered.map(r=>{ const s=SUBJECTS.find(x=>x.id===r.subject),cnt=r.studentMarks?r.studentMarks.filter(m=>!m.absent).length:0,canAct=u.role==="classteacher"||r.by===u.name; return `<div style="display:flex;align-items:center;gap:12px;padding:10px 13px;background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.06);border-radius:9px;flex-wrap:wrap;"><div style="font-size:20px;">${s?s.emoji:"📊"}</div><div style="flex:1;min-width:120px;"><div style="font-size:13px;font-weight:600;">${r.test}</div><div style="font-size:11px;color:var(--muted);">${s?s.name:r.subject} · Max: ${r.max} · ${cnt} marked</div></div><div style="display:flex;gap:6px;align-items:center;flex-wrap:wrap;"><span style="font-size:11px;background:rgba(61,186,126,.15);color:#3dba7e;padding:2px 8px;border-radius:8px;">Avg: ${r.avg||"—"}</span>${canAct?`<button class="btn btn-outline btn-sm" onclick="editResult('${r.id}')">✏️ Edit</button><button class="btn btn-danger btn-sm" onclick="delResult('${r.id}')">🗑️</button>`:""}</div></div>`; }).join("")+`</div>`;
+  el.innerHTML=`<div style="display:grid;gap:10px;">`+filtered.map(r=>{
+    const sub=SUBJECTS.find(x=>x.id===r.subject);
+    const canAct=u.role==="classteacher"||r.by===u.name;
+    const marks=r.studentMarks?r.studentMarks.filter(m=>!m.absent).map(m=>m.marks):[];
+    const absent=r.studentMarks?r.studentMarks.filter(m=>m.absent).length:0;
+    const cnt=marks.length;
+    const avg=cnt?Math.round(marks.reduce((a,b)=>a+b,0)/cnt):null;
+    const highest=cnt?Math.max(...marks):null;
+    const lowest=cnt?Math.min(...marks):null;
+    const passing=cnt?marks.filter(m=>m/r.max>=0.33).length:0;
+    const avgPct=avg!==null?Math.round(avg/r.max*100):null;
+    const avgCol=avgPct===null?"var(--muted)":avgPct>=75?"#3dba7e":avgPct>=50?"var(--gold)":"#e05555";
+    // Grade distribution
+    const gradeCount={};
+    marks.forEach(m=>{ const p=Math.round(m/r.max*100),g=p>=90?"A+":p>=80?"A":p>=70?"B+":p>=60?"B":p>=50?"C":"D"; gradeCount[g]=(gradeCount[g]||0)+1; });
+    const gradeOrder=["A+","A","B+","B","C","D"];
+    const gradeHTML=gradeOrder.filter(g=>gradeCount[g]).map(g=>{
+      const col=g==="A+"||g==="A"?"#3dba7e":g==="B+"||g==="B"?"#4a9eff":g==="C"?"var(--gold)":"#e05555";
+      return `<div style="text-align:center;padding:6px 8px;background:rgba(255,255,255,0.04);border-radius:8px;min-width:42px;"><div style="font-size:14px;font-weight:700;color:${col};">${gradeCount[g]}</div><div style="font-size:9px;color:var(--muted);margin-top:1px;">${g}</div></div>`;
+    }).join("");
+    return `<div style="background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.07);border-radius:11px;overflow:hidden;">
+      <!-- Header row (always visible) -->
+      <div style="display:flex;align-items:center;gap:12px;padding:12px 14px;cursor:pointer;" onclick="toggleResultSummary('rsumm_${r.id}')">
+        <div style="font-size:22px;">${sub?sub.emoji:"📊"}</div>
+        <div style="flex:1;min-width:0;">
+          <div style="font-size:13px;font-weight:700;">${r.test}</div>
+          <div style="font-size:11px;color:var(--muted);margin-top:2px;">${sub?sub.name:r.subject} · Max: ${r.max} · ${r.date}${r.remarks?" · "+r.remarks:""}</div>
+        </div>
+        <div style="display:flex;gap:6px;align-items:center;flex-wrap:wrap;">
+          <span style="font-size:11px;background:rgba(61,186,126,.15);color:#3dba7e;padding:3px 9px;border-radius:8px;">Avg: ${avg!==null?avg+"("+avgPct+"%)":"—"}</span>
+          <span style="font-size:11px;background:rgba(255,255,255,0.06);color:var(--muted);padding:3px 9px;border-radius:8px;">${cnt} marked${absent?" · "+absent+" absent":""}</span>
+          ${canAct?`<button class="btn btn-outline btn-sm" onclick="event.stopPropagation();editResult('${r.id}')">✏️ Edit</button><button class="btn btn-danger btn-sm" onclick="event.stopPropagation();delResult('${r.id}')">🗑️</button>`:""}
+          <span style="font-size:12px;color:var(--muted);user-select:none;" id="rsumm_arrow_${r.id}">▼</span>
+        </div>
+      </div>
+      <!-- Summary panel (collapsible) -->
+      <div id="rsumm_${r.id}" style="display:none;border-top:1px solid rgba(255,255,255,0.07);padding:14px;">
+        <!-- Stat tiles -->
+        <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(100px,1fr));gap:9px;margin-bottom:14px;">
+          <div style="background:rgba(232,160,32,0.08);border:1px solid rgba(232,160,32,0.18);border-radius:9px;padding:10px;text-align:center;">
+            <div style="font-size:9px;color:var(--muted);text-transform:uppercase;letter-spacing:.6px;margin-bottom:4px;">Students</div>
+            <div style="font-family:'Cormorant Garamond',serif;font-size:22px;color:var(--gold);">${cnt}${absent?`<span style="font-size:13px;color:#e05555;"> +${absent}A</span>`:""}</div>
+          </div>
+          <div style="background:rgba(232,160,32,0.08);border:1px solid rgba(232,160,32,0.18);border-radius:9px;padding:10px;text-align:center;">
+            <div style="font-size:9px;color:var(--muted);text-transform:uppercase;letter-spacing:.6px;margin-bottom:4px;">Average</div>
+            <div style="font-family:'Cormorant Garamond',serif;font-size:22px;color:${avgCol};">${avg!==null?avg:"-"}<span style="font-size:12px;color:var(--muted);">/${r.max}</span></div>
+            ${avgPct!==null?`<div style="font-size:10px;color:${avgCol};">${avgPct}%</div>`:""}
+          </div>
+          <div style="background:rgba(61,186,126,0.08);border:1px solid rgba(61,186,126,0.18);border-radius:9px;padding:10px;text-align:center;">
+            <div style="font-size:9px;color:var(--muted);text-transform:uppercase;letter-spacing:.6px;margin-bottom:4px;">Highest</div>
+            <div style="font-family:'Cormorant Garamond',serif;font-size:22px;color:#3dba7e;">${highest!==null?highest:"—"}</div>
+            ${highest!==null?`<div style="font-size:10px;color:#3dba7e;">${Math.round(highest/r.max*100)}%</div>`:""}
+          </div>
+          <div style="background:rgba(224,85,85,0.08);border:1px solid rgba(224,85,85,0.18);border-radius:9px;padding:10px;text-align:center;">
+            <div style="font-size:9px;color:var(--muted);text-transform:uppercase;letter-spacing:.6px;margin-bottom:4px;">Lowest</div>
+            <div style="font-family:'Cormorant Garamond',serif;font-size:22px;color:#e05555;">${lowest!==null?lowest:"—"}</div>
+            ${lowest!==null?`<div style="font-size:10px;color:#e05555;">${Math.round(lowest/r.max*100)}%</div>`:""}
+          </div>
+          <div style="background:rgba(74,158,255,0.08);border:1px solid rgba(74,158,255,0.18);border-radius:9px;padding:10px;text-align:center;">
+            <div style="font-size:9px;color:var(--muted);text-transform:uppercase;letter-spacing:.6px;margin-bottom:4px;">Passing</div>
+            <div style="font-family:'Cormorant Garamond',serif;font-size:22px;color:#4a9eff;">${passing}</div>
+            ${cnt?`<div style="font-size:10px;color:#4a9eff;">${Math.round(passing/cnt*100)}%</div>`:""}
+          </div>
+        </div>
+        <!-- Progress bar for pass rate -->
+        ${cnt?`<div style="margin-bottom:12px;">
+          <div style="display:flex;justify-content:space-between;font-size:10px;color:var(--muted);margin-bottom:4px;"><span>Pass Rate</span><span>${Math.round(passing/cnt*100)}%</span></div>
+          <div style="height:5px;background:rgba(255,255,255,0.08);border-radius:3px;overflow:hidden;"><div style="height:100%;width:${Math.round(passing/cnt*100)}%;background:linear-gradient(90deg,#4a9eff,#3dba7e);border-radius:3px;"></div></div>
+        </div>`:""}
+        <!-- Grade distribution -->
+        ${gradeHTML?`<div><div style="font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:.6px;margin-bottom:8px;">Grade Distribution</div><div style="display:flex;gap:6px;flex-wrap:wrap;">${gradeHTML}</div></div>`:""}
+      </div>
+    </div>`;
+  }).join("")+`</div>`;
+}
+
+function toggleResultSummary(id){
+  const el=document.getElementById(id); if(!el) return;
+  const rid=id.replace("rsumm_","");
+  const arrow=document.getElementById("rsumm_arrow_"+rid);
+  const open=el.style.display==="none";
+  el.style.display=open?"":"none";
+  if(arrow) arrow.textContent=open?"▲":"▼";
 }
 async function delResult(id){ if(!await customConfirm("This result will be permanently removed.","Delete Result","📊","Delete")) return; DB.del("results",id); renderEnteredResults(); renderResults(); renderDashboard(); showToast("🗑️ Result deleted"); }
 
@@ -1735,15 +1880,81 @@ function renderStudentInfoTable(){
   if(!students.length){ el.innerHTML=`<div class="empty-state"><div class="empty-icon">👥</div><div class="empty-text">No students registered yet</div></div>`; return; }
   const allAtt=DB.get("studentAttendance")||{},dates=Object.keys(allAtt);
   const results=DB.get("results")||[];
-  el.innerHTML=`<div style="overflow-x:auto;"><table class="students-table"><thead><tr><th>Roll</th><th>Name</th><th>Adm No</th><th>Parent Mobile</th><th>Present</th><th>Absent</th><th>Att%</th><th>Tests</th><th>Avg%</th><th>Joined</th><th>Last Login</th><th>Actions</th></tr></thead><tbody>`+students.map(s=>{
-    const p=dates.filter(d=>allAtt[d]&&allAtt[d][s.id]==="present").length,a=dates.filter(d=>allAtt[d]&&allAtt[d][s.id]==="absent").length,t=p+a,pct=t?Math.round(p/t*100):null;
+
+  // Stats bar
+  const statsEl=document.getElementById("studentInfoStats");
+  if(statsEl){
+    const withMobile=students.filter(s=>s.parentMobile).length;
+    statsEl.innerHTML=`<span style="font-size:11px;background:rgba(74,158,255,0.15);color:#4a9eff;padding:3px 10px;border-radius:10px;">👥 ${students.length} Students</span><span style="font-size:11px;background:rgba(37,211,102,0.15);color:#25d366;padding:3px 10px;border-radius:10px;">📱 ${withMobile} with WhatsApp</span><span style="font-size:11px;background:rgba(232,160,32,0.15);color:var(--gold);padding:3px 10px;border-radius:10px;">⚠️ ${students.length-withMobile} no mobile</span>`;
+  }
+
+  // Card grid
+  el.innerHTML=`<div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(290px,1fr));gap:14px;">` +
+  students.map(s=>{
+    const p=dates.filter(d=>allAtt[d]&&allAtt[d][s.id]==="present").length;
+    const a=dates.filter(d=>allAtt[d]&&allAtt[d][s.id]==="absent").length;
+    const total=p+a;
+    const attPct=total?Math.round(p/total*100):null;
+    const attCol=attPct===null?"var(--muted)":attPct>=75?"#3dba7e":attPct>=60?"var(--gold)":"#e05555";
     const myTests=results.filter(r=>r.studentMarks&&r.studentMarks.find(m=>m.studentId===s.id&&!m.absent));
     const myScores=myTests.map(r=>{ const m=r.studentMarks.find(x=>x.studentId===s.id); return m?Math.round(m.marks/r.max*100):null; }).filter(v=>v!==null);
     const avgScore=myScores.length?Math.round(myScores.reduce((a,b)=>a+b,0)/myScores.length):null;
-    const col=pct===null?"var(--muted)":pct>=75?"#3dba7e":pct>=60?"var(--gold)":"#e05555";
-    const waLink=s.parentMobile?`<a href="https://wa.me/91${s.parentMobile}?text=${encodeURIComponent('Hello, this is USCD DAV School regarding '+s.name+' (Roll: '+s.roll+')')}" target="_blank" class="btn btn-wa btn-sm" style="font-size:10px;">📲 WhatsApp</a>`:`<button class="btn btn-outline btn-sm" style="font-size:10px;" onclick="openEditParentMobile('${s.id}')">+ Mobile</button>`;
-    return `<tr><td><span style="font-family:'Cormorant Garamond',serif;font-size:16px;color:var(--gold);">${s.roll}</span></td><td style="font-weight:600;">${s.name}</td><td style="font-size:11px;color:var(--muted);">${s.admNo}</td><td>${s.parentMobile?`<span class="wa-chip" style="font-size:10px;">📱 ${s.parentMobile}</span>`:`<span style="color:var(--muted);font-size:11px;">—</span>`}</td><td style="color:#3dba7e;">${p}</td><td style="color:#e05555;">${a}</td><td><span style="font-weight:700;color:${col};">${pct!==null?pct+"%":"—"}</span></td><td style="color:#4a9eff;">${myTests.length}</td><td style="color:var(--gold);">${avgScore!==null?avgScore+"%":"—"}</td><td style="font-size:11px;color:var(--muted);">${s.joinedOn}</td><td style="font-size:11px;color:var(--muted);">${s.lastLogin||"Never"}</td><td style="display:flex;gap:4px;flex-wrap:wrap;"><button class="btn btn-outline btn-sm" style="font-size:10px;" onclick="openEditParentMobile('${s.id}')">✏️ Mobile</button>${waLink}<button class="btn btn-wa btn-sm" style="font-size:10px;" onclick="sendWeeklyReportSingle('${s.id}')">📊 Report</button></td></tr>`;
-  }).join("")+`</tbody></table></div>`;
+    const scoreCol=avgScore===null?"var(--muted)":avgScore>=75?"#3dba7e":avgScore>=50?"var(--gold)":"#e05555";
+    const initials=s.name.split(" ").map(w=>w[0]).join("").slice(0,2).toUpperCase();
+    const avatarColors=["#4a9eff","#e8a020","#3dba7e","#9b59b6","#e05555","#1abc9c"];
+    const avatarColor=avatarColors[parseInt(s.roll)%avatarColors.length];
+    return `<div style="background:linear-gradient(135deg,rgba(255,255,255,0.04),rgba(255,255,255,0.02));border:1px solid rgba(255,255,255,0.09);border-radius:14px;padding:16px;transition:all .2s;position:relative;overflow:hidden;" onmouseover="this.style.borderColor='rgba(232,160,32,0.3)';this.style.transform='translateY(-2px)'" onmouseout="this.style.borderColor='rgba(255,255,255,0.09)';this.style.transform=''">
+      <!-- Roll badge top-right -->
+      <div style="position:absolute;top:12px;right:12px;font-family:'Cormorant Garamond',serif;font-size:22px;color:rgba(232,160,32,0.25);font-weight:700;">${s.roll}</div>
+      <!-- Avatar + Name -->
+      <div style="display:flex;align-items:center;gap:12px;margin-bottom:14px;">
+        <div style="width:46px;height:46px;border-radius:50%;background:linear-gradient(135deg,${avatarColor}33,${avatarColor}22);border:2px solid ${avatarColor}55;display:flex;align-items:center;justify-content:center;font-size:16px;font-weight:700;color:${avatarColor};font-family:'Cormorant Garamond',serif;flex-shrink:0;">${initials}</div>
+        <div>
+          <div style="font-size:14px;font-weight:700;color:var(--white);">${s.name}</div>
+          <div style="font-size:10px;color:var(--muted);margin-top:2px;">Roll <span style="color:var(--gold);">${s.roll}</span> · Adm <span style="color:var(--off);">${s.admNo}</span></div>
+        </div>
+      </div>
+      <!-- Stats row -->
+      <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin-bottom:14px;">
+        <div style="background:rgba(255,255,255,0.04);border-radius:9px;padding:8px;text-align:center;">
+          <div style="font-size:16px;font-weight:700;font-family:'Cormorant Garamond',serif;color:${attCol};">${attPct!==null?attPct+"%":"—"}</div>
+          <div style="font-size:9px;color:var(--muted);text-transform:uppercase;letter-spacing:.5px;margin-top:1px;">Attendance</div>
+        </div>
+        <div style="background:rgba(255,255,255,0.04);border-radius:9px;padding:8px;text-align:center;">
+          <div style="font-size:16px;font-weight:700;font-family:'Cormorant Garamond',serif;color:${scoreCol};">${avgScore!==null?avgScore+"%":"—"}</div>
+          <div style="font-size:9px;color:var(--muted);text-transform:uppercase;letter-spacing:.5px;margin-top:1px;">Avg Score</div>
+        </div>
+        <div style="background:rgba(255,255,255,0.04);border-radius:9px;padding:8px;text-align:center;">
+          <div style="font-size:16px;font-weight:700;font-family:'Cormorant Garamond',serif;color:#4a9eff;">${myTests.length}</div>
+          <div style="font-size:9px;color:var(--muted);text-transform:uppercase;letter-spacing:.5px;margin-top:1px;">Tests</div>
+        </div>
+      </div>
+      <!-- Attendance bar -->
+      ${total>0?`<div style="margin-bottom:12px;"><div style="height:4px;background:rgba(255,255,255,0.08);border-radius:2px;overflow:hidden;"><div style="height:100%;width:${attPct}%;background:linear-gradient(90deg,${attCol},${attCol}cc);border-radius:2px;transition:width .4s;"></div></div></div>`:""}
+      <!-- Parent mobile -->
+      <div style="margin-bottom:12px;">
+        ${s.parentMobile
+          ?`<div style="display:flex;align-items:center;gap:8px;padding:8px 10px;background:rgba(37,211,102,0.07);border:1px solid rgba(37,211,102,0.2);border-radius:8px;"><span style="font-size:14px;">📱</span><span style="font-size:12px;color:#25d366;font-weight:600;">${s.parentMobile}</span><span style="font-size:10px;color:rgba(37,211,102,0.5);margin-left:auto;">WhatsApp Ready</span></div>`
+          :`<div style="display:flex;align-items:center;gap:8px;padding:8px 10px;background:rgba(224,85,85,0.07);border:1px solid rgba(224,85,85,0.2);border-radius:8px;"><span style="font-size:12px;color:#e05555;">⚠️ No parent mobile</span><button class="btn btn-outline btn-sm" style="margin-left:auto;font-size:10px;" onclick="openEditParentMobile('${s.id}')">+ Add</button></div>`
+        }
+      </div>
+      <!-- Action buttons -->
+      <div style="display:flex;gap:6px;flex-wrap:wrap;">
+        <button class="btn btn-outline btn-sm" style="flex:1;font-size:10px;" onclick="openEditParentMobile('${s.id}')">✏️ Mobile</button>
+        ${s.parentMobile?`<button class="btn btn-wa btn-sm" style="flex:1;font-size:10px;" onclick="sendWeeklyReportSingle('${s.id}')">📊 Weekly</button>`:""}
+        ${s.parentMobile?`<button class="btn btn-sm" style="flex:1;font-size:10px;background:rgba(37,211,102,0.12);color:#25d366;border:1px solid rgba(37,211,102,0.3);" onclick="quickWA('${s.id}')">💬 Chat</button>`:""}
+      </div>
+      <!-- Joined info -->
+      <div style="margin-top:10px;font-size:10px;color:rgba(200,191,175,0.35);text-align:right;">Joined: ${s.joinedOn} · Last: ${s.lastLogin||"Never"}</div>
+    </div>`;
+  }).join("")+`</div>`;
+}
+
+function quickWA(studentId){
+  const s=(DB.get("students")||[]).find(x=>x.id===studentId);
+  if(!s||!s.parentMobile){ showToast("❌ No parent mobile"); return; }
+  const msg=`🏫 Hello, I am ${currentUser.name} from USCD DAV Public School.\nThis message is regarding *${s.name}* (Roll No: ${s.roll}, Class X — SBS).\n\nPlease feel free to reach out for any queries.`;
+  window.open(`https://wa.me/91${s.parentMobile}?text=${encodeURIComponent(msg)}`,"_blank");
 }
 
 // ═══════════════════════════════════════════
@@ -1759,36 +1970,117 @@ function getWeekDates(startDateStr){
   return dates;
 }
 
+function setCurrentWeek(){
+  const d=new Date(); d.setDate(d.getDate()-d.getDay()+1);
+  const wr=document.getElementById("weeklyReportDate");
+  if(wr){ wr.value=d.toISOString().split("T")[0]; updateWeekLabel(); }
+}
+
+function shiftWeek(delta){
+  const wr=document.getElementById("weeklyReportDate"); if(!wr) return;
+  const d=new Date(wr.value||new Date());
+  d.setDate(d.getDate()+(delta*7));
+  wr.value=d.toISOString().split("T")[0];
+  updateWeekLabel();
+}
+
+function updateWeekLabel(){
+  const wr=document.getElementById("weeklyReportDate"); if(!wr) return;
+  const dates=getWeekDates(wr.value);
+  const el=document.getElementById("weekRangeLabel"); if(!el) return;
+  const dayNames=["Sun","Mon","Tue","Wed","Thu","Fri","Sat"];
+  const fmt=(d)=>{ const dt=new Date(d); return dayNames[dt.getDay()]+" "+dt.getDate(); };
+  el.textContent=`📅 ${fmt(dates[0])} → ${fmt(dates[5])} (Mon–Sat)`;
+}
+
 function buildWeeklyReport(student, weekDates){
   const allAtt=DB.get("studentAttendance")||{};
   const results=DB.get("results")||[];
   const copySessions=DB.get("copySessions")||[];
+  const dayNames=["Sun","Mon","Tue","Wed","Thu","Fri","Sat"];
 
+  // Day-wise attendance
   const attLines=weekDates.map(date=>{
     const st=allAtt[date]&&allAtt[date][student.id];
     if(!st) return null;
+    const d=new Date(date),dayName=dayNames[d.getDay()];
     const ico=st==="present"?"✅":st==="absent"?"❌":"🏖️";
-    return `${date}: ${ico} ${st.charAt(0).toUpperCase()+st.slice(1)}`;
+    const label=st==="present"?"Present":st==="absent"?"Absent":"Holiday";
+    return `  ${dayName} ${date}: ${ico} ${label}`;
   }).filter(Boolean);
 
+  const present=weekDates.filter(d=>allAtt[d]&&allAtt[d][student.id]==="present").length;
+  const absent=weekDates.filter(d=>allAtt[d]&&allAtt[d][student.id]==="absent").length;
+  const holiday=weekDates.filter(d=>allAtt[d]&&allAtt[d][student.id]==="holiday").length;
+  const recordedDays=attLines.length;
+  const attPct=recordedDays>0?Math.round(present/recordedDays*100):null;
+
   // Results this week
-  const weekResults=results.filter(r=>{ return r.studentMarks&&weekDates.includes(r.date)&&r.studentMarks.find(m=>m.studentId===student.id); });
-  const resLines=weekResults.map(r=>{ const sub=SUBJECTS.find(x=>x.id===r.subject); const m=r.studentMarks.find(x=>x.studentId===student.id); const pct=m&&!m.absent?Math.round(m.marks/r.max*100):null; return `📝 ${sub?sub.name:r.subject} — ${r.test}: ${m&&!m.absent?m.marks+"/"+r.max+" ("+pct+"%)":"Absent"}`; });
+  const weekResults=results.filter(r=>r.studentMarks&&weekDates.includes(r.date)&&r.studentMarks.find(m=>m.studentId===student.id));
+  const resLines=weekResults.map(r=>{
+    const sub=SUBJECTS.find(x=>x.id===r.subject);
+    const m=r.studentMarks.find(x=>x.studentId===student.id);
+    if(m&&!m.absent){
+      const pct=Math.round(m.marks/r.max*100);
+      const grade=pct>=90?"A+":pct>=80?"A":pct>=70?"B+":pct>=60?"B":pct>=50?"C":"D";
+      const perf=pct>=75?"👍 Good":pct>=50?"👌 Average":"⚠️ Needs Improvement";
+      return `  📝 ${sub?sub.name:r.subject}\n     Test: ${r.test}\n     Marks: ${m.marks}/${r.max} (${pct}%) — Grade: ${grade} ${perf}`;
+    } else {
+      return `  📝 ${sub?sub.name:r.subject} — ${r.test}: ❌ Absent`;
+    }
+  });
 
   // Copy sessions this week
-  const copyLines=copySessions.filter(cs=>weekDates.includes(cs.date)).map(cs=>{ const st=cs.status&&cs.status[student.id]; const ico=st==="submitted"?"✅":st==="not_submitted"?"❌":st==="absent"?"🏖️":"❓"; return `📋 ${cs.subject} (${cs.date}): ${ico} ${st?st.replace("_"," "):"Not recorded"}`; });
+  const copyLines=copySessions.filter(cs=>weekDates.includes(cs.date)).map(cs=>{
+    const st=cs.status&&cs.status[student.id];
+    const ico=st==="submitted"?"✅":st==="not_submitted"?"❌":st==="absent"?"🏖️":"❓";
+    const label=st==="submitted"?"Submitted":st==="not_submitted"?"Not Submitted":st==="absent"?"Absent":"Not Recorded";
+    return `  📋 ${cs.subject} (${cs.date}): ${ico} ${label}`;
+  });
 
-  const totalDays=weekDates.length,present=weekDates.filter(d=>allAtt[d]&&allAtt[d][student.id]==="present").length,absent=weekDates.filter(d=>allAtt[d]&&allAtt[d][student.id]==="absent").length;
+  const weekStart=weekDates[0],weekEnd=weekDates[weekDates.length-1];
 
-  let msg=`🏫 *USCD DAV Public School*\n📚 Class X — SBS\n━━━━━━━━━━━━━━━━\n`;
-  msg+=`📅 *Weekly Report*\n`;
-  msg+=`Student: *${student.name}*\nRoll No: ${student.roll} | Adm: ${student.admNo}\n`;
-  msg+=`Week: ${weekDates[0]} to ${weekDates[weekDates.length-1]}\n━━━━━━━━━━━━━━━━\n`;
-  msg+=`\n✅ *ATTENDANCE*\n`;
-  if(attLines.length){ msg+=attLines.join("\n")+"\n"; msg+=`Summary: ${present} Present, ${absent} Absent out of ${attLines.length} days recorded\n`; } else { msg+="No attendance recorded this week\n"; }
-  if(resLines.length){ msg+=`\n📊 *TEST RESULTS*\n`+resLines.join("\n")+"\n"; }
-  if(copyLines.length){ msg+=`\n📋 *COPY CHECKING*\n`+copyLines.join("\n")+"\n"; }
-  msg+=`━━━━━━━━━━━━━━━━\n_Sent by: ${currentUser.name}_\n_USCD DAV Public School_`;
+  let msg=`🏫 *USCD DAV Public School*\n`;
+  msg+=`📚 Class X — SBS\n`;
+  msg+=`━━━━━━━━━━━━━━━━━━━━\n`;
+  msg+=`📊 *WEEKLY STUDENT REPORT*\n`;
+  msg+=`━━━━━━━━━━━━━━━━━━━━\n\n`;
+  msg+=`👤 *Student:* ${student.name}\n`;
+  msg+=`🔢 *Roll No:* ${student.roll}  |  Adm: ${student.admNo}\n`;
+  msg+=`📅 *Week:* ${weekStart} to ${weekEnd}\n\n`;
+
+  msg+=`━━━━━━━━━━━━━━━━━━━━\n`;
+  msg+=`✅ *ATTENDANCE DETAILS*\n`;
+  msg+=`━━━━━━━━━━━━━━━━━━━━\n`;
+  if(attLines.length){
+    msg+=attLines.join("\n")+"\n\n";
+    msg+=`📈 *Summary:*\n`;
+    msg+=`  ✅ Present: ${present} day${present!==1?"s":""}\n`;
+    if(absent) msg+=`  ❌ Absent:  ${absent} day${absent!==1?"s":""}\n`;
+    if(holiday) msg+=`  🏖️ Holiday: ${holiday} day${holiday!==1?"s":""}\n`;
+    if(attPct!==null) msg+=`  📊 Rate:    *${attPct}%* ${attPct>=75?"✅ Good":attPct>=60?"⚠️ Needs Improvement":"🔴 Low — Please Improve"}\n`;
+  } else {
+    msg+=`  ℹ️ No attendance recorded this week.\n`;
+  }
+
+  if(resLines.length){
+    msg+=`\n━━━━━━━━━━━━━━━━━━━━\n`;
+    msg+=`📝 *TEST RESULTS THIS WEEK*\n`;
+    msg+=`━━━━━━━━━━━━━━━━━━━━\n`;
+    msg+=resLines.join("\n\n")+"\n";
+  }
+
+  if(copyLines.length){
+    msg+=`\n━━━━━━━━━━━━━━━━━━━━\n`;
+    msg+=`📋 *COPY / HOMEWORK STATUS*\n`;
+    msg+=`━━━━━━━━━━━━━━━━━━━━\n`;
+    msg+=copyLines.join("\n")+"\n";
+  }
+
+  msg+=`\n━━━━━━━━━━━━━━━━━━━━\n`;
+  msg+=`_For queries, contact the class teacher._\n`;
+  msg+=`_Sent by: ${currentUser.name}_\n`;
+  msg+=`_USCD DAV Public School_`;
   return msg;
 }
 
@@ -1825,6 +2117,34 @@ function sendWeeklyReportAll(){
   }
   showToast(`📲 Opening WhatsApp for ${students.length} parents...`);
   sendNext();
+}
+
+function updateSingleReportInfo(studentId){
+  const el=document.getElementById("singleReportParentInfo"); if(!el) return;
+  if(!studentId){ el.style.display="none"; return; }
+  const s=(DB.get("students")||[]).find(x=>x.id===studentId);
+  if(s&&s.parentMobile){ el.style.display=""; el.innerHTML=`📱 Parent WhatsApp: <strong>${s.parentMobile}</strong>`; }
+  else if(s){ el.style.display=""; el.innerHTML=`⚠️ No parent mobile for ${s.name}. <button class="btn btn-outline btn-sm" onclick="openEditParentMobile('${s.id}')">+ Add</button>`; el.style.color="#e8a020"; }
+  else { el.style.display="none"; }
+}
+
+function sendSingleReportFromComplain(){
+  const sid=document.getElementById("singleReportStudent")?.value;
+  if(!sid){ showToast("❌ Select a student first"); return; }
+  sendWeeklyReportSingle(sid);
+}
+
+function previewSingleReport(){
+  const sid=document.getElementById("singleReportStudent")?.value;
+  if(!sid){ showToast("❌ Select a student first"); return; }
+  const s=(DB.get("students")||[]).find(x=>x.id===sid);
+  if(!s){ showToast("❌ Student not found"); return; }
+  const weekDates=getWeekDates(document.getElementById("weeklyReportDate")?.value);
+  const msg=buildWeeklyReport(s,weekDates);
+  const el=document.getElementById("weeklyReportPreview");
+  el.style.display=""; el.textContent=msg;
+  showToast("👁️ Preview for "+s.name);
+  el.scrollIntoView({behavior:"smooth",block:"nearest"});
 }
 // ═══════════════════════════════════════════
 // COPY CHECKING
@@ -1865,6 +2185,219 @@ function saveEditedCopySession(){
   sessions[idx]={...sessions[idx],subject,date:date||sessions[idx].date,note};
   DB.set("copySessions",sessions); closeModal("editCopyModal"); showToast("✅ Record updated!"); renderCopySessionsList();
 }
+// ═══════════════════════════════════════════
+// HOMEWORK
+// ═══════════════════════════════════════════
+function postHW(){
+  const title=document.getElementById("hwTitle").value.trim();
+  const subject=document.getElementById("hwSubject").value;
+  const body=document.getElementById("hwBody").value.trim();
+  const due=document.getElementById("hwDue").value;
+  const priority=document.getElementById("hwPriority").value;
+  if(!title){ showToast("❌ Enter homework title"); return; }
+  if(!subject){ showToast("❌ Select a subject"); return; }
+  if(!body){ showToast("❌ Enter description"); return; }
+  const hw={id:Date.now().toString(),title,subject,body,due:due||"",priority,by:currentUser.name,date:new Date().toLocaleDateString("en-IN")};
+  DB.push("homework",hw);
+  ["hwTitle","hwBody","hwDue"].forEach(id=>{ const el=document.getElementById(id); if(el) el.value=""; });
+  showToast("📓 Homework posted!"); renderAllHW(); updateHWBadge();
+}
+function renderAllHW(){
+  const el=document.getElementById("allHWList"); if(!el) return;
+  const hw=DB.get("homework")||[];
+  if(!hw.length){ el.innerHTML=`<div class="empty-state"><div class="empty-icon">📓</div><div class="empty-text">No homework posted yet</div></div>`; return; }
+  const canDel=currentUser&&currentUser.role==="classteacher";
+  el.innerHTML=`<div style="display:grid;gap:9px;">`+hw.map(h=>{
+    const s=SUBJECTS.find(x=>x.id===h.subject);
+    const isUrgent=h.priority==="urgent";
+    const canAct=canDel||h.by===currentUser.name;
+    return `<div style="background:rgba(255,255,255,0.03);border:1px solid ${isUrgent?"rgba(224,85,85,0.3)":"rgba(255,255,255,0.08)"};border-left:3px solid ${isUrgent?"#e05555":"var(--gold)"};border-radius:10px;padding:13px 15px;">
+      <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:8px;">
+        <div style="flex:1;"><div style="font-size:13px;font-weight:700;">${h.title}${isUrgent?" 🚨":""}</div>
+        <div style="font-size:11px;color:var(--muted);margin-top:2px;">${s?s.emoji+" "+s.name:h.subject} · By ${h.by} · ${h.date}${h.due?" · Due: "+h.due:""}</div></div>
+        ${canAct?`<div style="display:flex;gap:5px;"><button class="btn btn-outline btn-sm" onclick="editHW('${h.id}')">✏️</button><button class="btn btn-danger btn-sm" onclick="deleteHW('${h.id}')">🗑️</button></div>`:""}
+      </div>
+      <div style="font-size:12px;color:var(--off);line-height:1.5;">${h.body}</div>
+    </div>`;
+  }).join("")+`</div>`;
+}
+function renderHWView(){
+  const el=document.getElementById("hwViewList"); if(!el) return;
+  const hw=DB.get("homework")||[];
+  const filter=document.getElementById("hwViewFilter")?.value||"";
+  const filtered=filter?hw.filter(h=>h.subject===filter):hw;
+  if(!filtered.length){ el.innerHTML=`<div class="empty-state"><div class="empty-icon">📓</div><div class="empty-text">No homework posted yet</div></div>`; return; }
+  el.innerHTML=`<div style="display:grid;gap:9px;">`+filtered.map(h=>{
+    const s=SUBJECTS.find(x=>x.id===h.subject);
+    const isUrgent=h.priority==="urgent";
+    return `<div class="card" style="border-left:3px solid ${isUrgent?"#e05555":"var(--gold)"};">
+      <div style="font-size:14px;font-weight:700;margin-bottom:4px;">${h.title}${isUrgent?" 🚨":""}</div>
+      <div style="font-size:11px;color:var(--muted);margin-bottom:8px;">${s?s.emoji+" "+s.name:h.subject} · By ${h.by}${h.due?" · 📅 Due: <strong style='color:var(--gold);'>"+h.due+"</strong>":""}</div>
+      <div style="font-size:13px;color:var(--off);line-height:1.5;">${h.body}</div>
+    </div>`;
+  }).join("")+`</div>`;
+}
+function editHW(id){
+  const h=(DB.get("homework")||[]).find(x=>x.id===id); if(!h) return;
+  document.getElementById("editHWId").value=id;
+  document.getElementById("editHWTitle").value=h.title;
+  document.getElementById("editHWSubject").value=h.subject;
+  document.getElementById("editHWBody").value=h.body;
+  document.getElementById("editHWDue").value=h.due||"";
+  document.getElementById("editHWPriority").value=h.priority||"normal";
+  openModal("editHWModal");
+}
+function saveEditedHW(){
+  const id=document.getElementById("editHWId").value;
+  const title=document.getElementById("editHWTitle").value.trim();
+  const subject=document.getElementById("editHWSubject").value;
+  const body=document.getElementById("editHWBody").value.trim();
+  const due=document.getElementById("editHWDue").value;
+  const priority=document.getElementById("editHWPriority").value;
+  if(!title||!body){ showToast("❌ Title and description required"); return; }
+  const hw=DB.get("homework")||[],idx=hw.findIndex(h=>h.id===id); if(idx<0) return;
+  hw[idx]={...hw[idx],title,subject,body,due,priority};
+  DB.set("homework",hw); closeModal("editHWModal"); showToast("✅ Homework updated!"); renderAllHW(); renderHWView(); updateHWBadge();
+}
+async function deleteHW(id){ if(!await customConfirm("Delete this homework?","Delete Homework","📓","Delete")) return; DB.del("homework",id); renderAllHW(); updateHWBadge(); showToast("🗑️ Deleted"); }
+
+// ═══════════════════════════════════════════
+// COMPLAINTS
+// ═══════════════════════════════════════════
+function updateComplainParentInfo(){
+  const sel=document.getElementById("complainStudent");
+  const infoEl=document.getElementById("complainParentInfo");
+  if(!sel||!infoEl) return;
+  const sid=sel.value;
+  if(!sid){ infoEl.style.display="none"; return; }
+  const s=(DB.get("students")||[]).find(x=>x.id===sid);
+  if(s&&s.parentMobile){
+    infoEl.style.display="";
+    infoEl.innerHTML=`📱 Parent Mobile: <strong>${s.parentMobile}</strong> — WhatsApp message will be sent to this number`;
+  } else if(s){
+    infoEl.style.display="";
+    infoEl.innerHTML=`⚠️ No parent mobile on record for ${s.name}. <button class="btn btn-outline btn-sm" onclick="openEditParentMobile('${s.id}')">+ Add Mobile</button>`;
+    infoEl.style.color="#e8a020";
+    infoEl.style.borderColor="rgba(232,160,32,0.3)";
+    infoEl.style.background="rgba(232,160,32,0.07)";
+  } else { infoEl.style.display="none"; }
+}
+
+function postComplaint(){
+  const sid=document.getElementById("complainStudent").value;
+  const cat=document.getElementById("complainCategory").value;
+  const subj=document.getElementById("complainSubject").value;
+  const body=document.getElementById("complainBody").value.trim();
+  const sev=document.getElementById("complainSeverity").value;
+  if(!sid){ showToast("❌ Select a student"); return; }
+  if(!body){ showToast("❌ Enter complaint details"); return; }
+  const s=(DB.get("students")||[]).find(x=>x.id===sid);
+  if(!s){ showToast("❌ Student not found"); return; }
+  const complaint={
+    id:Date.now().toString(),
+    studentId:sid,studentName:s.name,studentRoll:s.roll,
+    category:cat,subject:subj,body,severity:sev,
+    by:currentUser.name,date:new Date().toLocaleDateString("en-IN"),
+    time:new Date().toLocaleTimeString("en-IN",{hour:"2-digit",minute:"2-digit"}),
+    status:"open"
+  };
+  DB.push("complaints",complaint);
+  document.getElementById("complainBody").value="";
+  document.getElementById("complainStudent").value="";
+  document.getElementById("complainParentInfo").style.display="none";
+  showToast("✅ Complaint logged!");
+  renderComplaintLog();
+}
+
+function sendComplaintWhatsApp(){
+  const sid=document.getElementById("complainStudent").value;
+  const cat=document.getElementById("complainCategory").value;
+  const subj=document.getElementById("complainSubject").value;
+  const body=document.getElementById("complainBody").value.trim();
+  const sev=document.getElementById("complainSeverity").value;
+  if(!sid){ showToast("❌ Select a student first"); return; }
+  if(!body){ showToast("❌ Enter complaint details"); return; }
+  const s=(DB.get("students")||[]).find(x=>x.id===sid);
+  if(!s){ showToast("❌ Student not found"); return; }
+  if(!s.parentMobile){ showToast("❌ No parent mobile for "+s.name); openEditParentMobile(sid); return; }
+  const sub=SUBJECTS.find(x=>x.id===subj);
+  const sevLabel=sev==="high"?"🔴 HIGH":sev==="medium"?"🟡 MEDIUM":"🟢 LOW";
+  const catLabel=cat.charAt(0).toUpperCase()+cat.slice(1);
+  const msg=`🏫 *USCD DAV Public School*\n📚 Class X — SBS\n━━━━━━━━━━━━━━━━\n⚠️ *COMPLAINT / DISCIPLINARY REPORT*\n━━━━━━━━━━━━━━━━\n\n👤 *Student:* ${s.name}\n🔢 *Roll No:* ${s.roll} | Adm: ${s.admNo}\n📅 *Date:* ${new Date().toLocaleDateString("en-IN")}\n\n📌 *Category:* ${catLabel}\n${sub?"📖 *Subject:* "+sub.name+"\n":""}🚦 *Severity:* ${sevLabel}\n\n📝 *Details:*\n${body}\n\n━━━━━━━━━━━━━━━━\nPlease ensure this matter is addressed promptly. You may contact the school for further information.\n\n_Reported by: ${currentUser.name}_\n_USCD DAV Public School_`;
+  window.open(`https://wa.me/91${s.parentMobile}?text=${encodeURIComponent(msg)}`,"_blank");
+}
+
+function renderComplaintLog(){
+  const el=document.getElementById("complaintLog"); if(!el) return;
+  const complaints=DB.get("complaints")||[];
+  const filterStu=document.getElementById("complainFilterStudent")?.value||"";
+  const filterCat=document.getElementById("complainFilterCat")?.value||"";
+  let filtered=complaints;
+  if(filterStu) filtered=filtered.filter(c=>c.studentId===filterStu);
+  if(filterCat) filtered=filtered.filter(c=>c.category===filterCat);
+  if(!filtered.length){ el.innerHTML=`<div class="empty-state"><div class="empty-icon">📋</div><div class="empty-text">No complaints logged yet</div></div>`; return; }
+  const sevColor={low:"#3dba7e",medium:"var(--gold)",high:"#e05555"};
+  const canDel=currentUser&&currentUser.role==="classteacher";
+  el.innerHTML=`<div style="display:grid;gap:10px;">`+filtered.map(c=>{
+    const s=(DB.get("students")||[]).find(x=>x.id===c.studentId);
+    const sevC=sevColor[c.severity]||"var(--muted)";
+    const statusBg=c.status==="resolved"?"rgba(61,186,126,0.12)":"rgba(224,85,85,0.08)";
+    const statusBorder=c.status==="resolved"?"rgba(61,186,126,0.25)":"rgba(224,85,85,0.2)";
+    return `<div style="background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.08);border-left:3px solid ${sevC};border-radius:10px;padding:13px 15px;">
+      <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:10px;flex-wrap:wrap;margin-bottom:8px;">
+        <div>
+          <div style="font-size:13px;font-weight:700;">${c.studentName} <span style="font-size:11px;color:var(--gold);">Roll ${c.studentRoll}</span></div>
+          <div style="font-size:11px;color:var(--muted);margin-top:2px;">📅 ${c.date} ${c.time?c.time:""} · By ${c.by}</div>
+        </div>
+        <div style="display:flex;gap:6px;align-items:center;flex-wrap:wrap;">
+          <span style="font-size:10px;padding:2px 8px;border-radius:6px;background:rgba(74,158,255,0.15);color:#4a9eff;">${c.category}</span>
+          <span style="font-size:10px;padding:2px 8px;border-radius:6px;background:${statusBg};border:1px solid ${statusBorder};color:${c.status==="resolved"?"#3dba7e":"#e05555"};">${c.status==="resolved"?"✅ Resolved":"🔴 Open"}</span>
+          <span style="font-size:10px;padding:2px 8px;border-radius:6px;background:rgba(0,0,0,0.2);color:${sevC};">${c.severity.toUpperCase()}</span>
+        </div>
+      </div>
+      <div style="font-size:12px;color:var(--off);line-height:1.5;margin-bottom:10px;">${c.body}</div>
+      <div style="display:flex;gap:6px;flex-wrap:wrap;">
+        ${s&&s.parentMobile?`<button class="btn btn-wa btn-sm" onclick="sendComplaintWAById('${c.id}')">📲 WhatsApp Parent</button>`:""}
+        ${currentUser.role==="classteacher"||c.by===currentUser.name?`<button class="btn btn-outline btn-sm" onclick="editComplaint('${c.id}')">✏️ Edit</button>`:""}
+        ${canDel||c.by===currentUser.name?`<button class="btn btn-danger btn-sm" onclick="deleteComplaint('${c.id}')">🗑️</button>`:""}
+      </div>
+    </div>`;
+  }).join("")+`</div>`;
+}
+
+function sendComplaintWAById(complaintId){
+  const c=(DB.get("complaints")||[]).find(x=>x.id===complaintId);
+  if(!c){ showToast("❌ Complaint not found"); return; }
+  const s=(DB.get("students")||[]).find(x=>x.id===c.studentId);
+  if(!s||!s.parentMobile){ showToast("❌ No parent mobile on record"); return; }
+  const sevLabel=c.severity==="high"?"🔴 HIGH":c.severity==="medium"?"🟡 MEDIUM":"🟢 LOW";
+  const sub=SUBJECTS.find(x=>x.id===c.subject);
+  const msg=`🏫 *USCD DAV Public School*\n📚 Class X — SBS\n━━━━━━━━━━━━━━━━\n⚠️ *COMPLAINT / DISCIPLINARY REPORT*\n━━━━━━━━━━━━━━━━\n\n👤 *Student:* ${c.studentName}\n🔢 *Roll No:* ${c.studentRoll} | Adm: ${s.admNo}\n📅 *Date:* ${c.date}\n\n📌 *Category:* ${c.category.charAt(0).toUpperCase()+c.category.slice(1)}\n${sub?"📖 *Subject:* "+sub.name+"\n":""}🚦 *Severity:* ${sevLabel}\n\n📝 *Details:*\n${c.body}\n\n━━━━━━━━━━━━━━━━\nPlease ensure this matter is addressed promptly.\n\n_Reported by: ${c.by}_\n_USCD DAV Public School_`;
+  window.open(`https://wa.me/91${s.parentMobile}?text=${encodeURIComponent(msg)}`,"_blank");
+}
+
+function editComplaint(id){
+  const c=(DB.get("complaints")||[]).find(x=>x.id===id); if(!c) return;
+  document.getElementById("editComplaintId").value=id;
+  document.getElementById("editComplaintBody").value=c.body||"";
+  document.getElementById("editComplaintCategory").value=c.category||"discipline";
+  document.getElementById("editComplaintSeverity").value=c.severity||"low";
+  document.getElementById("editComplaintStatus").value=c.status||"open";
+  openModal("editComplaintModal");
+}
+function saveEditedComplaint(){
+  const id=document.getElementById("editComplaintId").value;
+  const body=document.getElementById("editComplaintBody").value.trim();
+  const cat=document.getElementById("editComplaintCategory").value;
+  const sev=document.getElementById("editComplaintSeverity").value;
+  const status=document.getElementById("editComplaintStatus").value;
+  if(!body){ showToast("❌ Details required"); return; }
+  const complaints=DB.get("complaints")||[],idx=complaints.findIndex(c=>c.id===id); if(idx<0) return;
+  complaints[idx]={...complaints[idx],body,category:cat,severity:sev,status,editedOn:new Date().toLocaleDateString("en-IN")};
+  DB.set("complaints",complaints); closeModal("editComplaintModal"); showToast("✅ Complaint updated!"); renderComplaintLog();
+}
+async function deleteComplaint(id){ if(!await customConfirm("Delete this complaint record?","Delete Complaint","⚠️","Delete")) return; DB.del("complaints",id); renderComplaintLog(); showToast("🗑️ Deleted"); }
+
 // ═══════════════════════════════════════════
 // SEARCH
 // ═══════════════════════════════════════════
