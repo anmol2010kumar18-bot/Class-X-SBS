@@ -375,7 +375,7 @@ html,body{height:100%;font-family:"DM Sans",sans-serif;background:var(--navy);co
         </div>
       </div>
       <div class="form-group"><label class="form-label">Username / Roll No</label><input class="form-input" id="loginUser" placeholder="Enter username"></div>
-      <div class="form-group"><label class="form-label">Password</label><input class="form-input" type="password" id="loginPass" placeholder="Enter password"></div>
+      <div class="form-group"><label class="form-label">Password</label><div style="position:relative;"><input class="form-input" type="password" id="loginPass" placeholder="Enter password" style="padding-right:40px;"><button type="button" onclick="togglePassVis('loginPass','eyeLogin')" style="position:absolute;right:10px;top:50%;transform:translateY(-50%);background:none;border:none;cursor:pointer;font-size:16px;color:var(--muted);padding:4px;" id="eyeLogin">👁️</button></div></div>
       <button class="auth-btn" id="loginBtn" onclick="doLogin()">Sign In →</button>
       <div class="auth-switch">New student? <span onclick="switchAuthTab('register',null)">Create account</span></div>
     </div>
@@ -389,8 +389,8 @@ html,body{height:100%;font-family:"DM Sans",sans-serif;background:var(--navy);co
         <div class="form-group"><label class="form-label">Admission Number</label><input class="form-input" id="regAdm" placeholder="e.g. 6016"></div>
       </div>
       <div class="form-group"><label class="form-label">Parent Mobile (WhatsApp)</label><input class="form-input" id="regParentMobile" placeholder="e.g. 9876543210" type="tel" maxlength="15"></div>
-      <div class="form-group"><label class="form-label">Create Password</label><input class="form-input" type="password" id="regPass" placeholder="Min 6 characters"></div>
-      <div class="form-group"><label class="form-label">Confirm Password</label><input class="form-input" type="password" id="regPass2" placeholder="Re-enter password"></div>
+      <div class="form-group"><label class="form-label">Create Password</label><div style="position:relative;"><input class="form-input" type="password" id="regPass" placeholder="Min 6 characters" style="padding-right:40px;"><button type="button" onclick="togglePassVis('regPass','eyeReg1')" style="position:absolute;right:10px;top:50%;transform:translateY(-50%);background:none;border:none;cursor:pointer;font-size:16px;color:var(--muted);padding:4px;" id="eyeReg1">👁️</button></div></div>
+      <div class="form-group"><label class="form-label">Confirm Password</label><div style="position:relative;"><input class="form-input" type="password" id="regPass2" placeholder="Re-enter password" style="padding-right:40px;"><button type="button" onclick="togglePassVis('regPass2','eyeReg2')" style="position:absolute;right:10px;top:50%;transform:translateY(-50%);background:none;border:none;cursor:pointer;font-size:16px;color:var(--muted);padding:4px;" id="eyeReg2">👁️</button></div></div>
       <button class="auth-btn" onclick="doRegister()">Create Account →</button>
       <div class="auth-switch">Already have an account? <span onclick="switchAuthTab('login',null)">Sign in</span></div>
     </div>
@@ -434,7 +434,7 @@ html,body{height:100%;font-family:"DM Sans",sans-serif;background:var(--navy);co
     <button class="nav-btn perm-ct" data-page="manage_attendance" onclick="nav(this)" style="display:none;"><span class="nav-icon">📋</span><span class="nav-label sb-text">Mark Attendance</span></button>
     <button class="nav-btn perm-ct" data-page="manage_students" onclick="nav(this)" style="display:none;" id="studentsNavBtn"><span class="nav-icon">👥</span><span class="nav-label sb-text">Students</span><span class="nav-badge sb-text" id="ctNotifBadge" style="display:none;background:#e05555;">0</span></button>
     <button class="nav-btn perm-ct" data-page="student_info" onclick="nav(this)" style="display:none;"><span class="nav-icon">👨‍👩‍👧</span><span class="nav-label sb-text">Student Info</span></button>
-    <button class="nav-btn perm-hw" data-page="homework" onclick="nav(this)" style="display:none;"><span class="nav-icon">📓</span><span class="nav-label sb-text">Homework Manager</span><span class="nav-badge sb-text" id="hwBadge" style="display:none;">0</span></button>
+    <button class="nav-btn perm-hw" data-page="homework" onclick="nav(this)" style="display:none;"><span class="nav-icon">📓</span><span class="nav-label sb-text">Homework Mgr</span><span class="nav-badge sb-text" id="hwBadge" style="display:none;">0</span></button>
     <button class="nav-btn perm-complain" data-page="complain" onclick="nav(this)" style="display:none;"><span class="nav-icon">⚠️</span><span class="nav-label sb-text">Complaints</span></button>
     <div class="sb-footer">
       <button class="logout-btn" onclick="doLogout()">Sign Out</button>
@@ -505,22 +505,73 @@ html,body{height:100%;font-family:"DM Sans",sans-serif;background:var(--navy);co
 
       <!-- GALLERY -->
       <div class="page" id="page-gallery">
-        <div class="hero" style="padding:20px 26px;margin-bottom:18px;"><div class="hero-label">Memories</div><div class="hero-h" style="font-size:22px;">Class <span>Gallery</span></div></div>
+        <div class="hero" style="padding:20px 26px;margin-bottom:18px;"><div class="hero-label">Memories</div><div class="hero-h" style="font-size:22px;">Class <span>Gallery</span></div><div class="hero-sub">Photos, albums and useful links — all in one place.</div></div>
         <div class="card perm-upload" id="galleryUploadCard" style="display:none;">
-          <div class="card-title">📤 Add Album</div>
-          <div class="form-row-2">
-            <div class="form-group"><label class="form-label">Album Title</label><input class="form-input" id="albumTitle" placeholder="e.g. Science Fair"></div>
-            <div class="form-group"><label class="form-label">Date</label><input class="form-input" type="date" id="albumDate"></div>
+          <div class="card-title">📤 Add Album / Link</div>
+          <!-- Tabs -->
+          <div style="display:flex;gap:6px;margin-bottom:16px;">
+            <button id="galTabPhotos" class="btn btn-gold btn-sm" onclick="switchGalTab('photos')" style="flex:1;">🖼️ Photo Album</button>
+            <button id="galTabLink" class="btn btn-outline btn-sm" onclick="switchGalTab('link')" style="flex:1;">🔗 Add Link</button>
           </div>
-          <div class="upload-zone" onclick="document.getElementById('galImgInput').click()">
-            <input type="file" id="galImgInput" accept="image/*" multiple style="display:none;" onchange="previewGal(this)">
-            <div class="uz-icon">🖼️</div><div class="uz-text"><span>Click to select images</span></div>
-            <div class="uz-preview" id="galPreview"></div>
+          <!-- Photo Album Tab -->
+          <div id="galPanelPhotos">
+            <div class="form-row-2">
+              <div class="form-group"><label class="form-label">Album Title</label><input class="form-input" id="albumTitle" placeholder="e.g. Science Fair"></div>
+              <div class="form-group"><label class="form-label">Date</label><input class="form-input" type="date" id="albumDate"></div>
+            </div>
+            <div class="form-group"><label class="form-label">Description (optional)</label><input class="form-input" id="albumDesc" placeholder="Short note about this album..."></div>
+            <div class="upload-zone" id="galDropZone" onclick="document.getElementById('galImgInput').click()" ondragover="event.preventDefault();this.style.borderColor='var(--gold)'" ondragleave="this.style.borderColor=''" ondrop="handleGalDrop(event)">
+              <input type="file" id="galImgInput" accept="image/*" multiple style="display:none;" onchange="previewGal(this)">
+              <div class="uz-icon">🖼️</div>
+              <div class="uz-text"><span>Click or drag &amp; drop images</span><br><small style="color:var(--muted);font-size:11px;">Select multiple images at once — no limit</small></div>
+            </div>
+            <!-- Thumbnail previews -->
+            <div id="galThumbGrid" style="display:none;margin-top:10px;display:none;">
+              <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px;">
+                <div id="galImgCount" style="font-size:12px;color:var(--gold);font-weight:600;"></div>
+                <button class="btn btn-outline btn-sm" onclick="clearGalImages()">✕ Clear</button>
+              </div>
+              <div id="galThumbRow" style="display:flex;flex-wrap:wrap;gap:7px;"></div>
+            </div>
+            <button class="btn btn-gold" style="margin-top:14px;width:100%;" onclick="addAlbum()">📸 Add Photo Album</button>
           </div>
-          <button class="btn btn-gold" onclick="addAlbum()">📸 Add Album</button>
+          <!-- Link Tab -->
+          <div id="galPanelLink" style="display:none;">
+            <div class="form-group"><label class="form-label">Link Title</label><input class="form-input" id="linkTitle" placeholder="e.g. Class Facebook Group"></div>
+            <div class="form-group"><label class="form-label">URL</label><input class="form-input" id="linkUrl" type="url" placeholder="https://facebook.com/groups/..."></div>
+            <div class="form-group"><label class="form-label">Platform / Category</label>
+              <select class="form-select" id="linkPlatform">
+                <option value="facebook">📘 Facebook</option>
+                <option value="instagram">📸 Instagram</option>
+                <option value="youtube">▶️ YouTube</option>
+                <option value="whatsapp">💬 WhatsApp Group</option>
+                <option value="telegram">✈️ Telegram</option>
+                <option value="drive">📁 Google Drive</option>
+                <option value="website">🌐 Website</option>
+                <option value="other">🔗 Other</option>
+              </select>
+            </div>
+            <div class="form-group"><label class="form-label">Description (optional)</label><input class="form-input" id="linkDesc" placeholder="What's this link for?"></div>
+            <button class="btn btn-gold" style="width:100%;" onclick="addGalLink()">🔗 Add Link</button>
+          </div>
+        </div>
+        <!-- Filter tabs -->
+        <div style="display:flex;gap:7px;margin-bottom:12px;flex-wrap:wrap;" id="galFilterBar">
+          <button class="btn btn-sm galFilter active" data-filter="all" onclick="setGalFilter('all',this)" style="background:rgba(232,160,32,0.2);color:var(--gold);border:1px solid rgba(232,160,32,0.35);">All</button>
+          <button class="btn btn-sm galFilter" data-filter="album" onclick="setGalFilter('album',this)" style="background:rgba(255,255,255,0.05);color:var(--muted);border:1px solid rgba(255,255,255,0.1);">🖼️ Albums</button>
+          <button class="btn btn-sm galFilter" data-filter="link" onclick="setGalFilter('link',this)" style="background:rgba(255,255,255,0.05);color:var(--muted);border:1px solid rgba(255,255,255,0.1);">🔗 Links</button>
         </div>
         <div id="galleryGrid" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(155px,1fr));gap:11px;margin-top:6px;"></div>
-        <div class="empty-state" id="galleryEmpty" style="display:none;"><div class="empty-icon">🖼️</div><div class="empty-text">No albums yet</div></div>
+        <div class="empty-state" id="galleryEmpty" style="display:none;"><div class="empty-icon">🖼️</div><div class="empty-text">No albums or links yet</div></div>
+      </div>
+
+      <!-- LIGHTBOX -->
+      <div id="galLightbox" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.93);z-index:9999;flex-direction:column;align-items:center;justify-content:center;" onclick="closeLightbox()">
+        <button style="position:absolute;top:16px;right:18px;background:rgba(255,255,255,0.12);border:none;color:#fff;font-size:22px;width:40px;height:40px;border-radius:50%;cursor:pointer;" onclick="closeLightbox()">✕</button>
+        <button id="lbPrev" style="position:absolute;left:14px;top:50%;transform:translateY(-50%);background:rgba(255,255,255,0.12);border:none;color:#fff;font-size:22px;width:44px;height:44px;border-radius:50%;cursor:pointer;" onclick="event.stopPropagation();lbNav(-1)">‹</button>
+        <button id="lbNext" style="position:absolute;right:14px;top:50%;transform:translateY(-50%);background:rgba(255,255,255,0.12);border:none;color:#fff;font-size:22px;width:44px;height:44px;border-radius:50%;cursor:pointer;" onclick="event.stopPropagation();lbNav(1)">›</button>
+        <img id="lbImg" src="" style="max-width:92vw;max-height:80vh;border-radius:8px;object-fit:contain;" onclick="event.stopPropagation()">
+        <div id="lbCaption" style="margin-top:12px;color:rgba(255,255,255,0.6);font-size:13px;"></div>
       </div>
 
       <!-- TIMETABLE -->
@@ -554,7 +605,7 @@ html,body{height:100%;font-family:"DM Sans",sans-serif;background:var(--navy);co
             </div>
           </div>
         </div>
-        <div id="hwViewList"></div>
+        <div id="hwViewList" style="padding-bottom:32px;min-height:40px;"></div>
       </div>
 
       <!-- UPLOAD -->
@@ -1067,8 +1118,14 @@ function initFirebase(){
           if(Array.isArray(remote[k])){
             const cr=DB._applyTombs(k,remote[k]);
             if(!Array.isArray(local)||local.length===0){ _memCache[k]=cr; }
-            else { const lids=new Set(local.map(x=>x&&x.id).filter(Boolean)),merged=[...local];let added=false; cr.forEach(item=>{ if(item&&item.id&&!lids.has(item.id)){ merged.push(item);added=true; } }); _memCache[k]=merged; if(added) wb[k]=merged; if(Array.isArray(local)&&local.length<remote[k].length) wb[k]=_memCache[k]; }
-          } else { if(local===null||local===undefined) _memCache[k]=remote[k]; }
+            else {
+              // Merge: update existing items AND add new ones
+              const lmap={}; local.forEach(x=>{ if(x&&x.id) lmap[x.id]=x; });
+              cr.forEach(item=>{ if(item&&item.id){ lmap[item.id]=Object.assign({},lmap[item.id]||{},item); } });
+              const merged=Object.values(lmap);
+              _memCache[k]=merged; wb[k]=merged;
+            }
+          } else { if(local===null||local===undefined) _memCache[k]=remote[k]; else if(JSON.stringify(local)!==JSON.stringify(remote[k])){ _memCache[k]=remote[k]; } }
         });
         Object.keys(wb).forEach(k=>{ _db.ref("davx/"+k).set(wb[k]).catch(e=>{}); });
       } else if(Object.keys(_memCache).length>0){ Object.keys(_memCache).forEach(k=>{ if(_memCache[k]!=null) _db.ref("davx/"+k).set(_memCache[k]).catch(e=>{}); }); }
@@ -1100,11 +1157,28 @@ function setupFirebaseListeners(){
       if(Array.isArray(remote[k])){
         const cr=DB._applyTombs(k,remote[k]);
         if(!Array.isArray(local)||local.length===0){ _memCache[k]=cr; }
-        else { const lids=new Set(local.map(x=>x&&x.id).filter(Boolean));let added=false; cr.forEach(item=>{ if(item&&item.id&&!lids.has(item.id)){ local.push(item);added=true; } }); if(added){ _memCache[k]=[...local];wb[k]=_memCache[k]; } if(local.length<cr.length) wb[k]=local; }
+        else {
+          // Merge: update existing items AND add new ones
+          const lmap={}; local.forEach(x=>{ if(x&&x.id) lmap[x.id]=x; });
+          let changed=false;
+          cr.forEach(item=>{
+            if(item&&item.id){
+              const existing=lmap[item.id];
+              const merged=Object.assign({},existing||{},item);
+              if(!existing||JSON.stringify(existing)!==JSON.stringify(merged)){ lmap[item.id]=merged; changed=true; }
+            }
+          });
+          if(changed){ _memCache[k]=Object.values(lmap); wb[k]=_memCache[k]; }
+        }
       } else if(local===null||local===undefined){ _memCache[k]=remote[k]; }
     });
     Object.keys(wb).forEach(k=>{ _db.ref("davx/"+k).set(wb[k]).catch(e=>{}); });
-    if(Object.keys(wb).length>0&&currentUser){ try{renderDashboard();}catch(e){} try{updateCTNotifBadge();}catch(e){} }
+    if(Object.keys(wb).length>0&&currentUser){
+      try{renderDashboard();}catch(e){}
+      try{updateCTNotifBadge();}catch(e){}
+      // Refresh student-related views if students data changed
+      if(wb.students){ try{renderStudentInfoTable();}catch(e){} try{renderStudentsList();}catch(e){} try{populateComplainSelects();}catch(e){} }
+    }
   });
 }
 
@@ -1359,6 +1433,7 @@ function updateHWBadge(){
 // ═══════════════════════════════════════════
 function openModal(id){ document.getElementById(id).classList.add("open"); }
 function closeModal(id){ document.getElementById(id).classList.remove("open"); }
+function togglePassVis(inputId,btnId){ const inp=document.getElementById(inputId),btn=document.getElementById(btnId); if(!inp) return; const show=inp.type==="password"; inp.type=show?"text":"password"; if(btn) btn.textContent=show?"🙈":"👁️"; }
 document.querySelectorAll(".modal-overlay").forEach(m=>{ m.addEventListener("click",function(e){ if(e.target===this) closeModal(this.id); }); });
 
 // ═══════════════════════════════════════════
@@ -1830,13 +1905,193 @@ function toggleResultSummary(id){
 async function delResult(id){ if(!await customConfirm("This result will be permanently removed.","Delete Result","📊","Delete")) return; DB.del("results",id); renderEnteredResults(); renderResults(); renderDashboard(); showToast("🗑️ Result deleted"); }
 
 // ═══════════════════════════════════════════
+// ═══════════════════════════════════════════
 // GALLERY
 // ═══════════════════════════════════════════
-let galFiles=[];
-function previewGal(input){ galFiles=Array.from(input.files); const el=document.getElementById("galPreview"); if(galFiles.length){ el.style.display="block"; el.textContent="🖼️ "+galFiles.length+" image"+(galFiles.length>1?"s":"")+" selected"; } }
-function addAlbum(){ const title=document.getElementById("albumTitle").value.trim(),date=document.getElementById("albumDate").value; if(!title){ showToast("❌ Enter album title"); return; } const save=(imgs)=>{ DB.push("gallery",{id:Date.now().toString(),title,date:date||new Date().toLocaleDateString("en-IN"),by:currentUser.name,images:imgs}); document.getElementById("albumTitle").value=""; document.getElementById("albumDate").value=""; document.getElementById("galPreview").style.display="none"; document.getElementById("galImgInput").value=""; galFiles=[]; showToast("📸 Album added!"); renderGallery(); }; if(!galFiles.length){ save([]); return; } const imgs=[]; let done=0; galFiles.forEach(file=>{ const r=new FileReader(); r.onload=e=>{ imgs.push(e.target.result); if(++done===galFiles.length) save(imgs); }; r.readAsDataURL(file); }); }
-function renderGallery(){ const albums=DB.get("gallery")||[],grid=document.getElementById("galleryGrid"),empty=document.getElementById("galleryEmpty"),canAdd=currentUser&&["teacher","classteacher","monitor"].includes(currentUser.role),uc=document.getElementById("galleryUploadCard"); if(uc) uc.style.display=canAdd?"":"none"; if(!grid) return; if(!albums.length){ grid.innerHTML=""; if(empty) empty.style.display=""; return; } if(empty) empty.style.display="none"; const canDel=currentUser&&["classteacher","monitor","teacher"].includes(currentUser.role); grid.innerHTML=albums.map(a=>{ const thumb=a.images&&a.images[0]?`<img src="${a.images[0]}" style="width:100%;height:105px;object-fit:cover;">`:`<div style="height:105px;display:flex;align-items:center;justify-content:center;font-size:32px;background:rgba(232,160,32,.07);">🖼️</div>`; return `<div style="border-radius:10px;overflow:hidden;border:1px solid var(--border);transition:all .2s;cursor:pointer;" onmouseover="this.style.transform='scale(1.02)'" onmouseout="this.style.transform=''">${thumb}<div style="padding:8px 10px;background:rgba(255,255,255,.03);"><div style="font-size:12px;font-weight:600;">${a.title}</div><div style="font-size:10px;color:var(--muted);">${(a.images||[]).length} photos · ${a.date}</div>${canDel?`<button class="btn btn-danger btn-sm" style="margin-top:5px;" onclick="delAlbum('${a.id}')">🗑️</button>`:""}</div></div>`; }).join(""); }
-async function delAlbum(id){ if(!await customConfirm("Delete this album?","Delete Album","🖼️","Delete")) return; DB.del("gallery",id); renderGallery(); showToast("🗑️ Album deleted"); }
+let galFiles=[],_galFilter="all";
+
+function switchGalTab(tab){
+  document.getElementById("galPanelPhotos").style.display=tab==="photos"?"":"none";
+  document.getElementById("galPanelLink").style.display=tab==="link"?"":"none";
+  document.getElementById("galTabPhotos").className=tab==="photos"?"btn btn-gold btn-sm":"btn btn-outline btn-sm";
+  document.getElementById("galTabLink").className=tab==="link"?"btn btn-gold btn-sm":"btn btn-outline btn-sm";
+}
+
+function setGalFilter(filter,btn){
+  _galFilter=filter;
+  document.querySelectorAll(".galFilter").forEach(b=>{
+    b.style.background="rgba(255,255,255,0.05)"; b.style.color="var(--muted)"; b.style.borderColor="rgba(255,255,255,0.1)";
+  });
+  btn.style.background="rgba(232,160,32,0.2)"; btn.style.color="var(--gold)"; btn.style.borderColor="rgba(232,160,32,0.35)";
+  renderGallery();
+}
+
+function handleGalDrop(e){
+  e.preventDefault();
+  document.getElementById("galDropZone").style.borderColor="";
+  const files=Array.from(e.dataTransfer.files).filter(f=>f.type.startsWith("image/"));
+  if(!files.length){ showToast("❌ Please drop image files only"); return; }
+  galFiles=[...galFiles,...files];
+  renderGalThumbs();
+}
+
+function previewGal(input){
+  galFiles=[...galFiles,...Array.from(input.files)];
+  input.value="";
+  renderGalThumbs();
+}
+
+function renderGalThumbs(){
+  const grid=document.getElementById("galThumbGrid"),row=document.getElementById("galThumbRow"),cnt=document.getElementById("galImgCount");
+  if(!galFiles.length){ grid.style.display="none"; return; }
+  grid.style.display="";
+  cnt.textContent=`🖼️ ${galFiles.length} image${galFiles.length!==1?"s":""} selected`;
+  row.innerHTML="";
+  galFiles.forEach((file,i)=>{
+    const url=URL.createObjectURL(file);
+    const div=document.createElement("div");
+    div.style.cssText="position:relative;width:70px;height:70px;border-radius:8px;overflow:hidden;border:1px solid rgba(255,255,255,0.15);flex-shrink:0;";
+    div.innerHTML=`<img src="${url}" style="width:100%;height:100%;object-fit:cover;"><button onclick="removeGalFile(${i})" style="position:absolute;top:2px;right:2px;background:rgba(0,0,0,0.7);border:none;color:#fff;border-radius:50%;width:18px;height:18px;font-size:10px;cursor:pointer;display:flex;align-items:center;justify-content:center;padding:0;">✕</button>`;
+    row.appendChild(div);
+  });
+}
+
+function removeGalFile(idx){
+  galFiles.splice(idx,1);
+  renderGalThumbs();
+}
+
+function clearGalImages(){
+  galFiles=[];
+  renderGalThumbs();
+}
+
+function addAlbum(){
+  const title=document.getElementById("albumTitle").value.trim();
+  const date=document.getElementById("albumDate").value;
+  const desc=document.getElementById("albumDesc").value.trim();
+  if(!title){ showToast("❌ Enter album title"); return; }
+  const save=(imgs)=>{
+    DB.push("gallery",{id:Date.now().toString(),type:"album",title,desc,date:date||new Date().toLocaleDateString("en-IN"),by:currentUser.name,images:imgs});
+    document.getElementById("albumTitle").value="";
+    document.getElementById("albumDate").value="";
+    document.getElementById("albumDesc").value="";
+    galFiles=[];
+    renderGalThumbs();
+    showToast(`📸 Album added! (${imgs.length} image${imgs.length!==1?"s":""})`);
+    renderGallery();
+  };
+  if(!galFiles.length){ save([]); return; }
+  showToast("⏳ Processing images...");
+  const imgs=[]; let done=0;
+  galFiles.forEach(file=>{
+    const r=new FileReader();
+    r.onload=e=>{ imgs.push(e.target.result); if(++done===galFiles.length) save(imgs); };
+    r.readAsDataURL(file);
+  });
+}
+
+function addGalLink(){
+  const title=document.getElementById("linkTitle").value.trim();
+  const url=document.getElementById("linkUrl").value.trim();
+  const platform=document.getElementById("linkPlatform").value;
+  const desc=document.getElementById("linkDesc").value.trim();
+  if(!title){ showToast("❌ Enter a title"); return; }
+  if(!url){ showToast("❌ Enter a URL"); return; }
+  if(!/^https?:\/\//i.test(url)){ showToast("❌ URL must start with http:// or https://"); return; }
+  DB.push("gallery",{id:Date.now().toString(),type:"link",title,url,platform,desc,date:new Date().toLocaleDateString("en-IN"),by:currentUser.name});
+  ["linkTitle","linkUrl","linkDesc"].forEach(id=>{ const el=document.getElementById(id); if(el) el.value=""; });
+  showToast("🔗 Link added!");
+  renderGallery();
+}
+
+const PLATFORM_META={
+  facebook:{emoji:"📘",color:"#1877f2",label:"Facebook"},
+  instagram:{emoji:"📸",color:"#e1306c",label:"Instagram"},
+  youtube:{emoji:"▶️",color:"#ff0000",label:"YouTube"},
+  whatsapp:{emoji:"💬",color:"#25d366",label:"WhatsApp"},
+  telegram:{emoji:"✈️",color:"#0088cc",label:"Telegram"},
+  drive:{emoji:"📁",color:"#4285f4",label:"Google Drive"},
+  website:{emoji:"🌐",color:"var(--gold)",label:"Website"},
+  other:{emoji:"🔗",color:"var(--muted)",label:"Link"},
+};
+
+function renderGallery(){
+  const albums=DB.get("gallery")||[];
+  const grid=document.getElementById("galleryGrid"),empty=document.getElementById("galleryEmpty");
+  const canAdd=currentUser&&["teacher","classteacher","monitor"].includes(currentUser.role);
+  const uc=document.getElementById("galleryUploadCard"); if(uc) uc.style.display=canAdd?"":"none";
+  const fb=document.getElementById("galFilterBar"); if(fb) fb.style.display=albums.length?"":"none";
+  if(!grid) return;
+  const filtered=_galFilter==="all"?albums:albums.filter(a=>(a.type||"album")===_galFilter);
+  if(!filtered.length){ grid.innerHTML=""; if(empty) empty.style.display=""; return; }
+  if(empty) empty.style.display="none";
+  const canDel=currentUser&&["classteacher","monitor","teacher"].includes(currentUser.role);
+  grid.innerHTML=filtered.map(a=>{
+    if((a.type||"album")==="link"){
+      const pm=PLATFORM_META[a.platform]||PLATFORM_META.other;
+      return `<div style="border-radius:12px;overflow:hidden;border:1px solid rgba(255,255,255,0.09);background:rgba(255,255,255,0.03);transition:all .2s;display:flex;flex-direction:column;" onmouseover="this.style.transform='translateY(-2px)';this.style.borderColor='${pm.color}44'" onmouseout="this.style.transform='';this.style.borderColor='rgba(255,255,255,0.09)'">
+        <div style="height:85px;display:flex;align-items:center;justify-content:center;font-size:38px;background:${pm.color}18;border-bottom:1px solid ${pm.color}22;cursor:pointer;" onclick="window.open('${a.url}','_blank')">${pm.emoji}</div>
+        <div style="padding:9px 10px;flex:1;display:flex;flex-direction:column;gap:4px;">
+          <div style="font-size:12px;font-weight:700;line-height:1.3;cursor:pointer;" onclick="window.open('${a.url}','_blank')" title="${a.url}">${a.title}</div>
+          <div style="font-size:10px;padding:1px 7px;border-radius:6px;background:${pm.color}20;color:${pm.color};width:fit-content;">${pm.label}</div>
+          ${a.desc?`<div style="font-size:10px;color:var(--muted);line-height:1.4;">${a.desc}</div>`:""}
+          <div style="font-size:10px;color:var(--muted);margin-top:auto;">${a.date}</div>
+          <div style="display:flex;gap:5px;margin-top:5px;flex-wrap:wrap;">
+            <button class="btn btn-sm" style="flex:1;font-size:10px;background:${pm.color}20;color:${pm.color};border:1px solid ${pm.color}40;" onclick="window.open('${a.url}','_blank')">🔗 Open</button>
+            ${canDel?`<button class="btn btn-danger btn-sm" style="font-size:10px;" onclick="delAlbum('${a.id}')">🗑️</button>`:""}
+          </div>
+        </div>
+      </div>`;
+    }
+    // Photo album
+    const imgCount=(a.images||[]).length;
+    const thumb=imgCount?`<img src="${a.images[0]}" style="width:100%;height:105px;object-fit:cover;">`:`<div style="height:105px;display:flex;align-items:center;justify-content:center;font-size:32px;background:rgba(232,160,32,.07);">🖼️</div>`;
+    const countBadge=imgCount>1?`<div style="position:absolute;top:6px;right:6px;background:rgba(0,0,0,0.65);color:#fff;font-size:10px;padding:2px 7px;border-radius:8px;">+${imgCount} pics</div>`:"";
+    return `<div style="border-radius:12px;overflow:hidden;border:1px solid rgba(255,255,255,0.09);transition:all .2s;cursor:pointer;background:rgba(255,255,255,0.02);position:relative;" onmouseover="this.style.transform='translateY(-2px)';this.style.borderColor='rgba(232,160,32,0.3)'" onmouseout="this.style.transform='';this.style.borderColor='rgba(255,255,255,0.09)'" onclick="openAlbum('${a.id}')">
+      <div style="position:relative;">${thumb}${countBadge}</div>
+      <div style="padding:9px 10px;background:rgba(255,255,255,.03);">
+        <div style="font-size:12px;font-weight:700;">${a.title}</div>
+        ${a.desc?`<div style="font-size:10px;color:var(--muted);margin-top:2px;">${a.desc}</div>`:""}
+        <div style="font-size:10px;color:var(--muted);margin-top:3px;">${imgCount} photo${imgCount!==1?"s":""} · ${a.date}</div>
+        ${canDel?`<button class="btn btn-danger btn-sm" style="margin-top:6px;font-size:10px;" onclick="event.stopPropagation();delAlbum('${a.id}')">🗑️</button>`:""}
+      </div>
+    </div>`;
+  }).join("");
+}
+
+async function delAlbum(id){ if(!await customConfirm("Delete this item?","Delete","🖼️","Delete")) return; DB.del("gallery",id); renderGallery(); showToast("🗑️ Deleted"); }
+
+// ── LIGHTBOX ──
+let _lbAlbum=[],_lbIdx=0;
+function openAlbum(albumId){
+  const a=(DB.get("gallery")||[]).find(x=>x.id===albumId);
+  if(!a) return;
+  const imgs=a.images||[];
+  if(!imgs.length){ showToast("ℹ️ This album has no images"); return; }
+  _lbAlbum=imgs; _lbIdx=0;
+  showLightbox(a.title);
+}
+function showLightbox(title){
+  const lb=document.getElementById("galLightbox");
+  document.getElementById("lbImg").src=_lbAlbum[_lbIdx];
+  document.getElementById("lbCaption").textContent=`${title||""} · ${_lbIdx+1} / ${_lbAlbum.length}`;
+  document.getElementById("lbPrev").style.display=_lbAlbum.length>1?"":"none";
+  document.getElementById("lbNext").style.display=_lbAlbum.length>1?"":"none";
+  lb.style.display="flex";
+  document.body.style.overflow="hidden";
+  lb._title=title;
+}
+function lbNav(dir){
+  _lbIdx=(_lbIdx+dir+_lbAlbum.length)%_lbAlbum.length;
+  document.getElementById("lbImg").src=_lbAlbum[_lbIdx];
+  document.getElementById("lbCaption").textContent=`${document.getElementById("galLightbox")._title||""} · ${_lbIdx+1} / ${_lbAlbum.length}`;
+}
+function closeLightbox(){
+  document.getElementById("galLightbox").style.display="none";
+  document.body.style.overflow="";
+}
+document.addEventListener("keydown",e=>{ if(document.getElementById("galLightbox").style.display==="flex"){ if(e.key==="ArrowRight") lbNav(1); else if(e.key==="ArrowLeft") lbNav(-1); else if(e.key==="Escape") closeLightbox(); } });
 
 // ═══════════════════════════════════════════
 // STUDENTS
@@ -2015,28 +2270,55 @@ function buildWeeklyReport(student, weekDates){
   const recordedDays=attLines.length;
   const attPct=recordedDays>0?Math.round(present/recordedDays*100):null;
 
-  // Results this week
+  // Results this week — detailed with marks
   const weekResults=results.filter(r=>r.studentMarks&&weekDates.includes(r.date)&&r.studentMarks.find(m=>m.studentId===student.id));
   const resLines=weekResults.map(r=>{
     const sub=SUBJECTS.find(x=>x.id===r.subject);
     const m=r.studentMarks.find(x=>x.studentId===student.id);
+    const subName=sub?sub.name:r.subject;
     if(m&&!m.absent){
       const pct=Math.round(m.marks/r.max*100);
       const grade=pct>=90?"A+":pct>=80?"A":pct>=70?"B+":pct>=60?"B":pct>=50?"C":"D";
       const perf=pct>=75?"👍 Good":pct>=50?"👌 Average":"⚠️ Needs Improvement";
-      return `  📝 ${sub?sub.name:r.subject}\n     Test: ${r.test}\n     Marks: ${m.marks}/${r.max} (${pct}%) — Grade: ${grade} ${perf}`;
+      const bar="█".repeat(Math.round(pct/10))+"░".repeat(10-Math.round(pct/10));
+      const classAvg=r.avg?` | Class Avg: ${r.avg}/${r.max}`:"";
+      const highest=r.highest?` | Top: ${r.highest}`:"";
+      return `  📘 *${subName}*\n`+
+             `  Test: ${r.test}  |  Date: ${r.date}\n`+
+             `  ┌─────────────────────────┐\n`+
+             `  │  Marks : *${m.marks} / ${r.max}*\n`+
+             `  │  Score : *${pct}%*  Grade: *${grade}*\n`+
+             `  │  ${bar} ${pct}%\n`+
+             `  │  Result: ${perf}\n`+
+             `  │${classAvg}${highest}\n`+
+             `  └─────────────────────────┘`;
     } else {
-      return `  📝 ${sub?sub.name:r.subject} — ${r.test}: ❌ Absent`;
+      return `  📘 *${subName}*\n`+
+             `  Test: ${r.test}  |  Date: ${r.date}\n`+
+             `  ┌─────────────────────────┐\n`+
+             `  │  Status: ❌ *Absent*\n`+
+             `  │  Marks not recorded\n`+
+             `  └─────────────────────────┘`;
     }
   });
 
-  // Copy sessions this week
-  const copyLines=copySessions.filter(cs=>weekDates.includes(cs.date)).map(cs=>{
+  // Copy sessions this week — detailed
+  const weekCopySessions=copySessions.filter(cs=>weekDates.includes(cs.date));
+  const copyLines=weekCopySessions.map(cs=>{
     const st=cs.status&&cs.status[student.id];
     const ico=st==="submitted"?"✅":st==="not_submitted"?"❌":st==="absent"?"🏖️":"❓";
-    const label=st==="submitted"?"Submitted":st==="not_submitted"?"Not Submitted":st==="absent"?"Absent":"Not Recorded";
-    return `  📋 ${cs.subject} (${cs.date}): ${ico} ${label}`;
+    const label=st==="submitted"?"Submitted — Copy checked ✔":
+                st==="not_submitted"?"*Not Submitted* — Please submit immediately":
+                st==="absent"?"Absent on this day":"Not yet recorded";
+    const d=new Date(cs.date),dayName=dayNames[d.getDay()];
+    return `  ${ico} *${cs.subject}*\n`+
+           `     Date: ${dayName}, ${cs.date}\n`+
+           `     Status: ${label}${cs.note?"\n     Note: "+cs.note:""}`;
   });
+
+  // Summary counts for copy
+  const copySubmitted=weekCopySessions.filter(cs=>cs.status&&cs.status[student.id]==="submitted").length;
+  const copyNotSub=weekCopySessions.filter(cs=>cs.status&&cs.status[student.id]==="not_submitted").length;
 
   const weekStart=weekDates[0],weekEnd=weekDates[weekDates.length-1];
 
@@ -2055,10 +2337,10 @@ function buildWeeklyReport(student, weekDates){
   if(attLines.length){
     msg+=attLines.join("\n")+"\n\n";
     msg+=`📈 *Summary:*\n`;
-    msg+=`  ✅ Present: ${present} day${present!==1?"s":""}\n`;
-    if(absent) msg+=`  ❌ Absent:  ${absent} day${absent!==1?"s":""}\n`;
-    if(holiday) msg+=`  🏖️ Holiday: ${holiday} day${holiday!==1?"s":""}\n`;
-    if(attPct!==null) msg+=`  📊 Rate:    *${attPct}%* ${attPct>=75?"✅ Good":attPct>=60?"⚠️ Needs Improvement":"🔴 Low — Please Improve"}\n`;
+    msg+=`  ✅ Present : ${present} day${present!==1?"s":""}\n`;
+    if(absent) msg+=`  ❌ Absent  : ${absent} day${absent!==1?"s":""}\n`;
+    if(holiday) msg+=`  🏖️ Holiday : ${holiday} day${holiday!==1?"s":""}\n`;
+    if(attPct!==null) msg+=`  📊 Rate    : *${attPct}%* ${attPct>=75?"✅ Good":attPct>=60?"⚠️ Needs Improvement":"🔴 Low — Please Improve"}\n`;
   } else {
     msg+=`  ℹ️ No attendance recorded this week.\n`;
   }
@@ -2068,13 +2350,27 @@ function buildWeeklyReport(student, weekDates){
     msg+=`📝 *TEST RESULTS THIS WEEK*\n`;
     msg+=`━━━━━━━━━━━━━━━━━━━━\n`;
     msg+=resLines.join("\n\n")+"\n";
+  } else {
+    msg+=`\n━━━━━━━━━━━━━━━━━━━━\n`;
+    msg+=`📝 *TEST RESULTS THIS WEEK*\n`;
+    msg+=`━━━━━━━━━━━━━━━━━━━━\n`;
+    msg+=`  ℹ️ No tests conducted this week.\n`;
   }
 
   if(copyLines.length){
     msg+=`\n━━━━━━━━━━━━━━━━━━━━\n`;
-    msg+=`📋 *COPY / HOMEWORK STATUS*\n`;
+    msg+=`📋 *COPY CHECKING STATUS*\n`;
     msg+=`━━━━━━━━━━━━━━━━━━━━\n`;
-    msg+=copyLines.join("\n")+"\n";
+    msg+=copyLines.join("\n\n")+"\n\n";
+    msg+=`  📊 Summary: ✅ ${copySubmitted} Submitted`;
+    if(copyNotSub) msg+=` | ❌ ${copyNotSub} Not Submitted`;
+    msg+=`\n`;
+    if(copyNotSub>0) msg+=`  ⚠️ *Please ensure pending copies are submitted!*\n`;
+  } else {
+    msg+=`\n━━━━━━━━━━━━━━━━━━━━\n`;
+    msg+=`📋 *COPY CHECKING STATUS*\n`;
+    msg+=`━━━━━━━━━━━━━━━━━━━━\n`;
+    msg+=`  ℹ️ No copy checking done this week.\n`;
   }
 
   msg+=`\n━━━━━━━━━━━━━━━━━━━━\n`;
@@ -2167,7 +2463,7 @@ function setCopyStatus(sid,status){ pendingCopyStatus[sid]=status; const session
 function markAllCopy(status){ const students=DB.get("students")||[]; students.forEach(s=>{ pendingCopyStatus[s.id]=status; }); const sessions=DB.get("copySessions")||[],session=sessions.find(s=>s.id===currentCopySessionId); if(session) renderCopyStudentGrid(session); showToast(status==="submitted"?"✓ All Submitted":status==="not_submitted"?"✗ All Not Submitted":"🏖️ All Absent"); }
 function updateCopyStats(){ const students=DB.get("students")||[],total=students.length,submitted=Object.values(pendingCopyStatus).filter(v=>v==="submitted").length,notSub=Object.values(pendingCopyStatus).filter(v=>v==="not_submitted").length,absent=Object.values(pendingCopyStatus).filter(v=>v==="absent").length; const el=document.getElementById("copyDetailStats"); if(!el) return; el.innerHTML=`<span style="font-size:12px;background:rgba(61,186,126,.18);color:#3dba7e;padding:3px 10px;border-radius:8px;">✓ ${submitted}/${total}</span>`+(notSub?`<span style="font-size:12px;background:rgba(224,85,85,.15);color:#e05555;padding:3px 10px;border-radius:8px;">✗ ${notSub}</span>`:"")+(absent?`<span style="font-size:12px;background:rgba(232,160,32,.15);color:var(--gold);padding:3px 10px;border-radius:8px;">H ${absent}</span>`:""); }
 function saveCopySession(){ if(!currentCopySessionId){ showToast("❌ No session selected"); return; } if(!Object.keys(pendingCopyStatus).length){ showToast("❌ Mark at least one student"); return; } const sessions=DB.get("copySessions")||[],idx=sessions.findIndex(s=>s.id===currentCopySessionId); if(idx<0){ showToast("❌ Session not found"); return; } sessions[idx].status={...(sessions[idx].status||{}),...pendingCopyStatus}; sessions[idx].lastUpdated=new Date().toLocaleString("en-IN"); DB.set("copySessions",sessions); showToast("✅ Copy status saved!"); renderCopyStudentGrid(sessions[idx]); renderCopySessionsList(); }
-async function deleteCopySession(id){ if(!await customConfirm("Delete this collection record?","Delete Record","📋","Delete")) return; DB.set("copySessions",(DB.get("copySessions")||[]).filter(s=>s.id!==id)); renderCopySessionsList(); showToast("🗑️ Record deleted"); }
+async function deleteCopySession(id){ if(!await customConfirm("Delete this collection record?","Delete Record","📋","Delete")) return; DB.del("copySessions",id); renderCopySessionsList(); showToast("🗑️ Record deleted"); }
 
 // ── EDIT COPY SESSION ──
 function editCopySession(id){
@@ -2227,7 +2523,7 @@ function renderHWView(){
   const filter=document.getElementById("hwViewFilter")?.value||"";
   const filtered=filter?hw.filter(h=>h.subject===filter):hw;
   if(!filtered.length){ el.innerHTML=`<div class="empty-state"><div class="empty-icon">📓</div><div class="empty-text">No homework posted yet</div></div>`; return; }
-  el.innerHTML=`<div style="display:grid;gap:9px;">`+filtered.map(h=>{
+  el.innerHTML=`<div style="display:grid;gap:9px;padding-bottom:20px;">`+filtered.map(h=>{
     const s=SUBJECTS.find(x=>x.id===h.subject);
     const isUrgent=h.priority==="urgent";
     return `<div class="card" style="border-left:3px solid ${isUrgent?"#e05555":"var(--gold)"};">
