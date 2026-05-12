@@ -510,7 +510,7 @@ html,body{height:100%;font-family:"DM Sans",sans-serif;background:var(--navy);co
           <div class="card-title">📤 Add Album / Link</div>
           <!-- Tabs -->
           <div style="display:flex;gap:6px;margin-bottom:16px;">
-            <button id="galTabPhotos" class="btn btn-gold btn-sm" onclick="switchGalTab('photos')" style="flex:1;">🖼️ Photo Album</button>
+            <button id="galTabPhotos" class="btn btn-gold btn-sm" onclick="switchGalTab('photos')" style="flex:1;">📷 Photos &amp; Videos</button>
             <button id="galTabLink" class="btn btn-outline btn-sm" onclick="switchGalTab('link')" style="flex:1;">🔗 Add Link</button>
           </div>
           <!-- Photo Album Tab -->
@@ -521,9 +521,9 @@ html,body{height:100%;font-family:"DM Sans",sans-serif;background:var(--navy);co
             </div>
             <div class="form-group"><label class="form-label">Description (optional)</label><input class="form-input" id="albumDesc" placeholder="Short note about this album..."></div>
             <div class="upload-zone" id="galDropZone" onclick="document.getElementById('galImgInput').click()" ondragover="event.preventDefault();this.style.borderColor='var(--gold)'" ondragleave="this.style.borderColor=''" ondrop="handleGalDrop(event)">
-              <input type="file" id="galImgInput" accept="image/*" multiple style="display:none;" onchange="previewGal(this)">
+              <input type="file" id="galImgInput" accept="image/*,video/*" multiple style="display:none;" onchange="previewGal(this)">
               <div class="uz-icon">🖼️</div>
-              <div class="uz-text"><span>Click or drag &amp; drop images</span><br><small style="color:var(--muted);font-size:11px;">Select multiple images at once — no limit</small></div>
+              <div class="uz-text"><span>Click or drag &amp; drop photos &amp; videos</span><br><small style="color:var(--muted);font-size:11px;">Images &amp; videos — select multiple at once</small></div>
             </div>
             <!-- Thumbnail previews -->
             <div id="galThumbGrid" style="display:none;margin-top:10px;display:none;">
@@ -533,7 +533,7 @@ html,body{height:100%;font-family:"DM Sans",sans-serif;background:var(--navy);co
               </div>
               <div id="galThumbRow" style="display:flex;flex-wrap:wrap;gap:7px;"></div>
             </div>
-            <button class="btn btn-gold" style="margin-top:14px;width:100%;" onclick="addAlbum()">📸 Add Photo Album</button>
+            <button class="btn btn-gold" style="margin-top:14px;width:100%;" onclick="addAlbum()">📸 Add Album (Photos &amp; Videos)</button>
           </div>
           <!-- Link Tab -->
           <div id="galPanelLink" style="display:none;">
@@ -558,7 +558,7 @@ html,body{height:100%;font-family:"DM Sans",sans-serif;background:var(--navy);co
         <!-- Filter tabs -->
         <div style="display:flex;gap:7px;margin-bottom:12px;flex-wrap:wrap;" id="galFilterBar">
           <button class="btn btn-sm galFilter active" data-filter="all" onclick="setGalFilter('all',this)" style="background:rgba(232,160,32,0.2);color:var(--gold);border:1px solid rgba(232,160,32,0.35);">All</button>
-          <button class="btn btn-sm galFilter" data-filter="album" onclick="setGalFilter('album',this)" style="background:rgba(255,255,255,0.05);color:var(--muted);border:1px solid rgba(255,255,255,0.1);">🖼️ Albums</button>
+          <button class="btn btn-sm galFilter" data-filter="album" onclick="setGalFilter('album',this)" style="background:rgba(255,255,255,0.05);color:var(--muted);border:1px solid rgba(255,255,255,0.1);">🖼️ Photos</button>
           <button class="btn btn-sm galFilter" data-filter="link" onclick="setGalFilter('link',this)" style="background:rgba(255,255,255,0.05);color:var(--muted);border:1px solid rgba(255,255,255,0.1);">🔗 Links</button>
         </div>
         <div id="galleryGrid" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(155px,1fr));gap:11px;margin-top:6px;"></div>
@@ -811,6 +811,27 @@ html,body{height:100%;font-family:"DM Sans",sans-serif;background:var(--navy);co
             <div class="form-group"><label class="form-label">Due Date</label><input class="form-input" type="date" id="hwDue"></div>
             <div class="form-group"><label class="form-label">Priority</label><select class="form-select" id="hwPriority"><option value="normal">Normal</option><option value="urgent">Urgent 🚨</option></select></div>
           </div>
+          <!-- Image upload (optional) -->
+          <div class="form-group" style="margin-top:4px;">
+            <label class="form-label">📷 Attach Images <span style="color:var(--muted);font-weight:400;">(optional)</span></label>
+            <div style="border:1.5px dashed rgba(232,160,32,0.3);border-radius:10px;padding:12px 14px;background:rgba(232,160,32,0.04);cursor:pointer;" onclick="document.getElementById('hwImgInput').click()" ondragover="event.preventDefault();this.style.borderColor='var(--gold)'" ondragleave="this.style.borderColor='rgba(232,160,32,0.3)'" ondrop="hwHandleDrop(event)">
+              <input type="file" id="hwImgInput" accept="image/*" multiple style="display:none;" onchange="hwPreviewImages(this)">
+              <div style="display:flex;align-items:center;gap:8px;">
+                <span style="font-size:20px;">🖼️</span>
+                <div>
+                  <div style="font-size:12px;color:var(--off);">Click or drag &amp; drop images</div>
+                  <div style="font-size:10px;color:var(--muted);margin-top:2px;">JPG, PNG, GIF — multiple allowed</div>
+                </div>
+              </div>
+            </div>
+            <div id="hwImgThumbGrid" style="display:none;margin-top:10px;">
+              <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:7px;">
+                <span id="hwImgCount" style="font-size:11px;color:var(--gold);font-weight:600;"></span>
+                <button class="btn btn-outline btn-sm" onclick="hwClearImages()">✕ Clear</button>
+              </div>
+              <div id="hwImgThumbRow" style="display:flex;flex-wrap:wrap;gap:7px;"></div>
+            </div>
+          </div>
           <button class="btn btn-gold" onclick="postHW()">📓 Post Homework</button>
         </div>
         <div class="card" style="margin-top:13px;">
@@ -1023,6 +1044,27 @@ html,body{height:100%;font-family:"DM Sans",sans-serif;background:var(--navy);co
       <div class="form-group"><label class="form-label">Due Date</label><input class="form-input" type="date" id="editHWDue"></div>
       <div class="form-group"><label class="form-label">Priority</label><select class="form-select" id="editHWPriority"><option value="normal">Normal</option><option value="urgent">Urgent 🚨</option></select></div>
     </div>
+    <!-- Image management in edit modal -->
+    <div class="form-group" style="margin-top:4px;">
+      <label class="form-label">📷 Images <span style="color:var(--muted);font-weight:400;">(optional)</span></label>
+      <!-- Existing images -->
+      <div id="editHWExistingImgs" style="display:none;margin-bottom:8px;">
+        <div style="font-size:11px;color:var(--muted);margin-bottom:6px;">Current images (click ✕ to remove):</div>
+        <div id="editHWExistingRow" style="display:flex;flex-wrap:wrap;gap:6px;"></div>
+      </div>
+      <!-- Add new images -->
+      <div style="border:1.5px dashed rgba(232,160,32,0.3);border-radius:10px;padding:10px 12px;background:rgba(232,160,32,0.04);cursor:pointer;" onclick="document.getElementById('editHWImgInput').click()">
+        <input type="file" id="editHWImgInput" accept="image/*" multiple style="display:none;" onchange="editHWPreviewNewImages(this)">
+        <div style="display:flex;align-items:center;gap:8px;">
+          <span style="font-size:16px;">➕</span>
+          <div style="font-size:11px;color:var(--muted);">Click to add more images</div>
+        </div>
+      </div>
+      <div id="editHWNewImgGrid" style="display:none;margin-top:8px;">
+        <div style="font-size:11px;color:var(--muted);margin-bottom:6px;">New images to add:</div>
+        <div id="editHWNewImgRow" style="display:flex;flex-wrap:wrap;gap:6px;"></div>
+      </div>
+    </div>
     <div style="display:flex;gap:10px;margin-top:4px;">
       <button class="btn btn-outline" style="flex:1;" onclick="closeModal('editHWModal')">Cancel</button>
       <button class="btn btn-gold" style="flex:1;" onclick="saveEditedHW()">💾 Save Changes</button>
@@ -1119,9 +1161,10 @@ function initFirebase(){
             const cr=DB._applyTombs(k,remote[k]);
             if(!Array.isArray(local)||local.length===0){ _memCache[k]=cr; }
             else {
-              // Merge: update existing items AND add new ones
-              const lmap={}; local.forEach(x=>{ if(x&&x.id) lmap[x.id]=x; });
-              cr.forEach(item=>{ if(item&&item.id){ lmap[item.id]=Object.assign({},lmap[item.id]||{},item); } });
+              const tombs=DB._getTombs()[k]||{};
+              // Merge: update existing items AND add new ones, but respect tombstones
+              const lmap={}; local.forEach(x=>{ if(x&&x.id&&!tombs[x.id]) lmap[x.id]=x; });
+              cr.forEach(item=>{ if(item&&item.id&&!tombs[item.id]){ lmap[item.id]=Object.assign({},lmap[item.id]||{},item); } });
               const merged=Object.values(lmap);
               _memCache[k]=merged; wb[k]=merged;
             }
@@ -1158,16 +1201,17 @@ function setupFirebaseListeners(){
         const cr=DB._applyTombs(k,remote[k]);
         if(!Array.isArray(local)||local.length===0){ _memCache[k]=cr; }
         else {
-          // Merge: update existing items AND add new ones
           const lmap={}; local.forEach(x=>{ if(x&&x.id) lmap[x.id]=x; });
+          const tombs=DB._getTombs()[k]||{};
           let changed=false;
           cr.forEach(item=>{
-            if(item&&item.id){
+            if(item&&item.id&&!tombs[item.id]){
               const existing=lmap[item.id];
               const merged=Object.assign({},existing||{},item);
               if(!existing||JSON.stringify(existing)!==JSON.stringify(merged)){ lmap[item.id]=merged; changed=true; }
             }
           });
+          Object.keys(tombs).forEach(id=>{ if(lmap[id]){ delete lmap[id]; changed=true; } });
           if(changed){ _memCache[k]=Object.values(lmap); wb[k]=_memCache[k]; }
         }
       } else if(local===null||local===undefined){ _memCache[k]=remote[k]; }
@@ -1176,8 +1220,9 @@ function setupFirebaseListeners(){
     if(Object.keys(wb).length>0&&currentUser){
       try{renderDashboard();}catch(e){}
       try{updateCTNotifBadge();}catch(e){}
-      // Refresh student-related views if students data changed
       if(wb.students){ try{renderStudentInfoTable();}catch(e){} try{renderStudentsList();}catch(e){} try{populateComplainSelects();}catch(e){} }
+      if(wb.notices){ try{renderNotices();}catch(e){} }
+      if(wb.results){ try{renderResults();}catch(e){} try{renderEnteredResults();}catch(e){} }
     }
   });
 }
@@ -1197,12 +1242,12 @@ function forceSyncFromFirebase() {
   _db.ref("davx").once("value").then(snap => {
     const remote = snap.val();
     if (remote) {
-      // ✅ Replace each array key completely with remote version
-      const arrayKeys = ["files", "students", "notices", "results", "gallery", "copySessions", "timetable", "studentAttendance", "ct_notifications", "studentNotifications"];
+      // ✅ Replace each array key with remote version, filtered through tombstones
+      const arrayKeys = ["files", "students", "notices", "results", "gallery", "copySessions", "timetable", "studentAttendance", "ct_notifications", "studentNotifications", "homework", "complaints"];
       
       arrayKeys.forEach(key => {
         if (remote[key] !== undefined) {
-          _memCache[key] = remote[key];
+          _memCache[key] = Array.isArray(remote[key]) ? DB._applyTombs(key, remote[key]) : remote[key];
         }
       });
       
@@ -1929,8 +1974,8 @@ function setGalFilter(filter,btn){
 function handleGalDrop(e){
   e.preventDefault();
   document.getElementById("galDropZone").style.borderColor="";
-  const files=Array.from(e.dataTransfer.files).filter(f=>f.type.startsWith("image/"));
-  if(!files.length){ showToast("❌ Please drop image files only"); return; }
+  const files=Array.from(e.dataTransfer.files).filter(f=>f.type.startsWith("image/")||f.type.startsWith("video/"));
+  if(!files.length){ showToast("❌ Please drop image or video files only"); return; }
   galFiles=[...galFiles,...files];
   renderGalThumbs();
 }
@@ -1945,13 +1990,19 @@ function renderGalThumbs(){
   const grid=document.getElementById("galThumbGrid"),row=document.getElementById("galThumbRow"),cnt=document.getElementById("galImgCount");
   if(!galFiles.length){ grid.style.display="none"; return; }
   grid.style.display="";
-  cnt.textContent=`🖼️ ${galFiles.length} image${galFiles.length!==1?"s":""} selected`;
+  const imgs=galFiles.filter(f=>f.type.startsWith("image/")).length;
+  const vids=galFiles.filter(f=>f.type.startsWith("video/")).length;
+  cnt.textContent=`${imgs>0?`🖼️ ${imgs} image${imgs!==1?"s":""}`:""} ${vids>0?`🎬 ${vids} video${vids!==1?"s":""}`:""} selected`.trim();
   row.innerHTML="";
   galFiles.forEach((file,i)=>{
     const url=URL.createObjectURL(file);
     const div=document.createElement("div");
     div.style.cssText="position:relative;width:70px;height:70px;border-radius:8px;overflow:hidden;border:1px solid rgba(255,255,255,0.15);flex-shrink:0;";
-    div.innerHTML=`<img src="${url}" style="width:100%;height:100%;object-fit:cover;"><button onclick="removeGalFile(${i})" style="position:absolute;top:2px;right:2px;background:rgba(0,0,0,0.7);border:none;color:#fff;border-radius:50%;width:18px;height:18px;font-size:10px;cursor:pointer;display:flex;align-items:center;justify-content:center;padding:0;">✕</button>`;
+    if(file.type.startsWith("video/")){
+      div.innerHTML=`<video src="${url}" style="width:100%;height:100%;object-fit:cover;" muted></video><div style="position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-size:22px;pointer-events:none;">🎬</div><button onclick="removeGalFile(${i})" style="position:absolute;top:2px;right:2px;background:rgba(0,0,0,0.7);border:none;color:#fff;border-radius:50%;width:18px;height:18px;font-size:10px;cursor:pointer;display:flex;align-items:center;justify-content:center;padding:0;">✕</button>`;
+    } else {
+      div.innerHTML=`<img src="${url}" style="width:100%;height:100%;object-fit:cover;"><button onclick="removeGalFile(${i})" style="position:absolute;top:2px;right:2px;background:rgba(0,0,0,0.7);border:none;color:#fff;border-radius:50%;width:18px;height:18px;font-size:10px;cursor:pointer;display:flex;align-items:center;justify-content:center;padding:0;">✕</button>`;
+    }
     row.appendChild(div);
   });
 }
@@ -1971,22 +2022,24 @@ function addAlbum(){
   const date=document.getElementById("albumDate").value;
   const desc=document.getElementById("albumDesc").value.trim();
   if(!title){ showToast("❌ Enter album title"); return; }
-  const save=(imgs)=>{
-    DB.push("gallery",{id:Date.now().toString(),type:"album",title,desc,date:date||new Date().toLocaleDateString("en-IN"),by:currentUser.name,images:imgs});
+  const save=(media)=>{
+    const imgCount=media.filter(m=>m.kind==="image").length;
+    const vidCount=media.filter(m=>m.kind==="video").length;
+    DB.push("gallery",{id:Date.now().toString(),type:"album",title,desc,date:date||new Date().toLocaleDateString("en-IN"),by:currentUser.name,images:media.filter(m=>m.kind==="image").map(m=>m.data),media:media});
     document.getElementById("albumTitle").value="";
     document.getElementById("albumDate").value="";
     document.getElementById("albumDesc").value="";
     galFiles=[];
     renderGalThumbs();
-    showToast(`📸 Album added! (${imgs.length} image${imgs.length!==1?"s":""})`);
+    showToast(`📸 Album added! (${imgCount} image${imgCount!==1?"s":""}${vidCount?", "+vidCount+" video"+(vidCount!==1?"s":""):""})`);
     renderGallery();
   };
   if(!galFiles.length){ save([]); return; }
-  showToast("⏳ Processing images...");
-  const imgs=[]; let done=0;
-  galFiles.forEach(file=>{
+  showToast("⏳ Processing files...");
+  const media=[]; let done=0;
+  galFiles.forEach((file,idx)=>{
     const r=new FileReader();
-    r.onload=e=>{ imgs.push(e.target.result); if(++done===galFiles.length) save(imgs); };
+    r.onload=e=>{ media[idx]={data:e.target.result,kind:file.type.startsWith("video/")?"video":"image",name:file.name}; if(++done===galFiles.length) save(media); };
     r.readAsDataURL(file);
   });
 }
@@ -2044,16 +2097,24 @@ function renderGallery(){
         </div>
       </div>`;
     }
-    // Photo album
-    const imgCount=(a.images||[]).length;
-    const thumb=imgCount?`<img src="${a.images[0]}" style="width:100%;height:105px;object-fit:cover;">`:`<div style="height:105px;display:flex;align-items:center;justify-content:center;font-size:32px;background:rgba(232,160,32,.07);">🖼️</div>`;
-    const countBadge=imgCount>1?`<div style="position:absolute;top:6px;right:6px;background:rgba(0,0,0,0.65);color:#fff;font-size:10px;padding:2px 7px;border-radius:8px;">+${imgCount} pics</div>`:"";
+    // Photo/Video album
+    const mediaArr=a.media&&a.media.length?a.media:(a.images||[]).map(d=>({data:d,kind:"image"}));
+    const imgCount=mediaArr.filter(m=>m.kind!=="video").length;
+    const vidCount=mediaArr.filter(m=>m.kind==="video").length;
+    const totalCount=mediaArr.length;
+    const firstItem=mediaArr[0];
+    const thumb=firstItem
+      ?(firstItem.kind==="video"
+        ?`<div style="height:105px;display:flex;align-items:center;justify-content:center;font-size:40px;background:rgba(74,158,255,.07);">🎬</div>`
+        :`<img src="${firstItem.data||firstItem}" style="width:100%;height:105px;object-fit:cover;">`)
+      :`<div style="height:105px;display:flex;align-items:center;justify-content:center;font-size:32px;background:rgba(232,160,32,.07);">🖼️</div>`;
+    const countBadge=totalCount>1?`<div style="position:absolute;top:6px;right:6px;background:rgba(0,0,0,0.65);color:#fff;font-size:10px;padding:2px 7px;border-radius:8px;">${imgCount>0?imgCount+"📷":""} ${vidCount>0?vidCount+"🎬":""}</div>`:"";
     return `<div style="border-radius:12px;overflow:hidden;border:1px solid rgba(255,255,255,0.09);transition:all .2s;cursor:pointer;background:rgba(255,255,255,0.02);position:relative;" onmouseover="this.style.transform='translateY(-2px)';this.style.borderColor='rgba(232,160,32,0.3)'" onmouseout="this.style.transform='';this.style.borderColor='rgba(255,255,255,0.09)'" onclick="openAlbum('${a.id}')">
       <div style="position:relative;">${thumb}${countBadge}</div>
       <div style="padding:9px 10px;background:rgba(255,255,255,.03);">
         <div style="font-size:12px;font-weight:700;">${a.title}</div>
         ${a.desc?`<div style="font-size:10px;color:var(--muted);margin-top:2px;">${a.desc}</div>`:""}
-        <div style="font-size:10px;color:var(--muted);margin-top:3px;">${imgCount} photo${imgCount!==1?"s":""} · ${a.date}</div>
+        <div style="font-size:10px;color:var(--muted);margin-top:3px;">${imgCount>0?imgCount+" photo"+(imgCount!==1?"s":""):""}${imgCount>0&&vidCount>0?" · ":" "}${vidCount>0?vidCount+" video"+(vidCount!==1?"s":""):""} ${totalCount===0?"No media":""} · ${a.date}</div>
         ${canDel?`<button class="btn btn-danger btn-sm" style="margin-top:6px;font-size:10px;" onclick="event.stopPropagation();delAlbum('${a.id}')">🗑️</button>`:""}
       </div>
     </div>`;
@@ -2067,14 +2128,17 @@ let _lbAlbum=[],_lbIdx=0;
 function openAlbum(albumId){
   const a=(DB.get("gallery")||[]).find(x=>x.id===albumId);
   if(!a) return;
-  const imgs=a.images||[];
-  if(!imgs.length){ showToast("ℹ️ This album has no images"); return; }
-  _lbAlbum=imgs; _lbIdx=0;
+  // Support both old format (images=[]) and new format (media=[{data,kind}])
+  let media=[];
+  if(a.media&&a.media.length){ media=a.media; }
+  else if(a.images&&a.images.length){ media=a.images.map(d=>({data:d,kind:"image"})); }
+  if(!media.length){ showToast("ℹ️ This album has no photos or videos"); return; }
+  _lbAlbum=media; _lbIdx=0;
   showLightbox(a.title);
 }
 function showLightbox(title){
   const lb=document.getElementById("galLightbox");
-  document.getElementById("lbImg").src=_lbAlbum[_lbIdx];
+  _updateLightboxMedia();
   document.getElementById("lbCaption").textContent=`${title||""} · ${_lbIdx+1} / ${_lbAlbum.length}`;
   document.getElementById("lbPrev").style.display=_lbAlbum.length>1?"":"none";
   document.getElementById("lbNext").style.display=_lbAlbum.length>1?"":"none";
@@ -2082,12 +2146,38 @@ function showLightbox(title){
   document.body.style.overflow="hidden";
   lb._title=title;
 }
+function _updateLightboxMedia(){
+  const item=_lbAlbum[_lbIdx];
+  const data=typeof item==="string"?item:item.data;
+  const kind=typeof item==="string"?"image":item.kind;
+  const lbImg=document.getElementById("lbImg");
+  let lbVid=document.getElementById("lbVid");
+  if(!lbVid){
+    lbVid=document.createElement("video");
+    lbVid.id="lbVid";
+    lbVid.controls=true;
+    lbVid.style.cssText="max-width:92vw;max-height:80vh;border-radius:8px;display:none;";
+    lbImg.parentNode.insertBefore(lbVid,lbImg);
+  }
+  if(kind==="video"){
+    lbImg.style.display="none";
+    lbVid.style.display="";
+    lbVid.src=data;
+    lbVid.play().catch(()=>{});
+  } else {
+    if(lbVid){ lbVid.pause(); lbVid.style.display="none"; }
+    lbImg.style.display="";
+    lbImg.src=data;
+  }
+}
 function lbNav(dir){
+  const lbVid=document.getElementById("lbVid"); if(lbVid) lbVid.pause();
   _lbIdx=(_lbIdx+dir+_lbAlbum.length)%_lbAlbum.length;
-  document.getElementById("lbImg").src=_lbAlbum[_lbIdx];
+  _updateLightboxMedia();
   document.getElementById("lbCaption").textContent=`${document.getElementById("galLightbox")._title||""} · ${_lbIdx+1} / ${_lbAlbum.length}`;
 }
 function closeLightbox(){
+  const lbVid=document.getElementById("lbVid"); if(lbVid) lbVid.pause();
   document.getElementById("galLightbox").style.display="none";
   document.body.style.overflow="";
 }
@@ -2484,6 +2574,96 @@ function saveEditedCopySession(){
 // ═══════════════════════════════════════════
 // HOMEWORK
 // ═══════════════════════════════════════════
+// ── HW Image helpers ──
+let _hwImgFiles=[];
+function hwHandleDrop(e){
+  e.preventDefault();
+  e.currentTarget.style.borderColor="rgba(232,160,32,0.3)";
+  const files=Array.from(e.dataTransfer.files).filter(f=>f.type.startsWith("image/"));
+  if(!files.length){ showToast("❌ Only image files allowed"); return; }
+  _hwImgFiles=[..._hwImgFiles,...files];
+  hwRenderThumbs();
+}
+function hwPreviewImages(input){
+  _hwImgFiles=[..._hwImgFiles,...Array.from(input.files)];
+  input.value="";
+  hwRenderThumbs();
+}
+function hwRenderThumbs(){
+  const grid=document.getElementById("hwImgThumbGrid"),row=document.getElementById("hwImgThumbRow"),cnt=document.getElementById("hwImgCount");
+  if(!grid||!row) return;
+  if(!_hwImgFiles.length){ grid.style.display="none"; return; }
+  grid.style.display="";
+  cnt.textContent=`🖼️ ${_hwImgFiles.length} image${_hwImgFiles.length!==1?"s":""} selected`;
+  row.innerHTML="";
+  _hwImgFiles.forEach((file,i)=>{
+    const url=URL.createObjectURL(file);
+    const div=document.createElement("div");
+    div.style.cssText="position:relative;width:64px;height:64px;border-radius:8px;overflow:hidden;border:1px solid rgba(255,255,255,0.15);flex-shrink:0;";
+    div.innerHTML=`<img src="${url}" style="width:100%;height:100%;object-fit:cover;"><button onclick="hwRemoveImg(${i})" style="position:absolute;top:2px;right:2px;background:rgba(0,0,0,0.75);border:none;color:#fff;border-radius:50%;width:16px;height:16px;font-size:9px;cursor:pointer;display:flex;align-items:center;justify-content:center;padding:0;">✕</button>`;
+    row.appendChild(div);
+  });
+}
+function hwRemoveImg(idx){ _hwImgFiles.splice(idx,1); hwRenderThumbs(); }
+function hwClearImages(){ _hwImgFiles=[]; hwRenderThumbs(); }
+
+// ── Edit HW image state ──
+let _editHWKeptImgs=[], _editHWNewFiles=[];
+function editHWPreviewNewImages(input){
+  _editHWNewFiles=[..._editHWNewFiles,...Array.from(input.files)];
+  input.value="";
+  renderEditHWNewImgRow();
+}
+function renderEditHWExistingImgs(images){
+  _editHWKeptImgs=[...(images||[])];
+  const grid=document.getElementById("editHWExistingImgs"),row=document.getElementById("editHWExistingRow");
+  if(!grid||!row) return;
+  if(!_editHWKeptImgs.length){ grid.style.display="none"; return; }
+  grid.style.display="";
+  row.innerHTML="";
+  _editHWKeptImgs.forEach((src,i)=>{
+    const div=document.createElement("div");
+    div.style.cssText="position:relative;width:64px;height:64px;border-radius:8px;overflow:hidden;border:1px solid rgba(255,255,255,0.15);flex-shrink:0;cursor:pointer;";
+    div.innerHTML=`<img src="${src}" style="width:100%;height:100%;object-fit:cover;" onclick="hwViewImg('${src}')"><button onclick="editHWRemoveExisting(${i})" style="position:absolute;top:2px;right:2px;background:rgba(0,0,0,0.75);border:none;color:#fff;border-radius:50%;width:16px;height:16px;font-size:9px;cursor:pointer;display:flex;align-items:center;justify-content:center;padding:0;">✕</button>`;
+    row.appendChild(div);
+  });
+}
+function editHWRemoveExisting(idx){
+  _editHWKeptImgs.splice(idx,1);
+  renderEditHWExistingImgs(_editHWKeptImgs);
+}
+function renderEditHWNewImgRow(){
+  const grid=document.getElementById("editHWNewImgGrid"),row=document.getElementById("editHWNewImgRow");
+  if(!grid||!row) return;
+  if(!_editHWNewFiles.length){ grid.style.display="none"; return; }
+  grid.style.display="";
+  row.innerHTML="";
+  _editHWNewFiles.forEach((file,i)=>{
+    const url=URL.createObjectURL(file);
+    const div=document.createElement("div");
+    div.style.cssText="position:relative;width:64px;height:64px;border-radius:8px;overflow:hidden;border:1px solid rgba(74,158,255,0.4);flex-shrink:0;";
+    div.innerHTML=`<img src="${url}" style="width:100%;height:100%;object-fit:cover;"><button onclick="editHWRemoveNew(${i})" style="position:absolute;top:2px;right:2px;background:rgba(0,0,0,0.75);border:none;color:#fff;border-radius:50%;width:16px;height:16px;font-size:9px;cursor:pointer;display:flex;align-items:center;justify-content:center;padding:0;">✕</button>`;
+    row.appendChild(div);
+  });
+}
+function editHWRemoveNew(idx){ _editHWNewFiles.splice(idx,1); renderEditHWNewImgRow(); }
+
+// ── Quick lightbox for HW images ──
+function hwViewImg(src){
+  let lb=document.getElementById("hwImgLightbox");
+  if(!lb){
+    lb=document.createElement("div");
+    lb.id="hwImgLightbox";
+    lb.style.cssText="position:fixed;inset:0;background:rgba(0,0,0,0.92);z-index:9999;display:flex;align-items:center;justify-content:center;flex-direction:column;";
+    lb.onclick=()=>{ lb.style.display="none"; document.body.style.overflow=""; };
+    lb.innerHTML=`<button style="position:absolute;top:16px;right:18px;background:rgba(255,255,255,0.12);border:none;color:#fff;font-size:22px;width:40px;height:40px;border-radius:50%;cursor:pointer;" onclick="document.getElementById('hwImgLightbox').style.display='none';document.body.style.overflow=''">✕</button><img id="hwLbImg" style="max-width:92vw;max-height:85vh;border-radius:8px;object-fit:contain;" onclick="event.stopPropagation()">`;
+    document.body.appendChild(lb);
+  }
+  document.getElementById("hwLbImg").src=src;
+  lb.style.display="flex";
+  document.body.style.overflow="hidden";
+}
+
 function postHW(){
   const title=document.getElementById("hwTitle").value.trim();
   const subject=document.getElementById("hwSubject").value;
@@ -2493,29 +2673,60 @@ function postHW(){
   if(!title){ showToast("❌ Enter homework title"); return; }
   if(!subject){ showToast("❌ Select a subject"); return; }
   if(!body){ showToast("❌ Enter description"); return; }
-  const hw={id:Date.now().toString(),title,subject,body,due:due||"",priority,by:currentUser.name,date:new Date().toLocaleDateString("en-IN")};
-  DB.push("homework",hw);
-  ["hwTitle","hwBody","hwDue"].forEach(id=>{ const el=document.getElementById(id); if(el) el.value=""; });
-  showToast("📓 Homework posted!"); renderAllHW(); updateHWBadge();
+  const save=(images)=>{
+    const hw={id:Date.now().toString(),title,subject,body,due:due||"",priority,by:currentUser.name,date:new Date().toLocaleDateString("en-IN"),images:images};
+    DB.push("homework",hw);
+    ["hwTitle","hwBody","hwDue"].forEach(id=>{ const el=document.getElementById(id); if(el) el.value=""; });
+    _hwImgFiles=[]; hwRenderThumbs();
+    showToast(`📓 Homework posted!${images.length?" ("+images.length+" image"+(images.length!==1?"s":"")+")" :""}`);
+    renderAllHW(); updateHWBadge();
+  };
+  if(!_hwImgFiles.length){ save([]); return; }
+  showToast("⏳ Processing images...");
+  const imgs=[]; let done=0;
+  _hwImgFiles.forEach((file,i)=>{
+    const r=new FileReader();
+    r.onload=e=>{ imgs[i]=e.target.result; if(++done===_hwImgFiles.length) save(imgs); };
+    r.readAsDataURL(file);
+  });
 }
+function _hwImagesHTML(images){
+  if(!images||!images.length) return "";
+  return `<div style="display:flex;flex-wrap:wrap;gap:6px;margin-top:10px;">`+images.map(src=>`<img src="${src}" onclick="hwViewImg('${src}')" style="width:72px;height:72px;object-fit:cover;border-radius:8px;border:1px solid rgba(255,255,255,0.15);cursor:pointer;transition:transform .15s;" onmouseover="this.style.transform='scale(1.07)'" onmouseout="this.style.transform=''">`).join("")+`</div>`;
+}
+
 function renderAllHW(){
   const el=document.getElementById("allHWList"); if(!el) return;
   const hw=DB.get("homework")||[];
   if(!hw.length){ el.innerHTML=`<div class="empty-state"><div class="empty-icon">📓</div><div class="empty-text">No homework posted yet</div></div>`; return; }
   const canDel=currentUser&&currentUser.role==="classteacher";
-  el.innerHTML=`<div style="display:grid;gap:9px;">`+hw.map(h=>{
-    const s=SUBJECTS.find(x=>x.id===h.subject);
-    const isUrgent=h.priority==="urgent";
-    const canAct=canDel||h.by===currentUser.name;
-    return `<div style="background:rgba(255,255,255,0.03);border:1px solid ${isUrgent?"rgba(224,85,85,0.3)":"rgba(255,255,255,0.08)"};border-left:3px solid ${isUrgent?"#e05555":"var(--gold)"};border-radius:10px;padding:13px 15px;">
-      <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:8px;">
-        <div style="flex:1;"><div style="font-size:13px;font-weight:700;">${h.title}${isUrgent?" 🚨":""}</div>
-        <div style="font-size:11px;color:var(--muted);margin-top:2px;">${s?s.emoji+" "+s.name:h.subject} · By ${h.by} · ${h.date}${h.due?" · Due: "+h.due:""}</div></div>
-        ${canAct?`<div style="display:flex;gap:5px;"><button class="btn btn-outline btn-sm" onclick="editHW('${h.id}')">✏️</button><button class="btn btn-danger btn-sm" onclick="deleteHW('${h.id}')">🗑️</button></div>`:""}
-      </div>
-      <div style="font-size:12px;color:var(--off);line-height:1.5;">${h.body}</div>
-    </div>`;
-  }).join("")+`</div>`;
+  // Group by date posted
+  const byDate={};
+  hw.forEach(h=>{ const d=h.date||"Unknown"; if(!byDate[d]) byDate[d]=[]; byDate[d].push(h); });
+  const sortedDates=Object.keys(byDate).sort((a,b)=>{
+    const pa=a.split("/").reverse().join("-"),pb=b.split("/").reverse().join("-");
+    return pb.localeCompare(pa);
+  });
+  let html="";
+  sortedDates.forEach(date=>{
+    html+=`<div style="margin-bottom:6px;display:flex;align-items:center;gap:8px;"><span style="font-size:11px;font-weight:700;color:var(--gold);text-transform:uppercase;letter-spacing:.5px;">📅 ${date}</span><div style="flex:1;height:1px;background:rgba(232,160,32,0.2);"></div></div>`;
+    byDate[date].forEach(h=>{
+      const s=SUBJECTS.find(x=>x.id===h.subject);
+      const isUrgent=h.priority==="urgent";
+      const canAct=canDel||h.by===currentUser.name;
+      const imgCount=(h.images||[]).length;
+      html+=`<div style="background:rgba(255,255,255,0.03);border:1px solid ${isUrgent?"rgba(224,85,85,0.3)":"rgba(255,255,255,0.08)"};border-left:3px solid ${isUrgent?"#e05555":"var(--gold)"};border-radius:10px;padding:13px 15px;margin-bottom:9px;">
+        <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:8px;">
+          <div style="flex:1;"><div style="font-size:13px;font-weight:700;">${h.title}${isUrgent?" 🚨":""}${imgCount?` <span style="font-size:10px;background:rgba(74,158,255,0.15);color:#4a9eff;padding:1px 7px;border-radius:6px;font-weight:400;">🖼️ ${imgCount}</span>`:""}</div>
+          <div style="font-size:11px;color:var(--muted);margin-top:2px;">${s?s.emoji+" "+s.name:h.subject} · By ${h.by}${h.due?" · 📅 Due: <strong style='color:var(--gold);'>"+h.due+"</strong>":""}</div></div>
+          ${canAct?`<div style="display:flex;gap:5px;"><button class="btn btn-outline btn-sm" onclick="editHW('${h.id}')">✏️</button><button class="btn btn-danger btn-sm" onclick="deleteHW('${h.id}')">🗑️</button></div>`:""}
+        </div>
+        <div style="font-size:12px;color:var(--off);line-height:1.5;">${h.body}</div>
+        ${_hwImagesHTML(h.images)}
+      </div>`;
+    });
+  });
+  el.innerHTML=html;
 }
 function renderHWView(){
   const el=document.getElementById("hwViewList"); if(!el) return;
@@ -2523,15 +2734,30 @@ function renderHWView(){
   const filter=document.getElementById("hwViewFilter")?.value||"";
   const filtered=filter?hw.filter(h=>h.subject===filter):hw;
   if(!filtered.length){ el.innerHTML=`<div class="empty-state"><div class="empty-icon">📓</div><div class="empty-text">No homework posted yet</div></div>`; return; }
-  el.innerHTML=`<div style="display:grid;gap:9px;padding-bottom:20px;">`+filtered.map(h=>{
-    const s=SUBJECTS.find(x=>x.id===h.subject);
-    const isUrgent=h.priority==="urgent";
-    return `<div class="card" style="border-left:3px solid ${isUrgent?"#e05555":"var(--gold)"};">
-      <div style="font-size:14px;font-weight:700;margin-bottom:4px;">${h.title}${isUrgent?" 🚨":""}</div>
-      <div style="font-size:11px;color:var(--muted);margin-bottom:8px;">${s?s.emoji+" "+s.name:h.subject} · By ${h.by}${h.due?" · 📅 Due: <strong style='color:var(--gold);'>"+h.due+"</strong>":""}</div>
-      <div style="font-size:13px;color:var(--off);line-height:1.5;">${h.body}</div>
-    </div>`;
-  }).join("")+`</div>`;
+  // Group by date
+  const byDate={};
+  filtered.forEach(h=>{ const d=h.date||"Unknown"; if(!byDate[d]) byDate[d]=[]; byDate[d].push(h); });
+  const sortedDates=Object.keys(byDate).sort((a,b)=>{
+    const pa=a.split("/").reverse().join("-"),pb=b.split("/").reverse().join("-");
+    return pb.localeCompare(pa);
+  });
+  let html=`<div style="padding-bottom:20px;">`;
+  sortedDates.forEach(date=>{
+    html+=`<div style="margin-bottom:8px;margin-top:14px;display:flex;align-items:center;gap:8px;"><span style="font-size:11px;font-weight:700;color:var(--gold);text-transform:uppercase;letter-spacing:.5px;">📅 ${date}</span><div style="flex:1;height:1px;background:rgba(232,160,32,0.2);"></div></div>`;
+    byDate[date].forEach(h=>{
+      const s=SUBJECTS.find(x=>x.id===h.subject);
+      const isUrgent=h.priority==="urgent";
+      const imgCount=(h.images||[]).length;
+      html+=`<div class="card" style="margin-bottom:9px;border-left:3px solid ${isUrgent?"#e05555":"var(--gold)"};">
+        <div style="font-size:14px;font-weight:700;margin-bottom:4px;">${h.title}${isUrgent?" 🚨":""}${imgCount?` <span style="font-size:10px;background:rgba(74,158,255,0.15);color:#4a9eff;padding:1px 7px;border-radius:6px;font-weight:400;">🖼️ ${imgCount} image${imgCount!==1?"s":""}</span>`:""}</div>
+        <div style="font-size:11px;color:var(--muted);margin-bottom:8px;">${s?s.emoji+" "+s.name:h.subject} · By ${h.by}${h.due?" · 📅 Due: <strong style='color:var(--gold);'>"+h.due+"</strong>":""}</div>
+        <div style="font-size:13px;color:var(--off);line-height:1.5;">${h.body}</div>
+        ${_hwImagesHTML(h.images)}
+      </div>`;
+    });
+  });
+  html+=`</div>`;
+  el.innerHTML=html;
 }
 function editHW(id){
   const h=(DB.get("homework")||[]).find(x=>x.id===id); if(!h) return;
@@ -2541,6 +2767,10 @@ function editHW(id){
   document.getElementById("editHWBody").value=h.body;
   document.getElementById("editHWDue").value=h.due||"";
   document.getElementById("editHWPriority").value=h.priority||"normal";
+  // Load existing images
+  _editHWNewFiles=[];
+  renderEditHWExistingImgs(h.images||[]);
+  const newGrid=document.getElementById("editHWNewImgGrid"); if(newGrid) newGrid.style.display="none";
   openModal("editHWModal");
 }
 function saveEditedHW(){
@@ -2552,8 +2782,19 @@ function saveEditedHW(){
   const priority=document.getElementById("editHWPriority").value;
   if(!title||!body){ showToast("❌ Title and description required"); return; }
   const hw=DB.get("homework")||[],idx=hw.findIndex(h=>h.id===id); if(idx<0) return;
-  hw[idx]={...hw[idx],title,subject,body,due,priority};
-  DB.set("homework",hw); closeModal("editHWModal"); showToast("✅ Homework updated!"); renderAllHW(); renderHWView(); updateHWBadge();
+  const save=(newImgs)=>{
+    const allImgs=[..._editHWKeptImgs,...newImgs];
+    hw[idx]={...hw[idx],title,subject,body,due,priority,images:allImgs};
+    DB.set("homework",hw); closeModal("editHWModal"); showToast("✅ Homework updated!"); renderAllHW(); renderHWView(); updateHWBadge();
+  };
+  if(!_editHWNewFiles.length){ save([]); return; }
+  showToast("⏳ Saving images...");
+  const newImgs=[]; let done=0;
+  _editHWNewFiles.forEach((file,i)=>{
+    const r=new FileReader();
+    r.onload=e=>{ newImgs[i]=e.target.result; if(++done===_editHWNewFiles.length) save(newImgs); };
+    r.readAsDataURL(file);
+  });
 }
 async function deleteHW(id){ if(!await customConfirm("Delete this homework?","Delete Homework","📓","Delete")) return; DB.del("homework",id); renderAllHW(); updateHWBadge(); showToast("🗑️ Deleted"); }
 
