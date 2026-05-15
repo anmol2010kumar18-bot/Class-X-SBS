@@ -1309,6 +1309,7 @@ const SUBJECTS=[
   {id:"civics",name:"Civics",emoji:"⚖️",teacher:"Anshuman Bhushan"},
   {id:"economics",name:"Economics",emoji:"📈",teacher:"Raju Prasad"},
   {id:"hindi",name:"Hindi",emoji:"🇮🇳",teacher:"Richa"},
+  {id:"general",name:"General / All",emoji:"📂",teacher:"—"},
   {id:"computer",name:"Computer Sc.",emoji:"💻",teacher:"Rakesh Rajput"},
   {id:"atl",name:"ATL",emoji:"🔬",teacher:"Sanjeev Ranjan"},
   {id:"games",name:"Games",emoji:"⚽",teacher:"Subham Ojha"},
@@ -1332,8 +1333,9 @@ let _pendingEditAtt={};
 const SUBJ_OPT_IDS=["upSubject","resSubject","editResSubject","hwSubject","editHWSubject","complainSubject","editComplaintSubject"];
 
 function populateAllSubjectSelects(){
-  const subjOptions=`<option value="">Select subject</option>`+SUBJECTS.map(s=>`<option value="${s.id}">${s.emoji} ${s.name}</option>`).join("");
-  const subjOptionsWithGeneral=`<option value="">General</option>`+SUBJECTS.map(s=>`<option value="${s.id}">${s.emoji} ${s.name}</option>`).join("");
+  const regularSubjects=SUBJECTS.filter(s=>s.id!=="general");
+  const subjOptions=`<option value="">Select subject</option>`+regularSubjects.map(s=>`<option value="${s.id}">${s.emoji} ${s.name}</option>`).join("")+`<option value="general">📂 General / All</option>`;
+  const subjOptionsWithGeneral=`<option value="">General</option>`+regularSubjects.map(s=>`<option value="${s.id}">${s.emoji} ${s.name}</option>`).join("");
   SUBJ_OPT_IDS.forEach(id=>{
     const el=document.getElementById(id);
     if(!el) return;
@@ -1342,7 +1344,7 @@ function populateAllSubjectSelects(){
   });
   // HW view filter
   const hwf=document.getElementById("hwViewFilter");
-  if(hwf) hwf.innerHTML=`<option value="">All Subjects</option>`+SUBJECTS.map(s=>`<option value="${s.id}">${s.emoji} ${s.name}</option>`).join("");
+  if(hwf) hwf.innerHTML=`<option value="">All Subjects</option>`+regularSubjects.map(s=>`<option value="${s.id}">${s.emoji} ${s.name}</option>`).join("")+`<option value="general">📂 General / All</option>`;
 }
 function populateSelects(){ populateAllSubjectSelects(); }
 
