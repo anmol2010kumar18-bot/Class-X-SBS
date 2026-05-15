@@ -1164,13 +1164,18 @@ function initFirebase(){
               const tombs=DB._getTombs()[k]||{};
               // Merge: update existing items AND add new ones, but respect tombstones
               const lmap={}; local.forEach(x=>{ if(x&&x.id&&!tombs[x.id]) lmap[x.id]=x; });
-              cr.forEach(item=>{ if(item&&item.id&&!tombs[item.id]){ lmap[item.id]=Object.assign({},lmap[item.id]||{},item); } });
+              cr.forEach(item=>{ if(item&&item.id&&!tombs[item.id]){ lmap[item.id]=Object.assign({},item,lmap[item.id]||{}); } });
               const merged=Object.values(lmap);
               _memCache[k]=merged; wb[k]=merged;
             }
-          } else { if(local===null||local===undefined) _memCache[k]=remote[k]; else if(JSON.stringify(local)!==JSON.stringify(remote[k])){ _memCache[k]=remote[k]; } }
+          } else {
+            if(local===null||local===undefined){ _memCache[k]=remote[k]; }
+            else if(JSON.stringify(local)!==JSON.stringify(remote[k])){ _memCache[k]=remote[k]; wb[k]=remote[k]; }
+          }
         });
         Object.keys(wb).forEach(k=>{ _db.ref("davx/"+k).set(wb[k]).catch(e=>{}); });
+        // Also push any local-only keys not present in remote
+        Object.keys(_memCache).forEach(k=>{ if(_memCache[k]!=null&&!(k in remote)) _db.ref("davx/"+k).set(_memCache[k]).catch(e=>{}); });
       } else if(Object.keys(_memCache).length>0){ Object.keys(_memCache).forEach(k=>{ if(_memCache[k]!=null) _db.ref("davx/"+k).set(_memCache[k]).catch(e=>{}); }); }
       Object.keys(_memCache).forEach(k=>{ try{ localStorage.setItem("davx_"+k,JSON.stringify(_memCache[k])); }catch(e){} });
       if(currentUser) try{ renderDashboard();updateCTNotifBadge();_refreshNotifDot(); }catch(e){}
@@ -1178,11 +1183,18 @@ function initFirebase(){
   }catch(e){ _firebaseReady=false; }
 }
 
-let _writeLock=false;
+let _writeLock=0; // timestamp of last write; lock active for 3s after last write
 const DB={
   get(k){ return _memCache[k]!==undefined?_memCache[k]:null; },
-  set(k,v){ _memCache[k]=v; try{ localStorage.setItem("davx_"+k,JSON.stringify(v)); }catch(e){} if(_firebaseReady&&_db){ _writeLock=true; _db.ref("davx/"+k).set(v).then(()=>{ setTimeout(()=>{ _writeLock=false; },800); }).catch(e=>{ _writeLock=false; }); } },
-  push(k,item){ const a=DB.get(k)||[]; a.unshift(item); DB.set(k,a); return a; },
+  set(k,v){
+    _memCache[k]=v;
+    try{ localStorage.setItem("davx_"+k,JSON.stringify(v)); }catch(e){}
+    if(_firebaseReady&&_db){
+      _writeLock=Date.now();
+      _db.ref("davx/"+k).set(v).catch(e=>{});
+    }
+  },
+  push(k,item){ const a=[item,...(DB.get(k)||[])]; DB.set(k,a); return a; },
   del(k,id){ const a=(DB.get(k)||[]).filter(i=>i.id!==id); DB.set(k,a); const t=DB._getTombs(); if(!t[k]) t[k]={}; t[k][id]=Date.now(); DB._saveTombs(t); if(_firebaseReady&&_db) _db.ref("davx_tombs/"+k+"/"+id).set(Date.now()).catch(e=>{}); return a; },
   _getTombs(){ try{ return JSON.parse(localStorage.getItem("davx_tombstones")||"{}"); }catch(e){ return {}; } },
   _saveTombs(t){ try{ localStorage.setItem("davx_tombstones",JSON.stringify(t)); }catch(e){} },
@@ -1193,7 +1205,8 @@ const DB={
 function setupFirebaseListeners(){
   if(!_firebaseReady||!_db) return;
   _db.ref("davx").on("value",snap=>{
-    if(!snap.val()||_writeLock) return;
+    // Ignore if a local write happened in the last 3 seconds (prevents overwriting fresh saves)
+    if(!snap.val()||(Date.now()-_writeLock)<3000) return;
     const remote=snap.val(),wb={};
     Object.keys(remote).forEach(k=>{
       const local=_memCache[k];
@@ -1201,26 +1214,41 @@ function setupFirebaseListeners(){
         const cr=DB._applyTombs(k,remote[k]);
         if(!Array.isArray(local)||local.length===0){ _memCache[k]=cr; }
         else {
+          // Build map from local first (preserves local-only fields like parentMobile)
           const lmap={}; local.forEach(x=>{ if(x&&x.id) lmap[x.id]=x; });
           const tombs=DB._getTombs()[k]||{};
           let changed=false;
           cr.forEach(item=>{
             if(item&&item.id&&!tombs[item.id]){
               const existing=lmap[item.id];
-              const merged=Object.assign({},existing||{},item);
+              // Merge: remote wins for fields it has, but local-only fields are preserved
+              // This ensures parentMobile saved locally isn't overwritten by older remote record
+              const merged=Object.assign({},item,existing||{});
               if(!existing||JSON.stringify(existing)!==JSON.stringify(merged)){ lmap[item.id]=merged; changed=true; }
             }
+          });
+          // Add new items from remote that don't exist locally
+          cr.forEach(item=>{
+            if(item&&item.id&&!lmap[item.id]&&!tombs[item.id]){ lmap[item.id]=item; changed=true; }
           });
           Object.keys(tombs).forEach(id=>{ if(lmap[id]){ delete lmap[id]; changed=true; } });
           if(changed){ _memCache[k]=Object.values(lmap); wb[k]=_memCache[k]; }
         }
-      } else if(local===null||local===undefined){ _memCache[k]=remote[k]; }
+      } else {
+        // For non-array values (objects, strings, numbers): always take remote if different
+        if(JSON.stringify(local)!==JSON.stringify(remote[k])){ _memCache[k]=remote[k]; }
+      }
     });
+    // Persist merged data to localStorage
+    Object.keys(_memCache).forEach(k=>{ try{ localStorage.setItem("davx_"+k,JSON.stringify(_memCache[k])); }catch(e){} });
+    // Push merged arrays back to Firebase (write-back)
     Object.keys(wb).forEach(k=>{ _db.ref("davx/"+k).set(wb[k]).catch(e=>{}); });
-    if(Object.keys(wb).length>0&&currentUser){
+    if(currentUser){
       try{renderDashboard();}catch(e){}
       try{updateCTNotifBadge();}catch(e){}
-      if(wb.students){ try{renderStudentInfoTable();}catch(e){} try{renderStudentsList();}catch(e){} try{populateComplainSelects();}catch(e){} }
+      try{renderStudentInfoTable();}catch(e){}
+      try{renderStudentsList();}catch(e){}
+      try{populateComplainSelects();}catch(e){}
       if(wb.notices){ try{renderNotices();}catch(e){} }
       if(wb.results){ try{renderResults();}catch(e){} try{renderEnteredResults();}catch(e){} }
     }
@@ -1275,6 +1303,8 @@ function forceSyncFromFirebase() {
     if (currentUser) {
       renderDashboard();
       renderStudentsList();
+      renderStudentInfoTable();
+      populateComplainSelects();
       renderMyUploads();
       renderSubjectList();
       renderNotices();
@@ -1388,7 +1418,7 @@ function doLogin(){
 }
 
 function attemptLogin(user,pass){
-  if(loginRole==="student"){ const sts=DB.get("students")||[],s=sts.find(x=>x.roll===user||x.admNo===user); if(!s||s.pass!==pass) return{success:false,error:"❌ Roll No / Admission No or password is incorrect."}; return{success:true,user:{id:s.id,name:s.name,role:"student",avatar:s.name.slice(0,2).toUpperCase(),roll:s.roll,admNo:s.admNo,class:"X - SBS",school:"USCD DAV Public School",joinedOn:s.joinedOn}}; }
+  if(loginRole==="student"){ const sts=DB.get("students")||[],s=sts.find(x=>x.roll===user||x.admNo===user); if(!s||s.pass!==pass) return{success:false,error:"❌ Roll No / Admission No or password is incorrect."}; return{success:true,user:{id:s.id,name:s.name,role:"student",avatar:s.name.slice(0,2).toUpperCase(),roll:s.roll,admNo:s.admNo,class:"X - SBS",school:"USCD DAV Public School",joinedOn:s.joinedOn,parentMobile:s.parentMobile||""}}; }
   const cred=FIXED[loginRole]; if(!cred||user!==loginRole||pass!==cred.pass) return{success:false,error:"❌ Invalid credentials."}; return{success:true,user:{...cred}};
 }
 
@@ -1404,7 +1434,7 @@ function doRegister(){
   if(sts.find(s=>s.roll===roll)){ err.textContent="❌ Roll number already registered."; err.classList.add("show"); return; }
   if(sts.find(s=>s.admNo===admNo)){ err.textContent="❌ Admission number already registered."; err.classList.add("show"); return; }
   const ns={id:`s_${Date.now()}_${Math.random().toString(36).slice(2,7)}`,name,roll,admNo,pass,parentMobile:parentMobile||"",joinedOn:new Date().toLocaleDateString("en-IN"),lastLogin:null,class:"X - SBS"};
-  sts.push(ns); DB.set("students",sts);
+  const newSts=[...sts,ns]; DB.set("students",newSts);
   const notifs=DB.get("ct_notifications")||[]; notifs.unshift({id:`n_${Date.now()}`,type:"new_student",msg:`New student registered: ${name} (Roll: ${roll}, Adm: ${admNo})`,time:new Date().toLocaleString("en-IN"),read:false}); DB.set("ct_notifications",notifs);
   ["regName","regRoll","regAdm","regParentMobile","regPass","regPass2"].forEach(id=>document.getElementById(id).value="");
   ok.textContent="✅ Account created! You can now sign in using your Roll No and password."; ok.classList.add("show");
@@ -2213,11 +2243,12 @@ function saveParentMobile(){
   const id=document.getElementById("editParentMobileStudentId").value,mobile=document.getElementById("editParentMobileInput").value.trim();
   if(mobile&&!/^\d{7,15}$/.test(mobile)){ showToast("❌ Enter a valid mobile number (digits only)"); return; }
   const students=DB.get("students")||[],idx=students.findIndex(s=>s.id===id); if(idx<0) return;
-  students[idx].parentMobile=mobile;
-  DB.set("students",students);
+  // Use immutable update to avoid mutating cached reference
+  const updated=students.map((s,i)=>i===idx?{...s,parentMobile:mobile}:s);
+  DB.set("students",updated);
   closeModal("editParentMobileModal");
   showToast("✅ Parent mobile saved!");
-  renderStudentsList(); renderStudentInfoTable();
+  renderStudentsList(); renderStudentInfoTable(); populateComplainSelects();
 }
 
 // ── STUDENT INFO TABLE ──
