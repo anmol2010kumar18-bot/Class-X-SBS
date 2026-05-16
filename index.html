@@ -436,6 +436,7 @@ html,body{height:100%;font-family:"DM Sans",sans-serif;background:var(--navy);co
     <button class="nav-btn perm-ct" data-page="student_info" onclick="nav(this)" style="display:none;"><span class="nav-icon">👨‍👩‍👧</span><span class="nav-label sb-text">Student Info</span></button>
     <button class="nav-btn perm-hw" data-page="homework" onclick="nav(this)" style="display:none;"><span class="nav-icon">📓</span><span class="nav-label sb-text">Homework Mgr</span><span class="nav-badge sb-text" id="hwBadge" style="display:none;">0</span></button>
     <button class="nav-btn perm-complain" data-page="complain" onclick="nav(this)" style="display:none;"><span class="nav-icon">⚠️</span><span class="nav-label sb-text">Complaints</span></button>
+    <button class="nav-btn perm-monitor" data-page="assign_duty" onclick="nav(this)" style="display:none;"><span class="nav-icon">📋</span><span class="nav-label sb-text">Assign Duty</span></button>
     <div class="sb-footer">
       <button class="logout-btn" onclick="doLogout()">Sign Out</button>
     </div>
@@ -933,6 +934,74 @@ html,body{height:100%;font-family:"DM Sans",sans-serif;background:var(--navy);co
       </div>
 
     </div><!-- /pages -->
+
+      <!-- ASSIGN DUTY -->
+      <div class="page" id="page-assign_duty">
+        <div class="hero" style="padding:20px 26px;margin-bottom:18px;">
+          <div class="hero-label">Management</div>
+          <div class="hero-h" style="font-size:22px;">Assign <span>Duty</span></div>
+          <div class="hero-sub">Assign duties to students, track completion by due date.</div>
+        </div>
+
+        <!-- ══ NEW DUTY ASSIGNMENT ══ -->
+        <div class="card perm-monitor" style="display:none;">
+          <div class="card-title">➕ Assign New Duty</div>
+          <div class="form-row-2">
+            <div class="form-group">
+              <label class="form-label">Duty Type</label>
+              <select class="form-select" id="dutyType" onchange="onDutyTypeChange()">
+                <option value="class_monitor">🏅 Class Monitor</option>
+                <option value="blackboard">🖊️ Blackboard Cleaning</option>
+                <option value="attendance">📋 Attendance Register</option>
+                <option value="library">📚 Library Duty</option>
+                <option value="lab">🔬 Lab Assistance</option>
+                <option value="prayer">🙏 Prayer Assembly</option>
+                <option value="cleanliness">🧹 Cleanliness Duty</option>
+                <option value="sports">⚽ Sports Equipment</option>
+                <option value="custom">✏️ Custom Duty…</option>
+              </select>
+            </div>
+            <div class="form-group" id="customDutyGroup" style="display:none;">
+              <label class="form-label">Custom Duty Name</label>
+              <input class="form-input" id="customDutyName" placeholder="e.g. Decoration work">
+            </div>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Assign To <span style="color:var(--muted);font-weight:400;font-size:11px;">(select one or more)</span></label>
+            <div id="dutyStudentCheckboxes" style="max-height:220px;overflow-y:auto;display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:6px;padding:4px 0;"></div>
+          </div>
+          <div class="form-row-2">
+            <div class="form-group">
+              <label class="form-label">Due Date</label>
+              <input class="form-input" type="date" id="dutyDueDate">
+            </div>
+            <div class="form-group">
+              <label class="form-label">Note <span style="color:var(--muted);font-weight:400;font-size:11px;">(optional)</span></label>
+              <input class="form-input" id="dutyNote" placeholder="Any extra instructions…">
+            </div>
+          </div>
+          <button class="btn btn-gold" onclick="assignDuty()">📋 Assign Duty</button>
+        </div>
+
+        <!-- ══ DUTY LOG ══ -->
+        <div class="card" style="margin-top:14px;">
+          <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:10px;margin-bottom:14px;">
+            <div class="card-title" style="margin-bottom:0;">📋 Duty Log</div>
+            <div style="display:flex;gap:8px;flex-wrap:wrap;">
+              <select class="form-select" id="dutyFilterStatus" style="max-width:150px;" onchange="renderDutyLog()">
+                <option value="">All Status</option>
+                <option value="pending">⏳ Pending</option>
+                <option value="done">✅ Done</option>
+                <option value="partial">⚠️ Partial</option>
+              </select>
+              <select class="form-select" id="dutyFilterStudent" style="max-width:190px;" onchange="renderDutyLog()">
+                <option value="">All Students</option>
+              </select>
+            </div>
+          </div>
+          <div id="dutyLog"></div>
+        </div>
+      </div>
   </div><!-- /main-area -->
 </div><!-- /appScreen -->
 
@@ -1105,6 +1174,20 @@ html,body{height:100%;font-family:"DM Sans",sans-serif;background:var(--navy);co
   </div>
 </div>
 
+<!-- Mark Duty Completion Modal -->
+<div class="modal-overlay" id="dutyCompletionModal">
+  <div class="modal-box" style="max-width:500px;">
+    <div style="font-family:'Cormorant Garamond',serif;font-size:22px;color:var(--gold);margin-bottom:4px;">✅ Mark Duty Completion</div>
+    <div style="font-size:12px;color:var(--muted);margin-bottom:16px;" id="dutyCompletionLabel"></div>
+    <input type="hidden" id="dutyCompletionId">
+    <div id="dutyCompletionGrid" style="max-height:340px;overflow-y:auto;display:grid;gap:7px;"></div>
+    <div style="display:flex;gap:10px;margin-top:16px;">
+      <button class="btn btn-outline" style="flex:1;" onclick="closeModal('dutyCompletionModal')">Cancel</button>
+      <button class="btn btn-gold" style="flex:1;" onclick="saveDutyCompletion()">💾 Save</button>
+    </div>
+  </div>
+</div>
+
 <!-- Edit Parent Mobile Modal -->
 <div class="modal-overlay" id="editParentMobileModal">
   <div class="modal-box" style="max-width:380px;">
@@ -1164,18 +1247,13 @@ function initFirebase(){
               const tombs=DB._getTombs()[k]||{};
               // Merge: update existing items AND add new ones, but respect tombstones
               const lmap={}; local.forEach(x=>{ if(x&&x.id&&!tombs[x.id]) lmap[x.id]=x; });
-              cr.forEach(item=>{ if(item&&item.id&&!tombs[item.id]){ lmap[item.id]=Object.assign({},item,lmap[item.id]||{}); } });
+              cr.forEach(item=>{ if(item&&item.id&&!tombs[item.id]){ lmap[item.id]=Object.assign({},lmap[item.id]||{},item); } });
               const merged=Object.values(lmap);
               _memCache[k]=merged; wb[k]=merged;
             }
-          } else {
-            if(local===null||local===undefined){ _memCache[k]=remote[k]; }
-            else if(JSON.stringify(local)!==JSON.stringify(remote[k])){ _memCache[k]=remote[k]; wb[k]=remote[k]; }
-          }
+          } else { if(local===null||local===undefined) _memCache[k]=remote[k]; else if(JSON.stringify(local)!==JSON.stringify(remote[k])){ _memCache[k]=remote[k]; } }
         });
         Object.keys(wb).forEach(k=>{ _db.ref("davx/"+k).set(wb[k]).catch(e=>{}); });
-        // Also push any local-only keys not present in remote
-        Object.keys(_memCache).forEach(k=>{ if(_memCache[k]!=null&&!(k in remote)) _db.ref("davx/"+k).set(_memCache[k]).catch(e=>{}); });
       } else if(Object.keys(_memCache).length>0){ Object.keys(_memCache).forEach(k=>{ if(_memCache[k]!=null) _db.ref("davx/"+k).set(_memCache[k]).catch(e=>{}); }); }
       Object.keys(_memCache).forEach(k=>{ try{ localStorage.setItem("davx_"+k,JSON.stringify(_memCache[k])); }catch(e){} });
       if(currentUser) try{ renderDashboard();updateCTNotifBadge();_refreshNotifDot(); }catch(e){}
@@ -1183,18 +1261,11 @@ function initFirebase(){
   }catch(e){ _firebaseReady=false; }
 }
 
-let _writeLock=0; // timestamp of last write; lock active for 3s after last write
+let _writeLock=false;
 const DB={
   get(k){ return _memCache[k]!==undefined?_memCache[k]:null; },
-  set(k,v){
-    _memCache[k]=v;
-    try{ localStorage.setItem("davx_"+k,JSON.stringify(v)); }catch(e){}
-    if(_firebaseReady&&_db){
-      _writeLock=Date.now();
-      _db.ref("davx/"+k).set(v).catch(e=>{});
-    }
-  },
-  push(k,item){ const a=[item,...(DB.get(k)||[])]; DB.set(k,a); return a; },
+  set(k,v){ _memCache[k]=v; try{ localStorage.setItem("davx_"+k,JSON.stringify(v)); }catch(e){} if(_firebaseReady&&_db){ _writeLock=true; _db.ref("davx/"+k).set(v).then(()=>{ setTimeout(()=>{ _writeLock=false; },800); }).catch(e=>{ _writeLock=false; }); } },
+  push(k,item){ const a=DB.get(k)||[]; a.unshift(item); DB.set(k,a); return a; },
   del(k,id){ const a=(DB.get(k)||[]).filter(i=>i.id!==id); DB.set(k,a); const t=DB._getTombs(); if(!t[k]) t[k]={}; t[k][id]=Date.now(); DB._saveTombs(t); if(_firebaseReady&&_db) _db.ref("davx_tombs/"+k+"/"+id).set(Date.now()).catch(e=>{}); return a; },
   _getTombs(){ try{ return JSON.parse(localStorage.getItem("davx_tombstones")||"{}"); }catch(e){ return {}; } },
   _saveTombs(t){ try{ localStorage.setItem("davx_tombstones",JSON.stringify(t)); }catch(e){} },
@@ -1205,8 +1276,7 @@ const DB={
 function setupFirebaseListeners(){
   if(!_firebaseReady||!_db) return;
   _db.ref("davx").on("value",snap=>{
-    // Ignore if a local write happened in the last 3 seconds (prevents overwriting fresh saves)
-    if(!snap.val()||(Date.now()-_writeLock)<3000) return;
+    if(!snap.val()||_writeLock) return;
     const remote=snap.val(),wb={};
     Object.keys(remote).forEach(k=>{
       const local=_memCache[k];
@@ -1214,41 +1284,35 @@ function setupFirebaseListeners(){
         const cr=DB._applyTombs(k,remote[k]);
         if(!Array.isArray(local)||local.length===0){ _memCache[k]=cr; }
         else {
-          // Build map from local first (preserves local-only fields like parentMobile)
           const lmap={}; local.forEach(x=>{ if(x&&x.id) lmap[x.id]=x; });
           const tombs=DB._getTombs()[k]||{};
           let changed=false;
           cr.forEach(item=>{
             if(item&&item.id&&!tombs[item.id]){
               const existing=lmap[item.id];
-              // Merge: remote wins for fields it has, but local-only fields are preserved
-              // This ensures parentMobile saved locally isn't overwritten by older remote record
               const merged=Object.assign({},item,existing||{});
+              // For fields where local has a value but remote might be stale (e.g. parentMobile),
+              // prefer local. But if local field is empty/missing, use remote field.
+              if(existing){
+                Object.keys(item).forEach(field=>{
+                  if(existing[field]===undefined||existing[field]===null||existing[field]===""){
+                    merged[field]=item[field];
+                  }
+                });
+              }
               if(!existing||JSON.stringify(existing)!==JSON.stringify(merged)){ lmap[item.id]=merged; changed=true; }
             }
-          });
-          // Add new items from remote that don't exist locally
-          cr.forEach(item=>{
-            if(item&&item.id&&!lmap[item.id]&&!tombs[item.id]){ lmap[item.id]=item; changed=true; }
           });
           Object.keys(tombs).forEach(id=>{ if(lmap[id]){ delete lmap[id]; changed=true; } });
           if(changed){ _memCache[k]=Object.values(lmap); wb[k]=_memCache[k]; }
         }
-      } else {
-        // For non-array values (objects, strings, numbers): always take remote if different
-        if(JSON.stringify(local)!==JSON.stringify(remote[k])){ _memCache[k]=remote[k]; }
-      }
+      } else if(local===null||local===undefined){ _memCache[k]=remote[k]; }
     });
-    // Persist merged data to localStorage
-    Object.keys(_memCache).forEach(k=>{ try{ localStorage.setItem("davx_"+k,JSON.stringify(_memCache[k])); }catch(e){} });
-    // Push merged arrays back to Firebase (write-back)
     Object.keys(wb).forEach(k=>{ _db.ref("davx/"+k).set(wb[k]).catch(e=>{}); });
-    if(currentUser){
+    if(Object.keys(wb).length>0&&currentUser){
       try{renderDashboard();}catch(e){}
       try{updateCTNotifBadge();}catch(e){}
-      try{renderStudentInfoTable();}catch(e){}
-      try{renderStudentsList();}catch(e){}
-      try{populateComplainSelects();}catch(e){}
+      if(wb.students){ try{renderStudentInfoTable();}catch(e){} try{renderStudentsList();}catch(e){} try{populateComplainSelects();}catch(e){} }
       if(wb.notices){ try{renderNotices();}catch(e){} }
       if(wb.results){ try{renderResults();}catch(e){} try{renderEnteredResults();}catch(e){} }
     }
@@ -1303,8 +1367,6 @@ function forceSyncFromFirebase() {
     if (currentUser) {
       renderDashboard();
       renderStudentsList();
-      renderStudentInfoTable();
-      populateComplainSelects();
       renderMyUploads();
       renderSubjectList();
       renderNotices();
@@ -1418,7 +1480,7 @@ function doLogin(){
 }
 
 function attemptLogin(user,pass){
-  if(loginRole==="student"){ const sts=DB.get("students")||[],s=sts.find(x=>x.roll===user||x.admNo===user); if(!s||s.pass!==pass) return{success:false,error:"❌ Roll No / Admission No or password is incorrect."}; return{success:true,user:{id:s.id,name:s.name,role:"student",avatar:s.name.slice(0,2).toUpperCase(),roll:s.roll,admNo:s.admNo,class:"X - SBS",school:"USCD DAV Public School",joinedOn:s.joinedOn,parentMobile:s.parentMobile||""}}; }
+  if(loginRole==="student"){ const sts=DB.get("students")||[],s=sts.find(x=>x.roll===user||x.admNo===user); if(!s||s.pass!==pass) return{success:false,error:"❌ Roll No / Admission No or password is incorrect."}; return{success:true,user:{id:s.id,name:s.name,role:"student",avatar:s.name.slice(0,2).toUpperCase(),roll:s.roll,admNo:s.admNo,class:"X - SBS",school:"USCD DAV Public School",joinedOn:s.joinedOn}}; }
   const cred=FIXED[loginRole]; if(!cred||user!==loginRole||pass!==cred.pass) return{success:false,error:"❌ Invalid credentials."}; return{success:true,user:{...cred}};
 }
 
@@ -1434,7 +1496,7 @@ function doRegister(){
   if(sts.find(s=>s.roll===roll)){ err.textContent="❌ Roll number already registered."; err.classList.add("show"); return; }
   if(sts.find(s=>s.admNo===admNo)){ err.textContent="❌ Admission number already registered."; err.classList.add("show"); return; }
   const ns={id:`s_${Date.now()}_${Math.random().toString(36).slice(2,7)}`,name,roll,admNo,pass,parentMobile:parentMobile||"",joinedOn:new Date().toLocaleDateString("en-IN"),lastLogin:null,class:"X - SBS"};
-  const newSts=[...sts,ns]; DB.set("students",newSts);
+  sts.push(ns); DB.set("students",sts);
   const notifs=DB.get("ct_notifications")||[]; notifs.unshift({id:`n_${Date.now()}`,type:"new_student",msg:`New student registered: ${name} (Roll: ${roll}, Adm: ${admNo})`,time:new Date().toLocaleString("en-IN"),read:false}); DB.set("ct_notifications",notifs);
   ["regName","regRoll","regAdm","regParentMobile","regPass","regPass2"].forEach(id=>document.getElementById(id).value="");
   ok.textContent="✅ Account created! You can now sign in using your Roll No and password."; ok.classList.add("show");
@@ -1521,7 +1583,7 @@ function toggleMobSidebar(){ const sb=document.getElementById("sidebar"),ov=docu
 function closeMobSidebar(){ document.getElementById("sidebar").classList.remove("mob-open"); document.getElementById("mobOverlay").classList.remove("open"); document.getElementById("mobToggle").textContent="☰"; }
 function goHome(){ nav(document.querySelector("[data-page=dashboard]")); closeFolder(); }
 
-const PAGE_TITLES={dashboard:"Dashboard",subjects:"Subjects",notices:"Notice Board",gallery:"Gallery",timetable:"Timetable",attendance:"Attendance Record",results:"Results & Marks",hw_view:"Homework Board",upload:"Upload Files",post_notice:"Post Notice",manage_timetable:"Set Timetable",manage_results:"Enter Results",manage_attendance:"Mark Attendance",manage_students:"Students",copy_checking:"Copy Checking",homework:"Homework Manager",complain:"Complaints & Reports",student_info:"Student Information"};
+const PAGE_TITLES={dashboard:"Dashboard",subjects:"Subjects",notices:"Notice Board",gallery:"Gallery",timetable:"Timetable",attendance:"Attendance Record",results:"Results & Marks",hw_view:"Homework Board",upload:"Upload Files",post_notice:"Post Notice",manage_timetable:"Set Timetable",manage_results:"Enter Results",manage_attendance:"Mark Attendance",manage_students:"Students",copy_checking:"Copy Checking",homework:"Homework Manager",complain:"Complaints & Reports",student_info:"Student Information",assign_duty:"Assign Duty"};
 
 function nav(btn){
   if(!btn) return;
@@ -1530,7 +1592,7 @@ function nav(btn){
   document.querySelectorAll(".page").forEach(p=>p.classList.remove("active")); document.getElementById("page-"+pid).classList.add("active");
   document.getElementById("pageTitle").textContent=PAGE_TITLES[pid]||pid;
   const backBtn=document.getElementById("backBtn");
-  backBtn.classList.toggle("show",["upload","post_notice","manage_timetable","manage_results","manage_attendance","manage_students","results","copy_checking","homework","complain","student_info"].includes(pid));
+  backBtn.classList.toggle("show",["upload","post_notice","manage_timetable","manage_results","manage_attendance","manage_students","results","copy_checking","homework","complain","student_info","assign_duty"].includes(pid));
   closeFolder();
   if(window.innerWidth<=820) closeMobSidebar();
   if(pid==="notices"||pid==="post_notice") renderNotices();
@@ -1549,6 +1611,7 @@ function nav(btn){
   if(pid==="hw_view"){ populateAllSubjectSelects(); renderHWView(); }
   if(pid==="homework"){ populateAllSubjectSelects(); renderAllHW(); }
   if(pid==="complain"){ populateComplainSelects(); renderComplaintLog(); }
+  if(pid==="assign_duty"){ populateDutySelects(); renderDutyLog(); }
   if(pid==="student_info") renderStudentInfoTable();
   _refreshNotifDot();
 }
@@ -2243,12 +2306,11 @@ function saveParentMobile(){
   const id=document.getElementById("editParentMobileStudentId").value,mobile=document.getElementById("editParentMobileInput").value.trim();
   if(mobile&&!/^\d{7,15}$/.test(mobile)){ showToast("❌ Enter a valid mobile number (digits only)"); return; }
   const students=DB.get("students")||[],idx=students.findIndex(s=>s.id===id); if(idx<0) return;
-  // Use immutable update to avoid mutating cached reference
-  const updated=students.map((s,i)=>i===idx?{...s,parentMobile:mobile}:s);
-  DB.set("students",updated);
+  students[idx].parentMobile=mobile;
+  DB.set("students",students);
   closeModal("editParentMobileModal");
   showToast("✅ Parent mobile saved!");
-  renderStudentsList(); renderStudentInfoTable(); populateComplainSelects();
+  renderStudentsList(); renderStudentInfoTable();
 }
 
 // ── STUDENT INFO TABLE ──
@@ -2969,8 +3031,224 @@ function saveEditedComplaint(){
 async function deleteComplaint(id){ if(!await customConfirm("Delete this complaint record?","Delete Complaint","⚠️","Delete")) return; DB.del("complaints",id); renderComplaintLog(); showToast("🗑️ Deleted"); }
 
 // ═══════════════════════════════════════════
-// SEARCH
+// ASSIGN DUTY
 // ═══════════════════════════════════════════
+const DUTY_LABELS={
+  class_monitor:"🏅 Class Monitor",
+  blackboard:"🖊️ Blackboard Cleaning",
+  attendance:"📋 Attendance Register",
+  library:"📚 Library Duty",
+  lab:"🔬 Lab Assistance",
+  prayer:"🙏 Prayer Assembly",
+  cleanliness:"🧹 Cleanliness Duty",
+  sports:"⚽ Sports Equipment",
+  custom:"✏️ Custom"
+};
+
+function onDutyTypeChange(){
+  const v=document.getElementById("dutyType").value;
+  document.getElementById("customDutyGroup").style.display=v==="custom"?"":"none";
+}
+
+function populateDutySelects(){
+  const students=(DB.get("students")||[]).sort((a,b)=>parseInt(a.roll)-parseInt(b.roll));
+  // Checkbox grid
+  const grid=document.getElementById("dutyStudentCheckboxes");
+  if(grid){
+    grid.innerHTML=students.length
+      ?students.map(s=>`
+        <label style="display:flex;align-items:center;gap:8px;padding:7px 10px;background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.07);border-radius:8px;cursor:pointer;transition:all .15s;" onmouseover="this.style.borderColor='rgba(232,160,32,0.3)'" onmouseout="this.style.borderColor='rgba(255,255,255,0.07)'">
+          <input type="checkbox" class="duty-student-cb" value="${s.id}" style="accent-color:var(--gold);width:15px;height:15px;cursor:pointer;">
+          <span style="font-family:'Cormorant Garamond',serif;font-size:16px;color:var(--gold);min-width:26px;">${s.roll}</span>
+          <span style="font-size:13px;font-weight:500;">${s.name}</span>
+        </label>`).join("")
+      :`<div style="font-size:13px;color:var(--muted);padding:8px;">No students registered yet.</div>`;
+  }
+  // Filter dropdown
+  const fd=document.getElementById("dutyFilterStudent");
+  if(fd) fd.innerHTML=`<option value="">All Students</option>`+students.map(s=>`<option value="${s.id}">${s.roll}. ${s.name}</option>`).join("");
+}
+
+function assignDuty(){
+  const type=document.getElementById("dutyType").value;
+  const customName=document.getElementById("customDutyName").value.trim();
+  const due=document.getElementById("dutyDueDate").value;
+  const note=document.getElementById("dutyNote").value.trim();
+  if(!due){ showToast("❌ Select a due date"); return; }
+  const checked=[...document.querySelectorAll(".duty-student-cb:checked")].map(c=>c.value);
+  if(!checked.length){ showToast("❌ Select at least one student"); return; }
+  if(type==="custom"&&!customName){ showToast("❌ Enter custom duty name"); return; }
+  const dutyName=type==="custom"?customName:(DUTY_LABELS[type]||type);
+  const students=DB.get("students")||[];
+  const assigned=checked.map(id=>{ const s=students.find(x=>x.id===id); return s?{id:s.id,name:s.name,roll:s.roll,status:"pending"}:null; }).filter(Boolean);
+  const duty={
+    id:Date.now().toString(),
+    type,
+    name:dutyName,
+    note,
+    dueDate:due,
+    assignedBy:currentUser.name,
+    assignedOn:new Date().toLocaleDateString("en-IN"),
+    students:assigned
+  };
+  DB.push("duties",duty);
+  // Reset form
+  document.getElementById("dutyType").value="class_monitor";
+  document.getElementById("customDutyName").value="";
+  document.getElementById("dutyDueDate").value="";
+  document.getElementById("dutyNote").value="";
+  document.getElementById("customDutyGroup").style.display="none";
+  document.querySelectorAll(".duty-student-cb").forEach(cb=>cb.checked=false);
+  showToast("✅ Duty assigned!");
+  renderDutyLog();
+}
+
+function renderDutyLog(){
+  const el=document.getElementById("dutyLog"); if(!el) return;
+  const duties=DB.get("duties")||[];
+  const filterStatus=document.getElementById("dutyFilterStatus")?.value||"";
+  const filterStudent=document.getElementById("dutyFilterStudent")?.value||"";
+  const canManage=currentUser&&["classteacher","monitor","teacher"].includes(currentUser.role);
+  // Today string for due-date comparison
+  const todayStr=new Date().toISOString().split("T")[0];
+
+  let filtered=duties;
+  if(filterStudent) filtered=filtered.filter(d=>d.students&&d.students.some(s=>s.id===filterStudent));
+  if(filterStatus){
+    filtered=filtered.filter(d=>{
+      if(!d.students||!d.students.length) return false;
+      const total=d.students.length;
+      const done=d.students.filter(s=>s.status==="done").length;
+      if(filterStatus==="done") return done===total;
+      if(filterStatus==="pending") return done===0;
+      if(filterStatus==="partial") return done>0&&done<total;
+      return true;
+    });
+  }
+
+  if(!filtered.length){
+    el.innerHTML=`<div class="empty-state"><div class="empty-icon">📋</div><div class="empty-text">No duties assigned yet</div></div>`;
+    return;
+  }
+
+  el.innerHTML=`<div style="display:grid;gap:10px;">`+[...filtered].reverse().map(d=>{
+    const total=d.students?d.students.length:0;
+    const done=d.students?d.students.filter(s=>s.status==="done").length:0;
+    const pct=total?Math.round(done/total*100):0;
+    const isOverdue=d.dueDate&&d.dueDate<todayStr&&done<total;
+    const statusCol=done===total?"#3dba7e":isOverdue?"#e05555":"var(--gold)";
+    const statusLabel=done===total?"✅ All Done":isOverdue?"🔴 Overdue":`⏳ ${done}/${total} Done`;
+    return `<div style="background:rgba(255,255,255,0.03);border:1px solid ${isOverdue&&done<total?"rgba(224,85,85,0.25)":"rgba(255,255,255,0.08)"};border-left:3px solid ${statusCol};border-radius:10px;padding:13px 15px;">
+      <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:10px;flex-wrap:wrap;margin-bottom:10px;">
+        <div>
+          <div style="font-size:15px;font-weight:700;">${d.name}</div>
+          <div style="font-size:11px;color:var(--muted);margin-top:3px;">📅 Due: <span style="color:${isOverdue&&done<total?"#e05555":"var(--off)"};">${d.dueDate}</span> · Assigned by ${d.assignedBy} on ${d.assignedOn}</div>
+          ${d.note?`<div style="font-size:11px;color:var(--muted);margin-top:2px;">📝 ${d.note}</div>`:""}
+        </div>
+        <div style="display:flex;gap:6px;flex-wrap:wrap;align-items:center;">
+          <span style="font-size:11px;padding:3px 10px;border-radius:8px;font-weight:600;background:rgba(255,255,255,0.06);color:${statusCol};">${statusLabel}</span>
+          ${canManage?`<button class="btn btn-gold btn-sm" onclick="openDutyCompletion('${d.id}')">✅ Mark</button>`:""}
+          ${canManage?`<button class="btn btn-danger btn-sm" onclick="deleteDuty('${d.id}')">🗑️</button>`:""}
+        </div>
+      </div>
+      <!-- Progress bar -->
+      <div style="margin-bottom:10px;">
+        <div style="height:5px;background:rgba(255,255,255,0.08);border-radius:3px;overflow:hidden;">
+          <div style="height:100%;width:${pct}%;background:linear-gradient(90deg,${statusCol},${statusCol}cc);border-radius:3px;transition:width .4s;"></div>
+        </div>
+        <div style="font-size:10px;color:var(--muted);margin-top:3px;">${pct}% complete</div>
+      </div>
+      <!-- Students chips -->
+      <div style="display:flex;flex-wrap:wrap;gap:6px;">
+        ${(d.students||[]).map(s=>{
+          const isDone=s.status==="done";
+          return `<div style="display:inline-flex;align-items:center;gap:5px;padding:3px 10px;border-radius:20px;font-size:11px;background:${isDone?"rgba(61,186,126,0.15)":"rgba(255,255,255,0.05)"};border:1px solid ${isDone?"rgba(61,186,126,0.35)":"rgba(255,255,255,0.1)"};color:${isDone?"#3dba7e":"var(--muted)"};">
+            <span style="font-family:'Cormorant Garamond',serif;font-size:13px;color:${isDone?"#3dba7e":"var(--gold)"};">${s.roll}</span>
+            ${s.name}
+            ${isDone?`<span>✓</span>`:""}
+          </div>`;
+        }).join("")}
+      </div>
+    </div>`;
+  }).join("")+`</div>`;
+}
+
+function openDutyCompletion(dutyId){
+  const duties=DB.get("duties")||[];
+  const d=duties.find(x=>x.id===dutyId); if(!d) return;
+  document.getElementById("dutyCompletionId").value=dutyId;
+  document.getElementById("dutyCompletionLabel").textContent=`${d.name} — Due: ${d.dueDate}`;
+  const grid=document.getElementById("dutyCompletionGrid");
+  grid.innerHTML=(d.students||[]).map(s=>{
+    const isDone=s.status==="done";
+    return `<div style="display:flex;align-items:center;gap:8px;padding:8px 10px;background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.07);border-radius:8px;">
+      <span style="font-family:'Cormorant Garamond',serif;font-size:16px;color:var(--gold);min-width:28px;">${s.roll}</span>
+      <span style="font-size:13px;font-weight:500;flex:1;">${s.name}</span>
+      <button id="dutyBtn_${s.id}" onclick="toggleDutyStudentStatus('${dutyId}','${s.id}',this)" style="padding:5px 14px;border-radius:7px;border:1.5px solid ${isDone?"#3dba7e":"rgba(255,255,255,0.2)"};background:${isDone?"rgba(61,186,126,0.2)":"transparent"};color:${isDone?"#3dba7e":"var(--muted)"};font-size:12px;font-weight:600;cursor:pointer;transition:all .15s;">
+        ${isDone?"✓ Done":"Pending"}
+      </button>
+    </div>`;
+  }).join("");
+  openModal("dutyCompletionModal");
+}
+
+// Temporary state for pending duty completion changes (in-modal only)
+let _pendingDutyStatus={};
+function openDutyCompletion(dutyId){
+  const duties=DB.get("duties")||[];
+  const d=duties.find(x=>x.id===dutyId); if(!d) return;
+  _pendingDutyStatus={};
+  (d.students||[]).forEach(s=>{ _pendingDutyStatus[s.id]=s.status||"pending"; });
+  document.getElementById("dutyCompletionId").value=dutyId;
+  document.getElementById("dutyCompletionLabel").textContent=`${d.name} — Due: ${d.dueDate}`;
+  renderDutyCompletionGrid(d);
+  openModal("dutyCompletionModal");
+}
+
+function renderDutyCompletionGrid(d){
+  const grid=document.getElementById("dutyCompletionGrid");
+  grid.innerHTML=(d.students||[]).map(s=>{
+    const isDone=_pendingDutyStatus[s.id]==="done";
+    return `<div style="display:flex;align-items:center;gap:8px;padding:8px 10px;background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.07);border-radius:8px;">
+      <span style="font-family:'Cormorant Garamond',serif;font-size:16px;color:var(--gold);min-width:28px;">${s.roll}</span>
+      <span style="font-size:13px;font-weight:500;flex:1;">${s.name}</span>
+      <button onclick="toggleDutyStudentStatus('${d.id}','${s.id}')" style="padding:5px 14px;border-radius:7px;border:1.5px solid ${isDone?"#3dba7e":"rgba(255,255,255,0.2)"};background:${isDone?"rgba(61,186,126,0.2)":"rgba(224,85,85,0.07)"};color:${isDone?"#3dba7e":"#e05555"};font-size:12px;font-weight:600;cursor:pointer;transition:all .15s;">
+        ${isDone?"✓ Done":"✗ Pending"}
+      </button>
+    </div>`;
+  }).join("");
+}
+
+function toggleDutyStudentStatus(dutyId,studentId){
+  _pendingDutyStatus[studentId]=_pendingDutyStatus[studentId]==="done"?"pending":"done";
+  const duties=DB.get("duties")||[];
+  const d=duties.find(x=>x.id===dutyId);
+  if(d) renderDutyCompletionGrid(d);
+}
+
+function saveDutyCompletion(){
+  const dutyId=document.getElementById("dutyCompletionId").value;
+  const duties=DB.get("duties")||[];
+  const idx=duties.findIndex(x=>x.id===dutyId); if(idx<0) return;
+  const updated=duties.map((d,i)=>i===idx?{
+    ...d,
+    students:d.students.map(s=>({...s,status:_pendingDutyStatus[s.id]||s.status}))
+  }:d);
+  DB.set("duties",updated);
+  _pendingDutyStatus={};
+  closeModal("dutyCompletionModal");
+  showToast("✅ Duty completion saved!");
+  renderDutyLog();
+}
+
+async function deleteDuty(id){
+  if(!await customConfirm("Delete this duty record?","Delete Duty","📋","Delete")) return;
+  DB.del("duties",id);
+  renderDutyLog();
+  showToast("🗑️ Duty deleted");
+}
+
+
 function liveSearch(q){ if(!q||q.length<2) return; const files=DB.get("files")||[]; const r=files.filter(f=>f.title.toLowerCase().includes(q.toLowerCase())||(SUBJECTS.find(s=>s.id===f.subject)?.name||"").toLowerCase().includes(q.toLowerCase())); showToast(`🔍 ${r.length} file${r.length!==1?"s":""} found for "${q}"`); }
 
 // ═══════════════════════════════════════════
