@@ -118,6 +118,10 @@ html,body{height:100%;font-family:"DM Sans",sans-serif;background:var(--navy);co
 .pages{flex:1;overflow-y:auto;padding:24px;scrollbar-width:thin;scrollbar-color:rgba(232,160,32,.15) transparent;-webkit-overflow-scrolling:touch;}
 .pages::-webkit-scrollbar{width:4px;}
 .pages::-webkit-scrollbar-thumb{background:rgba(232,160,32,.25);border-radius:2px;}
+#dutyStudentCheckboxes::-webkit-scrollbar{width:4px;}
+#dutyStudentCheckboxes::-webkit-scrollbar-thumb{background:rgba(232,160,32,.25);border-radius:2px;}
+#dutyCompletionGrid::-webkit-scrollbar{width:4px;}
+#dutyCompletionGrid::-webkit-scrollbar-thumb{background:rgba(232,160,32,.25);border-radius:2px;}
 .page{display:none;animation:fadeUp .3s ease;}
 .page.active{display:block;min-height:10px;}
 @keyframes fadeUp{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:translateY(0)}}
@@ -933,8 +937,6 @@ html,body{height:100%;font-family:"DM Sans",sans-serif;background:var(--navy);co
         </div>
       </div>
 
-    </div><!-- /pages -->
-
       <!-- ASSIGN DUTY -->
       <div class="page" id="page-assign_duty">
         <div class="hero" style="padding:20px 26px;margin-bottom:18px;">
@@ -968,7 +970,7 @@ html,body{height:100%;font-family:"DM Sans",sans-serif;background:var(--navy);co
           </div>
           <div class="form-group">
             <label class="form-label">Assign To <span style="color:var(--muted);font-weight:400;font-size:11px;">(select one or more)</span></label>
-            <div id="dutyStudentCheckboxes" style="max-height:220px;overflow-y:auto;display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:6px;padding:4px 0;"></div>
+            <div id="dutyStudentCheckboxes" style="max-height:220px;overflow-y:auto;scrollbar-width:thin;scrollbar-color:rgba(232,160,32,.15) transparent;display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:6px;padding:4px 0;"></div>
           </div>
           <div class="form-row-2">
             <div class="form-group">
@@ -1002,6 +1004,8 @@ html,body{height:100%;font-family:"DM Sans",sans-serif;background:var(--navy);co
           <div id="dutyLog"></div>
         </div>
       </div>
+
+    </div><!-- /pages -->
   </div><!-- /main-area -->
 </div><!-- /appScreen -->
 
@@ -1180,7 +1184,7 @@ html,body{height:100%;font-family:"DM Sans",sans-serif;background:var(--navy);co
     <div style="font-family:'Cormorant Garamond',serif;font-size:22px;color:var(--gold);margin-bottom:4px;">✅ Mark Duty Completion</div>
     <div style="font-size:12px;color:var(--muted);margin-bottom:16px;" id="dutyCompletionLabel"></div>
     <input type="hidden" id="dutyCompletionId">
-    <div id="dutyCompletionGrid" style="max-height:340px;overflow-y:auto;display:grid;gap:7px;"></div>
+    <div id="dutyCompletionGrid" style="max-height:340px;overflow-y:auto;scrollbar-width:thin;scrollbar-color:rgba(232,160,32,.15) transparent;display:grid;gap:7px;"></div>
     <div style="display:flex;gap:10px;margin-top:16px;">
       <button class="btn btn-outline" style="flex:1;" onclick="closeModal('dutyCompletionModal')">Cancel</button>
       <button class="btn btn-gold" style="flex:1;" onclick="saveDutyCompletion()">💾 Save</button>
