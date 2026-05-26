@@ -3,7 +3,51 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-<title>USCD DAV Public School — Class X SBS</title>
+<title>USCD DAV Public School — Class X SBS | Student Portal</title>
+
+<!-- ═══ SEO META TAGS ═══ -->
+<meta name="description" content="Official student portal for Class X SBS at USCD DAV Public School. Access results, notices, timetable, homework, attendance, study materials and more.">
+<meta name="keywords" content="USCD DAV Public School, Class X SBS, DAV school student portal, Class 10 SBS, school results, school notices, timetable, homework, attendance, study materials, DAV school login">
+<meta name="author" content="USCD DAV Public School">
+<meta name="robots" content="index, follow">
+<meta name="googlebot" content="index, follow">
+<link rel="canonical" href="https://anmol2010kumar18-bot.github.io/Class-X-SBS/">
+
+<!-- Open Graph (WhatsApp, Facebook, LinkedIn previews) -->
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="USCD DAV Public School">
+<meta property="og:title" content="USCD DAV Public School — Class X SBS Student Portal">
+<meta property="og:description" content="Official digital portal for Class X SBS students. Check results, notices, timetable, homework and attendance online.">
+<meta property="og:url" content="https://anmol2010kumar18-bot.github.io/Class-X-SBS/">
+<meta property="og:locale" content="en_IN">
+
+<!-- Twitter Card -->
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="USCD DAV Public School — Class X SBS">
+<meta name="twitter:description" content="Official digital portal for Class X SBS students. Results, notices, timetable, homework and attendance.">
+
+<!-- Geo & language targeting (helps Google rank for local searches) -->
+<meta name="geo.region" content="IN">
+<meta name="geo.placename" content="India">
+<meta name="language" content="English">
+<meta name="revisit-after" content="7 days">
+
+<!-- Structured Data: School / Educational Organization (JSON-LD) -->
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "EducationalOrganization",
+  "name": "USCD DAV Public School",
+  "description": "Official student portal for Class X SBS at USCD DAV Public School",
+  "url": "https://anmol2010kumar18-bot.github.io/Class-X-SBS/",
+  "sameAs": [],
+  "hasCourse": {
+    "@type": "Course",
+    "name": "Class X SBS",
+    "description": "Class 10 SBS student digital portal with results, timetable, homework and notices"
+  }
+}
+</script>
 
 <!-- PWA: Manifest & theme -->
 <!-- manifest injected inline via JS -->
@@ -1227,7 +1271,8 @@ html,body{height:100%;font-family:"DM Sans",sans-serif;background:var(--navy);co
 window.addEventListener("DOMContentLoaded",()=>{
   initFirebase();
   setTimeout(setupFirebaseListeners,2000);
-  requestNotifPermission();
+  // NOTE: requestNotifPermission() is called after login, not here,
+  // so the browser prompt only appears once the user is logged in.
   // Set default weekly report date to Monday of this week
   const wr=document.getElementById("weeklyReportDate");
   if(wr){ const d=new Date(); d.setDate(d.getDate()-d.getDay()+1); wr.value=d.toISOString().split("T")[0]; updateWeekLabel(); }
@@ -1551,6 +1596,7 @@ function initApp(){
   if(isCT) renderStudentInfoTable();
   if(u.role==="student") injectStudentProfileCard();
   _refreshNotifDot();
+  requestNotifPermission();
   setTimeout(setupNotificationWatchers, 2500);
 }
 
@@ -3189,25 +3235,6 @@ function renderDutyLog(){
   }).join("")+`</div>`;
 }
 
-function openDutyCompletion(dutyId){
-  const duties=DB.get("duties")||[];
-  const d=duties.find(x=>x.id===dutyId); if(!d) return;
-  document.getElementById("dutyCompletionId").value=dutyId;
-  document.getElementById("dutyCompletionLabel").textContent=`${d.name} — Due: ${d.dueDate}`;
-  const grid=document.getElementById("dutyCompletionGrid");
-  grid.innerHTML=(d.students||[]).map(s=>{
-    const isDone=s.status==="done";
-    return `<div style="display:flex;align-items:center;gap:8px;padding:8px 10px;background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.07);border-radius:8px;">
-      <span style="font-family:'Cormorant Garamond',serif;font-size:16px;color:var(--gold);min-width:28px;">${s.roll}</span>
-      <span style="font-size:13px;font-weight:500;flex:1;">${s.name}</span>
-      <button id="dutyBtn_${s.id}" onclick="toggleDutyStudentStatus('${dutyId}','${s.id}',this)" style="padding:5px 14px;border-radius:7px;border:1.5px solid ${isDone?"#3dba7e":"rgba(255,255,255,0.2)"};background:${isDone?"rgba(61,186,126,0.2)":"transparent"};color:${isDone?"#3dba7e":"var(--muted)"};font-size:12px;font-weight:600;cursor:pointer;transition:all .15s;">
-        ${isDone?"✓ Done":"Pending"}
-      </button>
-    </div>`;
-  }).join("");
-  openModal("dutyCompletionModal");
-}
-
 // Temporary state for pending duty completion changes (in-modal only)
 let _pendingDutyStatus={};
 function openDutyCompletion(dutyId){
@@ -3265,8 +3292,6 @@ async function deleteDuty(id){
 }
 
 
-function liveSearch(q){ if(!q||q.length<2) return; const files=DB.get("files")||[]; const r=files.filter(f=>f.title.toLowerCase().includes(q.toLowerCase())||(SUBJECTS.find(s=>s.id===f.subject)?.name||"").toLowerCase().includes(q.toLowerCase())); showToast(`🔍 ${r.length} file${r.length!==1?"s":""} found for "${q}"`); }
-
 // ═══════════════════════════════════════════
 // TOAST + CONFIRM
 // ═══════════════════════════════════════════
@@ -3282,73 +3307,84 @@ document.getElementById("confirmOverlay").addEventListener("click",function(e){ 
 // PWA — INLINE MANIFEST + SERVICE WORKER + NOTIFICATIONS
 // ═══════════════════════════════════════════
 
-// ── 1. Inject manifest.json dynamically (fixes missing icon) ──
+// ── 1. Inject manifest.json dynamically (fixes PWA installability) ──
 (function injectManifest(){
-  const ICON_B64 = document.querySelector('link[rel="apple-touch-icon"]').href;
+  // start_url must be an absolute path — derive it from the current page URL
+  // e.g. https://user.github.io/Class-X-SBS/ → start_url = "/Class-X-SBS/"
+  const startUrl = location.pathname.replace(/\/[^/]*$/, '/') || '/';
+
+  // Safely get icon URL — fall back to a simple SVG placeholder if not found
+  let iconSrc = '';
+  const appleTouchEl = document.querySelector('link[rel="apple-touch-icon"]');
+  if(appleTouchEl && appleTouchEl.href &&
+     !appleTouchEl.href.startsWith('data:') &&
+     appleTouchEl.href !== location.href){
+    iconSrc = appleTouchEl.href;
+  }
+  if(!iconSrc){
+    // Fallback: navy square with gold 'D' as SVG data URI
+    iconSrc = 'data:image/svg+xml;base64,' + btoa('<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 192 192"><rect width="192" height="192" fill="#0d1f3c"/><text x="96" y="130" font-family="serif" font-size="120" fill="#e8a020" text-anchor="middle">D</text></svg>');
+  }
+
   const manifest = {
     name: "USCD DAV Public School — Class X SBS",
     short_name: "Class X SBS",
     description: "Digital archive for Class X SBS students",
-    start_url: "./",
+    start_url: startUrl,
     display: "standalone",
     background_color: "#0b1c36",
     theme_color: "#0d1f3c",
     orientation: "portrait-primary",
     icons: [
-      { src: ICON_B64, sizes: "192x192", type: "image/png", purpose: "any maskable" },
-      { src: ICON_B64, sizes: "512x512", type: "image/png", purpose: "any maskable" },
-      { src: ICON_B64, sizes: "180x180", type: "image/png", purpose: "apple touch icon" }
+      // "purpose" must be one of: "any", "maskable", "monochrome" — NOT "apple touch icon"
+      { src: iconSrc, sizes: "192x192", type: "image/png", purpose: "any" },
+      { src: iconSrc, sizes: "512x512", type: "image/png", purpose: "any" },
+      { src: iconSrc, sizes: "192x192", type: "image/png", purpose: "maskable" },
+      { src: iconSrc, sizes: "512x512", type: "image/png", purpose: "maskable" }
     ]
   };
   const blob = new Blob([JSON.stringify(manifest)], {type:'application/manifest+json'});
   const url = URL.createObjectURL(blob);
+  // Remove any existing manifest link first
+  const existing = document.querySelector('link[rel="manifest"]');
+  if(existing) existing.remove();
   const link = document.createElement('link');
   link.rel = 'manifest';
   link.href = url;
   document.head.appendChild(link);
 })();
 
-// ── 2. Inline Service Worker (fixes PWA installability + icon) ──
-(function registerInlineSW(){
+// ── 2. Service Worker — registers sw.js (must be deployed alongside index.html) ──
+//
+// WHY a separate file: Browsers require the SW script to be served with a
+// JavaScript MIME type. GitHub Pages (and most static hosts) serve .html files
+// as text/html, so any ?query or blob: / data: URL trick fails with:
+//   "MIME type ('text/html') is not executable"
+// The ONLY reliable fix is a real sw.js file next to index.html.
+(function(){
   if(!('serviceWorker' in navigator)) return;
-  const swCode = `
-const CACHE='davx-v2';
-const SHELL=['./'];
-self.addEventListener('install', e=>{
-  e.waitUntil(caches.open(CACHE).then(c=>c.addAll(SHELL)).then(()=>self.skipWaiting()));
-});
-self.addEventListener('activate', e=>{
-  e.waitUntil(caches.keys().then(keys=>Promise.all(keys.filter(k=>k!==CACHE).map(k=>caches.delete(k)))).then(()=>self.clients.claim()));
-});
-self.addEventListener('fetch', e=>{
-  if(e.request.method!=='GET') return;
-  e.respondWith(caches.match(e.request).then(r=>r||fetch(e.request)));
-});
-self.addEventListener('push', e=>{
-  const d = e.data ? e.data.json() : {title:'DAV Class X',body:'New update!'};
-  e.waitUntil(self.registration.showNotification(d.title||'DAV Class X',{
-    body: d.body||'',
-    icon: d.icon||'',
-    badge: d.badge||'',
-    data: d.data||{},
-    vibrate: [200,100,200]
-  }));
-});
-self.addEventListener('notificationclick', e=>{
-  e.notification.close();
-  e.waitUntil(clients.openWindow('./'));
-});
-`;
-  const blob = new Blob([swCode], {type:'text/javascript'});
-  const url = URL.createObjectURL(blob);
-  window.addEventListener('load', ()=>{
-    navigator.serviceWorker.register(url, {scope:'./'})
+
+  const swUrl   = location.pathname.replace(/\/[^/]*$/, '/') + 'sw.js';
+  const swScope = location.pathname.replace(/\/[^/]*$/, '/') || '/';
+
+  const _doSWRegister = () => {
+    navigator.serviceWorker.register(swUrl, { scope: swScope })
       .then(reg => {
-        console.log('[PWA] SW registered');
+        console.log('[PWA] Service Worker registered ✓', reg.scope);
         window._swReg = reg;
+        // Receive messages from SW (e.g. NOTIFY events)
+        navigator.serviceWorker.addEventListener('message', evt => {
+          if(evt.data && evt.data.type === 'NOTIFY') showAppNotification(evt.data.payload);
+        });
       })
-      .catch(err => console.warn('[PWA] SW failed:', err));
-  });
+      .catch(err => {
+        // sw.js not deployed yet — warn clearly in console, app still works
+        console.warn('[PWA] SW not registered (is sw.js deployed next to index.html?):', err.message);
+      });
+  };
+
+  if(document.readyState === 'complete') _doSWRegister();
+  else window.addEventListener('load', _doSWRegister);
 })();
 
 // ── 3. In-App Notification System (like mobile apps) ──
@@ -3541,17 +3577,90 @@ function requestNotifPermission(){
 function sendBrowserNotification(title, body, icon){
   if(!('Notification' in window) || Notification.permission !== 'granted') return;
   try {
-    const n = new Notification(title, { body, icon: icon||'', badge: icon||'', vibrate:[200,100,200] });
-    n.onclick = () => { window.focus(); n.close(); };
-    setTimeout(()=>n.close(), 5000);
+    // Prefer SW-based notification (works when app is backgrounded)
+    if(window._swReg && window._swReg.showNotification){
+      window._swReg.showNotification(title, {
+        body, icon: icon||'', badge: icon||'', vibrate:[200,100,200],
+        data: { url: './' }
+      });
+    } else {
+      const n = new Notification(title, { body, icon: icon||'', badge: icon||'', vibrate:[200,100,200] });
+      n.onclick = () => { window.focus(); n.close(); };
+      setTimeout(()=>n.close(), 6000);
+    }
   } catch(e){}
 }
 
-// Hook into existing post functions to send notifications
-const _origPostNotice = typeof postNotice !== 'undefined' ? postNotice : null;
-const _origUploadFile = typeof uploadFile !== 'undefined' ? uploadFile : null;
-const _origSubmitResults = typeof submitResults !== 'undefined' ? submitResults : null;
-const _origPostHW = typeof postHW !== 'undefined' ? postHW : null;
+// ── 6. Hook post functions to trigger native browser notifications ──
+// We patch the functions AFTER they are defined (end of script), ensuring
+// notifications fire whenever a notice, file, result, or homework is posted.
+window.addEventListener('DOMContentLoaded', () => {
+  // Patch postNotice
+  const _origPostNotice = window.postNotice;
+  if(typeof _origPostNotice === 'function'){
+    window.postNotice = function(){
+      const titleEl = document.getElementById('noticeTitle');
+      const bodyEl  = document.getElementById('noticeBody');
+      const title   = titleEl ? titleEl.value.trim() : '';
+      const body    = bodyEl  ? bodyEl.value.trim()  : '';
+      _origPostNotice.apply(this, arguments);
+      if(title && body){
+        const prio = (document.getElementById('noticePriority')||{}).value||'';
+        const icon = prio==='urgent'?'🚨':prio==='exam'?'📝':'📌';
+        sendBrowserNotification(icon+' '+title, body.substring(0,80), '');
+        showAppNotification({ title: icon+' '+title, body: body.substring(0,80), icon, type:'notice' });
+      }
+    };
+  }
+
+  // Patch uploadFile
+  const _origUploadFile = window.uploadFile;
+  if(typeof _origUploadFile === 'function'){
+    window.uploadFile = function(){
+      const titleEl   = document.getElementById('upTitle');
+      const subjectEl = document.getElementById('upSubject');
+      const title     = titleEl   ? titleEl.value.trim()   : '';
+      const subject   = subjectEl ? subjectEl.value : '';
+      _origUploadFile.apply(this, arguments);
+      if(title){
+        const subj = (typeof SUBJECTS!=='undefined') ? SUBJECTS.find(s=>s.id===subject) : null;
+        const emoji = subj ? subj.emoji : '📁';
+        sendBrowserNotification(emoji+' New file uploaded!', title + (subj?' — '+subj.name:''), '');
+        showAppNotification({ title: emoji+' New file uploaded!', body: title+(subj?' — '+subj.name:''), icon: emoji, type:'file' });
+      }
+    };
+  }
+
+  // Patch submitResults
+  const _origSubmitResults = window.submitResults;
+  if(typeof _origSubmitResults === 'function'){
+    window.submitResults = function(){
+      const testEl = document.getElementById('resTest');
+      const test   = testEl ? testEl.value.trim() : '';
+      _origSubmitResults.apply(this, arguments);
+      if(test){
+        sendBrowserNotification('📊 Results declared!', test, '');
+        showAppNotification({ title:'📊 Results declared!', body: test, icon:'📊', type:'result' });
+      }
+    };
+  }
+
+  // Patch postHW
+  const _origPostHW = window.postHW;
+  if(typeof _origPostHW === 'function'){
+    window.postHW = function(){
+      const titleEl = document.getElementById('hwTitle');
+      const title   = titleEl ? titleEl.value.trim() : '';
+      _origPostHW.apply(this, arguments);
+      if(title){
+        const prio  = (document.getElementById('hwPriority')||{}).value||'';
+        const icon  = prio==='urgent'?'🚨':'📓';
+        sendBrowserNotification(icon+' New Homework!', title, '');
+        showAppNotification({ title: icon+' New Homework!', body: title, icon, type:'hw' });
+      }
+    };
+  }
+});
 
 
 // PWA — Install prompt (Android "Add to Home Screen")

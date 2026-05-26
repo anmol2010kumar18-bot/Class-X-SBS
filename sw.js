@@ -1,86 +1,67 @@
-// ═══════════════════════════════════════════
-// sw.js — Service Worker for Class X SBS PWA
-// Cache strategy: Cache-first for assets,
-//                 Network-first for navigation
-// ═══════════════════════════════════════════
+// ─────────────────────────────────────────────────────────────────────────────
+// sw.js — Service Worker for USCD DAV Public School Class X SBS
+// DEPLOY THIS FILE in the same folder as index.html on GitHub Pages.
+// Repo root (same level as index.html) → /sw.js
+// ─────────────────────────────────────────────────────────────────────────────
 
-const CACHE_NAME = 'classx-sbs-v1';
+const CACHE_NAME = 'davx-v4';
+const SHELL = ['./'];   // cache the main page on install
 
-// Assets to pre-cache on install (the shell)
-const PRECACHE_URLS = [
-  './index.html',
-  './manifest.json'
-  // Add any local CSS / JS / image files here if you split them out later
-];
-
-// ── Install: pre-cache the app shell ────────
-self.addEventListener('install', event => {
-  event.waitUntil(
-    caches.open(CACHE_NAME).then(cache => cache.addAll(PRECACHE_URLS))
+// ── Install: pre-cache the shell ──
+self.addEventListener('install', e => {
+  e.waitUntil(
+    caches.open(CACHE_NAME)
+      .then(cache => cache.addAll(SHELL).catch(() => {}))
+      .then(() => self.skipWaiting())
   );
-  self.skipWaiting(); // activate immediately
 });
 
-// ── Activate: remove old caches ─────────────
-self.addEventListener('activate', event => {
-  event.waitUntil(
-    caches.keys().then(keys =>
-      Promise.all(
-        keys
-          .filter(k => k !== CACHE_NAME)
-          .map(k => caches.delete(k))
-      )
-    )
+// ── Activate: delete old caches ──
+self.addEventListener('activate', e => {
+  e.waitUntil(
+    caches.keys()
+      .then(keys => Promise.all(
+        keys.filter(k => k !== CACHE_NAME).map(k => caches.delete(k))
+      ))
+      .then(() => self.clients.claim())
   );
-  self.clients.claim(); // take control of all open tabs
 });
 
-// ── Fetch: smart caching strategy ───────────
-self.addEventListener('fetch', event => {
-  const { request } = event;
-  const url = new URL(request.url);
-
-  // Skip non-GET and cross-origin requests (e.g. Google Fonts CDN — let browser handle)
-  if (request.method !== 'GET') return;
-
-  // Google Fonts / external CDN → network with cache fallback (stale-while-revalidate)
-  if (url.origin !== self.location.origin) {
-    event.respondWith(
-      caches.open(CACHE_NAME).then(cache =>
-        fetch(request)
-          .then(response => {
-            if (response.ok) cache.put(request, response.clone());
-            return response;
-          })
-          .catch(() => caches.match(request))
+// ── Fetch: serve from cache, fall back to network ──
+self.addEventListener('fetch', e => {
+  if (e.request.method !== 'GET') return;
+  e.respondWith(
+    caches.match(e.request)
+      .then(r => r || fetch(e.request)
+        .catch(() => new Response('', { status: 503 }))
       )
-    );
-    return;
-  }
+  );
+});
 
-  // Same-origin navigation (HTML pages) → Network-first, fall back to cache
-  if (request.mode === 'navigate') {
-    event.respondWith(
-      fetch(request)
-        .then(response => {
-          const clone = response.clone();
-          caches.open(CACHE_NAME).then(c => c.put(request, clone));
-          return response;
-        })
-        .catch(() => caches.match('./index.html'))
-    );
-    return;
-  }
-
-  // Everything else (local assets) → Cache-first
-  event.respondWith(
-    caches.match(request).then(cached => {
-      if (cached) return cached;
-      return fetch(request).then(response => {
-        const clone = response.clone();
-        caches.open(CACHE_NAME).then(c => c.put(request, clone));
-        return response;
-      });
+// ── Push: show a native notification (requires a push server / VAPID setup) ──
+self.addEventListener('push', e => {
+  const d = e.data ? e.data.json() : { title: 'DAV Class X', body: 'New update!' };
+  e.waitUntil(
+    self.registration.showNotification(d.title || 'DAV Class X', {
+      body:    d.body    || '',
+      icon:    d.icon    || '',
+      badge:   d.badge   || '',
+      vibrate: [200, 100, 200],
+      data:    d.data    || {}
     })
+  );
+});
+
+// ── Notification click: focus existing tab or open new one ──
+self.addEventListener('notificationclick', e => {
+  e.notification.close();
+  e.waitUntil(
+    clients.matchAll({ type: 'window', includeUncontrolled: true })
+      .then(list => {
+        for (const c of list) {
+          if ('focus' in c) return c.focus();
+        }
+        return clients.openWindow('./');
+      })
   );
 });
