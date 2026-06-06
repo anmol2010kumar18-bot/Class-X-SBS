@@ -6,13 +6,13 @@
 <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
 <meta http-equiv="Pragma" content="no-cache">
 <meta http-equiv="Expires" content="0">
-  <title>USCD DAV Public School — Class X SBS</title>
+<title>USCD DAV Public School — Class X SBS</title>
 
 <!-- 🔐 Local config — DO NOT commit this file. See config.example.js -->
 <script src="config.js"></script>
 
 <!-- PWA: Manifest & theme -->
-<!-- manifest injected inline via JS -->
+<link rel="manifest" href="manifest.json">
 <meta name="theme-color" content="#0d1f3c">
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-capable" content="yes">
@@ -1445,7 +1445,15 @@ window.addEventListener("DOMContentLoaded",()=>{
 // ═══════════════════════════════════════════
 // FIREBASE
 // ═══════════════════════════════════════════
-const FIREBASE_CONFIG=window._APP_CONFIG?.firebase||{};
+const FIREBASE_CONFIG = {
+  apiKey:            "AIzaSyA7AgkFlnMttM0x-ScfbK9frDSpZEFnXNc",
+  authDomain:        "uscd-dav-class-x-sbs.firebaseapp.com",
+  databaseURL:       "https://uscd-dav-class-x-sbs-default-rtdb.firebaseio.com",
+  projectId:         "uscd-dav-class-x-sbs",
+  storageBucket:     "uscd-dav-class-x-sbs.firebasestorage.app",
+  messagingSenderId: "732187424156",
+  appId:             "1:732187424156:web:0ebd0080c1e4649fbf8459"
+};
 let _memCache={},_firebaseReady=false,_db=null;
 
 function preloadLocalStorage(){
@@ -3761,67 +3769,13 @@ document.getElementById("confirmOverlay").addEventListener("click",function(e){ 
 // PWA — INLINE MANIFEST + SERVICE WORKER + NOTIFICATIONS
 // ═══════════════════════════════════════════
 
-// ── 1. Inject manifest.json dynamically (fixes missing icon) ──
-(function injectManifest(){
-  const ICON_B64 = document.querySelector('link[rel="apple-touch-icon"]').href;
-  const manifest = {
-    name: "USCD DAV Public School — Class X SBS",
-    short_name: "Class X SBS",
-    description: "Digital archive for Class X SBS students",
-    start_url: "./",
-    display: "standalone",
-    background_color: "#0b1c36",
-    theme_color: "#0d1f3c",
-    orientation: "portrait-primary",
-    icons: [
-      { src: ICON_B64, sizes: "192x192", type: "image/png", purpose: "any maskable" },
-      { src: ICON_B64, sizes: "512x512", type: "image/png", purpose: "any maskable" },
-      { src: ICON_B64, sizes: "180x180", type: "image/png", purpose: "apple touch icon" }
-    ]
-  };
-  const blob = new Blob([JSON.stringify(manifest)], {type:'application/manifest+json'});
-  const url = URL.createObjectURL(blob);
-  const link = document.createElement('link');
-  link.rel = 'manifest';
-  link.href = url;
-  document.head.appendChild(link);
-})();
+// ── 1. manifest.json is now a real file linked in <head> ──
 
-// ── 2. Inline Service Worker (fixes PWA installability + icon) ──
-(function registerInlineSW(){
+// ── 2. Register real Service Worker (sw.js) ──
+(function registerSW(){
   if(!('serviceWorker' in navigator)) return;
-  const swCode = `
-const CACHE='davx-v2';
-const SHELL=['./'];
-self.addEventListener('install', e=>{
-  e.waitUntil(caches.open(CACHE).then(c=>c.addAll(SHELL)).then(()=>self.skipWaiting()));
-});
-self.addEventListener('activate', e=>{
-  e.waitUntil(caches.keys().then(keys=>Promise.all(keys.filter(k=>k!==CACHE).map(k=>caches.delete(k)))).then(()=>self.clients.claim()));
-});
-self.addEventListener('fetch', e=>{
-  if(e.request.method!=='GET') return;
-  e.respondWith(caches.match(e.request).then(r=>r||fetch(e.request)));
-});
-self.addEventListener('push', e=>{
-  const d = e.data ? e.data.json() : {title:'DAV Class X',body:'New update!'};
-  e.waitUntil(self.registration.showNotification(d.title||'DAV Class X',{
-    body: d.body||'',
-    icon: d.icon||'',
-    badge: d.badge||'',
-    data: d.data||{},
-    vibrate: [200,100,200]
-  }));
-});
-self.addEventListener('notificationclick', e=>{
-  e.notification.close();
-  e.waitUntil(clients.openWindow('./'));
-});
-`;
-  const blob = new Blob([swCode], {type:'text/javascript'});
-  const url = URL.createObjectURL(blob);
   window.addEventListener('load', ()=>{
-    navigator.serviceWorker.register(url, {scope:'./'})
+    navigator.serviceWorker.register('sw.js', {scope:'./'})
       .then(reg => {
         console.log('[PWA] SW registered');
         window._swReg = reg;
@@ -4390,10 +4344,10 @@ window.addEventListener('appinstalled', () => {
 
 // ── Config ──
 const AI_MODEL = 'llama-3.1-8b-instant';
-const AI_HF_KEY = window._APP_CONFIG?.groqKey || '';
 
+// Key is read lazily so config.js has time to load before first use
 function aiGetKey() {
-  return AI_HF_KEY;
+  return (window._APP_CONFIG && window._APP_CONFIG.groqKey) || '';
 }
 
 function aiConfigKey(e) { if(e) e.preventDefault(); }
@@ -4763,11 +4717,6 @@ function escapeHtml(text) {
   } else { boot(); }
 
 })();
-
-  
-if (!location.search.includes('v=')) {
-  location.replace(location.pathname + '?v=3');
-}
 </script>
 </body>
 </html>

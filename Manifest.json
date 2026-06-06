@@ -1,0 +1,25 @@
+{
+  "name": "USCD DAV Public School — Class X SBS",
+  "short_name": "Class X SBS",
+  "description": "Digital archive for Class X SBS students",
+  "start_url": "/Class-X-SBS/",
+  "scope": "/Class-X-SBS/",
+  "display": "standalone",
+  "background_color": "#0b1c36",
+  "theme_color": "#0d1f3c",
+  "orientation": "portrait-primary",
+  "icons": [
+    {
+      "src": "icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ]
+}
