@@ -379,7 +379,7 @@ button:active, .btn:active, .nav-btn:active, .auth-btn:active, .role-card:active
   .main-area{margin-left:0 !important;width:100% !important;}
   .topbar{padding:10px 12px 10px 56px !important;gap:8px;}
   .topbar-title{font-size:16px !important;}
-  .search-input{width:130px !important;font-size:12px !important;padding:6px 10px !important;}
+  .search-input{width:140px !important;font-size:12px !important;padding:6px 10px !important;}
   .icon-btn{width:30px !important;height:30px !important;font-size:13px !important;}
   .topbar-right{gap:6px !important;}
   .pages{padding:14px !important;}
@@ -421,12 +421,17 @@ button:active, .btn:active, .nav-btn:active, .auth-btn:active, .role-card:active
   .students-table th,.students-table td{padding:6px 7px !important;}
   .results-table{font-size:11px !important;}
   .results-table th,.results-table td{padding:6px 7px !important;}
+  /* Scrollable table wrappers on mobile */
+  .students-table,.results-table{display:block;overflow-x:auto;-webkit-overflow-scrolling:touch;white-space:nowrap;}
+  .students-table thead,.students-table tbody,.results-table thead,.results-table tbody{display:table;width:100%;}
   .sb-footer{padding-bottom:calc(12px + env(safe-area-inset-bottom, 0px)) !important;}
   .logout-btn{display:block !important;visibility:visible !important;opacity:1 !important;}
   .pages{padding-bottom:calc(24px + env(safe-area-inset-bottom, 0px)) !important;}
   #galleryGrid{grid-template-columns:repeat(auto-fill,minmax(130px,1fr)) !important;}
   .back-btn{padding:5px 10px !important;font-size:11px !important;}
   .modal-box{padding:20px 16px !important;}
+  /* Fix 2: Slightly smaller AI button on mobile so it doesn't overlap content */
+  #aiTutorBtn{width:52px !important;height:52px !important;font-size:22px !important;bottom:20px !important;right:16px !important;}
 }
 @media(max-width:380px){
   .stats-row{grid-template-columns:1fr !important;}
@@ -435,7 +440,10 @@ button:active, .btn:active, .nav-btn:active, .auth-btn:active, .role-card:active
   .hero-h{font-size:18px !important;}
   .hero{padding:14px 12px !important;}
   .pages{padding:10px !important;}
-  .search-input{width:100px !important;}
+  /* Fix 3: Wider search input on tiny phones */
+  .search-input{width:120px !important;font-size:11px !important;}
+  /* Fix 2: Smaller AI button on tiny phones so it doesn't overlap content */
+  #aiTutorBtn{width:46px !important;height:46px !important;font-size:20px !important;bottom:16px !important;right:14px !important;}
 }
 @media(min-width:821px) and (max-width:1100px){
   .sidebar{width:200px;}
@@ -523,6 +531,7 @@ button:active, .btn:active, .nav-btn:active, .auth-btn:active, .role-card:active
     <button class="nav-btn" data-page="attendance" onclick="nav(this)"><span class="nav-icon">✅</span><span class="nav-label sb-text">Attendance</span></button>
     <button class="nav-btn" data-page="results" onclick="nav(this)"><span class="nav-icon">📊</span><span class="nav-label sb-text">Results</span></button>
     <button class="nav-btn" data-page="hw_view" onclick="nav(this)"><span class="nav-icon">📓</span><span class="nav-label sb-text">Homework</span><span class="nav-badge sb-text" id="hwViewBadge" style="display:none;background:#e8a020;">!</span></button>
+    <button class="nav-btn perm-student" data-page="apply_leave" onclick="nav(this)" style="display:none;"><span class="nav-icon">🏖️</span><span class="nav-label sb-text">Apply Leave</span><span class="nav-badge sb-text" id="leaveStatusBadge" style="display:none;background:#4a9eff;">!</span></button>
     <button class="nav-btn perm-student" data-page="my_duties" onclick="nav(this)" style="display:none;"><span class="nav-icon">📋</span><span class="nav-label sb-text">My Duties</span><span class="nav-badge sb-text" id="myDutyBadge" style="display:none;background:#e05555;">!</span></button>
     <div class="sb-section perm-upload" style="display:none;">Manage</div>
     <button class="nav-btn perm-upload" data-page="upload" onclick="nav(this)" style="display:none;"><span class="nav-icon">⬆️</span><span class="nav-label sb-text">Upload Files</span></button>
@@ -532,6 +541,7 @@ button:active, .btn:active, .nav-btn:active, .auth-btn:active, .role-card:active
     <button class="nav-btn perm-results" data-page="manage_results" onclick="nav(this)" style="display:none;"><span class="nav-icon">✏️</span><span class="nav-label sb-text">Enter Results</span></button>
     <button class="nav-btn perm-ct" data-page="manage_attendance" onclick="nav(this)" style="display:none;"><span class="nav-icon">📋</span><span class="nav-label sb-text">Mark Attendance</span></button>
     <button class="nav-btn perm-ct" data-page="manage_students" onclick="nav(this)" style="display:none;" id="studentsNavBtn"><span class="nav-icon">👥</span><span class="nav-label sb-text">Students</span><span class="nav-badge sb-text" id="ctNotifBadge" style="display:none;background:#e05555;">0</span></button>
+    <button class="nav-btn perm-ct" data-page="manage_leaves" onclick="nav(this)" style="display:none;"><span class="nav-icon">🏖️</span><span class="nav-label sb-text">Leave Requests</span><span class="nav-badge sb-text" id="leaveCTBadge" style="display:none;background:#e05555;">!</span></button>
     <button class="nav-btn perm-ct" data-page="student_info" onclick="nav(this)" style="display:none;"><span class="nav-icon">👨‍👩‍👧</span><span class="nav-label sb-text">Student Info</span></button>
     <button class="nav-btn perm-hw" data-page="homework" onclick="nav(this)" style="display:none;"><span class="nav-icon">📓</span><span class="nav-label sb-text">Homework Mgr</span><span class="nav-badge sb-text" id="hwBadge" style="display:none;">0</span></button>
     <button class="nav-btn perm-complain" data-page="complain" onclick="nav(this)" style="display:none;"><span class="nav-icon">⚠️</span><span class="nav-label sb-text">Complaints</span></button>
@@ -1121,6 +1131,99 @@ button:active, .btn:active, .nav-btn:active, .auth-btn:active, .role-card:active
           <div id="myDutiesList"></div>
         </div>
       </div>
+
+      <!-- ══ APPLY LEAVE PAGE (Student) ══ -->
+      <div class="page" id="page-apply_leave">
+        <div class="hero" style="padding:20px 26px;margin-bottom:18px;">
+          <div class="hero-label">Student</div>
+          <div class="hero-h" style="font-size:22px;">Apply for <span>Leave</span></div>
+          <div class="hero-sub">Submit a leave application to your class teacher with reason and dates.</div>
+        </div>
+
+        <!-- Apply Form -->
+        <div class="card" style="margin-bottom:14px;">
+          <div class="card-title">📝 New Leave Application</div>
+          <div class="form-row-2">
+            <div class="form-group">
+              <label class="form-label">From Date</label>
+              <input class="form-input" type="date" id="leaveFromDate">
+            </div>
+            <div class="form-group">
+              <label class="form-label">To Date</label>
+              <input class="form-input" type="date" id="leaveToDate">
+            </div>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Reason for Leave</label>
+            <textarea class="form-input" id="leaveReason" rows="3" placeholder="Explain why you need leave…" style="resize:vertical;min-height:80px;"></textarea>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Attach Application Image <span style="color:var(--muted);font-weight:400;font-size:11px;">(optional — photo of handwritten application)</span></label>
+            <input type="file" id="leaveImageInput" accept="image/*" style="display:none;" onchange="previewLeaveImage(this)">
+            <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap;">
+              <button class="btn btn-outline btn-sm" onclick="document.getElementById('leaveImageInput').click()">📎 Attach Image</button>
+              <span id="leaveImageName" style="font-size:12px;color:var(--muted);">No image selected</span>
+            </div>
+            <div id="leaveImagePreview" style="margin-top:10px;display:none;">
+              <img id="leaveImageThumb" style="max-width:100%;max-height:200px;border-radius:10px;border:1px solid rgba(255,255,255,0.1);" src="">
+              <button class="btn btn-danger btn-sm" style="margin-top:6px;" onclick="clearLeaveImage()">🗑️ Remove Image</button>
+            </div>
+          </div>
+          <button class="btn btn-gold" onclick="submitLeaveApplication()">📨 Submit Application</button>
+        </div>
+
+        <!-- My Leave History -->
+        <div class="card">
+          <div class="card-title">📋 My Leave Applications</div>
+          <div id="myLeavesList"></div>
+        </div>
+      </div>
+
+      <!-- ══ MANAGE LEAVES PAGE (Class Teacher) ══ -->
+      <div class="page" id="page-manage_leaves">
+        <div class="hero" style="padding:20px 26px;margin-bottom:18px;">
+          <div class="hero-label">Class Teacher</div>
+          <div class="hero-h" style="font-size:22px;">Leave <span>Requests</span></div>
+          <div class="hero-sub">Review, approve or reject student leave applications.</div>
+        </div>
+        <div class="card">
+          <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:10px;margin-bottom:14px;">
+            <div class="card-title" style="margin-bottom:0;">🏖️ All Applications</div>
+            <select class="form-select" id="leaveFilterCT" style="max-width:170px;" onchange="renderManageLeaves()">
+              <option value="">All Status</option>
+              <option value="pending">⏳ Pending</option>
+              <option value="approved">✅ Approved</option>
+              <option value="rejected">❌ Rejected</option>
+            </select>
+          </div>
+          <div id="manageLeavesList"></div>
+        </div>
+      </div>
+
+      <!-- Leave Rejection Reason Modal -->
+      <div class="modal-overlay" id="leaveRejectModal" style="display:none;position:fixed;inset:0;background:rgba(11,28,54,0.88);backdrop-filter:blur(8px);z-index:800;align-items:center;justify-content:center;">
+        <div class="modal-box" style="width:380px;max-width:94vw;">
+          <div class="card-title">❌ Reject Leave</div>
+          <p style="font-size:13px;color:var(--muted);margin-bottom:14px;" id="leaveRejectStudentLabel"></p>
+          <div class="form-group">
+            <label class="form-label">Reason for Rejection</label>
+            <textarea class="form-input" id="leaveRejectReason" rows="3" placeholder="Tell the student why the leave was not approved…" style="resize:vertical;min-height:70px;"></textarea>
+          </div>
+          <input type="hidden" id="leaveRejectId">
+          <div style="display:flex;gap:10px;margin-top:6px;">
+            <button class="btn btn-outline" style="flex:1;" onclick="closeModal('leaveRejectModal')">Cancel</button>
+            <button class="btn btn-danger" style="flex:1;" onclick="confirmRejectLeave()">❌ Reject</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Leave Image Viewer Modal -->
+      <div class="modal-overlay" id="leaveImageModal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.92);z-index:900;align-items:center;justify-content:center;" onclick="closeModal('leaveImageModal')">
+        <div style="max-width:96vw;max-height:90vh;text-align:center;">
+          <img id="leaveImageFull" src="" style="max-width:100%;max-height:85vh;border-radius:12px;box-shadow:0 8px 40px rgba(0,0,0,0.7);">
+          <div style="color:rgba(255,255,255,0.5);font-size:12px;margin-top:10px;">Tap anywhere to close</div>
+        </div>
+      </div>
     </div><!-- /pages -->
   </div><!-- /main-area -->
 </div><!-- /appScreen -->
@@ -1648,10 +1751,10 @@ function initApp(){
   document.getElementById("sbRole").textContent=({classteacher:"Class Teacher",teacher:"Subject Teacher",monitor:"Class Monitor",student:"Student"})[u.role];
   const show=(cls,v)=>document.querySelectorAll("."+cls).forEach(el=>el.style.display=v?"":"none");
   const canUpload=["teacher","classteacher","monitor"].includes(u.role),canNotice=["teacher","classteacher"].includes(u.role),isCT=u.role==="classteacher",canResults=["teacher","classteacher"].includes(u.role),canMonitor=["monitor","classteacher"].includes(u.role),canHW=["teacher","classteacher","monitor"].includes(u.role),canComplain=["teacher","classteacher"].includes(u.role);
-  show("perm-upload",canUpload); show("perm-notice",canNotice); show("perm-ct",isCT); show("perm-results",canResults); show("perm-monitor",canMonitor); show("perm-hw",canHW); show("perm-complain",canComplain); show("perm-student",u.role==="student");
+  show("perm-upload",canUpload); show("perm-notice",canNotice); show("perm-ct",isCT); show("perm-results",canResults); show("perm-monitor",canMonitor); show("perm-hw",canHW); show("perm-complain",canComplain); show("perm-student",u.role==="student"); if(u.role==="student") updateLeaveStatusBadge(); if(u.role==="classteacher") updateLeaveCTBadge();
   populateAllSubjectSelects();
   buildTTEditor(); renderTTPreview(); setAttDate(); populateAttHistFilter();
-  renderDashboard(); renderTTDisplay(); renderAttView(); renderResults(); renderGallery(); renderMyUploads(); renderStudentsList(); renderEnteredResults(); renderCopySessionsList(); updateCTNotifBadge(); updateHWBadge(); if(currentUser&&currentUser.role==="student") renderMyDuties();
+  renderDashboard(); renderTTDisplay(); renderAttView(); renderResults(); renderGallery(); renderMyUploads(); renderStudentsList(); renderEnteredResults(); renderCopySessionsList(); updateCTNotifBadge(); updateHWBadge(); if(currentUser&&currentUser.role==="student"){ renderMyDuties(); updateLeaveStatusBadge(); } if(currentUser&&currentUser.role==="classteacher") updateLeaveCTBadge();
   if(canHW){ renderAllHW(); }
   if(canComplain) populateComplainSelects();
   if(isCT) renderStudentInfoTable();
@@ -1705,7 +1808,7 @@ function toggleMobSidebar(){ const sb=document.getElementById("sidebar"),ov=docu
 function closeMobSidebar(){ document.getElementById("sidebar").classList.remove("mob-open"); document.getElementById("mobOverlay").classList.remove("open"); document.getElementById("mobToggle").textContent="☰"; }
 function goHome(){ nav(document.querySelector("[data-page=dashboard]")); closeFolder(); }
 
-const PAGE_TITLES={dashboard:"Dashboard",subjects:"Subjects",notices:"Notice Board",gallery:"Gallery",timetable:"Timetable",attendance:"Attendance Record",results:"Results & Marks",hw_view:"Homework Board",upload:"Upload Files",post_notice:"Post Notice",manage_timetable:"Set Timetable",manage_results:"Enter Results",manage_attendance:"Mark Attendance",manage_students:"Students",copy_checking:"Copy Checking",homework:"Homework Manager",complain:"Complaints & Reports",student_info:"Student Information",assign_duty:"Assign Duty",my_duties:"My Duties"};
+const PAGE_TITLES={dashboard:"Dashboard",subjects:"Subjects",notices:"Notice Board",gallery:"Gallery",timetable:"Timetable",attendance:"Attendance Record",results:"Results & Marks",hw_view:"Homework Board",upload:"Upload Files",post_notice:"Post Notice",manage_timetable:"Set Timetable",manage_results:"Enter Results",manage_attendance:"Mark Attendance",manage_students:"Students",copy_checking:"Copy Checking",homework:"Homework Manager",complain:"Complaints & Reports",student_info:"Student Information",assign_duty:"Assign Duty",my_duties:"My Duties",apply_leave:"Apply for Leave",manage_leaves:"Leave Requests"};
 
 function nav(btn){
   if(!btn) return;
@@ -1714,7 +1817,7 @@ function nav(btn){
   document.querySelectorAll(".page").forEach(p=>p.classList.remove("active")); document.getElementById("page-"+pid).classList.add("active");
   document.getElementById("pageTitle").textContent=PAGE_TITLES[pid]||pid;
   const backBtn=document.getElementById("backBtn");
-  backBtn.classList.toggle("show",["upload","post_notice","manage_timetable","manage_results","manage_attendance","manage_students","results","copy_checking","homework","complain","student_info","assign_duty","my_duties"].includes(pid));
+  backBtn.classList.toggle("show",["upload","post_notice","manage_timetable","manage_results","manage_attendance","manage_students","results","copy_checking","homework","complain","student_info","assign_duty","my_duties","apply_leave","manage_leaves"].includes(pid));
   closeFolder();
   if(window.innerWidth<=820) closeMobSidebar();
   if(pid==="notices"||pid==="post_notice") renderNotices();
@@ -1735,6 +1838,8 @@ function nav(btn){
   if(pid==="complain"){ populateComplainSelects(); renderComplaintLog(); }
   if(pid==="assign_duty"){ populateDutySelects(); renderDutyLog(); }
   if(pid==="my_duties") renderMyDuties();
+  if(pid==="apply_leave"){ renderMyLeaves(); }
+  if(pid==="manage_leaves"){ renderManageLeaves(); updateLeaveCTBadge(); }
   if(pid==="student_info") renderStudentInfoTable();
   _refreshNotifDot();
 }
@@ -1766,7 +1871,7 @@ function renderDashboard(){
   if(["teacher","classteacher"].includes(u.role)) ha.innerHTML+=`<button class="btn btn-outline" onclick="nav(document.querySelector('[data-page=post_notice]'))">📌 Post Notice</button>`;
   if(["teacher","classteacher"].includes(u.role)) ha.innerHTML+=`<button class="btn btn-outline" onclick="nav(document.querySelector('[data-page=manage_results]'))">✏️ Enter Results</button>`;
   if(u.role==="classteacher"){ const nw=(DB.get("ct_notifications")||[]).filter(n=>!n.read&&n.type==="new_student").length; if(nw) ha.innerHTML+=`<button class="btn btn-outline" style="color:#4a9eff;border-color:rgba(74,158,255,0.4);" onclick="nav(document.querySelector('[data-page=manage_students]'))">🔔 ${nw} New Student${nw>1?"s":""}</button>`; }
-  if(u.role==="student"){ const sn=(DB.get("studentNotifications")||[]).filter(n=>!n.read); if(sn.length) ha.innerHTML+=`<button class="btn btn-outline" style="color:#4a9eff;border-color:rgba(74,158,255,0.4);" onclick="nav(document.querySelector('[data-page=results]'))">📊 ${sn.length} New Result${sn.length>1?"s":""}</button>`; ha.innerHTML+=`<button class="btn btn-outline" onclick="nav(document.querySelector('[data-page=attendance]'))">✅ My Attendance</button>`; }
+  if(u.role==="student"){ const sn=(DB.get("studentNotifications")||[]).filter(n=>!n.read); if(sn.length) ha.innerHTML+=`<button class="btn btn-outline" style="color:#4a9eff;border-color:rgba(74,158,255,0.4);" onclick="nav(document.querySelector('[data-page=results]'))">📊 ${sn.length} New Result${sn.length>1?"s":""}</button>`; ha.innerHTML+=`<button class="btn btn-outline" onclick="nav(document.querySelector('[data-page=attendance]'))">✅ My Attendance</button>`; ha.innerHTML+=`<button class="btn btn-outline" style="color:#4a9eff;border-color:rgba(74,158,255,0.4);" onclick="nav(document.querySelector('[data-page=apply_leave]'))">🏖️ Apply Leave</button>`; }
   const files=DB.get("files")||[],notices=DB.get("notices")||[],results=DB.get("results")||[];
   document.getElementById("statsRow").innerHTML=`<div class="stat-card"><div class="stat-icon">📁</div><div class="stat-num">${files.length}</div><div class="stat-lbl">Total Files</div></div><div class="stat-card"><div class="stat-icon">📌</div><div class="stat-num">${notices.length}</div><div class="stat-lbl">Notices</div></div><div class="stat-card"><div class="stat-icon">📚</div><div class="stat-num">${SUBJECTS.length}</div><div class="stat-lbl">Subjects</div></div><div class="stat-card"><div class="stat-icon">📊</div><div class="stat-num">${results.length}</div><div class="stat-lbl">Test Results</div></div>`;
   document.getElementById("dashSubjGrid").innerHTML=SUBJECTS.map(s=>{ const cnt=files.filter(f=>f.subject===s.id).length; return `<div class="subj-card" onclick="openFolder('${s.id}')"><span class="subj-emoji">${s.emoji}</span><div class="subj-num">${cnt}</div><div class="subj-name">${s.name}</div><div class="subj-count">${cnt} file${cnt!==1?"s":""}</div></div>`; }).join("");
@@ -3295,6 +3400,208 @@ function renderDutyLog(){
     </div>`;
   }).join("")+`</div>`;
 }
+
+// ═══════════════════════════════════════════════════════════════
+// LEAVE APPLICATION SYSTEM
+// ═══════════════════════════════════════════════════════════════
+
+let _leaveImageData = null;
+
+function previewLeaveImage(input){
+  if(!input.files||!input.files[0]) return;
+  const file=input.files[0];
+  if(file.size>3*1024*1024){ showToast("❌ Image too large (max 3MB)"); input.value=""; return; }
+  const reader=new FileReader();
+  reader.onload=e=>{
+    _leaveImageData=e.target.result;
+    document.getElementById("leaveImageThumb").src=_leaveImageData;
+    document.getElementById("leaveImagePreview").style.display="block";
+    document.getElementById("leaveImageName").textContent=file.name;
+  };
+  reader.readAsDataURL(file);
+}
+
+function clearLeaveImage(){
+  _leaveImageData=null;
+  document.getElementById("leaveImageInput").value="";
+  document.getElementById("leaveImagePreview").style.display="none";
+  document.getElementById("leaveImageName").textContent="No image selected";
+}
+
+function submitLeaveApplication(){
+  if(!currentUser||currentUser.role!=="student"){ showToast("❌ Only students can apply for leave"); return; }
+  const from=document.getElementById("leaveFromDate").value;
+  const to=document.getElementById("leaveToDate").value;
+  const reason=document.getElementById("leaveReason").value.trim();
+  if(!from||!to){ showToast("❌ Please select From and To dates"); return; }
+  if(new Date(to)<new Date(from)){ showToast("❌ To date cannot be before From date"); return; }
+  if(!reason){ showToast("❌ Please enter a reason for leave"); return; }
+
+  // Calculate number of days
+  const days=Math.ceil((new Date(to)-new Date(from))/(1000*60*60*24))+1;
+
+  const app={
+    id: Date.now().toString(),
+    studentId: currentUser.id,
+    studentName: currentUser.name,
+    studentRoll: currentUser.roll,
+    fromDate: from,
+    toDate: to,
+    days: days,
+    reason: reason,
+    image: _leaveImageData||null,
+    status: "pending",
+    appliedOn: new Date().toLocaleString("en-IN"),
+    rejectionReason: null,
+    actionOn: null
+  };
+
+  DB.push("leaveApplications", app);
+
+  // Notify class teacher
+  const notifs=DB.get("ct_notifications")||[];
+  notifs.unshift({id:`ln_${Date.now()}`,type:"leave_request",msg:`${currentUser.name} (Roll: ${currentUser.roll}) applied for leave from ${from} to ${to}.`,time:new Date().toLocaleString("en-IN"),read:false});
+  DB.set("ct_notifications",notifs);
+  updateCTNotifBadge();
+
+  // Reset form
+  document.getElementById("leaveFromDate").value="";
+  document.getElementById("leaveToDate").value="";
+  document.getElementById("leaveReason").value="";
+  clearLeaveImage();
+
+  showToast("✅ Leave application submitted!");
+  renderMyLeaves();
+  updateLeaveStatusBadge();
+}
+
+function updateLeaveStatusBadge(){
+  if(!currentUser||currentUser.role!=="student") return;
+  const apps=(DB.get("leaveApplications")||[]).filter(a=>a.studentId===currentUser.id);
+  const pending=apps.filter(a=>a.status==="pending").length;
+  const badge=document.getElementById("leaveStatusBadge");
+  if(badge){ badge.style.display=pending>0?"":"none"; }
+}
+
+function updateLeaveCTBadge(){
+  const pending=(DB.get("leaveApplications")||[]).filter(a=>a.status==="pending").length;
+  const badge=document.getElementById("leaveCTBadge");
+  if(badge){ badge.style.display=pending>0?"":"none"; badge.textContent=pending>0?pending:"!"; }
+}
+
+function renderMyLeaves(){
+  const el=document.getElementById("myLeavesList"); if(!el) return;
+  if(!currentUser||currentUser.role!=="student"){ el.innerHTML=""; return; }
+  const apps=(DB.get("leaveApplications")||[]).filter(a=>a.studentId===currentUser.id);
+  updateLeaveStatusBadge();
+  if(!apps.length){
+    el.innerHTML=`<div class="empty-state"><div class="empty-icon">🏖️</div><div class="empty-text">No leave applications yet</div></div>`;
+    return;
+  }
+  el.innerHTML=`<div style="display:grid;gap:12px;">`+apps.map(a=>{
+    const statusInfo={
+      pending:  {col:"var(--gold)",   bg:"rgba(232,160,32,0.12)", label:"⏳ Pending",  border:"rgba(232,160,32,0.3)"},
+      approved: {col:"#3dba7e",       bg:"rgba(61,186,126,0.12)", label:"✅ Approved", border:"rgba(61,186,126,0.3)"},
+      rejected: {col:"#e05555",       bg:"rgba(224,85,85,0.12)",  label:"❌ Rejected", border:"rgba(224,85,85,0.3)"}
+    }[a.status]||{col:"var(--muted)",bg:"transparent",label:a.status,border:"rgba(255,255,255,0.1)"};
+    return `<div style="background:rgba(255,255,255,0.03);border:1px solid ${statusInfo.border};border-left:4px solid ${statusInfo.col};border-radius:12px;padding:14px 16px;">
+      <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:10px;flex-wrap:wrap;margin-bottom:10px;">
+        <div style="flex:1;min-width:0;">
+          <div style="font-size:15px;font-weight:700;margin-bottom:4px;">📅 ${a.fromDate} → ${a.toDate} <span style="font-size:12px;color:var(--muted);font-weight:400;">(${a.days} day${a.days>1?"s":""})</span></div>
+          <div style="font-size:13px;color:var(--off);margin-bottom:4px;">📝 ${a.reason}</div>
+          <div style="font-size:11px;color:var(--muted);">Applied on ${a.appliedOn}</div>
+          ${a.status==="rejected"&&a.rejectionReason?`<div style="margin-top:8px;padding:8px 10px;background:rgba(224,85,85,0.1);border-radius:8px;border:1px solid rgba(224,85,85,0.2);font-size:12px;color:#ff8080;">❌ Reason: ${a.rejectionReason}</div>`:""}
+          ${a.status==="approved"?`<div style="margin-top:6px;font-size:12px;color:#3dba7e;">✅ Approved on ${a.actionOn}</div>`:""}
+        </div>
+        <div style="display:flex;flex-direction:column;align-items:flex-end;gap:6px;">
+          <span style="font-size:11px;padding:4px 12px;border-radius:10px;font-weight:700;background:${statusInfo.bg};color:${statusInfo.col};border:1px solid ${statusInfo.border};white-space:nowrap;">${statusInfo.label}</span>
+          ${a.image?`<button class="btn btn-outline btn-sm" onclick="viewLeaveImage('${a.id}')">🖼️ View</button>`:""}
+        </div>
+      </div>
+    </div>`;
+  }).join("")+`</div>`;
+}
+
+function renderManageLeaves(){
+  const el=document.getElementById("manageLeavesList"); if(!el) return;
+  let apps=DB.get("leaveApplications")||[];
+  const filter=document.getElementById("leaveFilterCT")?.value||"";
+  if(filter) apps=apps.filter(a=>a.status===filter);
+  updateLeaveCTBadge();
+  if(!apps.length){
+    el.innerHTML=`<div class="empty-state"><div class="empty-icon">🏖️</div><div class="empty-text">${filter?"No "+filter+" applications":"No leave applications yet"}</div></div>`;
+    return;
+  }
+  el.innerHTML=`<div style="display:grid;gap:12px;">`+apps.map(a=>{
+    const statusInfo={
+      pending:  {col:"var(--gold)",   bg:"rgba(232,160,32,0.12)", label:"⏳ Pending",  border:"rgba(232,160,32,0.3)"},
+      approved: {col:"#3dba7e",       bg:"rgba(61,186,126,0.12)", label:"✅ Approved", border:"rgba(61,186,126,0.3)"},
+      rejected: {col:"#e05555",       bg:"rgba(224,85,85,0.12)",  label:"❌ Rejected", border:"rgba(224,85,85,0.3)"}
+    }[a.status]||{col:"var(--muted)",bg:"transparent",label:a.status,border:"rgba(255,255,255,0.1)"};
+    return `<div style="background:rgba(255,255,255,0.03);border:1px solid ${statusInfo.border};border-left:4px solid ${statusInfo.col};border-radius:12px;padding:14px 16px;">
+      <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:10px;flex-wrap:wrap;margin-bottom:10px;">
+        <div style="flex:1;min-width:0;">
+          <div style="font-size:15px;font-weight:700;margin-bottom:3px;">${a.studentName} <span style="font-size:12px;color:var(--gold);font-weight:400;">Roll: ${a.studentRoll}</span></div>
+          <div style="font-size:13px;color:var(--off);margin-bottom:3px;">📅 ${a.fromDate} → ${a.toDate} <span style="color:var(--muted);font-size:12px;">(${a.days} day${a.days>1?"s":""})</span></div>
+          <div style="font-size:12px;color:var(--muted);margin-bottom:3px;">📝 ${a.reason}</div>
+          <div style="font-size:11px;color:var(--muted);">Applied: ${a.appliedOn}</div>
+          ${a.status==="rejected"&&a.rejectionReason?`<div style="margin-top:8px;padding:7px 10px;background:rgba(224,85,85,0.1);border-radius:8px;font-size:12px;color:#ff8080;">Rejection reason: ${a.rejectionReason}</div>`:""}
+          ${a.status==="approved"?`<div style="margin-top:5px;font-size:12px;color:#3dba7e;">Approved on ${a.actionOn}</div>`:""}
+        </div>
+        <div style="display:flex;flex-direction:column;align-items:flex-end;gap:6px;flex-shrink:0;">
+          <span style="font-size:11px;padding:4px 12px;border-radius:10px;font-weight:700;background:${statusInfo.bg};color:${statusInfo.col};border:1px solid ${statusInfo.border};white-space:nowrap;">${statusInfo.label}</span>
+          ${a.image?`<button class="btn btn-outline btn-sm" onclick="viewLeaveImage('${a.id}')">🖼️ Application</button>`:""}
+          ${a.status==="pending"?`<div style="display:flex;gap:6px;"><button class="btn btn-gold btn-sm" onclick="approveLeave('${a.id}')">✅ Approve</button><button class="btn btn-danger btn-sm" onclick="openLeaveReject('${a.id}','${a.studentName}')">❌ Reject</button></div>`:""}
+        </div>
+      </div>
+    </div>`;
+  }).join("")+`</div>`;
+}
+
+function approveLeave(id){
+  const apps=DB.get("leaveApplications")||[];
+  const idx=apps.findIndex(a=>a.id===id); if(idx<0) return;
+  apps[idx].status="approved";
+  apps[idx].actionOn=new Date().toLocaleString("en-IN");
+  DB.set("leaveApplications",apps);
+  showToast("✅ Leave approved!");
+  renderManageLeaves();
+  updateLeaveCTBadge();
+}
+
+function openLeaveReject(id,studentName){
+  document.getElementById("leaveRejectId").value=id;
+  document.getElementById("leaveRejectStudentLabel").textContent=`Rejecting leave for: ${studentName}`;
+  document.getElementById("leaveRejectReason").value="";
+  const m=document.getElementById("leaveRejectModal");
+  m.style.display="flex";
+}
+
+function confirmRejectLeave(){
+  const id=document.getElementById("leaveRejectId").value;
+  const reason=document.getElementById("leaveRejectReason").value.trim();
+  if(!reason){ showToast("❌ Please enter a rejection reason"); return; }
+  const apps=DB.get("leaveApplications")||[];
+  const idx=apps.findIndex(a=>a.id===id); if(idx<0) return;
+  apps[idx].status="rejected";
+  apps[idx].rejectionReason=reason;
+  apps[idx].actionOn=new Date().toLocaleString("en-IN");
+  DB.set("leaveApplications",apps);
+  closeModal("leaveRejectModal");
+  showToast("❌ Leave rejected.");
+  renderManageLeaves();
+  updateLeaveCTBadge();
+}
+
+function viewLeaveImage(leaveId){
+  const apps=DB.get("leaveApplications")||[];
+  const a=apps.find(x=>x.id===leaveId);
+  if(!a||!a.image){ showToast("No image attached"); return; }
+  document.getElementById("leaveImageFull").src=a.image;
+  const m=document.getElementById("leaveImageModal");
+  m.style.display="flex";
+}
+
 function renderMyDuties(){
   const el=document.getElementById("myDutiesList"); if(!el) return;
   if(!currentUser||currentUser.role!=="student"){ el.innerHTML=""; return; }
