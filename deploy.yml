@@ -16,12 +16,6 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v3
 
-      # Inject Groq key directly into index.html (no config.js needed)
-      - name: Inject Groq API key into index.html
-        run: |
-          sed -i "s|GROQ_KEY_PLACEHOLDER|${{ secrets.GROQ_API_KEY }}|g" index.html
-
-      # Deploy everything to GitHub Pages
       - name: Deploy to GitHub Pages
         uses: peaceiris/actions-gh-pages@v3
         with:
