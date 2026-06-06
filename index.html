@@ -1228,6 +1228,30 @@ button:active, .btn:active, .nav-btn:active, .auth-btn:active, .role-card:active
           <div style="color:rgba(255,255,255,0.5);font-size:12px;margin-top:10px;">Tap anywhere to close</div>
         </div>
       </div>
+
+      <!-- Edit Leave Modal (Student) -->
+      <div class="modal-overlay" id="editLeaveModal" style="display:none;position:fixed;inset:0;background:rgba(11,28,54,0.88);backdrop-filter:blur(8px);z-index:800;align-items:center;justify-content:center;">
+        <div class="modal-box" style="width:400px;max-width:94vw;">
+          <div class="card-title">✏️ Edit Leave Application</div>
+          <input type="hidden" id="editLeaveId">
+          <div class="form-group">
+            <label class="form-label">From Date</label>
+            <input class="form-input" type="date" id="editLeaveFrom">
+          </div>
+          <div class="form-group">
+            <label class="form-label">To Date</label>
+            <input class="form-input" type="date" id="editLeaveTo">
+          </div>
+          <div class="form-group">
+            <label class="form-label">Reason</label>
+            <textarea class="form-input" id="editLeaveReason" rows="3" style="resize:vertical;min-height:70px;"></textarea>
+          </div>
+          <div style="display:flex;gap:10px;margin-top:6px;">
+            <button class="btn btn-outline" style="flex:1;" onclick="closeModal('editLeaveModal')">Cancel</button>
+            <button class="btn btn-gold" style="flex:1;" onclick="confirmEditLeave()">💾 Save</button>
+          </div>
+        </div>
+      </div>
     </div><!-- /pages -->
   </div><!-- /main-area -->
 </div><!-- /appScreen -->
@@ -1500,7 +1524,7 @@ function initFirebase(){
 let _writeLock=false;
 const DB={
   get(k){ return _memCache[k]!==undefined?_memCache[k]:null; },
-  set(k,v){ _memCache[k]=v; try{ localStorage.setItem("davx_"+k,JSON.stringify(v)); }catch(e){} if(_firebaseReady&&_db){ _writeLock=true; _db.ref("davx/"+k).set(v).then(()=>{ setTimeout(()=>{ _writeLock=false; },800); }).catch(e=>{ _writeLock=false; }); } },
+  set(k,v){ _memCache[k]=v; try{ const s=JSON.stringify(v); if(s.length<500000){ localStorage.setItem("davx_"+k,s); } else { localStorage.removeItem("davx_"+k); }}catch(e){ try{ localStorage.removeItem("davx_"+k); }catch(e2){}} if(_firebaseReady&&_db){ _writeLock=true; _db.ref("davx/"+k).set(v).then(()=>{ setTimeout(()=>{ _writeLock=false; },800); }).catch(e=>{ _writeLock=false; }); } },
   push(k,item){ const a=DB.get(k)||[]; a.unshift(item); DB.set(k,a); return a; },
   del(k,id){ const a=(DB.get(k)||[]).filter(i=>i.id!==id); DB.set(k,a); const t=DB._getTombs(); if(!t[k]) t[k]={}; t[k][id]=Date.now(); DB._saveTombs(t); if(_firebaseReady&&_db) _db.ref("davx_tombs/"+k+"/"+id).set(Date.now()).catch(e=>{}); return a; },
   _getTombs(){ try{ return JSON.parse(localStorage.getItem("davx_tombstones")||"{}"); }catch(e){ return {}; } },
@@ -1808,7 +1832,7 @@ function updateHWBadge(){
 // MODAL HELPERS
 // ═══════════════════════════════════════════
 function openModal(id){ document.getElementById(id).classList.add("open"); }
-function closeModal(id){ document.getElementById(id).classList.remove("open"); }
+function closeModal(id){ const m=document.getElementById(id); if(!m) return; m.classList.remove("open"); m.style.display="none"; }
 function togglePassVis(inputId,btnId){ const inp=document.getElementById(inputId),btn=document.getElementById(btnId); if(!inp) return; const show=inp.type==="password"; inp.type=show?"text":"password"; if(btn) btn.textContent=show?"🙈":"👁️"; }
 document.querySelectorAll(".modal-overlay").forEach(m=>{ m.addEventListener("click",function(e){ if(e.target===this) closeModal(this.id); }); });
 
@@ -3528,6 +3552,8 @@ function renderMyLeaves(){
         <div style="display:flex;flex-direction:column;align-items:flex-end;gap:6px;">
           <span style="font-size:11px;padding:4px 12px;border-radius:10px;font-weight:700;background:${statusInfo.bg};color:${statusInfo.col};border:1px solid ${statusInfo.border};white-space:nowrap;">${statusInfo.label}</span>
           ${a.image?`<button class="btn btn-outline btn-sm" onclick="viewLeaveImage('${a.id}')">🖼️ View</button>`:""}
+          ${a.status==="pending"?`<div style="display:flex;gap:6px;margin-top:2px;"><button class="btn btn-outline btn-sm" onclick="openEditLeave('${a.id}')">✏️ Edit</button><button class="btn btn-danger btn-sm" onclick="deleteLeave('${a.id}','student')">🗑️ Delete</button></div>`:""}
+          ${a.status!=="pending"?`<button class="btn btn-danger btn-sm" style="margin-top:2px;" onclick="deleteLeave('${a.id}','student')">🗑️ Delete</button>`:""}
         </div>
       </div>
     </div>`;
@@ -3564,6 +3590,7 @@ function renderManageLeaves(){
           <span style="font-size:11px;padding:4px 12px;border-radius:10px;font-weight:700;background:${statusInfo.bg};color:${statusInfo.col};border:1px solid ${statusInfo.border};white-space:nowrap;">${statusInfo.label}</span>
           ${a.image?`<button class="btn btn-outline btn-sm" onclick="viewLeaveImage('${a.id}')">🖼️ Application</button>`:""}
           ${a.status==="pending"?`<div style="display:flex;gap:6px;"><button class="btn btn-gold btn-sm" onclick="approveLeave('${a.id}')">✅ Approve</button><button class="btn btn-danger btn-sm" onclick="openLeaveReject('${a.id}','${a.studentName}')">❌ Reject</button></div>`:""}
+          <button class="btn btn-outline btn-sm" style="margin-top:2px;border-color:rgba(224,85,85,0.4);color:#e05555;" onclick="deleteLeave('${a.id}','ct')">🗑️ Delete</button>
         </div>
       </div>
     </div>`;
@@ -3603,6 +3630,48 @@ function confirmRejectLeave(){
   showToast("❌ Leave rejected.");
   renderManageLeaves();
   updateLeaveCTBadge();
+}
+
+function openEditLeave(id){
+  const apps=DB.get("leaveApplications")||[];
+  const a=apps.find(x=>x.id===id); if(!a) return;
+  document.getElementById("editLeaveId").value=id;
+  document.getElementById("editLeaveFrom").value=a.fromDate;
+  document.getElementById("editLeaveTo").value=a.toDate;
+  document.getElementById("editLeaveReason").value=a.reason;
+  const m=document.getElementById("editLeaveModal");
+  m.style.display="flex";
+}
+
+function confirmEditLeave(){
+  const id=document.getElementById("editLeaveId").value;
+  const from=document.getElementById("editLeaveFrom").value;
+  const to=document.getElementById("editLeaveTo").value;
+  const reason=document.getElementById("editLeaveReason").value.trim();
+  if(!from||!to){ showToast("❌ Please select both dates"); return; }
+  if(!reason){ showToast("❌ Please enter a reason"); return; }
+  if(new Date(to)<new Date(from)){ showToast("❌ End date must be after start date"); return; }
+  const apps=DB.get("leaveApplications")||[];
+  const idx=apps.findIndex(a=>a.id===id); if(idx<0) return;
+  const days=Math.max(1,Math.round((new Date(to)-new Date(from))/(1000*60*60*24))+1);
+  apps[idx].fromDate=from;
+  apps[idx].toDate=to;
+  apps[idx].reason=reason;
+  apps[idx].days=days;
+  DB.set("leaveApplications",apps);
+  closeModal("editLeaveModal");
+  showToast("✅ Leave application updated!");
+  renderMyLeaves();
+  updateLeaveStatusBadge();
+}
+
+function deleteLeave(id, role){
+  if(!confirm("Delete this leave application?")) return;
+  const apps=DB.get("leaveApplications")||[];
+  DB.set("leaveApplications", apps.filter(a=>a.id!==id));
+  showToast("🗑️ Leave application deleted.");
+  if(role==="ct"){ renderManageLeaves(); updateLeaveCTBadge(); }
+  else { renderMyLeaves(); updateLeaveStatusBadge(); }
 }
 
 function viewLeaveImage(leaveId){
