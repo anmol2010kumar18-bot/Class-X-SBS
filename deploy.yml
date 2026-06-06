@@ -3,7 +3,7 @@ name: Deploy to GitHub Pages
 on:
   push:
     branches:
-      - main  # Runs every time you push to main branch
+      - main
 
 permissions:
   contents: write
@@ -13,20 +13,17 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      # Step 1: Download your repo code
       - name: Checkout code
         uses: actions/checkout@v3
 
-      # Step 2: Generate config.js — only Groq key (Firebase is hardcoded in index.html)
+      # Generate config.js — uses double-quotes so secret is actually substituted
       - name: Create config.js from secrets
         run: |
-          cat > config.js << 'EOF'
-          window._APP_CONFIG = {
-            groqKey: "${{ secrets.GROQ_API_KEY }}"
-          };
-          EOF
+          echo "window._APP_CONFIG = { groqKey: \"$GROQ_KEY\" };" > config.js
+        env:
+          GROQ_KEY: ${{ secrets.GROQ_API_KEY }}
 
-      # Step 3: Deploy everything to GitHub Pages
+      # Deploy everything to GitHub Pages
       - name: Deploy to GitHub Pages
         uses: peaceiris/actions-gh-pages@v3
         with:
