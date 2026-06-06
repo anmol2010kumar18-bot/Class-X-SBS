@@ -3,7 +3,13 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+<meta http-equiv="Pragma" content="no-cache">
+<meta http-equiv="Expires" content="0">
 <title>USCD DAV Public School — Class X SBS</title>
+
+<!-- 🔐 Local config — DO NOT commit this file. See config.example.js -->
+<script src="config.js"></script>
 
 <!-- PWA: Manifest & theme -->
 <!-- manifest injected inline via JS -->
@@ -95,6 +101,10 @@ html,body{height:100%;font-family:"DM Sans",sans-serif;background:var(--navy);co
 /* ── 6. Click ripple ── */
 @keyframes rippleOut { 0%{transform:scale(0);opacity:0.6;} 100%{transform:scale(4.5);opacity:0;} }
 .wow-ripple-el { position:absolute;border-radius:50%;width:12px;height:12px;margin:-6px;pointer-events:none;background:radial-gradient(circle,rgba(232,160,32,0.55) 0%,transparent 70%);animation:rippleOut 0.6s cubic-bezier(.22,1,.36,1) forwards; }
+
+/* ── Fix: Prevent buttons from shrinking/changing shape on click ── */
+button, .btn, .nav-btn, .auth-btn, .role-card, .btn-gold, .btn-sm { box-sizing: border-box; }
+button:active, .btn:active, .nav-btn:active, .auth-btn:active, .role-card:active, .btn-gold:active, .btn-sm:active { transform: none !important; }
 
 /* ── 7. Stat number flash ── */
 @keyframes numFlash { 0%{color:var(--gold2);text-shadow:0 0 18px rgba(232,160,32,0.8);} 100%{color:inherit;text-shadow:none;} }
@@ -513,6 +523,7 @@ html,body{height:100%;font-family:"DM Sans",sans-serif;background:var(--navy);co
     <button class="nav-btn" data-page="attendance" onclick="nav(this)"><span class="nav-icon">✅</span><span class="nav-label sb-text">Attendance</span></button>
     <button class="nav-btn" data-page="results" onclick="nav(this)"><span class="nav-icon">📊</span><span class="nav-label sb-text">Results</span></button>
     <button class="nav-btn" data-page="hw_view" onclick="nav(this)"><span class="nav-icon">📓</span><span class="nav-label sb-text">Homework</span><span class="nav-badge sb-text" id="hwViewBadge" style="display:none;background:#e8a020;">!</span></button>
+    <button class="nav-btn perm-student" data-page="my_duties" onclick="nav(this)" style="display:none;"><span class="nav-icon">📋</span><span class="nav-label sb-text">My Duties</span><span class="nav-badge sb-text" id="myDutyBadge" style="display:none;background:#e05555;">!</span></button>
     <div class="sb-section perm-upload" style="display:none;">Manage</div>
     <button class="nav-btn perm-upload" data-page="upload" onclick="nav(this)" style="display:none;"><span class="nav-icon">⬆️</span><span class="nav-label sb-text">Upload Files</span></button>
     <button class="nav-btn perm-monitor" data-page="copy_checking" onclick="nav(this)" style="display:none;"><span class="nav-icon">📋</span><span class="nav-label sb-text">Copy Checking</span></button>
@@ -1089,6 +1100,27 @@ html,body{height:100%;font-family:"DM Sans",sans-serif;background:var(--navy);co
         </div>
       </div>
 
+
+      <!-- MY DUTIES PAGE (Student View) -->
+      <div class="page" id="page-my_duties">
+        <div class="hero" style="padding:20px 26px;margin-bottom:18px;">
+          <div class="hero-label">My Work</div>
+          <div class="hero-h" style="font-size:22px;">My <span>Duties</span></div>
+          <div class="hero-sub">Duties assigned to you by the class teacher. Complete them before the deadline!</div>
+        </div>
+        <div class="card" style="margin-bottom:14px;">
+          <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:10px;margin-bottom:14px;">
+            <div class="card-title" style="margin-bottom:0;">📋 Assigned Duties</div>
+            <select class="form-select" id="myDutyFilter" style="max-width:160px;" onchange="renderMyDuties()">
+              <option value="">All Duties</option>
+              <option value="pending">⏳ Pending</option>
+              <option value="done">✅ Completed</option>
+              <option value="overdue">🔴 Overdue</option>
+            </select>
+          </div>
+          <div id="myDutiesList"></div>
+        </div>
+      </div>
     </div><!-- /pages -->
   </div><!-- /main-area -->
 </div><!-- /appScreen -->
@@ -1310,7 +1342,7 @@ window.addEventListener("DOMContentLoaded",()=>{
 // ═══════════════════════════════════════════
 // FIREBASE
 // ═══════════════════════════════════════════
-const FIREBASE_CONFIG={apiKey:"AIzaSyA7AgkFlnMttM0x-ScfbK9frDSpZEFnXNc",authDomain:"uscd-dav-class-x-sbs.firebaseapp.com",databaseURL:"https://uscd-dav-class-x-sbs-default-rtdb.firebaseio.com",projectId:"uscd-dav-class-x-sbs",storageBucket:"uscd-dav-class-x-sbs.firebasestorage.app",messagingSenderId:"732187424156",appId:"1:732187424156:web:0ebd0080c1e4649fbf8459"};
+const FIREBASE_CONFIG=window._APP_CONFIG?.firebase||{};
 let _memCache={},_firebaseReady=false,_db=null;
 
 function preloadLocalStorage(){
@@ -1616,10 +1648,10 @@ function initApp(){
   document.getElementById("sbRole").textContent=({classteacher:"Class Teacher",teacher:"Subject Teacher",monitor:"Class Monitor",student:"Student"})[u.role];
   const show=(cls,v)=>document.querySelectorAll("."+cls).forEach(el=>el.style.display=v?"":"none");
   const canUpload=["teacher","classteacher","monitor"].includes(u.role),canNotice=["teacher","classteacher"].includes(u.role),isCT=u.role==="classteacher",canResults=["teacher","classteacher"].includes(u.role),canMonitor=["monitor","classteacher"].includes(u.role),canHW=["teacher","classteacher","monitor"].includes(u.role),canComplain=["teacher","classteacher"].includes(u.role);
-  show("perm-upload",canUpload); show("perm-notice",canNotice); show("perm-ct",isCT); show("perm-results",canResults); show("perm-monitor",canMonitor); show("perm-hw",canHW); show("perm-complain",canComplain);
+  show("perm-upload",canUpload); show("perm-notice",canNotice); show("perm-ct",isCT); show("perm-results",canResults); show("perm-monitor",canMonitor); show("perm-hw",canHW); show("perm-complain",canComplain); show("perm-student",u.role==="student");
   populateAllSubjectSelects();
   buildTTEditor(); renderTTPreview(); setAttDate(); populateAttHistFilter();
-  renderDashboard(); renderTTDisplay(); renderAttView(); renderResults(); renderGallery(); renderMyUploads(); renderStudentsList(); renderEnteredResults(); renderCopySessionsList(); updateCTNotifBadge(); updateHWBadge();
+  renderDashboard(); renderTTDisplay(); renderAttView(); renderResults(); renderGallery(); renderMyUploads(); renderStudentsList(); renderEnteredResults(); renderCopySessionsList(); updateCTNotifBadge(); updateHWBadge(); if(currentUser&&currentUser.role==="student") renderMyDuties();
   if(canHW){ renderAllHW(); }
   if(canComplain) populateComplainSelects();
   if(isCT) renderStudentInfoTable();
@@ -1673,7 +1705,7 @@ function toggleMobSidebar(){ const sb=document.getElementById("sidebar"),ov=docu
 function closeMobSidebar(){ document.getElementById("sidebar").classList.remove("mob-open"); document.getElementById("mobOverlay").classList.remove("open"); document.getElementById("mobToggle").textContent="☰"; }
 function goHome(){ nav(document.querySelector("[data-page=dashboard]")); closeFolder(); }
 
-const PAGE_TITLES={dashboard:"Dashboard",subjects:"Subjects",notices:"Notice Board",gallery:"Gallery",timetable:"Timetable",attendance:"Attendance Record",results:"Results & Marks",hw_view:"Homework Board",upload:"Upload Files",post_notice:"Post Notice",manage_timetable:"Set Timetable",manage_results:"Enter Results",manage_attendance:"Mark Attendance",manage_students:"Students",copy_checking:"Copy Checking",homework:"Homework Manager",complain:"Complaints & Reports",student_info:"Student Information",assign_duty:"Assign Duty"};
+const PAGE_TITLES={dashboard:"Dashboard",subjects:"Subjects",notices:"Notice Board",gallery:"Gallery",timetable:"Timetable",attendance:"Attendance Record",results:"Results & Marks",hw_view:"Homework Board",upload:"Upload Files",post_notice:"Post Notice",manage_timetable:"Set Timetable",manage_results:"Enter Results",manage_attendance:"Mark Attendance",manage_students:"Students",copy_checking:"Copy Checking",homework:"Homework Manager",complain:"Complaints & Reports",student_info:"Student Information",assign_duty:"Assign Duty",my_duties:"My Duties"};
 
 function nav(btn){
   if(!btn) return;
@@ -1682,7 +1714,7 @@ function nav(btn){
   document.querySelectorAll(".page").forEach(p=>p.classList.remove("active")); document.getElementById("page-"+pid).classList.add("active");
   document.getElementById("pageTitle").textContent=PAGE_TITLES[pid]||pid;
   const backBtn=document.getElementById("backBtn");
-  backBtn.classList.toggle("show",["upload","post_notice","manage_timetable","manage_results","manage_attendance","manage_students","results","copy_checking","homework","complain","student_info","assign_duty"].includes(pid));
+  backBtn.classList.toggle("show",["upload","post_notice","manage_timetable","manage_results","manage_attendance","manage_students","results","copy_checking","homework","complain","student_info","assign_duty","my_duties"].includes(pid));
   closeFolder();
   if(window.innerWidth<=820) closeMobSidebar();
   if(pid==="notices"||pid==="post_notice") renderNotices();
@@ -1702,6 +1734,7 @@ function nav(btn){
   if(pid==="homework"){ populateAllSubjectSelects(); renderAllHW(); }
   if(pid==="complain"){ populateComplainSelects(); renderComplaintLog(); }
   if(pid==="assign_duty"){ populateDutySelects(); renderDutyLog(); }
+  if(pid==="my_duties") renderMyDuties();
   if(pid==="student_info") renderStudentInfoTable();
   _refreshNotifDot();
 }
@@ -3262,6 +3295,71 @@ function renderDutyLog(){
     </div>`;
   }).join("")+`</div>`;
 }
+function renderMyDuties(){
+  const el=document.getElementById("myDutiesList"); if(!el) return;
+  if(!currentUser||currentUser.role!=="student"){ el.innerHTML=""; return; }
+  const duties=DB.get("duties")||[];
+  const todayStr=new Date().toISOString().split("T")[0];
+  const filterVal=document.getElementById("myDutyFilter")?.value||"";
+
+  // Only duties assigned to this student
+  let myDuties=duties.filter(d=>d.students&&d.students.some(s=>s.id===currentUser.id));
+
+  // Apply filter
+  if(filterVal==="done") myDuties=myDuties.filter(d=>{const me=d.students.find(s=>s.id===currentUser.id);return me&&me.status==="done";});
+  else if(filterVal==="pending") myDuties=myDuties.filter(d=>{const me=d.students.find(s=>s.id===currentUser.id);return !me||me.status!=="done";});
+  else if(filterVal==="overdue") myDuties=myDuties.filter(d=>{const me=d.students.find(s=>s.id===currentUser.id);const isOverdue=d.dueDate&&d.dueDate<todayStr;return isOverdue&&(!me||me.status!=="done");});
+
+  // Update badge
+  const pendingCount=duties.filter(d=>{
+    const me=d.students&&d.students.find(s=>s.id===currentUser.id);
+    return me&&me.status!=="done";
+  }).length;
+  const badge=document.getElementById("myDutyBadge");
+  if(badge){ badge.style.display=pendingCount>0?"":"none"; badge.textContent="!"; }
+
+  if(!myDuties.length){
+    const emptyMsg=filterVal==="done"?"No completed duties yet.":filterVal==="overdue"?"No overdue duties 🎉":"No duties assigned to you yet.";
+    el.innerHTML=`<div class="empty-state"><div class="empty-icon">📋</div><div class="empty-text">${emptyMsg}</div></div>`;
+    return;
+  }
+
+  el.innerHTML=`<div style="display:grid;gap:12px;">`+[...myDuties].reverse().map(d=>{
+    const me=d.students.find(s=>s.id===currentUser.id);
+    const isDone=me&&me.status==="done";
+    const isOverdue=d.dueDate&&d.dueDate<todayStr&&!isDone;
+    const daysLeft=d.dueDate?Math.ceil((new Date(d.dueDate)-new Date(todayStr))/(1000*60*60*24)):null;
+    const statusCol=isDone?"#3dba7e":isOverdue?"#e05555":"var(--gold)";
+    const statusLabel=isDone?"✅ Completed":isOverdue?"🔴 Overdue":`⏳ Pending`;
+    let deadlineNote="";
+    if(!isDone&&daysLeft!==null){
+      if(daysLeft<0) deadlineNote=`<span style="color:#e05555;font-weight:600;">${Math.abs(daysLeft)} day(s) overdue</span>`;
+      else if(daysLeft===0) deadlineNote=`<span style="color:#e05555;font-weight:600;">Due Today!</span>`;
+      else if(daysLeft===1) deadlineNote=`<span style="color:var(--gold);font-weight:600;">Due Tomorrow</span>`;
+      else deadlineNote=`<span style="color:var(--muted);">${daysLeft} days left</span>`;
+    }
+    return `<div style="background:rgba(255,255,255,0.03);border:1px solid ${isOverdue?"rgba(224,85,85,0.25)":isDone?"rgba(61,186,126,0.2)":"rgba(255,255,255,0.08)"};border-left:4px solid ${statusCol};border-radius:12px;padding:16px 18px;">
+      <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:10px;flex-wrap:wrap;margin-bottom:10px;">
+        <div style="flex:1;min-width:0;">
+          <div style="font-size:17px;font-weight:700;margin-bottom:4px;">${d.name}</div>
+          <div style="font-size:12px;color:var(--muted);margin-bottom:3px;">👩‍🏫 Assigned by <strong style="color:var(--off);">${d.assignedBy}</strong> on ${d.assignedOn}</div>
+          ${d.note?`<div style="font-size:12px;color:var(--muted);margin-top:4px;background:rgba(255,255,255,0.04);padding:6px 10px;border-radius:7px;">📝 <em>${d.note}</em></div>`:""}
+        </div>
+        <span style="font-size:11px;padding:4px 12px;border-radius:10px;font-weight:700;white-space:nowrap;background:${isDone?"rgba(61,186,126,0.15)":isOverdue?"rgba(224,85,85,0.15)":"rgba(232,160,32,0.12)"};color:${statusCol};border:1px solid ${statusCol}33;">${statusLabel}</span>
+      </div>
+      <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px;padding-top:10px;border-top:1px solid rgba(255,255,255,0.06);">
+        <div style="display:flex;align-items:center;gap:14px;flex-wrap:wrap;">
+          <div style="font-size:12px;">
+            <span style="color:var(--muted);">📅 Deadline: </span>
+            <strong style="color:${isOverdue?"#e05555":isDone?"var(--muted)":"var(--off)"};">${d.dueDate||"—"}</strong>
+          </div>
+          <div style="font-size:12px;">${deadlineNote}</div>
+        </div>
+        ${isDone?`<span style="font-size:12px;color:#3dba7e;font-weight:600;">🎉 You completed this!</span>`:""}
+      </div>
+    </div>`;
+  }).join("")+`</div>`;
+}
 
 function openDutyCompletion(dutyId){
   const duties=DB.get("duties")||[];
@@ -3645,7 +3743,7 @@ window.addEventListener('appinstalled', () => {
 
 <!-- ═══════════════════════════════════════════════════════════════
      AI TUTOR — Floating Button + Chat Panel
-     Uses Groq API (llama-3.3-70b)
+     Uses Hugging Face Inference API (zephyr-7b-beta)
      ═══════════════════════════════════════════════════════════════ -->
 <style>
 /* ── Floating trigger button ── */
@@ -3985,7 +4083,7 @@ window.addEventListener('appinstalled', () => {
 
 // ── Config ──
 const AI_MODEL = 'llama-3.1-8b-instant';
-const AI_HF_KEY = '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';
+const AI_HF_KEY = window._APP_CONFIG?.groqKey || '';
 
 function aiGetKey() {
   return AI_HF_KEY;
@@ -4155,7 +4253,7 @@ async function aiSend() {
   aiShowTyping();
 
   try {
-    const reply = await aiCallGroq(key, _aiHistory);
+    const reply = await aiCallHuggingFace(key, _aiHistory);
     aiRemoveTyping();
     const botBubble = aiAddBubble('bot', formatAIReply(reply));
     _aiHistory.push({ role: 'assistant', content: reply });
@@ -4173,8 +4271,8 @@ async function aiSend() {
   document.getElementById('aiMessages').scrollTop = 9999;
 }
 
-// ── Call Groq API ──
-async function aiCallGroq(apiKey, history) {
+// ── Call Groq Inference API ──
+async function aiCallHuggingFace(apiKey, history) {
   const systemPrompt =
     'You are a friendly and knowledgeable AI Study Buddy for Class X students at USCD DAV Public School. ' +
     'Your job is to: explain concepts clearly and simply, help solve homework step-by-step, ' +
@@ -4293,7 +4391,6 @@ function escapeHtml(text) {
       el.style.top  = (e.clientY - rect.top)  + 'px';
       const cs = window.getComputedStyle(btn);
       if (cs.position === 'static') btn.style.position = 'relative';
-      btn.style.overflow = 'hidden';
       btn.appendChild(el);
       el.addEventListener('animationend', () => el.remove(), { once: true });
     });
