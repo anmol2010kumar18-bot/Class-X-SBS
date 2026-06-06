@@ -9,7 +9,10 @@
 <title>USCD DAV Public School — Class X SBS</title>
 
 <!-- 🔐 Local config — DO NOT commit this file. See config.example.js -->
-<script src="config.js"></script>
+<script>
+// Inline config — Groq key injected by GitHub Actions at deploy time
+window._APP_CONFIG = { groqKey: "GROQ_KEY_PLACEHOLDER" };
+</script>
 
 <!-- PWA: Manifest & theme -->
 <link rel="manifest" href="manifest.json">

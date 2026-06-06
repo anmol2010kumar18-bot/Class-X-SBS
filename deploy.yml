@@ -16,12 +16,10 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v3
 
-      # Generate config.js — uses double-quotes so secret is actually substituted
-      - name: Create config.js from secrets
+      # Inject Groq key directly into index.html (no config.js needed)
+      - name: Inject Groq API key into index.html
         run: |
-          echo "window._APP_CONFIG = { groqKey: \"$GROQ_KEY\" };" > config.js
-        env:
-          GROQ_KEY: ${{ secrets.GROQ_API_KEY }}
+          sed -i "s|GROQ_KEY_PLACEHOLDER|${{ secrets.GROQ_API_KEY }}|g" index.html
 
       # Deploy everything to GitHub Pages
       - name: Deploy to GitHub Pages
@@ -29,4 +27,4 @@ jobs:
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
           publish_dir: ./
-          exclude_assets: '.github,config.example.js,.gitignore'
+          exclude_assets: '.github,config.example.js,.gitignore,config.js'
