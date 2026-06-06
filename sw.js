@@ -1,6 +1,6 @@
 // sw.js — Service Worker for USCD DAV Class X SBS
-const CACHE = 'davx-v2';
-const SHELL = ['/Class-X-SBS/'];
+const CACHE = 'davx-v3';
+const SHELL = ['./'];
 
 self.addEventListener('install', e => {
   e.waitUntil(
@@ -23,7 +23,7 @@ self.addEventListener('activate', e => {
 self.addEventListener('fetch', e => {
   if (e.request.method !== 'GET') return;
   e.respondWith(
-    caches.match(e.request).then(r => r || fetch(e.request))
+    caches.match(e.request).then(r => r || fetch(e.request).catch(() => caches.match('./')))
   );
 });
 
@@ -32,8 +32,8 @@ self.addEventListener('push', e => {
   e.waitUntil(
     self.registration.showNotification(d.title || 'DAV Class X', {
       body: d.body || '',
-      icon: d.icon || '',
-      badge: d.badge || '',
+      icon: d.icon || 'icon-192.png',
+      badge: d.badge || 'icon-192.png',
       data: d.data || {},
       vibrate: [200, 100, 200]
     })
@@ -42,5 +42,5 @@ self.addEventListener('push', e => {
 
 self.addEventListener('notificationclick', e => {
   e.notification.close();
-  e.waitUntil(clients.openWindow('/Class-X-SBS/'));
+  e.waitUntil(clients.openWindow('./'));
 });

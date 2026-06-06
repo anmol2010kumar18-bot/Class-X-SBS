@@ -564,6 +564,7 @@ button:active, .btn:active, .nav-btn:active, .auth-btn:active, .role-card:active
       <div class="topbar-right">
         <input class="search-input" placeholder="🔍 Search files..." oninput="liveSearch(this.value)">
         <div class="icon-btn" onclick="nav(document.querySelector('[data-page=notices]'))">🔔<div class="notif-dot" id="notifDot" style="display:none;"></div></div>
+        <div class="icon-btn" id="pwaInstallBtn" title="Install App" style="display:none;font-size:15px;" onclick="triggerPWAInstall()">📲</div>
         <div class="icon-btn" id="appSyncBtn" title="Sync" style="font-size:12px;" onclick="forceSyncFromFirebase()">☁️</div>
       </div>
     </div>
@@ -3778,9 +3779,9 @@ document.getElementById("confirmOverlay").addEventListener("click",function(e){ 
 (function registerSW(){
   if(!('serviceWorker' in navigator)) return;
   window.addEventListener('load', ()=>{
-    navigator.serviceWorker.register('sw.js', {scope:'./'})
+    navigator.serviceWorker.register('sw.js')
       .then(reg => {
-        console.log('[PWA] SW registered');
+        console.log('[PWA] SW registered:', reg.scope);
         window._swReg = reg;
       })
       .catch(err => console.warn('[PWA] SW failed:', err));
@@ -3990,18 +3991,66 @@ const _origSubmitResults = typeof submitResults !== 'undefined' ? submitResults 
 const _origPostHW = typeof postHW !== 'undefined' ? postHW : null;
 
 
-// PWA — Install prompt (Android "Add to Home Screen")
+// PWA — Install prompt (Android + PC Chrome/Edge)
 let _deferredInstallPrompt = null;
+
+function triggerPWAInstall() {
+  if (_deferredInstallPrompt) {
+    _deferredInstallPrompt.prompt();
+    _deferredInstallPrompt.userChoice.then(choice => {
+      if (choice.outcome === 'accepted') {
+        showToast('✅ App installed! Open it from your home screen.');
+      }
+      _deferredInstallPrompt = null;
+      const btn = document.getElementById('pwaInstallBtn');
+      if (btn) btn.style.display = 'none';
+      const banner = document.getElementById('pwaBanner');
+      if (banner) banner.style.display = 'none';
+    });
+  } else {
+    // Fallback: guide user manually (iOS Safari or already installed)
+    const isIOS = /iphone|ipad|ipod/i.test(navigator.userAgent);
+    const isInStandalone = window.matchMedia('(display-mode: standalone)').matches;
+    if (isInStandalone) {
+      showToast('✅ Already installed as an app!');
+    } else if (isIOS) {
+      showToast('📲 Tap the Share button → "Add to Home Screen"');
+    } else {
+      showToast('📲 Open browser menu (⋮) → "Install app" or "Add to Home Screen"');
+    }
+  }
+}
+
 window.addEventListener('beforeinstallprompt', e => {
   e.preventDefault();
   _deferredInstallPrompt = e;
+  // Show install button in topbar
+  const btn = document.getElementById('pwaInstallBtn');
+  if (btn) btn.style.display = 'flex';
+  // Show install banner after 2s
   setTimeout(() => {
-    if (_deferredInstallPrompt) showToast('📲 Install this app — tap ⋮ → Add to Home Screen');
-  }, 3000);
+    const banner = document.getElementById('pwaBanner');
+    if (banner && _deferredInstallPrompt) banner.style.display = 'flex';
+  }, 2000);
 });
+
 window.addEventListener('appinstalled', () => {
   _deferredInstallPrompt = null;
+  const btn = document.getElementById('pwaInstallBtn');
+  if (btn) btn.style.display = 'none';
+  const banner = document.getElementById('pwaBanner');
+  if (banner) banner.style.display = 'none';
   showToast('✅ App installed! Open it from your home screen.');
+});
+
+// Show install button on iOS (no beforeinstallprompt event)
+window.addEventListener('load', () => {
+  const isIOS = /iphone|ipad|ipod/i.test(navigator.userAgent);
+  const isInStandalone = window.matchMedia('(display-mode: standalone)').matches;
+  if (isIOS && !isInStandalone) {
+    const btn = document.getElementById('pwaInstallBtn');
+    if (btn) btn.style.display = 'flex';
+  }
 });
 </script>
 
@@ -4721,5 +4770,68 @@ function escapeHtml(text) {
 
 })();
 </script>
+
+<!-- PWA Install Banner -->
+<style>
+#pwaBanner {
+  display: none;
+  position: fixed;
+  bottom: 80px;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 9999;
+  background: linear-gradient(135deg, #122547, #1b3a6e);
+  border: 1px solid rgba(232,160,32,0.4);
+  border-radius: 16px;
+  padding: 14px 18px;
+  box-shadow: 0 8px 32px rgba(0,0,0,0.5);
+  align-items: center;
+  gap: 12px;
+  max-width: 340px;
+  width: calc(100% - 40px);
+  animation: bannerSlide .35s ease;
+}
+@keyframes bannerSlide {
+  from { opacity:0; transform: translateX(-50%) translateY(20px); }
+  to   { opacity:1; transform: translateX(-50%) translateY(0); }
+}
+#pwaBanner .pwa-icon { font-size: 28px; flex-shrink: 0; }
+#pwaBanner .pwa-text { flex: 1; }
+#pwaBanner .pwa-text strong { display:block; color:#f8f4ee; font-size:14px; }
+#pwaBanner .pwa-text span   { color:#c8bfaf; font-size:12px; }
+#pwaBanner .pwa-actions { display:flex; gap:8px; flex-shrink:0; }
+#pwaBanner .pwa-install-btn {
+  background: linear-gradient(135deg,#e8a020,#f5c050);
+  color: #0b1c36;
+  border: none;
+  border-radius: 8px;
+  padding: 7px 13px;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+}
+#pwaBanner .pwa-dismiss-btn {
+  background: rgba(255,255,255,0.08);
+  color: #c8bfaf;
+  border: 1px solid rgba(255,255,255,0.12);
+  border-radius: 8px;
+  padding: 7px 10px;
+  font-size: 13px;
+  cursor: pointer;
+}
+</style>
+
+<div id="pwaBanner">
+  <div class="pwa-icon">🏫</div>
+  <div class="pwa-text">
+    <strong>Install Class X SBS</strong>
+    <span>Works offline • Fast • No browser bar</span>
+  </div>
+  <div class="pwa-actions">
+    <button class="pwa-install-btn" onclick="triggerPWAInstall()">Install</button>
+    <button class="pwa-dismiss-btn" onclick="document.getElementById('pwaBanner').style.display='none'">✕</button>
+  </div>
+</div>
+
 </body>
 </html>
