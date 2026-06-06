@@ -4763,6 +4763,11 @@ function escapeHtml(text) {
   } else { boot(); }
 
 })();
+
+  
+if (!location.search.includes('v=')) {
+  location.replace(location.pathname + '?v=3');
+}
 </script>
 </body>
 </html>
