@@ -32,6 +32,80 @@ html,body{height:100%;font-family:"DM Sans",sans-serif;background:var(--navy);co
 .screen{display:none;width:100%;height:100%;position:fixed;inset:0;}
 .screen.active{display:flex;}
 
+/* ═══════════════════════════════════════
+   WOW ANIMATIONS v2
+   ═══════════════════════════════════════ */
+
+/* ── 1. Floating aurora blobs ── */
+@keyframes auroraDrift1 {
+  0%,100% { transform: translate(0,0) scale(1); }
+  33%     { transform: translate(40px,-30px) scale(1.08); }
+  66%     { transform: translate(-20px,20px) scale(0.96); }
+}
+@keyframes auroraDrift2 {
+  0%,100% { transform: translate(0,0) scale(1.05); }
+  40%     { transform: translate(-50px,25px) scale(0.95); }
+  75%     { transform: translate(30px,-40px) scale(1.1); }
+}
+@keyframes auroraDrift3 {
+  0%,100% { transform: translate(0,0) scale(1); opacity:0.06; }
+  50%     { transform: translate(20px,30px) scale(1.12); opacity:0.13; }
+}
+.wow-aurora { position:fixed;inset:0;pointer-events:none;z-index:0;overflow:hidden; }
+.wow-aurora-blob { position:absolute;border-radius:50%;filter:blur(80px); }
+.wow-aurora-blob:nth-child(1) { width:520px;height:520px;top:-130px;right:-110px;background:radial-gradient(circle,rgba(232,160,32,0.13) 0%,rgba(232,160,32,0.04) 50%,transparent 70%);animation:auroraDrift1 12s ease-in-out infinite; }
+.wow-aurora-blob:nth-child(2) { width:380px;height:380px;bottom:-90px;left:-70px;background:radial-gradient(circle,rgba(74,158,255,0.1) 0%,rgba(74,158,255,0.03) 50%,transparent 70%);animation:auroraDrift2 16s ease-in-out infinite; }
+.wow-aurora-blob:nth-child(3) { width:260px;height:260px;top:42%;left:38%;background:radial-gradient(circle,rgba(61,186,126,0.08) 0%,transparent 65%);animation:auroraDrift3 19s ease-in-out infinite; }
+
+/* ── 2. Twinkling particles ── */
+@keyframes twinkle {
+  0%,100% { opacity:0; transform:scale(0.4); }
+  50%     { opacity:1; transform:scale(1); }
+}
+.wow-particle-field { position:fixed;inset:0;pointer-events:none;z-index:0; }
+.wow-dot { position:absolute;border-radius:50%;background:rgba(232,160,32,0.7);animation:twinkle ease-in-out infinite; }
+
+/* ── 3. Screen entrance ── */
+@keyframes screenFadeUp {
+  from { opacity:0; transform:translateY(14px); }
+  to   { opacity:1; transform:translateY(0); }
+}
+.screen.active { animation:screenFadeUp 0.38s cubic-bezier(.22,1,.36,1) both; }
+
+/* ── 4. Card reveal + gold border flash ── */
+@keyframes cardReveal {
+  from { opacity:0; transform:translateY(18px) scale(0.98); }
+  to   { opacity:1; transform:translateY(0) scale(1); }
+}
+@keyframes borderTrace {
+  0%   { box-shadow:0 0 0 0 rgba(232,160,32,0); }
+  40%  { box-shadow:0 0 0 1.5px rgba(232,160,32,0.5),0 8px 32px rgba(232,160,32,0.11); }
+  100% { box-shadow:0 0 0 0 rgba(232,160,32,0); }
+}
+.wow-card-enter { animation:cardReveal 0.5s cubic-bezier(.22,1,.36,1) both, borderTrace 1.1s ease-out 0.15s both; }
+
+/* ── 5. Diagonal gold shimmer ── */
+@keyframes goldShimmer {
+  0%   { background-position:-300% center; }
+  100% { background-position: 300% center; }
+}
+.wow-shimmer { position:relative;overflow:hidden; }
+.wow-shimmer::after { content:"";position:absolute;inset:0;pointer-events:none;background:linear-gradient(105deg,transparent 30%,rgba(232,160,32,0.14) 48%,rgba(245,192,80,0.26) 52%,transparent 70%);background-size:200% 100%;animation:goldShimmer 3s linear infinite;border-radius:inherit; }
+
+/* ── 6. Click ripple ── */
+@keyframes rippleOut { 0%{transform:scale(0);opacity:0.6;} 100%{transform:scale(4.5);opacity:0;} }
+.wow-ripple-el { position:absolute;border-radius:50%;width:12px;height:12px;margin:-6px;pointer-events:none;background:radial-gradient(circle,rgba(232,160,32,0.55) 0%,transparent 70%);animation:rippleOut 0.6s cubic-bezier(.22,1,.36,1) forwards; }
+
+/* ── 7. Stat number flash ── */
+@keyframes numFlash { 0%{color:var(--gold2);text-shadow:0 0 18px rgba(232,160,32,0.8);} 100%{color:inherit;text-shadow:none;} }
+.wow-num-flash { animation:numFlash 0.9s ease-out forwards; }
+
+/* ── 8. Nav active breathe ── */
+@keyframes navActivePulse { 0%,100%{box-shadow:none;} 50%{box-shadow:inset 3px 0 14px rgba(232,160,32,0.18);} }
+.nav-btn.active { animation:navActivePulse 3s ease-in-out infinite; }
+
+/* END WOW ANIMATIONS v2 */
+
 /* AUTH */
 #authScreen{background:radial-gradient(ellipse 70% 60% at 30% 40%,rgba(27,58,110,0.5) 0%,transparent 70%),radial-gradient(ellipse 50% 50% at 80% 70%,rgba(232,160,32,0.07) 0%,transparent 60%),var(--navy);flex-direction:column;align-items:center;justify-content:flex-start;overflow-y:auto;padding:32px 20px 40px;position:relative;}
 #authScreen::before{content:"";position:fixed;inset:0;pointer-events:none;background:repeating-linear-gradient(0deg,transparent,transparent 39px,rgba(232,160,32,0.03) 40px),repeating-linear-gradient(90deg,transparent,transparent 39px,rgba(232,160,32,0.03) 40px);}
@@ -3571,7 +3645,7 @@ window.addEventListener('appinstalled', () => {
 
 <!-- ═══════════════════════════════════════════════════════════════
      AI TUTOR — Floating Button + Chat Panel
-     Uses Hugging Face Inference API (zephyr-7b-beta)
+     Uses Groq API (llama-3.3-70b)
      ═══════════════════════════════════════════════════════════════ -->
 <style>
 /* ── Floating trigger button ── */
@@ -3951,7 +4025,7 @@ function aiConfigKey(e) { if(e) e.preventDefault(); }
       if (Math.abs(dx) > 4 || Math.abs(dy) > 4) didDrag = true;
       const bW = btn.offsetWidth, bH = btn.offsetHeight;
       let newRight  = clamp(origRight  - dx, MARGIN, window.innerWidth  - bW - MARGIN);
-      let newBottom = clamp(origBottom + dy, MARGIN, window.innerHeight - bH - MARGIN);
+      let newBottom = clamp(origBottom - dy, MARGIN, window.innerHeight - bH - MARGIN);
       btn.style.right  = newRight  + 'px';
       btn.style.bottom = newBottom + 'px';
       btn.style.left = 'auto'; btn.style.top = 'auto';
@@ -4081,7 +4155,7 @@ async function aiSend() {
   aiShowTyping();
 
   try {
-    const reply = await aiCallHuggingFace(key, _aiHistory);
+    const reply = await aiCallGroq(key, _aiHistory);
     aiRemoveTyping();
     const botBubble = aiAddBubble('bot', formatAIReply(reply));
     _aiHistory.push({ role: 'assistant', content: reply });
@@ -4099,8 +4173,8 @@ async function aiSend() {
   document.getElementById('aiMessages').scrollTop = 9999;
 }
 
-// ── Call Groq Inference API ──
-async function aiCallHuggingFace(apiKey, history) {
+// ── Call Groq API ──
+async function aiCallGroq(apiKey, history) {
   const systemPrompt =
     'You are a friendly and knowledgeable AI Study Buddy for Class X students at USCD DAV Public School. ' +
     'Your job is to: explain concepts clearly and simply, help solve homework step-by-step, ' +
@@ -4165,6 +4239,126 @@ function escapeHtml(text) {
     .replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;')
     .replace(/\n/g,'<br>');
 }
+</script>
+</body>
+</html>
+<script>
+// ═══════════════════════════════════════
+//  WOW ANIMATIONS v2 — runtime
+// ═══════════════════════════════════════
+(function wowInit() {
+
+  /* --- Aurora blobs --- */
+  function addAurora() {
+    if (document.querySelector('.wow-aurora')) return;
+    const wrap = document.createElement('div');
+    wrap.className = 'wow-aurora';
+    for (let i = 0; i < 3; i++) {
+      const b = document.createElement('div');
+      b.className = 'wow-aurora-blob';
+      wrap.appendChild(b);
+    }
+    document.body.prepend(wrap);
+  }
+
+  /* --- Twinkling dot particles --- */
+  function addParticles() {
+    if (document.querySelector('.wow-particle-field')) return;
+    const field = document.createElement('div');
+    field.className = 'wow-particle-field';
+    const positions = [
+      [8,15],[14,72],[22,38],[31,88],[40,5],[47,63],[55,29],[60,80],
+      [68,44],[74,12],[82,67],[90,34],[95,52],[6,56],[27,19],[38,74],
+      [53,91],[71,8],[85,48],[18,93]
+    ];
+    positions.forEach(([top, left], i) => {
+      const d = document.createElement('div');
+      d.className = 'wow-dot';
+      const size = (Math.random() * 2.5 + 1.5).toFixed(1);
+      d.style.cssText = `width:${size}px;height:${size}px;top:${top}%;left:${left}%;animation-duration:${(Math.random()*3+2).toFixed(1)}s;animation-delay:${(Math.random()*4).toFixed(1)}s;`;
+      field.appendChild(d);
+    });
+    document.body.prepend(field);
+  }
+
+  /* --- Click ripple on buttons --- */
+  function addRipples() {
+    document.addEventListener('mousedown', function(e) {
+      const btn = e.target.closest('button, .btn, .nav-btn, .role-card, .auth-btn');
+      if (!btn) return;
+      const rect = btn.getBoundingClientRect();
+      const el = document.createElement('span');
+      el.className = 'wow-ripple-el';
+      el.style.left = (e.clientX - rect.left) + 'px';
+      el.style.top  = (e.clientY - rect.top)  + 'px';
+      const cs = window.getComputedStyle(btn);
+      if (cs.position === 'static') btn.style.position = 'relative';
+      btn.style.overflow = 'hidden';
+      btn.appendChild(el);
+      el.addEventListener('animationend', () => el.remove(), { once: true });
+    });
+  }
+
+  /* --- Card entrance on scroll/appear --- */
+  function addCardEntrances() {
+    const sel = '.card, .stat-box, .table-wrapper, .detail-card, [class*="-card"], .auth-box, .role-card';
+    const io = new IntersectionObserver((entries) => {
+      entries.forEach((entry, idx) => {
+        if (entry.isIntersecting && !entry.target._wowDone) {
+          entry.target._wowDone = true;
+          entry.target.style.animationDelay = (idx * 0.05) + 's';
+          entry.target.classList.add('wow-card-enter');
+          io.unobserve(entry.target);
+        }
+      });
+    }, { threshold: 0.06 });
+
+    function sweep() {
+      document.querySelectorAll(sel).forEach(el => {
+        if (!el._wowDone) io.observe(el);
+      });
+    }
+    sweep();
+    new MutationObserver(sweep).observe(document.body, {
+      childList: true, subtree: true, attributeFilter: ['class']
+    });
+  }
+
+  /* --- Shimmer on stat values --- */
+  function addShimmer() {
+    document.querySelectorAll('[class*="stat-val"], [class*="kpi-val"], [class*="count"], [class*="amount"]').forEach(el => {
+      el.classList.add('wow-shimmer');
+    });
+    // Re-run when DOM changes
+    new MutationObserver(() => {
+      document.querySelectorAll('[class*="stat-val"], [class*="kpi-val"]').forEach(el => {
+        if (!el.classList.contains('wow-shimmer')) el.classList.add('wow-shimmer');
+      });
+    }).observe(document.body, { childList: true, subtree: true });
+  }
+
+  /* --- Stagger nav items on load --- */
+  function staggerNav() {
+    document.querySelectorAll('.nav-btn').forEach((el, i) => {
+      el.style.animationDelay = (i * 0.05) + 's';
+      el.classList.add('wow-card-enter');
+    });
+  }
+
+  function boot() {
+    addAurora();
+    addParticles();
+    addRipples();
+    addCardEntrances();
+    addShimmer();
+    staggerNav();
+  }
+
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', boot);
+  } else { boot(); }
+
+})();
 </script>
 </body>
 </html>
