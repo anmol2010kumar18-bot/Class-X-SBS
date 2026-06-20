@@ -336,6 +336,18 @@ button:active, .btn:active, .nav-btn:active, .auth-btn:active, .role-card:active
 .students-table td{padding:8px 11px;border-bottom:1px solid rgba(255,255,255,.05);vertical-align:middle;}
 .students-table tr:hover td{background:rgba(255,255,255,.02);}
 
+.lb-mode-btn{padding:8px 16px;border-radius:8px;border:none;background:transparent;color:var(--muted);font-size:12px;font-weight:600;cursor:pointer;font-family:'DM Sans',sans-serif;transition:all .2s ease;}
+.lb-mode-btn.active{background:var(--gold);color:#1a1208;}
+.lb-row-me{background:rgba(232,160,32,0.1) !important;}
+.lb-row-me td{border-bottom-color:rgba(232,160,32,0.25) !important;}
+.lb-rank-badge{display:inline-flex;align-items:center;justify-content:center;min-width:30px;height:30px;border-radius:50%;font-family:'Cormorant Garamond',serif;font-weight:700;font-size:15px;}
+.lb-rank-1{background:linear-gradient(135deg,#ffd700,#e8a020);color:#1a1208;}
+.lb-rank-2{background:linear-gradient(135deg,#e6e6e6,#b8b8b8);color:#1a1208;}
+.lb-rank-3{background:linear-gradient(135deg,#d99a5e,#a8693a);color:#1a1208;}
+.lb-rank-other{background:rgba(255,255,255,0.06);color:var(--off);}
+.lb-pct-bar{height:5px;background:rgba(255,255,255,0.08);border-radius:3px;overflow:hidden;width:60px;display:inline-block;vertical-align:middle;margin-right:6px;}
+.lb-pct-fill{height:100%;border-radius:3px;background:linear-gradient(90deg,#3dba7e,#4ec98a);}
+
 .toast{position:fixed;bottom:20px;right:20px;background:var(--navy2);border:1px solid var(--border);border-radius:10px;padding:11px 16px;font-size:13px;color:var(--white);z-index:500;transform:translateY(70px);opacity:0;transition:all .3s ease;display:flex;align-items:center;gap:8px;max-width:300px;box-shadow:0 12px 30px rgba(0,0,0,.4);}
 .toast.show{transform:translateY(0);opacity:1;}
 
@@ -533,6 +545,7 @@ button:active, .btn:active, .nav-btn:active, .auth-btn:active, .role-card:active
     <button class="nav-btn" data-page="timetable" onclick="nav(this)"><span class="nav-icon">📅</span><span class="nav-label sb-text">Timetable</span></button>
     <button class="nav-btn" data-page="attendance" onclick="nav(this)"><span class="nav-icon">✅</span><span class="nav-label sb-text">Attendance</span></button>
     <button class="nav-btn" data-page="results" onclick="nav(this)"><span class="nav-icon">📊</span><span class="nav-label sb-text">Results</span></button>
+    <button class="nav-btn" data-page="leaderboard" onclick="nav(this)"><span class="nav-icon">🏆</span><span class="nav-label sb-text">Leaderboard</span></button>
     <button class="nav-btn" data-page="hw_view" onclick="nav(this)"><span class="nav-icon">📓</span><span class="nav-label sb-text">Homework</span><span class="nav-badge sb-text" id="hwViewBadge" style="display:none;background:#e8a020;">!</span></button>
     <button class="nav-btn perm-student" data-page="apply_leave" onclick="nav(this)" style="display:none;"><span class="nav-icon">🏖️</span><span class="nav-label sb-text">Apply Leave</span><span class="nav-badge sb-text" id="leaveStatusBadge" style="display:none;background:#4a9eff;">!</span></button>
     <button class="nav-btn perm-student" data-page="my_duties" onclick="nav(this)" style="display:none;"><span class="nav-icon">📋</span><span class="nav-label sb-text">My Duties</span><span class="nav-badge sb-text" id="myDutyBadge" style="display:none;background:#e05555;">!</span></button>
@@ -704,6 +717,24 @@ button:active, .btn:active, .nav-btn:active, .auth-btn:active, .role-card:active
       <div class="page" id="page-results">
         <div class="hero" style="padding:20px 26px;margin-bottom:18px;"><div class="hero-label">Academic</div><div class="hero-h" style="font-size:22px;">Results & <span>Marks</span></div></div>
         <div id="resultsViewContent"></div>
+      </div>
+
+      <!-- LEADERBOARD -->
+      <div class="page" id="page-leaderboard">
+        <div class="hero" style="padding:20px 26px;margin-bottom:18px;"><div class="hero-label">Academic</div><div class="hero-h" style="font-size:22px;">Class <span>Leaderboard</span></div></div>
+        <div class="card" style="margin-bottom:14px;">
+          <div style="display:flex;gap:8px;flex-wrap:wrap;align-items:center;justify-content:space-between;">
+            <div style="display:flex;gap:8px;background:rgba(255,255,255,0.04);padding:4px;border-radius:10px;">
+              <button class="lb-mode-btn active" id="lbModeOverallBtn" onclick="setLeaderboardMode('overall')">🏆 Overall</button>
+              <button class="lb-mode-btn" id="lbModeTestBtn" onclick="setLeaderboardMode('test')">📝 Specific Test</button>
+            </div>
+            <div class="form-group" id="lbTestSelectWrap" style="margin:0;display:none;min-width:200px;">
+              <select class="form-select" id="lbTestSelect" onchange="renderLeaderboard()"></select>
+            </div>
+          </div>
+          <div id="lbOverallHint" style="font-size:11px;color:var(--muted);margin-top:10px;line-height:1.5;">🏆 Overall ranking rewards students who have attempted <strong style="color:var(--gold);">all declared tests</strong> — they are ranked above anyone who has missed a test, even if their score is lower. Among students with the same number of tests attempted, higher total score ranks first.</div>
+        </div>
+        <div id="leaderboardContent"></div>
       </div>
 
       <!-- HOMEWORK VIEW (students) -->
@@ -1790,7 +1821,7 @@ function initApp(){
   show("perm-upload",canUpload); show("perm-notice",canNotice); show("perm-ct",isCT); show("perm-results",canResults); show("perm-monitor",canMonitor); show("perm-hw",canHW); show("perm-complain",canComplain); show("perm-student",u.role==="student"); if(u.role==="student") updateLeaveStatusBadge(); if(u.role==="classteacher") updateLeaveCTBadge();
   populateAllSubjectSelects();
   buildTTEditor(); renderTTPreview(); setAttDate(); populateAttHistFilter();
-  renderDashboard(); renderTTDisplay(); renderAttView(); renderResults(); renderGallery(); renderMyUploads(); renderStudentsList(); renderEnteredResults(); renderCopySessionsList(); updateCTNotifBadge(); updateHWBadge(); if(currentUser&&currentUser.role==="student"){ renderMyDuties(); updateLeaveStatusBadge(); } if(currentUser&&currentUser.role==="classteacher") updateLeaveCTBadge();
+  renderDashboard(); renderTTDisplay(); renderAttView(); renderResults(); populateLeaderboardTestSelect(); renderGallery(); renderMyUploads(); renderStudentsList(); renderEnteredResults(); renderCopySessionsList(); updateCTNotifBadge(); updateHWBadge(); if(currentUser&&currentUser.role==="student"){ renderMyDuties(); updateLeaveStatusBadge(); } if(currentUser&&currentUser.role==="classteacher") updateLeaveCTBadge();
   if(canHW){ renderAllHW(); }
   if(canComplain) populateComplainSelects();
   if(isCT) renderStudentInfoTable();
@@ -1844,7 +1875,7 @@ function toggleMobSidebar(){ const sb=document.getElementById("sidebar"),ov=docu
 function closeMobSidebar(){ document.getElementById("sidebar").classList.remove("mob-open"); document.getElementById("mobOverlay").classList.remove("open"); document.getElementById("mobToggle").textContent="☰"; }
 function goHome(){ nav(document.querySelector("[data-page=dashboard]")); closeFolder(); }
 
-const PAGE_TITLES={dashboard:"Dashboard",subjects:"Subjects",notices:"Notice Board",gallery:"Gallery",timetable:"Timetable",attendance:"Attendance Record",results:"Results & Marks",hw_view:"Homework Board",upload:"Upload Files",post_notice:"Post Notice",manage_timetable:"Set Timetable",manage_results:"Enter Results",manage_attendance:"Mark Attendance",manage_students:"Students",copy_checking:"Copy Checking",homework:"Homework Manager",complain:"Complaints & Reports",student_info:"Student Information",assign_duty:"Assign Duty",my_duties:"My Duties",apply_leave:"Apply for Leave",manage_leaves:"Leave Requests"};
+const PAGE_TITLES={dashboard:"Dashboard",subjects:"Subjects",notices:"Notice Board",gallery:"Gallery",timetable:"Timetable",attendance:"Attendance Record",results:"Results & Marks",leaderboard:"Class Leaderboard",hw_view:"Homework Board",upload:"Upload Files",post_notice:"Post Notice",manage_timetable:"Set Timetable",manage_results:"Enter Results",manage_attendance:"Mark Attendance",manage_students:"Students",copy_checking:"Copy Checking",homework:"Homework Manager",complain:"Complaints & Reports",student_info:"Student Information",assign_duty:"Assign Duty",my_duties:"My Duties",apply_leave:"Apply for Leave",manage_leaves:"Leave Requests"};
 
 function nav(btn){
   if(!btn) return;
@@ -1853,12 +1884,13 @@ function nav(btn){
   document.querySelectorAll(".page").forEach(p=>p.classList.remove("active")); document.getElementById("page-"+pid).classList.add("active");
   document.getElementById("pageTitle").textContent=PAGE_TITLES[pid]||pid;
   const backBtn=document.getElementById("backBtn");
-  backBtn.classList.toggle("show",["upload","post_notice","manage_timetable","manage_results","manage_attendance","manage_students","results","copy_checking","homework","complain","student_info","assign_duty","my_duties","apply_leave","manage_leaves"].includes(pid));
+  backBtn.classList.toggle("show",["upload","post_notice","manage_timetable","manage_results","manage_attendance","manage_students","results","leaderboard","copy_checking","homework","complain","student_info","assign_duty","my_duties","apply_leave","manage_leaves"].includes(pid));
   closeFolder();
   if(window.innerWidth<=820) closeMobSidebar();
   if(pid==="notices"||pid==="post_notice") renderNotices();
   if(pid==="subjects") renderSubjectList();
   if(pid==="results"){ renderResults(); if(currentUser.role==="student"){ const sn=DB.get("studentNotifications")||[]; sn.forEach(n=>n.read=true); DB.set("studentNotifications",sn); const nd=document.getElementById("notifDot"); if(nd) nd.style.display="none"; } }
+  if(pid==="leaderboard"){ populateLeaderboardTestSelect(); renderLeaderboard(); }
   if(pid==="timetable") renderTTDisplay();
   if(pid==="manage_timetable") buildTTEditor();
   if(pid==="attendance") renderAttView();
@@ -2165,7 +2197,7 @@ function submitResults(){
   _refreshNotifDot(); backToResSetup();
   ["resTest","resMax","resExamDate","resRemarks"].forEach(id=>{ const el=document.getElementById(id); if(el) el.value=""; });
   const rs=document.getElementById("resSubject"); if(rs) rs.value="";
-  showToast("✅ Results saved & declared!"); renderEnteredResults(); renderResults(); renderDashboard();
+  showToast("✅ Results saved & declared!"); renderEnteredResults(); renderResults(); renderDashboard(); populateLeaderboardTestSelect();
 }
 
 function editResult(id){
@@ -2206,7 +2238,7 @@ function saveEditedResult(){
   const newMarks=students.map(s=>{ const inp=document.getElementById("editMark_"+s.id); if(!inp||inp.disabled) return{studentId:s.id,name:s.name,roll:s.roll,marks:null,absent:true}; const v=parseInt(inp.value); if(isNaN(v)) return{studentId:s.id,name:s.name,roll:s.roll,marks:null,absent:true}; return{studentId:s.id,name:s.name,roll:s.roll,marks:v,absent:false}; });
   const allM=newMarks.filter(m=>!m.absent).map(m=>m.marks);
   results[idx]={...results[idx],test,subject,max,date:date||results[idx].date,remarks,studentMarks:newMarks,avg:allM.length?Math.round(allM.reduce((a,b)=>a+b,0)/allM.length):null,highest:allM.length?Math.max(...allM):null,lowest:allM.length?Math.min(...allM):null,editedOn:new Date().toLocaleDateString("en-IN")};
-  DB.set("results",results); closeModal("editResultModal"); showToast("✅ Result updated!"); renderEnteredResults(); renderResults();
+  DB.set("results",results); closeModal("editResultModal"); showToast("✅ Result updated!"); renderEnteredResults(); renderResults(); populateLeaderboardTestSelect();
 }
 
 function renderResults(){
@@ -2306,7 +2338,162 @@ function toggleResultSummary(id){
   el.style.display=open?"":"none";
   if(arrow) arrow.textContent=open?"▲":"▼";
 }
-async function delResult(id){ if(!await customConfirm("This result will be permanently removed.","Delete Result","📊","Delete")) return; DB.del("results",id); renderEnteredResults(); renderResults(); renderDashboard(); showToast("🗑️ Result deleted"); }
+async function delResult(id){ if(!await customConfirm("This result will be permanently removed.","Delete Result","📊","Delete")) return; DB.del("results",id); renderEnteredResults(); renderResults(); renderDashboard(); populateLeaderboardTestSelect(); showToast("🗑️ Result deleted"); }
+
+// ═══════════════════════════════════════════
+// LEADERBOARD
+// ═══════════════════════════════════════════
+let lbMode="overall";
+
+function setLeaderboardMode(mode){
+  lbMode=mode;
+  document.getElementById("lbModeOverallBtn").classList.toggle("active",mode==="overall");
+  document.getElementById("lbModeTestBtn").classList.toggle("active",mode==="test");
+  document.getElementById("lbTestSelectWrap").style.display=mode==="test"?"":"none";
+  document.getElementById("lbOverallHint").style.display=mode==="overall"?"":"none";
+  renderLeaderboard();
+}
+
+function populateLeaderboardTestSelect(){
+  const sel=document.getElementById("lbTestSelect"); if(!sel) return;
+  const results=DB.get("results")||[];
+  const prevVal=sel.value;
+  if(!results.length){ sel.innerHTML=`<option value="">No tests declared yet</option>`; return; }
+  sel.innerHTML=results.map(r=>{ const sub=SUBJECTS.find(x=>x.id===r.subject); return `<option value="${r.id}">${r.test} — ${sub?sub.name:r.subject} (${r.date})</option>`; }).join("");
+  if(prevVal && results.find(r=>r.id===prevVal)) sel.value=prevVal;
+}
+
+function gradeFor(pct){ return pct>=90?"A+":pct>=80?"A":pct>=70?"B+":pct>=60?"B":pct>=50?"C":"D"; }
+function gradeColor(pct){ return pct>=60?"#3dba7e":pct>=40?"var(--gold)":"#e05555"; }
+
+// Assigns competition-style ranks (1224 / "JEE-style"): rows must already be sorted
+// best-first using compareFn. Equal-by-compareFn rows share the same rank, and the
+// next distinct rank skips ahead by the number of tied rows (e.g. 1,1,1,4,5...).
+// Percentile is computed from the rank position so tied students also share percentile.
+function assignCompetitionRanks(rows,compareFn){
+  const n=rows.length;
+  rows.forEach((row,i)=>{
+    if(i===0||compareFn(rows[i-1],row)!==0){ row.rank=i+1; }
+    else { row.rank=rows[i-1].rank; }
+  });
+  rows.forEach(row=>{ row.percentile=n>1?Math.round((1-((row.rank-1)/(n-1)))*1000)/10:100; });
+  return rows;
+}
+
+// Builds the overall leaderboard.
+// Ranking rule: students who attempted EVERY declared test always rank above
+// students who missed one or more tests — regardless of total/average score.
+// Within the same "tests attempted" bracket, higher total score (sum of % across attempted tests) wins.
+function computeOverallLeaderboard(){
+  const results=DB.get("results")||[];
+  const students=(DB.get("students")||[]).sort((a,b)=>parseInt(a.roll)-parseInt(b.roll));
+  const totalTests=results.length;
+  if(!students.length||!totalTests) return {rows:[],totalTests};
+
+  const rows=students.map(s=>{
+    let attempted=0,totalPct=0,totalMarks=0,totalMax=0;
+    results.forEach(r=>{
+      const m=r.studentMarks?r.studentMarks.find(x=>x.studentId===s.id):null;
+      if(m&&!m.absent&&m.marks!==null&&m.marks!==undefined){
+        attempted++;
+        totalPct+=(m.marks/r.max*100);
+        totalMarks+=m.marks;
+        totalMax+=r.max;
+      }
+    });
+    const avgPct=attempted?totalPct/attempted:0;
+    return {studentId:s.id,name:s.name,roll:s.roll,admNo:s.admNo,attempted,missed:totalTests-attempted,totalMarks,totalMax,avgPct,hasAllTests:attempted===totalTests};
+  }).filter(r=>r.attempted>0); // only rank students with at least one attempted test
+
+  // Sort: (1) attempted all tests first, (2) more tests attempted first, (3) higher avg % first
+  const cmp=(a,b)=>{
+    if(a.hasAllTests!==b.hasAllTests) return a.hasAllTests?-1:1;
+    if(b.attempted!==a.attempted) return b.attempted-a.attempted;
+    return b.avgPct-a.avgPct;
+  };
+  rows.sort(cmp);
+  // Round avg% before comparing for ties, so 79.96% and 80.04% (displayed as 80%) tie correctly
+  const tieCmp=(a,b)=>{
+    if(a.hasAllTests!==b.hasAllTests) return a.hasAllTests?-1:1;
+    if(b.attempted!==a.attempted) return b.attempted-a.attempted;
+    return Math.round(b.avgPct*10)-Math.round(a.avgPct*10);
+  };
+  assignCompetitionRanks(rows,tieCmp);
+  return {rows,totalTests};
+}
+
+function computeTestLeaderboard(resultId){
+  const results=DB.get("results")||[];
+  const r=results.find(x=>x.id===resultId);
+  if(!r) return null;
+  const marked=(r.studentMarks||[]).filter(m=>!m.absent&&m.marks!==null&&m.marks!==undefined);
+  const rows=marked.map(m=>({studentId:m.studentId,name:m.name,roll:m.roll,marks:m.marks,max:r.max,pct:Math.round(m.marks/r.max*1000)/10}));
+  rows.sort((a,b)=>b.marks-a.marks);
+  assignCompetitionRanks(rows,(a,b)=>b.marks-a.marks);
+  return {result:r,rows};
+}
+
+function lbRankBadge(rank){
+  const cls=rank===1?"lb-rank-1":rank===2?"lb-rank-2":rank===3?"lb-rank-3":"lb-rank-other";
+  const icon=rank===1?"🥇":rank===2?"🥈":rank===3?"🥉":rank;
+  return `<span class="lb-rank-badge ${cls}">${icon}</span>`;
+}
+
+function renderLeaderboard(){
+  const el=document.getElementById("leaderboardContent"); if(!el) return;
+  const u=currentUser;
+  if(lbMode==="test"){
+    const sel=document.getElementById("lbTestSelect");
+    const resultId=sel?sel.value:null;
+    const results=DB.get("results")||[];
+    if(!results.length){ el.innerHTML=`<div class="card"><div class="empty-state"><div class="empty-icon">🏆</div><div class="empty-text">No tests declared yet</div></div></div>`; return; }
+    const data=computeTestLeaderboard(resultId);
+    if(!data||!data.rows.length){ el.innerHTML=`<div class="card"><div class="empty-state"><div class="empty-icon">🏆</div><div class="empty-text">No marks recorded for this test yet</div></div></div>`; return; }
+    const sub=SUBJECTS.find(x=>x.id===data.result.subject);
+    el.innerHTML=`<div class="card">
+      <div class="card-title">🏆 ${data.result.test} — ${sub?sub.emoji+" "+sub.name:data.result.subject}</div>
+      <div style="overflow-x:auto;"><table class="students-table"><thead><tr><th>Rank</th><th>Roll</th><th>Name</th><th>Marks</th><th>%</th><th>Grade</th><th>Percentile</th></tr></thead><tbody>
+        ${data.rows.map(row=>{
+          const isMe=u.role==="student"&&row.studentId===u.id;
+          const col=gradeColor(row.pct);
+          return `<tr class="${isMe?"lb-row-me":""}">
+            <td>${lbRankBadge(row.rank)}</td>
+            <td><span style="font-family:'Cormorant Garamond',serif;font-size:16px;color:var(--gold);">${row.roll}</span></td>
+            <td style="font-weight:600;">${row.name}${isMe?` <span style="font-size:10px;color:var(--gold);">(You)</span>`:""}</td>
+            <td style="font-weight:700;color:${col};">${row.marks}/${row.max}</td>
+            <td style="color:${col};">${row.pct}%</td>
+            <td><span style="font-weight:700;color:${col};">${gradeFor(row.pct)}</span></td>
+            <td><span class="lb-pct-bar"><span class="lb-pct-fill" style="width:${row.percentile}%;"></span></span><span style="font-size:11px;color:var(--muted);">${row.percentile}th</span></td>
+          </tr>`;
+        }).join("")}
+      </tbody></table></div>
+    </div>`;
+  } else {
+    const {rows,totalTests}=computeOverallLeaderboard();
+    if(!totalTests){ el.innerHTML=`<div class="card"><div class="empty-state"><div class="empty-icon">🏆</div><div class="empty-text">No tests declared yet</div></div></div>`; return; }
+    if(!rows.length){ el.innerHTML=`<div class="card"><div class="empty-state"><div class="empty-icon">🏆</div><div class="empty-text">No marks recorded yet</div></div></div>`; return; }
+    el.innerHTML=`<div class="card">
+      <div class="card-title">🏆 Overall Class Ranking <span style="font-size:11px;color:var(--muted);font-weight:400;margin-left:6px;">(${totalTests} test${totalTests!==1?"s":""} declared)</span></div>
+      <div style="overflow-x:auto;"><table class="students-table"><thead><tr><th>Rank</th><th>Roll</th><th>Name</th><th>Tests Attempted</th><th>Avg %</th><th>Grade</th><th>Percentile</th></tr></thead><tbody>
+        ${rows.map(row=>{
+          const isMe=u.role==="student"&&row.studentId===u.id;
+          const pct=Math.round(row.avgPct*10)/10;
+          const col=gradeColor(pct);
+          const attBadge=row.hasAllTests?`<span style="font-size:11px;background:rgba(61,186,126,.18);color:#3dba7e;padding:2px 8px;border-radius:7px;">${row.attempted}/${totalTests} ✓ All</span>`:`<span style="font-size:11px;background:rgba(255,255,255,0.06);color:var(--muted);padding:2px 8px;border-radius:7px;">${row.attempted}/${totalTests}</span>`;
+          return `<tr class="${isMe?"lb-row-me":""}">
+            <td>${lbRankBadge(row.rank)}</td>
+            <td><span style="font-family:'Cormorant Garamond',serif;font-size:16px;color:var(--gold);">${row.roll}</span></td>
+            <td style="font-weight:600;">${row.name}${isMe?` <span style="font-size:10px;color:var(--gold);">(You)</span>`:""}</td>
+            <td>${attBadge}</td>
+            <td style="font-weight:700;color:${col};">${pct}%</td>
+            <td><span style="font-weight:700;color:${col};">${gradeFor(pct)}</span></td>
+            <td><span class="lb-pct-bar"><span class="lb-pct-fill" style="width:${row.percentile}%;"></span></span><span style="font-size:11px;color:var(--muted);">${row.percentile}th</span></td>
+          </tr>`;
+        }).join("")}
+      </tbody></table></div>
+    </div>`;
+  }
+}
 
 // ═══════════════════════════════════════════
 // ═══════════════════════════════════════════
