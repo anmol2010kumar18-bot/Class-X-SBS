@@ -348,6 +348,28 @@ button:active, .btn:active, .nav-btn:active, .auth-btn:active, .role-card:active
 .lb-pct-bar{height:5px;background:rgba(255,255,255,0.08);border-radius:3px;overflow:hidden;width:60px;display:inline-block;vertical-align:middle;margin-right:6px;}
 .lb-pct-fill{height:100%;border-radius:3px;background:linear-gradient(90deg,#3dba7e,#4ec98a);}
 
+/* ── Weekly Spotlight ── */
+.spotlight-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:18px;}
+@media(max-width:900px){.spotlight-grid{grid-template-columns:repeat(2,1fr);}}
+@media(max-width:520px){.spotlight-grid{grid-template-columns:1fr;}}
+.spotlight-card{background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.08);border-radius:14px;padding:16px 14px;position:relative;overflow:hidden;transition:border-color .2s;}
+.spotlight-card:hover{border-color:rgba(232,160,32,0.35);}
+.spotlight-card::before{content:'';position:absolute;inset:0;border-radius:14px;opacity:.07;pointer-events:none;}
+.sp-label{font-size:10px;font-weight:700;letter-spacing:.8px;text-transform:uppercase;color:var(--muted);margin-bottom:10px;display:flex;align-items:center;gap:5px;}
+.sp-winner-wrap{display:flex;align-items:center;gap:11px;}
+.sp-avatar{width:40px;height:40px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:18px;font-weight:700;font-family:'Cormorant Garamond',serif;flex-shrink:0;}
+.sp-name{font-size:14px;font-weight:700;line-height:1.2;color:var(--white);}
+.sp-roll{font-size:11px;color:var(--muted);margin-top:1px;}
+.sp-score{font-size:11px;margin-top:6px;color:var(--off);line-height:1.5;}
+.sp-podium{margin-top:10px;display:flex;flex-direction:column;gap:5px;}
+.sp-podium-row{display:flex;align-items:center;gap:8px;font-size:12px;padding:4px 0;border-bottom:1px solid rgba(255,255,255,0.04);}
+.sp-podium-row:last-child{border-bottom:none;}
+.sp-pos{font-size:11px;font-weight:700;min-width:20px;color:var(--muted);}
+.sp-pos-1{color:#ffd700;}
+.sp-pos-2{color:#b8b8b8;}
+.sp-pos-3{color:#a8693a;}
+.sp-empty{font-size:12px;color:var(--muted);padding:10px 0;text-align:center;}
+
 .toast{position:fixed;bottom:20px;right:20px;background:var(--navy2);border:1px solid var(--border);border-radius:10px;padding:11px 16px;font-size:13px;color:var(--white);z-index:500;transform:translateY(70px);opacity:0;transition:all .3s ease;display:flex;align-items:center;gap:8px;max-width:300px;box-shadow:0 12px 30px rgba(0,0,0,.4);}
 .toast.show{transform:translateY(0);opacity:1;}
 
@@ -593,6 +615,7 @@ button:active, .btn:active, .nav-btn:active, .auth-btn:active, .role-card:active
           <div class="hero-acts" id="heroActs"></div>
         </div>
         <div class="stats-row" id="statsRow"></div>
+        <div id="weeklySpotlight" style="margin-bottom:4px;"></div>
         <div class="two-col">
           <div>
             <div class="section-hd"><div class="section-title">Subjects</div></div>
@@ -819,33 +842,80 @@ button:active, .btn:active, .nav-btn:active, .auth-btn:active, .role-card:active
           <div class="hero-label">Teacher / Class Teacher</div>
           <div class="hero-h" style="font-size:22px;">Enter <span>Results</span></div>
         </div>
-        <div class="card" id="resSetupCard">
-          <div class="card-title">📝 Step 1 — Test Details</div>
-          <div class="form-row-2">
-            <div class="form-group"><label class="form-label">Test / Exam Name</label><input class="form-input" id="resTest" placeholder="e.g. Unit Test 1"></div>
-            <div class="form-group"><label class="form-label">Subject</label><select class="form-select" id="resSubject"></select></div>
+
+        <!-- Mode toggle -->
+        <div class="card" style="margin-bottom:12px;padding:12px 14px;">
+          <div style="display:flex;gap:6px;background:rgba(255,255,255,0.04);padding:4px;border-radius:10px;width:fit-content;">
+            <button class="lb-mode-btn active" id="resModeSingle" onclick="setResMode('single')">📝 Single Subject</button>
+            <button class="lb-mode-btn" id="resModeMulti" onclick="setResMode('multi')">📚 Multi-Subject Exam</button>
           </div>
-          <div class="form-row-2">
-            <div class="form-group"><label class="form-label">Maximum Marks</label><input class="form-input" type="number" id="resMax" placeholder="e.g. 100" min="1"></div>
-            <div class="form-group"><label class="form-label">Exam Date</label><input class="form-input" type="date" id="resExamDate"></div>
-          </div>
-          <div class="form-group"><label class="form-label">Remarks (optional)</label><input class="form-input" id="resRemarks" placeholder="e.g. Chapter 1-4"></div>
-          <button class="btn btn-gold" onclick="setupResultSheet()">➡️ Next: Enter Student Marks</button>
         </div>
-        <div class="card" id="resMarksCard" style="display:none;">
-          <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;flex-wrap:wrap;gap:8px;">
-            <div class="card-title" style="margin-bottom:0;">✏️ Step 2 — Enter Marks</div>
-            <button class="btn btn-outline btn-sm" onclick="backToResSetup()">← Edit Details</button>
+
+        <!-- ── SINGLE SUBJECT (existing flow, untouched) ── -->
+        <div id="resSingleWrap">
+          <div class="card" id="resSetupCard">
+            <div class="card-title">📝 Step 1 — Test Details</div>
+            <div class="form-row-2">
+              <div class="form-group"><label class="form-label">Test / Exam Name</label><input class="form-input" id="resTest" placeholder="e.g. Unit Test 1"></div>
+              <div class="form-group"><label class="form-label">Subject</label><select class="form-select" id="resSubject"></select></div>
+            </div>
+            <div class="form-row-2">
+              <div class="form-group"><label class="form-label">Maximum Marks</label><input class="form-input" type="number" id="resMax" placeholder="e.g. 100" min="1"></div>
+              <div class="form-group"><label class="form-label">Exam Date</label><input class="form-input" type="date" id="resExamDate"></div>
+            </div>
+            <div class="form-group"><label class="form-label">Remarks (optional)</label><input class="form-input" id="resRemarks" placeholder="e.g. Chapter 1-4"></div>
+            <button class="btn btn-gold" onclick="setupResultSheet()">➡️ Next: Enter Student Marks</button>
           </div>
-          <div id="resTestSummary" style="background:rgba(232,160,32,0.08);border:1px solid rgba(232,160,32,0.2);border-radius:9px;padding:10px 14px;margin-bottom:14px;font-size:13px;"></div>
-          <div style="display:flex;gap:8px;margin-bottom:12px;flex-wrap:wrap;">
-            <button class="btn btn-sm btn-outline" onclick="fillAllMarks()">✨ Fill All Same</button>
-            <button class="btn btn-sm btn-outline" onclick="clearAllMarks()">🗑️ Clear All</button>
+          <div class="card" id="resMarksCard" style="display:none;">
+            <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;flex-wrap:wrap;gap:8px;">
+              <div class="card-title" style="margin-bottom:0;">✏️ Step 2 — Enter Marks</div>
+              <button class="btn btn-outline btn-sm" onclick="backToResSetup()">← Edit Details</button>
+            </div>
+            <div id="resTestSummary" style="background:rgba(232,160,32,0.08);border:1px solid rgba(232,160,32,0.2);border-radius:9px;padding:10px 14px;margin-bottom:14px;font-size:13px;"></div>
+            <div style="display:flex;gap:8px;margin-bottom:12px;flex-wrap:wrap;">
+              <button class="btn btn-sm btn-outline" onclick="fillAllMarks()">✨ Fill All Same</button>
+              <button class="btn btn-sm btn-outline" onclick="clearAllMarks()">🗑️ Clear All</button>
+            </div>
+            <div id="studentMarksGrid"></div>
+            <div style="background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.08);border-radius:9px;padding:12px 14px;margin-top:14px;" id="resSummaryLive"></div>
+            <button class="btn btn-gold" style="margin-top:14px;width:100%;" onclick="submitResults()">💾 Save All Results</button>
           </div>
-          <div id="studentMarksGrid"></div>
-          <div style="background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.08);border-radius:9px;padding:12px 14px;margin-top:14px;" id="resSummaryLive"></div>
-          <button class="btn btn-gold" style="margin-top:14px;width:100%;" onclick="submitResults()">💾 Save All Results</button>
         </div>
+
+        <!-- ── MULTI-SUBJECT EXAM ── -->
+        <div id="resMultiWrap" style="display:none;">
+          <!-- Step 1: Exam details + subject selection -->
+          <div class="card" id="multiSetupCard">
+            <div class="card-title">📚 Step 1 — Exam Details & Subjects</div>
+            <div class="form-row-2">
+              <div class="form-group"><label class="form-label">Exam Name</label><input class="form-input" id="multiExamName" placeholder="e.g. Half Yearly, Pre-Board"></div>
+              <div class="form-group"><label class="form-label">Exam Date</label><input class="form-input" type="date" id="multiExamDate"></div>
+            </div>
+            <div class="form-group"><label class="form-label">Remarks (optional)</label><input class="form-input" id="multiExamRemarks" placeholder="e.g. Syllabus: All chapters"></div>
+            <div class="form-group">
+              <label class="form-label">Select Subjects & Set Max Marks</label>
+              <div id="multiSubjectList" style="display:grid;gap:8px;margin-top:6px;"></div>
+            </div>
+            <button class="btn btn-gold" style="margin-top:6px;" onclick="setupMultiResultSheet()">➡️ Next: Enter Marks Subject-wise</button>
+          </div>
+          <!-- Step 2: Subject tabs + marks grid -->
+          <div class="card" id="multiMarksCard" style="display:none;">
+            <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;flex-wrap:wrap;gap:8px;">
+              <div class="card-title" style="margin-bottom:0;">✏️ Step 2 — Enter Marks</div>
+              <button class="btn btn-outline btn-sm" onclick="backToMultiSetup()">← Edit Details</button>
+            </div>
+            <div id="multiExamSummaryBar" style="background:rgba(232,160,32,0.08);border:1px solid rgba(232,160,32,0.2);border-radius:9px;padding:10px 14px;margin-bottom:14px;font-size:13px;"></div>
+            <!-- Subject tab pills -->
+            <div id="multiSubjTabs" style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:14px;"></div>
+            <!-- Marks grid for active subject -->
+            <div id="multiMarksGrid"></div>
+            <div style="background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.08);border-radius:9px;padding:12px 14px;margin-top:14px;" id="multiSummaryLive"></div>
+            <!-- Progress across subjects -->
+            <div id="multiSubjProgress" style="margin-top:14px;display:grid;gap:6px;"></div>
+            <button class="btn btn-gold" style="margin-top:14px;width:100%;" onclick="submitMultiResults()">💾 Save All Subject Results</button>
+          </div>
+        </div>
+
         <div class="card" style="margin-top:13px;"><div class="card-title">📋 Declared Results</div><div id="enteredResults"></div></div>
       </div>
 
@@ -1683,9 +1753,9 @@ function forceSyncFromFirebase() {
 // ═══════════════════════════════════════════
 const SUBJECTS=[
   {id:"maths",name:"Mathematics",emoji:"📐",teacher:"Ashwini Kumar Singh"},
-  {id:"physics",name:"Physics",emoji:"⚡",teacher:"Vikas Giri"},
+  {id:"physics",name:"Physics",emoji:"⚡",teacher:"Samrat Ashok"},
   {id:"chemistry",name:"Chemistry",emoji:"⚗️",teacher:"Ajit Kumar Singh"},
-  {id:"biology",name:"Biology",emoji:"🧬",teacher:"Mithelesh"},
+  {id:"biology",name:"Biology",emoji:"🧬",teacher:"Murshid Alam"},
   {id:"english",name:"English",emoji:"📖",teacher:"R.K. Singh"},
   {id:"history",name:"History",emoji:"🏛️",teacher:"Anshuman Bhushan"},
   {id:"geography",name:"Geography",emoji:"🗺️",teacher:"Raju Prasad"},
@@ -1693,9 +1763,9 @@ const SUBJECTS=[
   {id:"economics",name:"Economics",emoji:"📈",teacher:"Raju Prasad"},
   {id:"hindi",name:"Hindi",emoji:"🇮🇳",teacher:"Richa"},
   {id:"general",name:"General / All",emoji:"📂",teacher:"—"},
-  {id:"computer",name:"Computer Sc.",emoji:"💻",teacher:"Rakesh Rajput"},
+  {id:"computer",name:"Computer Sc.",emoji:"💻",teacher:"Rakesh Singh"},
   {id:"atl",name:"ATL",emoji:"🔬",teacher:"Sanjeev Ranjan"},
-  {id:"games",name:"Games",emoji:"⚽",teacher:"Subham Ojha"},
+  {id:"games",name:"Games",emoji:"⚽",teacher:"Shyam Singh"},
   {id:"library",name:"Library",emoji:"📚",teacher:"Anil Kumar Singh"}
 ];
 const SUBJ_COLORS={maths:"#4a9eff",physics:"#ffd700",chemistry:"#3dba7e",biology:"#ff7eb6",english:"#e8a020",history:"#c060ff",geography:"#60d0ff",civics:"#ff9060",economics:"#60ff90",hindi:"#ff6060",computer:"#a0a0ff",atl:"#00e5cc",games:"#ff8c42",library:"#9b59b6"};
@@ -1952,7 +2022,215 @@ function renderDashboard(){
   const nb=document.getElementById("noticeBadge"); if(nb) nb.textContent=notices.length;
   const tb=document.getElementById("totalBadge"); if(tb) tb.textContent=files.length;
   _refreshNotifDot();
+  renderWeeklySpotlight();
 }
+
+// ═══════════════════════════════════════════
+// WEEKLY SPOTLIGHT
+// ═══════════════════════════════════════════
+function getThisWeekDates(){
+  // Returns Mon–Sat ISO date strings for current calendar week
+  const today=new Date(),day=today.getDay(),diff=day===0?-6:1-day;
+  const mon=new Date(today); mon.setDate(today.getDate()+diff);
+  const dates=[];
+  for(let i=0;i<6;i++){ const d=new Date(mon); d.setDate(mon.getDate()+i); dates.push(d.toISOString().split("T")[0]); }
+  return dates;
+}
+function getWeekDatesFrom(isoMonday){
+  // Returns Mon–Sat ISO date strings starting from a given Monday ISO string
+  const mon=new Date(isoMonday);
+  const dates=[];
+  for(let i=0;i<6;i++){ const d=new Date(mon); d.setDate(mon.getDate()+i); dates.push(d.toISOString().split("T")[0]); }
+  return dates;
+}
+
+function computeWeeklySpotlight(){
+  const students=DB.get("students")||[];
+  const allAtt=DB.get("studentAttendance")||{};
+  const results=DB.get("results")||[];
+  const copySessions=DB.get("copySessions")||[];
+  const todayISO=new Date().toISOString().split("T")[0];
+
+  // ── Attendance: all recorded days up to today ──
+  const attScore={};
+  students.forEach(s=>{ attScore[s.id]={present:0,total:0}; });
+  Object.keys(allAtt).sort().forEach(date=>{
+    if(date>todayISO) return;
+    const dayAtt=allAtt[date];
+    students.forEach(s=>{
+      const v=dayAtt[s.id];
+      if(v==="present"||v==="absent"){ attScore[s.id].total++; if(v==="present") attScore[s.id].present++; }
+    });
+  });
+
+  // ── Marks: all results declared up to today ──
+  const marksScore={};
+  students.forEach(s=>{ marksScore[s.id]={totalPct:0,count:0}; });
+  results.forEach(r=>{
+    let rDateISO=r.date;
+    if(r.date&&r.date.includes("/")){
+      const p=r.date.split("/");
+      if(p.length===3) rDateISO=`${p[2]}-${p[1].padStart(2,"0")}-${p[0].padStart(2,"0")}`;
+    }
+    if(rDateISO>todayISO) return;
+    (r.studentMarks||[]).forEach(m=>{
+      if(!m.absent&&m.marks!==null&&m.marks!==undefined){
+        marksScore[m.studentId]=marksScore[m.studentId]||{totalPct:0,count:0};
+        marksScore[m.studentId].totalPct+=m.marks/r.max*100;
+        marksScore[m.studentId].count++;
+      }
+    });
+  });
+
+  // ── Copy submission: all sessions up to today ──
+  const copyScore={};
+  students.forEach(s=>{ copyScore[s.id]={submitted:0,total:0}; });
+  copySessions.forEach(cs=>{
+    let csDateISO=cs.date;
+    if(cs.date&&cs.date.includes("/")){
+      const p=cs.date.split("/");
+      if(p.length===3) csDateISO=`${p[2]}-${p[1].padStart(2,"0")}-${p[0].padStart(2,"0")}`;
+    }
+    if(csDateISO>todayISO) return;
+    students.forEach(s=>{
+      const v=(cs.status||{})[s.id];
+      if(v==="submitted"||v==="not_submitted"||v==="absent"){
+        copyScore[s.id].total++;
+        if(v==="submitted") copyScore[s.id].submitted++;
+      }
+    });
+  });
+
+  // ── Find the earliest recorded date across all data ──
+  const attDates=Object.keys(allAtt).filter(d=>d<=todayISO).sort();
+  const resultDates=results.map(r=>{
+    if(!r.date) return null;
+    if(r.date.includes("/")){const p=r.date.split("/"); return p.length===3?`${p[2]}-${p[1].padStart(2,"0")}-${p[0].padStart(2,"0")}`:null;}
+    return r.date;
+  }).filter(d=>d&&d<=todayISO).sort();
+  const copyDates=copySessions.map(cs=>{
+    if(!cs.date) return null;
+    if(cs.date.includes("/")){const p=cs.date.split("/"); return p.length===3?`${p[2]}-${p[1].padStart(2,"0")}-${p[0].padStart(2,"0")}`:null;}
+    return cs.date;
+  }).filter(d=>d&&d<=todayISO).sort();
+  const allDates=[...attDates,...resultDates,...copyDates].sort();
+  const firstDate=allDates[0]||todayISO;
+
+  // ── Build per-student scores ──
+  const rows=students.map(s=>{
+    const att=attScore[s.id]||{present:0,total:0};
+    const mks=marksScore[s.id]||{totalPct:0,count:0};
+    const cop=copyScore[s.id]||{submitted:0,total:0};
+    const attPct=att.total?att.present/att.total*100:null;
+    const mksPct=mks.count?mks.totalPct/mks.count:null;
+    const copPct=cop.total?cop.submitted/cop.total*100:null;
+    const attW=attPct!==null?attPct:50;
+    const mksW=mksPct!==null?mksPct:50;
+    const copW=copPct!==null?copPct:50;
+    const hasAnyData=attPct!==null||mksPct!==null||copPct!==null;
+    const overallScore=attW*0.35+mksW*0.40+copW*0.25;
+    return {
+      id:s.id,name:s.name,roll:s.roll,
+      attPct,mksPct,copPct,
+      attPresent:att.present,attTotal:att.total,
+      mksCount:mks.count,copSubmitted:cop.submitted,copTotal:cop.total,
+      overallScore,hasAnyData
+    };
+  }).filter(r=>r.hasAnyData);
+
+  const topAtt=[...rows].filter(r=>r.attTotal>0).sort((a,b)=>{
+    const da=(b.attPct??-1)-(a.attPct??-1); if(da!==0) return da; return b.attPresent-a.attPresent;
+  }).slice(0,3);
+  const topMarks=[...rows].filter(r=>r.mksCount>0).sort((a,b)=>(b.mksPct??-1)-(a.mksPct??-1)).slice(0,2);
+  const topOverall=[...rows].sort((a,b)=>b.overallScore-a.overallScore).slice(0,1);
+  const topCopy=[...rows].filter(r=>r.copTotal>0).sort((a,b)=>{
+    const d=(b.copPct??-1)-(a.copPct??-1); return d!==0?d:b.copSubmitted-a.copSubmitted;
+  }).slice(0,2);
+
+  return {topOverall,topAtt,topMarks,topCopy,firstDate,todayISO};
+}
+
+function spAvatarHTML(name,bg,color){
+  const init=name?name.trim()[0].toUpperCase():"?";
+  return `<div class="sp-avatar" style="background:${bg};color:${color};">${init}</div>`;
+}
+
+function renderWeeklySpotlight(){
+  const el=document.getElementById("weeklySpotlight"); if(!el) return;
+  const {topOverall,topAtt,topMarks,topCopy,firstDate,todayISO}=computeWeeklySpotlight();
+  const hasAny=topOverall.length||topAtt.length||topMarks.length;
+  if(!hasAny){ el.innerHTML=""; return; }
+
+  const fmt=d=>{ const p=d.split("-"); return p[2]+"/"+p[1]+"/"+p[0]; };
+  const periodLabel=firstDate===todayISO?fmt(todayISO):`${fmt(firstDate)} → ${fmt(todayISO)}`;
+
+  const posIco=["🥇","🥈","🥉"];
+  const posCls=["sp-pos-1","sp-pos-2","sp-pos-3"];
+
+  const ov=topOverall[0];
+  const card1=ov?`
+    <div class="sp-winner-wrap">
+      ${spAvatarHTML(ov.name,"linear-gradient(135deg,#e8a020,#f5c842)","#1a1208")}
+      <div>
+        <div class="sp-name">${ov.name}</div>
+        <div class="sp-roll">Roll ${ov.roll}</div>
+        <div class="sp-score">
+          ${ov.attPct!==null?`✅ ${Math.round(ov.attPct)}% att`:""}
+          ${ov.mksPct!==null?` · 📊 ${Math.round(ov.mksPct)}% marks`:""}
+          ${ov.copPct!==null?` · 📋 ${Math.round(ov.copPct)}% copy`:""}
+        </div>
+      </div>
+    </div>`:`<div class="sp-empty">No data yet</div>`;
+
+  const card2=topAtt.length?`<div class="sp-podium">${topAtt.map((s,i)=>`
+    <div class="sp-podium-row">
+      <span class="sp-pos ${posCls[i]}">${posIco[i]}</span>
+      ${spAvatarHTML(s.name,"rgba(74,158,255,0.2)","#4a9eff")}
+      <span style="flex:1;font-weight:600;">${s.name}</span>
+      <span style="font-size:11px;color:#4a9eff;font-weight:700;">${s.attPresent}/${s.attTotal}d</span>
+    </div>`).join("")}</div>`:`<div class="sp-empty">No attendance recorded</div>`;
+
+  const card3=topMarks.length?`<div class="sp-podium">${topMarks.map((s,i)=>`
+    <div class="sp-podium-row">
+      <span class="sp-pos ${posCls[i]}">${posIco[i]}</span>
+      ${spAvatarHTML(s.name,"rgba(61,186,126,0.2)","#3dba7e")}
+      <span style="flex:1;font-weight:600;">${s.name}</span>
+      <span style="font-size:11px;color:#3dba7e;font-weight:700;">${Math.round(s.mksPct??0)}%</span>
+    </div>`).join("")}</div>`:`<div class="sp-empty">No test results yet</div>`;
+
+  const card4=topCopy.length?`<div class="sp-podium">${topCopy.map((s,i)=>`
+    <div class="sp-podium-row">
+      <span class="sp-pos ${posCls[i]}">${posIco[i]}</span>
+      ${spAvatarHTML(s.name,"rgba(232,160,32,0.18)","var(--gold)")}
+      <span style="flex:1;font-weight:600;">${s.name}</span>
+      <span style="font-size:11px;color:var(--gold);font-weight:700;">${s.copSubmitted}/${s.copTotal}</span>
+    </div>`).join("")}</div>`:`<div class="sp-empty">No copy records yet</div>`;
+
+  el.innerHTML=`
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;flex-wrap:wrap;gap:6px;">
+      <div class="section-title" style="margin:0;">⭐ Student Spotlight</div>
+      <span style="font-size:11px;color:var(--gold);background:rgba(232,160,32,0.08);padding:3px 10px;border-radius:20px;border:1px solid rgba(232,160,32,0.2);">📅 ${periodLabel}</span>
+    </div>
+    <div class="spotlight-grid">
+      <div class="spotlight-card" style="border-color:rgba(232,160,32,0.25);">
+        <div class="sp-label">🏆 <span>Overall Best</span></div>
+        ${card1}
+      </div>
+      <div class="spotlight-card" style="border-color:rgba(74,158,255,0.2);">
+        <div class="sp-label">✅ <span>Top Attendance</span></div>
+        ${card2}
+      </div>
+      <div class="spotlight-card" style="border-color:rgba(61,186,126,0.2);">
+        <div class="sp-label">📊 <span>Top Marks</span></div>
+        ${card3}
+      </div>
+      <div class="spotlight-card" style="border-color:rgba(232,160,32,0.15);">
+        <div class="sp-label">📋 <span>Copy Submission</span></div>
+        ${card4}
+      </div>
+    </div>`;
+}
+
 
 // ═══════════════════════════════════════════
 // FILES
@@ -2198,6 +2476,278 @@ function submitResults(){
   ["resTest","resMax","resExamDate","resRemarks"].forEach(id=>{ const el=document.getElementById(id); if(el) el.value=""; });
   const rs=document.getElementById("resSubject"); if(rs) rs.value="";
   showToast("✅ Results saved & declared!"); renderEnteredResults(); renderResults(); renderDashboard(); populateLeaderboardTestSelect();
+}
+
+// ═══════════════════════════════════════════
+// MULTI-SUBJECT EXAM
+// ═══════════════════════════════════════════
+let multiExamState=null; // {name,date,remarks,subjects:[{id,max}],marksData:{subjId:{studentId:{marks,absent}}},activeSubj}
+
+function setResMode(mode){
+  document.getElementById("resSingleWrap").style.display=mode==="single"?"":"none";
+  document.getElementById("resMultiWrap").style.display=mode==="multi"?"":"none";
+  document.getElementById("resModeSingle").classList.toggle("active",mode==="single");
+  document.getElementById("resModeMulti").classList.toggle("active",mode==="multi");
+  if(mode==="multi") renderMultiSubjectList();
+}
+
+function renderMultiSubjectList(){
+  const el=document.getElementById("multiSubjectList"); if(!el) return;
+  el.innerHTML=SUBJECTS.filter(s=>s.id!=="general").map(s=>`
+    <div style="display:flex;align-items:center;gap:10px;padding:9px 12px;border-radius:9px;background:rgba(255,255,255,0.03);border:1.5px solid rgba(255,255,255,0.07);" id="multiSubjRow_${s.id}">
+      <input type="checkbox" id="multiChk_${s.id}" onchange="toggleMultiSubj('${s.id}')" style="width:16px;height:16px;accent-color:var(--gold);cursor:pointer;">
+      <span style="font-size:15px;">${s.emoji}</span>
+      <span style="font-size:13px;font-weight:600;flex:1;">${s.name}</span>
+      <input type="number" id="multiMax_${s.id}" min="1" placeholder="Max" disabled
+        style="width:72px;padding:6px 8px;text-align:center;background:rgba(255,255,255,0.05);border:1.5px solid rgba(255,255,255,0.1);border-radius:7px;color:var(--white);font-size:13px;font-weight:600;outline:none;opacity:0.35;">
+      <span style="font-size:11px;color:var(--muted);">marks</span>
+    </div>`).join("");
+}
+
+function toggleMultiSubj(subjId){
+  const chk=document.getElementById("multiChk_"+subjId),maxInp=document.getElementById("multiMax_"+subjId),row=document.getElementById("multiSubjRow_"+subjId);
+  if(!chk||!maxInp) return;
+  maxInp.disabled=!chk.checked;
+  maxInp.style.opacity=chk.checked?"1":"0.35";
+  row.style.borderColor=chk.checked?"rgba(232,160,32,0.4)":"rgba(255,255,255,0.07)";
+  row.style.background=chk.checked?"rgba(232,160,32,0.06)":"rgba(255,255,255,0.03)";
+  if(chk.checked) maxInp.focus();
+}
+
+function setupMultiResultSheet(){
+  const name=document.getElementById("multiExamName").value.trim();
+  const date=document.getElementById("multiExamDate").value;
+  const remarks=document.getElementById("multiExamRemarks").value.trim();
+  if(!name){ showToast("❌ Enter exam name"); return; }
+  const selected=SUBJECTS.filter(s=>s.id!=="general"&&document.getElementById("multiChk_"+s.id)&&document.getElementById("multiChk_"+s.id).checked);
+  if(!selected.length){ showToast("❌ Select at least one subject"); return; }
+  const subjects=[];
+  for(const s of selected){
+    const max=parseInt(document.getElementById("multiMax_"+s.id).value);
+    if(!max||max<1){ showToast(`❌ Enter valid max marks for ${s.name}`); return; }
+    subjects.push({id:s.id,max});
+  }
+  // Init marks data store: for each subject, for each student → {marks:null,absent:false}
+  const students=DB.get("students")||[];
+  const marksData={};
+  subjects.forEach(s=>{ marksData[s.id]={}; students.forEach(st=>{ marksData[s.id][st.id]={marks:null,absent:false}; }); });
+  multiExamState={name,date:date||new Date().toLocaleDateString("en-IN"),remarks,subjects,marksData,activeSubj:subjects[0].id};
+  document.getElementById("multiSetupCard").style.display="none";
+  document.getElementById("multiMarksCard").style.display="";
+  // Render summary bar
+  const sub0=SUBJECTS.find(x=>x.id===subjects[0].id);
+  document.getElementById("multiExamSummaryBar").innerHTML=`<div style="display:flex;gap:16px;flex-wrap:wrap;">
+    <div><span style="color:var(--muted);font-size:11px;">EXAM</span><div style="font-weight:600;">${name}</div></div>
+    <div><span style="color:var(--muted);font-size:11px;">DATE</span><div style="font-weight:600;">${date||"—"}</div></div>
+    <div><span style="color:var(--muted);font-size:11px;">SUBJECTS</span><div style="font-weight:600;color:var(--gold);">${subjects.length}</div></div>
+    ${remarks?`<div><span style="color:var(--muted);font-size:11px;">REMARKS</span><div style="font-size:12px;">${remarks}</div></div>`:""}
+  </div>`;
+  renderMultiSubjTabs();
+  renderMultiMarksGrid();
+}
+
+function backToMultiSetup(){
+  document.getElementById("multiSetupCard").style.display="";
+  document.getElementById("multiMarksCard").style.display="none";
+  multiExamState=null;
+}
+
+function renderMultiSubjTabs(){
+  const el=document.getElementById("multiSubjTabs"); if(!el||!multiExamState) return;
+  el.innerHTML=multiExamState.subjects.map(s=>{
+    const sub=SUBJECTS.find(x=>x.id===s.id);
+    const isActive=s.id===multiExamState.activeSubj;
+    const entered=Object.values(multiExamState.marksData[s.id]||{}).filter(m=>m.marks!==null||m.absent).length;
+    const total=(DB.get("students")||[]).length;
+    const done=entered===total&&total>0;
+    return `<button onclick="switchMultiSubj('${s.id}')"
+      style="padding:7px 14px;border-radius:9px;border:1.5px solid ${isActive?"var(--gold)":"rgba(255,255,255,0.1)"};background:${isActive?"rgba(232,160,32,0.15)":"rgba(255,255,255,0.03)"};color:${isActive?"var(--gold)":"var(--off)"};font-size:12px;font-weight:600;cursor:pointer;display:flex;align-items:center;gap:6px;transition:all .2s;">
+      ${sub?sub.emoji:""} ${sub?sub.name:s.id}
+      <span style="font-size:10px;background:${done?"rgba(61,186,126,0.2)":"rgba(255,255,255,0.08)"};color:${done?"#3dba7e":"var(--muted)"};padding:1px 6px;border-radius:5px;">${done?"✓":"${entered}/${total}"}</span>
+    </button>`.replace("${entered}/${total}",`${entered}/${total}`);
+  }).join("");
+}
+
+function switchMultiSubj(subjId){
+  if(!multiExamState) return;
+  saveMultiSubjMarks(); // save current before switching
+  multiExamState.activeSubj=subjId;
+  renderMultiSubjTabs();
+  renderMultiMarksGrid();
+}
+
+function saveMultiSubjMarks(){
+  if(!multiExamState) return;
+  const students=(DB.get("students")||[]).sort((a,b)=>parseInt(a.roll)-parseInt(b.roll));
+  const subjId=multiExamState.activeSubj;
+  const subjConf=multiExamState.subjects.find(s=>s.id===subjId); if(!subjConf) return;
+  students.forEach(s=>{
+    const inp=document.getElementById("mmk_"+s.id);
+    const absBtn=document.getElementById("mab_"+s.id);
+    if(!inp) return;
+    const isAbsent=inp.disabled;
+    multiExamState.marksData[subjId][s.id]={marks:isAbsent?null:(inp.value===""?null:parseInt(inp.value)),absent:isAbsent};
+  });
+}
+
+function renderMultiMarksGrid(){
+  const el=document.getElementById("multiMarksGrid"); if(!el||!multiExamState) return;
+  const students=(DB.get("students")||[]).sort((a,b)=>parseInt(a.roll)-parseInt(b.roll));
+  const subjId=multiExamState.activeSubj;
+  const subjConf=multiExamState.subjects.find(s=>s.id===subjId);
+  const sub=SUBJECTS.find(x=>x.id===subjId);
+  if(!students.length){ el.innerHTML=`<div class="empty-state"><div class="empty-icon">👥</div><div class="empty-text">No students registered yet</div></div>`; return; }
+  const saved=multiExamState.marksData[subjId]||{};
+  const max=subjConf.max;
+  const isMob=window.innerWidth<=820;
+  el.innerHTML=`<div style="font-size:12px;color:var(--muted);margin-bottom:8px;">Entering marks for: <strong style="color:var(--gold);">${sub?sub.emoji+" "+sub.name:subjId}</strong> · Max: <strong style="color:var(--gold);">${max}</strong></div>`+
+  `<div style="display:grid;gap:7px;">`+students.map(s=>{
+    const prev=saved[s.id]||{marks:null,absent:false};
+    const val=prev.marks!==null?prev.marks:"";
+    const isAbs=prev.absent;
+    return isMob?
+    `<div id="mmrow_${s.id}" style="padding:10px 12px;border-radius:10px;background:${isAbs?"rgba(224,85,85,0.06)":"rgba(255,255,255,0.025)"};border:1px solid ${isAbs?"rgba(224,85,85,0.2)":"rgba(255,255,255,0.07)"};">
+      <div style="display:flex;align-items:center;gap:10px;margin-bottom:8px;">
+        <div style="font-family:'Cormorant Garamond',serif;font-size:22px;color:var(--gold);min-width:36px;text-align:center;">${s.roll}</div>
+        <div style="flex:1;"><div style="font-size:13px;font-weight:600;">${s.name}</div><div style="font-size:10px;color:var(--muted);">${s.admNo}</div></div>
+        <div id="mmkstat_${s.id}">${isAbs?`<span style="font-size:12px;font-weight:700;color:#e05555;">ABSENT</span>`:`<span style="font-size:11px;color:var(--muted);">—</span>`}</div>
+      </div>
+      <div style="display:flex;gap:8px;align-items:center;">
+        <input type="number" id="mmk_${s.id}" min="0" max="${max}" value="${val}" ${isAbs?"disabled":""} style="flex:1;padding:9px;text-align:center;background:rgba(255,255,255,0.07);border:1.5px solid rgba(255,255,255,0.12);border-radius:8px;color:var(--white);font-size:18px;font-weight:700;outline:none;${isAbs?"opacity:0.3;":""}" placeholder="Marks" oninput="onMultiMarksInput('${s.id}',this,${max})">
+        <span style="font-size:11px;color:var(--muted);">/ ${max}</span>
+        <button id="mab_${s.id}" onclick="toggleMultiAbsent('${s.id}')" style="width:40px;height:40px;border-radius:8px;border:1.5px solid ${isAbs?"#e05555":"rgba(224,85,85,0.3)"};background:${isAbs?"rgba(224,85,85,0.35)":"rgba(224,85,85,0.1)"};color:${isAbs?"#ff4040":"#e05555"};cursor:pointer;font-size:16px;">✗</button>
+      </div>
+    </div>`
+    :
+    `<div style="display:grid;grid-template-columns:52px 1fr 120px 50px 120px;gap:8px;align-items:center;padding:8px;border-radius:9px;background:${isAbs?"rgba(224,85,85,0.06)":"rgba(255,255,255,0.025)"};border:1px solid ${isAbs?"rgba(224,85,85,0.2)":"rgba(255,255,255,0.06)"};" id="mmrow_${s.id}">
+      <div style="font-family:'Cormorant Garamond',serif;font-size:20px;color:var(--gold);text-align:center;">${s.roll}</div>
+      <div><div style="font-size:13px;font-weight:600;">${s.name}</div><div style="font-size:10px;color:var(--muted);">${s.admNo}</div></div>
+      <div style="text-align:center;"><input type="number" id="mmk_${s.id}" min="0" max="${max}" value="${val}" ${isAbs?"disabled":""} style="width:90px;padding:7px;text-align:center;background:rgba(255,255,255,0.07);border:1.5px solid rgba(255,255,255,0.12);border-radius:8px;color:var(--white);font-size:16px;font-weight:700;outline:none;${isAbs?"opacity:0.3;":""}" placeholder="—" oninput="onMultiMarksInput('${s.id}',this,${max})"></div>
+      <div style="text-align:center;"><button id="mab_${s.id}" onclick="toggleMultiAbsent('${s.id}')" style="width:34px;height:34px;border-radius:7px;border:1.5px solid ${isAbs?"#e05555":"rgba(224,85,85,0.3)"};background:${isAbs?"rgba(224,85,85,0.35)":"rgba(224,85,85,0.1)"};color:${isAbs?"#ff4040":"#e05555"};cursor:pointer;font-size:14px;">✗</button></div>
+      <div style="text-align:center;" id="mmkstat_${s.id}">${isAbs?`<span style="font-size:12px;font-weight:700;color:#e05555;">ABSENT</span>`:`<span style="font-size:11px;color:var(--muted);">—</span>`}</div>
+    </div>`;
+  }).join("")+`</div>`;
+  // restore live status for pre-filled values
+  students.forEach(s=>{
+    const prev=saved[s.id]||{};
+    if(!prev.absent&&prev.marks!==null){
+      const inp=document.getElementById("mmk_"+s.id);
+      if(inp) onMultiMarksInput(s.id,inp,max);
+    }
+  });
+  updateMultiSummaryLive();
+  updateMultiSubjProgress();
+}
+
+function onMultiMarksInput(sid,input,max){
+  const val=parseInt(input.value),statusEl=document.getElementById("mmkstat_"+sid);
+  if(isNaN(val)||input.value===""){ if(statusEl) statusEl.innerHTML=`<span style="font-size:11px;color:var(--muted);">—</span>`; input.style.borderColor="rgba(255,255,255,0.15)"; updateMultiSummaryLive(); return; }
+  if(val<0||val>max){ input.style.borderColor="#e05555"; if(statusEl) statusEl.innerHTML=`<span style="font-size:11px;color:#e05555;">Invalid</span>`; return; }
+  input.style.borderColor="rgba(232,160,32,0.5)";
+  const pct=Math.round(val/max*100),grade=pct>=90?"A+":pct>=80?"A":pct>=70?"B+":pct>=60?"B":pct>=50?"C":"D",col=pct>=60?"#3dba7e":pct>=40?"var(--gold)":"#e05555";
+  if(statusEl) statusEl.innerHTML=`<span style="font-size:12px;font-weight:700;color:${col};">${grade} <span style="font-size:10px;">(${pct}%)</span></span>`;
+  updateMultiSummaryLive();
+}
+
+function toggleMultiAbsent(sid){
+  const inp=document.getElementById("mmk_"+sid),btn=document.getElementById("mab_"+sid),row=document.getElementById("mmrow_"+sid),statusEl=document.getElementById("mmkstat_"+sid);
+  if(!inp||!btn) return;
+  if(inp.disabled){
+    inp.disabled=false; inp.value=""; inp.style.opacity="1";
+    btn.style.background="rgba(224,85,85,0.1)"; btn.style.borderColor="rgba(224,85,85,0.3)"; btn.style.color="#e05555";
+    if(row){ row.style.background="rgba(255,255,255,0.025)"; row.style.borderColor="rgba(255,255,255,0.07)"; }
+    if(statusEl) statusEl.innerHTML=`<span style="font-size:11px;color:var(--muted);">—</span>`;
+  } else {
+    inp.disabled=true; inp.value=""; inp.style.opacity="0.3";
+    btn.style.background="rgba(224,85,85,0.35)"; btn.style.borderColor="#e05555"; btn.style.color="#ff4040";
+    if(row){ row.style.background="rgba(224,85,85,0.06)"; row.style.borderColor="rgba(224,85,85,0.2)"; }
+    if(statusEl) statusEl.innerHTML=`<span style="font-size:12px;font-weight:700;color:#e05555;">ABSENT</span>`;
+  }
+  updateMultiSummaryLive();
+}
+
+function updateMultiSummaryLive(){
+  const el=document.getElementById("multiSummaryLive"); if(!el||!multiExamState) return;
+  const subjConf=multiExamState.subjects.find(s=>s.id===multiExamState.activeSubj); if(!subjConf) return;
+  const students=DB.get("students")||[];
+  const marks=students.map(s=>{ const inp=document.getElementById("mmk_"+s.id); return inp&&inp.value!==""&&!inp.disabled?parseInt(inp.value):null; }).filter(v=>v!==null&&!isNaN(v));
+  if(!marks.length){ el.innerHTML=`<div style="font-size:12px;color:var(--muted);">Enter marks above to see live summary</div>`; return; }
+  const max=subjConf.max,avg=Math.round(marks.reduce((a,b)=>a+b,0)/marks.length),highest=Math.max(...marks),lowest=Math.min(...marks),passing=marks.filter(m=>m/max>=0.33).length;
+  el.innerHTML=`<div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(110px,1fr));gap:10px;">
+    <div><div style="font-size:10px;color:var(--muted);text-transform:uppercase;">Entered</div><div style="font-size:20px;font-family:'Cormorant Garamond',serif;color:var(--gold);">${marks.length}/${students.length}</div></div>
+    <div><div style="font-size:10px;color:var(--muted);text-transform:uppercase;">Average</div><div style="font-size:20px;font-family:'Cormorant Garamond',serif;color:var(--gold);">${avg}/${max}</div></div>
+    <div><div style="font-size:10px;color:var(--muted);text-transform:uppercase;">Highest</div><div style="font-size:20px;font-family:'Cormorant Garamond',serif;color:#3dba7e;">${highest}</div></div>
+    <div><div style="font-size:10px;color:var(--muted);text-transform:uppercase;">Lowest</div><div style="font-size:20px;font-family:'Cormorant Garamond',serif;color:#e05555;">${lowest}</div></div>
+    <div><div style="font-size:10px;color:var(--muted);text-transform:uppercase;">Passing</div><div style="font-size:20px;font-family:'Cormorant Garamond',serif;color:#4a9eff;">${passing}</div></div>
+  </div>`;
+}
+
+function updateMultiSubjProgress(){
+  const el=document.getElementById("multiSubjProgress"); if(!el||!multiExamState) return;
+  const students=DB.get("students")||[];
+  const total=students.length;
+  el.innerHTML=`<div style="font-size:11px;color:var(--muted);font-weight:600;letter-spacing:.5px;text-transform:uppercase;margin-bottom:4px;">All Subjects Progress</div>`+
+  multiExamState.subjects.map(s=>{
+    const sub=SUBJECTS.find(x=>x.id===s.id);
+    const data=multiExamState.marksData[s.id]||{};
+    const entered=Object.values(data).filter(m=>m.marks!==null||m.absent).length;
+    const pct=total?Math.round(entered/total*100):0;
+    const done=entered===total&&total>0;
+    return `<div style="display:flex;align-items:center;gap:10px;">
+      <span style="font-size:13px;min-width:22px;">${sub?sub.emoji:""}</span>
+      <span style="font-size:12px;font-weight:600;min-width:110px;flex:1;">${sub?sub.name:s.id}</span>
+      <div style="flex:2;height:5px;background:rgba(255,255,255,0.08);border-radius:3px;overflow:hidden;">
+        <div style="height:100%;width:${pct}%;background:${done?"#3dba7e":"var(--gold)"};border-radius:3px;transition:width .3s;"></div>
+      </div>
+      <span style="font-size:11px;color:${done?"#3dba7e":"var(--muted)"};min-width:48px;text-align:right;">${entered}/${total}${done?" ✓":""}</span>
+    </div>`;
+  }).join("");
+}
+
+function submitMultiResults(){
+  if(!multiExamState){ showToast("❌ No exam setup found"); return; }
+  saveMultiSubjMarks(); // save currently visible subject first
+  const students=(DB.get("students")||[]).sort((a,b)=>parseInt(a.roll)-parseInt(b.roll));
+  const notifs=DB.get("studentNotifications")||[];
+  let savedCount=0;
+  for(const s of multiExamState.subjects){
+    const sub=SUBJECTS.find(x=>x.id===s.id);
+    const data=multiExamState.marksData[s.id]||{};
+    const marks=students.map(st=>{
+      const d=data[st.id]||{marks:null,absent:false};
+      return {studentId:st.id,name:st.name,roll:st.roll,marks:d.absent?null:d.marks,absent:d.absent||d.marks===null};
+    });
+    const allM=marks.filter(m=>!m.absent&&m.marks!==null).map(m=>m.marks);
+    const result={
+      id:(Date.now()+savedCount).toString(),
+      test:multiExamState.name,
+      subject:s.id,
+      max:s.max,
+      date:multiExamState.date,
+      remarks:multiExamState.remarks,
+      by:currentUser.name,
+      byRole:currentUser.role,
+      avg:allM.length?Math.round(allM.reduce((a,b)=>a+b,0)/allM.length):null,
+      highest:allM.length?Math.max(...allM):null,
+      lowest:allM.length?Math.min(...allM):null,
+      studentMarks:marks,
+      declaredOn:new Date().toLocaleDateString("en-IN"),
+      multiExam:true
+    };
+    DB.push("results",result);
+    notifs.unshift({id:(Date.now()+savedCount+1000).toString(),msg:`Results declared: ${multiExamState.name} — ${sub?sub.name:s.id} (Max: ${s.max})`,time:new Date().toLocaleString("en-IN"),read:false,resultId:result.id});
+    savedCount++;
+  }
+  DB.set("studentNotifications",notifs);
+  _refreshNotifDot();
+  // Reset multi form
+  multiExamState=null;
+  document.getElementById("multiSetupCard").style.display="";
+  document.getElementById("multiMarksCard").style.display="none";
+  ["multiExamName","multiExamDate","multiExamRemarks"].forEach(id=>{ const el=document.getElementById(id); if(el) el.value=""; });
+  renderMultiSubjectList();
+  showToast(`✅ ${savedCount} subject result${savedCount!==1?"s":""} saved & declared!`);
+  renderEnteredResults(); renderResults(); renderDashboard(); populateLeaderboardTestSelect();
 }
 
 function editResult(id){
