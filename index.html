@@ -884,35 +884,32 @@ button:active, .btn:active, .nav-btn:active, .auth-btn:active, .role-card:active
 
         <!-- ── MULTI-SUBJECT EXAM ── -->
         <div id="resMultiWrap" style="display:none;">
-          <!-- Step 1: Exam details + subject selection -->
+          <!-- Step 1: Exam details + max marks per subject -->
           <div class="card" id="multiSetupCard">
-            <div class="card-title">📚 Step 1 — Exam Details & Subjects</div>
+            <div class="card-title">📚 Step 1 — Exam Details</div>
             <div class="form-row-2">
-              <div class="form-group"><label class="form-label">Exam Name</label><input class="form-input" id="multiExamName" placeholder="e.g. Half Yearly, Pre-Board"></div>
+              <div class="form-group"><label class="form-label">Exam Name</label><input class="form-input" id="multiExamName" placeholder="e.g. Half Yearly, Pre-Board, Unit Test"></div>
               <div class="form-group"><label class="form-label">Exam Date</label><input class="form-input" type="date" id="multiExamDate"></div>
             </div>
-            <div class="form-group"><label class="form-label">Remarks (optional)</label><input class="form-input" id="multiExamRemarks" placeholder="e.g. Syllabus: All chapters"></div>
-            <div class="form-group">
-              <label class="form-label">Select Subjects & Set Max Marks</label>
-              <div id="multiSubjectList" style="display:grid;gap:8px;margin-top:6px;"></div>
+            <div class="form-group"><label class="form-label">Remarks (optional)</label><input class="form-input" id="multiExamRemarks" placeholder="e.g. Full syllabus"></div>
+            <div class="form-group" style="margin-top:4px;">
+              <label class="form-label">Maximum Marks per Subject</label>
+              <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(160px,1fr));gap:10px;margin-top:8px;" id="multiMaxGrid"></div>
             </div>
-            <button class="btn btn-gold" style="margin-top:6px;" onclick="setupMultiResultSheet()">➡️ Next: Enter Marks Subject-wise</button>
+            <button class="btn btn-gold" style="margin-top:10px;" onclick="setupMultiResultSheet()">➡️ Next: Enter Student Marks</button>
           </div>
-          <!-- Step 2: Subject tabs + marks grid -->
+          <!-- Step 2: Per-student table, all subjects as columns -->
           <div class="card" id="multiMarksCard" style="display:none;">
-            <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;flex-wrap:wrap;gap:8px;">
+            <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;flex-wrap:wrap;gap:8px;">
               <div class="card-title" style="margin-bottom:0;">✏️ Step 2 — Enter Marks</div>
               <button class="btn btn-outline btn-sm" onclick="backToMultiSetup()">← Edit Details</button>
             </div>
             <div id="multiExamSummaryBar" style="background:rgba(232,160,32,0.08);border:1px solid rgba(232,160,32,0.2);border-radius:9px;padding:10px 14px;margin-bottom:14px;font-size:13px;"></div>
-            <!-- Subject tab pills -->
-            <div id="multiSubjTabs" style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:14px;"></div>
-            <!-- Marks grid for active subject -->
-            <div id="multiMarksGrid"></div>
+            <div style="overflow-x:auto;">
+              <div id="multiMarksGrid"></div>
+            </div>
             <div style="background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.08);border-radius:9px;padding:12px 14px;margin-top:14px;" id="multiSummaryLive"></div>
-            <!-- Progress across subjects -->
-            <div id="multiSubjProgress" style="margin-top:14px;display:grid;gap:6px;"></div>
-            <button class="btn btn-gold" style="margin-top:14px;width:100%;" onclick="submitMultiResults()">💾 Save All Subject Results</button>
+            <button class="btn btn-gold" style="margin-top:14px;width:100%;" onclick="submitMultiResults()">💾 Save & Declare All Results</button>
           </div>
         </div>
 
@@ -1601,7 +1598,10 @@ function initFirebase(){
         const remote=snap.val(),wb={};
         Object.keys(remote).forEach(k=>{
           const local=_memCache[k];
-          if(Array.isArray(remote[k])){
+          // Atomic keys — remote is always the single source of truth
+          if(k==="timetable"||k==="studentAttendance"){
+            _memCache[k]=remote[k];
+          } else if(Array.isArray(remote[k])){
             const cr=DB._applyTombs(k,remote[k]);
             if(!Array.isArray(local)||local.length===0){ _memCache[k]=cr; }
             else {
@@ -1612,12 +1612,13 @@ function initFirebase(){
               const merged=Object.values(lmap);
               _memCache[k]=merged; wb[k]=merged;
             }
-          } else { if(local===null||local===undefined) _memCache[k]=remote[k]; else if(JSON.stringify(local)!==JSON.stringify(remote[k])){ _memCache[k]=remote[k]; } }
+          } else { _memCache[k]=remote[k]; }
         });
-        Object.keys(wb).forEach(k=>{ _db.ref("davx/"+k).set(wb[k]).catch(e=>{}); });
+        // Don't write atomic keys back — remote is authoritative for them
+        Object.keys(wb).filter(k=>k!=="timetable"&&k!=="studentAttendance").forEach(k=>{ _db.ref("davx/"+k).set(wb[k]).catch(e=>{}); });
       } else if(Object.keys(_memCache).length>0){ Object.keys(_memCache).forEach(k=>{ if(_memCache[k]!=null) _db.ref("davx/"+k).set(_memCache[k]).catch(e=>{}); }); }
       Object.keys(_memCache).forEach(k=>{ try{ localStorage.setItem("davx_"+k,JSON.stringify(_memCache[k])); }catch(e){} });
-      if(currentUser) try{ renderDashboard();updateCTNotifBadge();_refreshNotifDot(); }catch(e){}
+      if(currentUser) try{ renderDashboard(); renderTTDisplay(); updateCTNotifBadge(); _refreshNotifDot(); }catch(e){}
     }).catch(e=>{});
   }catch(e){ _firebaseReady=false; }
 }
@@ -1639,9 +1640,14 @@ function setupFirebaseListeners(){
   _db.ref("davx").on("value",snap=>{
     if(!snap.val()||_writeLock) return;
     const remote=snap.val(),wb={};
+    // Keys that are set atomically (not item-merged) — always take remote as truth
+    const ATOMIC_KEYS=new Set(["timetable","studentAttendance"]);
     Object.keys(remote).forEach(k=>{
       const local=_memCache[k];
-      if(Array.isArray(remote[k])){
+      if(ATOMIC_KEYS.has(k)){
+        // Always replace from remote; remote is the single source of truth
+        if(JSON.stringify(local)!==JSON.stringify(remote[k])){ _memCache[k]=remote[k]; wb[k]=remote[k]; }
+      } else if(Array.isArray(remote[k])){
         const cr=DB._applyTombs(k,remote[k]);
         if(!Array.isArray(local)||local.length===0){ _memCache[k]=cr; }
         else {
@@ -1669,13 +1675,18 @@ function setupFirebaseListeners(){
         }
       } else if(local===null||local===undefined){ _memCache[k]=remote[k]; }
     });
-    Object.keys(wb).forEach(k=>{ _db.ref("davx/"+k).set(wb[k]).catch(e=>{}); });
+    // Only write merged arrays back — never write atomic keys back (timetable, studentAttendance)
+    // to avoid overwriting a newer remote value with stale local data
+    Object.keys(wb).filter(k=>!ATOMIC_KEYS.has(k)).forEach(k=>{ _db.ref("davx/"+k).set(wb[k]).catch(e=>{}); });
     if(Object.keys(wb).length>0&&currentUser){
       try{renderDashboard();}catch(e){}
       try{updateCTNotifBadge();}catch(e){}
       if(wb.students){ try{renderStudentInfoTable();}catch(e){} try{renderStudentsList();}catch(e){} try{populateComplainSelects();}catch(e){} }
       if(wb.notices){ try{renderNotices();}catch(e){} }
-      if(wb.results){ try{renderResults();}catch(e){} try{renderEnteredResults();}catch(e){} }
+      if(wb.results){ try{renderResults();}catch(e){} try{renderEnteredResults();}catch(e){} try{populateLeaderboardTestSelect();}catch(e){} }
+      if(wb.timetable){ try{renderTTDisplay();}catch(e){} try{renderTTPreview();}catch(e){} }
+      if(wb.studentAttendance){ try{renderAttView();}catch(e){} }
+      if(wb.timetable||wb.studentAttendance||wb.results||wb.copySessions){ try{renderWeeklySpotlight();}catch(e){} }
     }
   });
 }
@@ -1696,12 +1707,16 @@ function forceSyncFromFirebase() {
     const remote = snap.val();
     if (remote) {
       // ✅ Replace each array key with remote version, filtered through tombstones
-      const arrayKeys = ["files", "students", "notices", "results", "gallery", "copySessions", "timetable", "studentAttendance", "ct_notifications", "studentNotifications", "homework", "complaints"];
-      
+      const arrayKeys = ["files", "students", "notices", "results", "gallery", "copySessions", "studentNotifications", "ct_notifications", "homework", "complaints", "duties", "leaveApplications"];
+      const atomicKeys = ["timetable", "studentAttendance"];
+
       arrayKeys.forEach(key => {
         if (remote[key] !== undefined) {
           _memCache[key] = Array.isArray(remote[key]) ? DB._applyTombs(key, remote[key]) : remote[key];
         }
+      });
+      atomicKeys.forEach(key => {
+        if (remote[key] !== undefined) _memCache[key] = remote[key];
       });
       
       // For any other keys, also copy them
@@ -1738,6 +1753,8 @@ function forceSyncFromFirebase() {
       renderEnteredResults();
       renderCopySessionsList();
       updateCTNotifBadge();
+      try{renderWeeklySpotlight();}catch(e){}
+      try{populateLeaderboardTestSelect();}catch(e){}
       
       // Also refresh the current folder if open
       if (currentFolder) renderFolder(currentFolder);
@@ -1753,9 +1770,9 @@ function forceSyncFromFirebase() {
 // ═══════════════════════════════════════════
 const SUBJECTS=[
   {id:"maths",name:"Mathematics",emoji:"📐",teacher:"Ashwini Kumar Singh"},
-  {id:"physics",name:"Physics",emoji:"⚡",teacher:"Samrat Ashok"},
+  {id:"physics",name:"Physics",emoji:"⚡",teacher:"Vikas Giri"},
   {id:"chemistry",name:"Chemistry",emoji:"⚗️",teacher:"Ajit Kumar Singh"},
-  {id:"biology",name:"Biology",emoji:"🧬",teacher:"Murshid Alam"},
+  {id:"biology",name:"Biology",emoji:"🧬",teacher:"Mithelesh"},
   {id:"english",name:"English",emoji:"📖",teacher:"R.K. Singh"},
   {id:"history",name:"History",emoji:"🏛️",teacher:"Anshuman Bhushan"},
   {id:"geography",name:"Geography",emoji:"🗺️",teacher:"Raju Prasad"},
@@ -1763,9 +1780,9 @@ const SUBJECTS=[
   {id:"economics",name:"Economics",emoji:"📈",teacher:"Raju Prasad"},
   {id:"hindi",name:"Hindi",emoji:"🇮🇳",teacher:"Richa"},
   {id:"general",name:"General / All",emoji:"📂",teacher:"—"},
-  {id:"computer",name:"Computer Sc.",emoji:"💻",teacher:"Rakesh Singh"},
+  {id:"computer",name:"Computer Sc.",emoji:"💻",teacher:"Rakesh Rajput"},
   {id:"atl",name:"ATL",emoji:"🔬",teacher:"Sanjeev Ranjan"},
-  {id:"games",name:"Games",emoji:"⚽",teacher:"Shyam Singh"},
+  {id:"games",name:"Games",emoji:"⚽",teacher:"Subham Ojha"},
   {id:"library",name:"Library",emoji:"📚",teacher:"Anil Kumar Singh"}
 ];
 const SUBJ_COLORS={maths:"#4a9eff",physics:"#ffd700",chemistry:"#3dba7e",biology:"#ff7eb6",english:"#e8a020",history:"#c060ff",geography:"#60d0ff",civics:"#ff9060",economics:"#60ff90",hindi:"#ff6060",computer:"#a0a0ff",atl:"#00e5cc",games:"#ff8c42",library:"#9b59b6"};
@@ -2141,11 +2158,11 @@ function computeWeeklySpotlight(){
   const topAtt=[...rows].filter(r=>r.attTotal>0).sort((a,b)=>{
     const da=(b.attPct??-1)-(a.attPct??-1); if(da!==0) return da; return b.attPresent-a.attPresent;
   }).slice(0,3);
-  const topMarks=[...rows].filter(r=>r.mksCount>0).sort((a,b)=>(b.mksPct??-1)-(a.mksPct??-1)).slice(0,2);
-  const topOverall=[...rows].sort((a,b)=>b.overallScore-a.overallScore).slice(0,1);
+  const topMarks=[...rows].filter(r=>r.mksCount>0).sort((a,b)=>(b.mksPct??-1)-(a.mksPct??-1)).slice(0,3);
+  const topOverall=[...rows].sort((a,b)=>b.overallScore-a.overallScore).slice(0,3);
   const topCopy=[...rows].filter(r=>r.copTotal>0).sort((a,b)=>{
     const d=(b.copPct??-1)-(a.copPct??-1); return d!==0?d:b.copSubmitted-a.copSubmitted;
-  }).slice(0,2);
+  }).slice(0,3);
 
   return {topOverall,topAtt,topMarks,topCopy,firstDate,todayISO};
 }
@@ -2168,19 +2185,20 @@ function renderWeeklySpotlight(){
   const posCls=["sp-pos-1","sp-pos-2","sp-pos-3"];
 
   const ov=topOverall[0];
-  const card1=ov?`
-    <div class="sp-winner-wrap">
-      ${spAvatarHTML(ov.name,"linear-gradient(135deg,#e8a020,#f5c842)","#1a1208")}
-      <div>
-        <div class="sp-name">${ov.name}</div>
-        <div class="sp-roll">Roll ${ov.roll}</div>
-        <div class="sp-score">
-          ${ov.attPct!==null?`✅ ${Math.round(ov.attPct)}% att`:""}
-          ${ov.mksPct!==null?` · 📊 ${Math.round(ov.mksPct)}% marks`:""}
-          ${ov.copPct!==null?` · 📋 ${Math.round(ov.copPct)}% copy`:""}
-        </div>
+  const card1=topOverall.length?`<div class="sp-podium">${topOverall.map((s,i)=>`
+    <div class="sp-podium-row" style="flex-direction:column;align-items:flex-start;gap:4px;padding:6px 0;">
+      <div style="display:flex;align-items:center;gap:8px;width:100%;">
+        <span class="sp-pos ${posCls[i]}">${posIco[i]}</span>
+        ${spAvatarHTML(s.name,"linear-gradient(135deg,#e8a020,#f5c842)","#1a1208")}
+        <span style="flex:1;font-weight:600;font-size:13px;">${s.name}</span>
+        <span style="font-size:11px;color:var(--gold);font-weight:700;">${Math.round(s.overallScore)}%</span>
       </div>
-    </div>`:`<div class="sp-empty">No data yet</div>`;
+      <div style="padding-left:60px;display:flex;gap:8px;flex-wrap:wrap;">
+        ${s.attPct!==null?`<span style="font-size:10px;color:#4a9eff;">✅ ${Math.round(s.attPct)}% att</span>`:""}
+        ${s.mksPct!==null?`<span style="font-size:10px;color:#3dba7e;">📊 ${Math.round(s.mksPct)}% marks</span>`:""}
+        ${s.copPct!==null?`<span style="font-size:10px;color:var(--gold);">📋 ${Math.round(s.copPct)}% copy</span>`:""}
+      </div>
+    </div>`).join("")}</div>`:`<div class="sp-empty">No data yet</div>`;
 
   const card2=topAtt.length?`<div class="sp-podium">${topAtt.map((s,i)=>`
     <div class="sp-podium-row">
@@ -2330,7 +2348,7 @@ function addPeriod(){ ttEditorRows.push({day:"Monday",startTime:"",endTime:"",su
 async function resetTimetable(){ if(!await customConfirm("Reset the entire timetable?","Reset Timetable","🗓️","Reset")) return; ttEditorRows=[]; DAYS.forEach(day=>{ DEFAULT_TIMES.forEach(t=>{ ttEditorRows.push({day,startTime:t.start,endTime:t.end,subject:""}); }); }); renderTTEditor(); showToast("🔄 Timetable reset"); }
 function copyDayToAll(sourceDay){ const srcRows=ttEditorRows.filter(r=>r.day===sourceDay); if(!srcRows.length){ showToast("❌ "+sourceDay+" has no periods"); return; } ttEditorRows=ttEditorRows.filter(r=>r.day===sourceDay); DAYS.forEach(day=>{ if(day===sourceDay) return; srcRows.forEach(r=>{ ttEditorRows.push({day,startTime:r.startTime,endTime:r.endTime,subject:r.subject}); }); }); renderTTEditor(); showToast("📋 Copied to all days!"); }
 function showCopyDayModal(){ const overlay=document.createElement("div"); overlay.id="copyDayOverlay"; overlay.style.cssText="position:fixed;inset:0;background:rgba(11,28,54,0.85);backdrop-filter:blur(8px);z-index:600;display:flex;align-items:center;justify-content:center;"; overlay.innerHTML=`<div style="background:#122547;border:1px solid rgba(232,160,32,0.25);border-radius:16px;padding:26px 28px;width:340px;max-width:92vw;box-shadow:0 24px 60px rgba(0,0,0,0.5);animation:fadeUp .25s ease;"><div style="font-size:20px;margin-bottom:6px;">📋</div><div style="font-family:'Cormorant Garamond',serif;font-size:19px;color:#f8f4ee;margin-bottom:6px;">Copy Day to All Days</div><div style="font-size:13px;color:rgba(200,191,175,0.6);margin-bottom:18px;line-height:1.5;">Select a day to copy its schedule to all other days.</div><div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:18px;">${DAYS.map(day=>{ const cnt=ttEditorRows.filter(r=>r.day===day&&r.subject).length; return `<button onclick="copyDayToAll('${day}');document.getElementById('copyDayOverlay').remove();" style="padding:10px;background:rgba(232,160,32,0.08);border:1px solid rgba(232,160,32,0.2);border-radius:9px;color:var(--white);cursor:pointer;font-family:'DM Sans',sans-serif;font-size:13px;text-align:left;" onmouseover="this.style.background='rgba(232,160,32,0.18)'" onmouseout="this.style.background='rgba(232,160,32,0.08)'"><div style="font-weight:600;">${day}</div><div style="font-size:10px;color:var(--gold);margin-top:2px;">${cnt} period${cnt!==1?"s":""}</div></button>`; }).join("")}</div><button onclick="document.getElementById('copyDayOverlay').remove();" style="width:100%;padding:9px;background:transparent;border:1px solid rgba(255,255,255,0.15);color:rgba(200,191,175,0.7);border-radius:9px;cursor:pointer;font-size:13px;font-family:'DM Sans',sans-serif;">Cancel</button></div>`; document.body.appendChild(overlay); overlay.addEventListener("click",e=>{ if(e.target===overlay) overlay.remove(); }); }
-function saveTimetable(){ const toSave=ttEditorRows.filter(r=>r.subject&&r.startTime).map(r=>({day:r.day,startTime:r.startTime,endTime:r.endTime||"",subject:r.subject})); if(!toSave.length){ showToast("❌ Add at least one period with subject and start time"); return; } DB.set("timetable",toSave); showToast("💾 Timetable saved!"); renderTTPreview(); renderTTDisplay(); }
+function saveTimetable(){ const toSave=ttEditorRows.filter(r=>r.subject&&r.startTime).map((r,i)=>({id:r.day+"_"+r.startTime.replace(":","")+"_"+i,day:r.day,startTime:r.startTime,endTime:r.endTime||"",subject:r.subject})); if(!toSave.length){ showToast("❌ Add at least one period with subject and start time"); return; } DB.set("timetable",toSave); showToast("💾 Timetable saved!"); renderTTPreview(); renderTTDisplay(); }
 function renderTTPreview(){ const el=document.getElementById("ttPreview"); if(!el) return; const rows=ttEditorRows.filter(r=>r.subject&&r.startTime); if(!rows.length){ el.innerHTML=`<div style="color:var(--muted);font-size:13px;padding:8px 0;">No periods with subjects yet.</div>`; return; } _renderTTTable(el,rows); }
 function renderTTDisplay(){ const tt=DB.get("timetable"),el=document.getElementById("ttDisplay"); if(!el) return; if(!tt||!tt.length){ el.innerHTML=`<div class="empty-state"><div class="empty-icon">📅</div><div class="empty-text">No timetable set yet</div></div>`; return; } _renderTTTable(el,tt); }
 function _renderTTTable(el,rows){
@@ -2481,37 +2499,34 @@ function submitResults(){
 // ═══════════════════════════════════════════
 // MULTI-SUBJECT EXAM
 // ═══════════════════════════════════════════
-let multiExamState=null; // {name,date,remarks,subjects:[{id,max}],marksData:{subjId:{studentId:{marks,absent}}},activeSubj}
+let multiExamState=null;
+
+// Fixed subjects for big exams — always these 6, no selection needed
+const MULTI_SUBJECTS=[
+  {id:"maths",   name:"Maths",   emoji:"📐"},
+  {id:"science", name:"Science", emoji:"🔬"},
+  {id:"sst",     name:"SST",     emoji:"🗺️"},
+  {id:"hindi",   name:"Hindi",   emoji:"🇮🇳"},
+  {id:"english", name:"English", emoji:"📖"},
+  {id:"it",      name:"IT",      emoji:"💻"},
+];
 
 function setResMode(mode){
   document.getElementById("resSingleWrap").style.display=mode==="single"?"":"none";
   document.getElementById("resMultiWrap").style.display=mode==="multi"?"":"none";
   document.getElementById("resModeSingle").classList.toggle("active",mode==="single");
   document.getElementById("resModeMulti").classList.toggle("active",mode==="multi");
-  if(mode==="multi") renderMultiSubjectList();
+  if(mode==="multi") renderMultiMaxGrid();
 }
 
-function renderMultiSubjectList(){
-  const el=document.getElementById("multiSubjectList"); if(!el) return;
-  el.innerHTML=SUBJECTS.filter(s=>s.id!=="general").map(s=>`
-    <div style="display:flex;align-items:center;gap:10px;padding:9px 12px;border-radius:9px;background:rgba(255,255,255,0.03);border:1.5px solid rgba(255,255,255,0.07);" id="multiSubjRow_${s.id}">
-      <input type="checkbox" id="multiChk_${s.id}" onchange="toggleMultiSubj('${s.id}')" style="width:16px;height:16px;accent-color:var(--gold);cursor:pointer;">
-      <span style="font-size:15px;">${s.emoji}</span>
-      <span style="font-size:13px;font-weight:600;flex:1;">${s.name}</span>
-      <input type="number" id="multiMax_${s.id}" min="1" placeholder="Max" disabled
-        style="width:72px;padding:6px 8px;text-align:center;background:rgba(255,255,255,0.05);border:1.5px solid rgba(255,255,255,0.1);border-radius:7px;color:var(--white);font-size:13px;font-weight:600;outline:none;opacity:0.35;">
-      <span style="font-size:11px;color:var(--muted);">marks</span>
+function renderMultiMaxGrid(){
+  const el=document.getElementById("multiMaxGrid"); if(!el) return;
+  el.innerHTML=MULTI_SUBJECTS.map(s=>`
+    <div style="background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.08);border-radius:9px;padding:10px 12px;">
+      <div style="font-size:12px;font-weight:600;margin-bottom:6px;">${s.emoji} ${s.name}</div>
+      <input type="number" id="multiMax_${s.id}" min="1" placeholder="Max marks"
+        style="width:100%;padding:7px 10px;background:rgba(255,255,255,0.07);border:1.5px solid rgba(255,255,255,0.12);border-radius:7px;color:var(--white);font-size:14px;font-weight:600;outline:none;">
     </div>`).join("");
-}
-
-function toggleMultiSubj(subjId){
-  const chk=document.getElementById("multiChk_"+subjId),maxInp=document.getElementById("multiMax_"+subjId),row=document.getElementById("multiSubjRow_"+subjId);
-  if(!chk||!maxInp) return;
-  maxInp.disabled=!chk.checked;
-  maxInp.style.opacity=chk.checked?"1":"0.35";
-  row.style.borderColor=chk.checked?"rgba(232,160,32,0.4)":"rgba(255,255,255,0.07)";
-  row.style.background=chk.checked?"rgba(232,160,32,0.06)":"rgba(255,255,255,0.03)";
-  if(chk.checked) maxInp.focus();
 }
 
 function setupMultiResultSheet(){
@@ -2519,30 +2534,22 @@ function setupMultiResultSheet(){
   const date=document.getElementById("multiExamDate").value;
   const remarks=document.getElementById("multiExamRemarks").value.trim();
   if(!name){ showToast("❌ Enter exam name"); return; }
-  const selected=SUBJECTS.filter(s=>s.id!=="general"&&document.getElementById("multiChk_"+s.id)&&document.getElementById("multiChk_"+s.id).checked);
-  if(!selected.length){ showToast("❌ Select at least one subject"); return; }
   const subjects=[];
-  for(const s of selected){
+  for(const s of MULTI_SUBJECTS){
     const max=parseInt(document.getElementById("multiMax_"+s.id).value);
-    if(!max||max<1){ showToast(`❌ Enter valid max marks for ${s.name}`); return; }
-    subjects.push({id:s.id,max});
+    if(!max||max<1){ showToast(`❌ Enter max marks for ${s.name}`); return; }
+    subjects.push({...s, max});
   }
-  // Init marks data store: for each subject, for each student → {marks:null,absent:false}
-  const students=DB.get("students")||[];
-  const marksData={};
-  subjects.forEach(s=>{ marksData[s.id]={}; students.forEach(st=>{ marksData[s.id][st.id]={marks:null,absent:false}; }); });
-  multiExamState={name,date:date||new Date().toLocaleDateString("en-IN"),remarks,subjects,marksData,activeSubj:subjects[0].id};
+  const students=(DB.get("students")||[]).sort((a,b)=>parseInt(a.roll)-parseInt(b.roll));
+  multiExamState={name, date:date||new Date().toLocaleDateString("en-IN"), remarks, subjects, students};
   document.getElementById("multiSetupCard").style.display="none";
   document.getElementById("multiMarksCard").style.display="";
-  // Render summary bar
-  const sub0=SUBJECTS.find(x=>x.id===subjects[0].id);
   document.getElementById("multiExamSummaryBar").innerHTML=`<div style="display:flex;gap:16px;flex-wrap:wrap;">
-    <div><span style="color:var(--muted);font-size:11px;">EXAM</span><div style="font-weight:600;">${name}</div></div>
-    <div><span style="color:var(--muted);font-size:11px;">DATE</span><div style="font-weight:600;">${date||"—"}</div></div>
-    <div><span style="color:var(--muted);font-size:11px;">SUBJECTS</span><div style="font-weight:600;color:var(--gold);">${subjects.length}</div></div>
-    ${remarks?`<div><span style="color:var(--muted);font-size:11px;">REMARKS</span><div style="font-size:12px;">${remarks}</div></div>`:""}
+    <div><div style="color:var(--muted);font-size:11px;">EXAM</div><div style="font-weight:600;">${name}</div></div>
+    <div><div style="color:var(--muted);font-size:11px;">DATE</div><div style="font-weight:600;">${date||"—"}</div></div>
+    <div><div style="color:var(--muted);font-size:11px;">SUBJECTS</div><div style="font-weight:600;color:var(--gold);">${subjects.map(s=>s.emoji+" "+s.name).join("  ·  ")}</div></div>
+    ${remarks?`<div><div style="color:var(--muted);font-size:11px;">REMARKS</div><div style="font-size:12px;">${remarks}</div></div>`:""}
   </div>`;
-  renderMultiSubjTabs();
   renderMultiMarksGrid();
 }
 
@@ -2552,181 +2559,149 @@ function backToMultiSetup(){
   multiExamState=null;
 }
 
-function renderMultiSubjTabs(){
-  const el=document.getElementById("multiSubjTabs"); if(!el||!multiExamState) return;
-  el.innerHTML=multiExamState.subjects.map(s=>{
-    const sub=SUBJECTS.find(x=>x.id===s.id);
-    const isActive=s.id===multiExamState.activeSubj;
-    const entered=Object.values(multiExamState.marksData[s.id]||{}).filter(m=>m.marks!==null||m.absent).length;
-    const total=(DB.get("students")||[]).length;
-    const done=entered===total&&total>0;
-    return `<button onclick="switchMultiSubj('${s.id}')"
-      style="padding:7px 14px;border-radius:9px;border:1.5px solid ${isActive?"var(--gold)":"rgba(255,255,255,0.1)"};background:${isActive?"rgba(232,160,32,0.15)":"rgba(255,255,255,0.03)"};color:${isActive?"var(--gold)":"var(--off)"};font-size:12px;font-weight:600;cursor:pointer;display:flex;align-items:center;gap:6px;transition:all .2s;">
-      ${sub?sub.emoji:""} ${sub?sub.name:s.id}
-      <span style="font-size:10px;background:${done?"rgba(61,186,126,0.2)":"rgba(255,255,255,0.08)"};color:${done?"#3dba7e":"var(--muted)"};padding:1px 6px;border-radius:5px;">${done?"✓":"${entered}/${total}"}</span>
-    </button>`.replace("${entered}/${total}",`${entered}/${total}`);
-  }).join("");
-}
-
-function switchMultiSubj(subjId){
-  if(!multiExamState) return;
-  saveMultiSubjMarks(); // save current before switching
-  multiExamState.activeSubj=subjId;
-  renderMultiSubjTabs();
-  renderMultiMarksGrid();
-}
-
-function saveMultiSubjMarks(){
-  if(!multiExamState) return;
-  const students=(DB.get("students")||[]).sort((a,b)=>parseInt(a.roll)-parseInt(b.roll));
-  const subjId=multiExamState.activeSubj;
-  const subjConf=multiExamState.subjects.find(s=>s.id===subjId); if(!subjConf) return;
-  students.forEach(s=>{
-    const inp=document.getElementById("mmk_"+s.id);
-    const absBtn=document.getElementById("mab_"+s.id);
-    if(!inp) return;
-    const isAbsent=inp.disabled;
-    multiExamState.marksData[subjId][s.id]={marks:isAbsent?null:(inp.value===""?null:parseInt(inp.value)),absent:isAbsent};
-  });
-}
-
 function renderMultiMarksGrid(){
   const el=document.getElementById("multiMarksGrid"); if(!el||!multiExamState) return;
-  const students=(DB.get("students")||[]).sort((a,b)=>parseInt(a.roll)-parseInt(b.roll));
-  const subjId=multiExamState.activeSubj;
-  const subjConf=multiExamState.subjects.find(s=>s.id===subjId);
-  const sub=SUBJECTS.find(x=>x.id===subjId);
+  const {subjects,students}=multiExamState;
   if(!students.length){ el.innerHTML=`<div class="empty-state"><div class="empty-icon">👥</div><div class="empty-text">No students registered yet</div></div>`; return; }
-  const saved=multiExamState.marksData[subjId]||{};
-  const max=subjConf.max;
-  const isMob=window.innerWidth<=820;
-  el.innerHTML=`<div style="font-size:12px;color:var(--muted);margin-bottom:8px;">Entering marks for: <strong style="color:var(--gold);">${sub?sub.emoji+" "+sub.name:subjId}</strong> · Max: <strong style="color:var(--gold);">${max}</strong></div>`+
-  `<div style="display:grid;gap:7px;">`+students.map(s=>{
-    const prev=saved[s.id]||{marks:null,absent:false};
-    const val=prev.marks!==null?prev.marks:"";
-    const isAbs=prev.absent;
-    return isMob?
-    `<div id="mmrow_${s.id}" style="padding:10px 12px;border-radius:10px;background:${isAbs?"rgba(224,85,85,0.06)":"rgba(255,255,255,0.025)"};border:1px solid ${isAbs?"rgba(224,85,85,0.2)":"rgba(255,255,255,0.07)"};">
-      <div style="display:flex;align-items:center;gap:10px;margin-bottom:8px;">
-        <div style="font-family:'Cormorant Garamond',serif;font-size:22px;color:var(--gold);min-width:36px;text-align:center;">${s.roll}</div>
-        <div style="flex:1;"><div style="font-size:13px;font-weight:600;">${s.name}</div><div style="font-size:10px;color:var(--muted);">${s.admNo}</div></div>
-        <div id="mmkstat_${s.id}">${isAbs?`<span style="font-size:12px;font-weight:700;color:#e05555;">ABSENT</span>`:`<span style="font-size:11px;color:var(--muted);">—</span>`}</div>
-      </div>
-      <div style="display:flex;gap:8px;align-items:center;">
-        <input type="number" id="mmk_${s.id}" min="0" max="${max}" value="${val}" ${isAbs?"disabled":""} style="flex:1;padding:9px;text-align:center;background:rgba(255,255,255,0.07);border:1.5px solid rgba(255,255,255,0.12);border-radius:8px;color:var(--white);font-size:18px;font-weight:700;outline:none;${isAbs?"opacity:0.3;":""}" placeholder="Marks" oninput="onMultiMarksInput('${s.id}',this,${max})">
-        <span style="font-size:11px;color:var(--muted);">/ ${max}</span>
-        <button id="mab_${s.id}" onclick="toggleMultiAbsent('${s.id}')" style="width:40px;height:40px;border-radius:8px;border:1.5px solid ${isAbs?"#e05555":"rgba(224,85,85,0.3)"};background:${isAbs?"rgba(224,85,85,0.35)":"rgba(224,85,85,0.1)"};color:${isAbs?"#ff4040":"#e05555"};cursor:pointer;font-size:16px;">✗</button>
-      </div>
-    </div>`
-    :
-    `<div style="display:grid;grid-template-columns:52px 1fr 120px 50px 120px;gap:8px;align-items:center;padding:8px;border-radius:9px;background:${isAbs?"rgba(224,85,85,0.06)":"rgba(255,255,255,0.025)"};border:1px solid ${isAbs?"rgba(224,85,85,0.2)":"rgba(255,255,255,0.06)"};" id="mmrow_${s.id}">
-      <div style="font-family:'Cormorant Garamond',serif;font-size:20px;color:var(--gold);text-align:center;">${s.roll}</div>
-      <div><div style="font-size:13px;font-weight:600;">${s.name}</div><div style="font-size:10px;color:var(--muted);">${s.admNo}</div></div>
-      <div style="text-align:center;"><input type="number" id="mmk_${s.id}" min="0" max="${max}" value="${val}" ${isAbs?"disabled":""} style="width:90px;padding:7px;text-align:center;background:rgba(255,255,255,0.07);border:1.5px solid rgba(255,255,255,0.12);border-radius:8px;color:var(--white);font-size:16px;font-weight:700;outline:none;${isAbs?"opacity:0.3;":""}" placeholder="—" oninput="onMultiMarksInput('${s.id}',this,${max})"></div>
-      <div style="text-align:center;"><button id="mab_${s.id}" onclick="toggleMultiAbsent('${s.id}')" style="width:34px;height:34px;border-radius:7px;border:1.5px solid ${isAbs?"#e05555":"rgba(224,85,85,0.3)"};background:${isAbs?"rgba(224,85,85,0.35)":"rgba(224,85,85,0.1)"};color:${isAbs?"#ff4040":"#e05555"};cursor:pointer;font-size:14px;">✗</button></div>
-      <div style="text-align:center;" id="mmkstat_${s.id}">${isAbs?`<span style="font-size:12px;font-weight:700;color:#e05555;">ABSENT</span>`:`<span style="font-size:11px;color:var(--muted);">—</span>`}</div>
-    </div>`;
-  }).join("")+`</div>`;
-  // restore live status for pre-filled values
-  students.forEach(s=>{
-    const prev=saved[s.id]||{};
-    if(!prev.absent&&prev.marks!==null){
-      const inp=document.getElementById("mmk_"+s.id);
-      if(inp) onMultiMarksInput(s.id,inp,max);
-    }
-  });
+  const thS=`padding:9px 8px;text-align:center;color:var(--gold);font-size:11px;font-weight:700;letter-spacing:.4px;text-transform:uppercase;border-bottom:1px solid rgba(232,160,32,0.2);white-space:nowrap;`;
+  const thL=`padding:9px 10px;text-align:left;color:var(--gold);font-size:11px;font-weight:700;letter-spacing:.4px;text-transform:uppercase;border-bottom:1px solid rgba(232,160,32,0.2);`;
+  const inpS=`width:62px;padding:6px 4px;text-align:center;background:rgba(255,255,255,0.07);border:1.5px solid rgba(255,255,255,0.1);border-radius:7px;color:var(--white);font-size:14px;font-weight:700;outline:none;`;
+  const rows=students.map(s=>`
+    <tr id="mmrow_${s.id}" style="border-bottom:1px solid rgba(255,255,255,0.04);">
+      <td style="padding:6px 10px;"><span style="font-family:'Cormorant Garamond',serif;font-size:18px;color:var(--gold);">${s.roll}</span></td>
+      <td style="padding:6px 10px;font-size:13px;font-weight:600;white-space:nowrap;">${s.name}</td>
+      <td style="padding:6px 8px;text-align:center;">
+        <button id="mab_${s.id}" onclick="toggleMultiAbsent('${s.id}')" title="Mark absent"
+          style="width:32px;height:32px;border-radius:7px;border:1.5px solid rgba(224,85,85,0.3);background:rgba(224,85,85,0.1);color:#e05555;cursor:pointer;font-size:13px;">✗</button>
+      </td>
+      ${subjects.map(sub=>`
+      <td style="padding:6px 6px;text-align:center;">
+        <input type="number" id="mmk_${s.id}_${sub.id}" min="0" max="${sub.max}"
+          style="${inpS}" placeholder="—"
+          oninput="onMultiInput('${s.id}','${sub.id}',${sub.max},this)">
+      </td>`).join("")}
+      <td style="padding:6px 10px;text-align:center;" id="mmtotal_${s.id}">
+        <span style="font-size:12px;color:var(--muted);">—</span>
+      </td>
+    </tr>`).join("");
+  el.innerHTML=`<table style="width:100%;border-collapse:collapse;font-size:13px;min-width:600px;">
+    <thead><tr style="background:rgba(255,255,255,0.02);">
+      <th style="${thL}">Roll</th>
+      <th style="${thL}">Name</th>
+      <th style="${thS}">Absent</th>
+      ${subjects.map(sub=>`<th style="${thS}">${sub.emoji}<br><span style="font-size:10px;">${sub.name}</span><br><span style="color:var(--muted);font-size:10px;font-weight:400;">/${sub.max}</span></th>`).join("")}
+      <th style="${thS}">Total</th>
+    </tr></thead>
+    <tbody>${rows}</tbody>
+  </table>`;
   updateMultiSummaryLive();
-  updateMultiSubjProgress();
 }
 
-function onMultiMarksInput(sid,input,max){
-  const val=parseInt(input.value),statusEl=document.getElementById("mmkstat_"+sid);
-  if(isNaN(val)||input.value===""){ if(statusEl) statusEl.innerHTML=`<span style="font-size:11px;color:var(--muted);">—</span>`; input.style.borderColor="rgba(255,255,255,0.15)"; updateMultiSummaryLive(); return; }
-  if(val<0||val>max){ input.style.borderColor="#e05555"; if(statusEl) statusEl.innerHTML=`<span style="font-size:11px;color:#e05555;">Invalid</span>`; return; }
-  input.style.borderColor="rgba(232,160,32,0.5)";
-  const pct=Math.round(val/max*100),grade=pct>=90?"A+":pct>=80?"A":pct>=70?"B+":pct>=60?"B":pct>=50?"C":"D",col=pct>=60?"#3dba7e":pct>=40?"var(--gold)":"#e05555";
-  if(statusEl) statusEl.innerHTML=`<span style="font-size:12px;font-weight:700;color:${col};">${grade} <span style="font-size:10px;">(${pct}%)</span></span>`;
+function onMultiInput(sid,subjId,max,input){
+  const v=parseInt(input.value);
+  if(!isNaN(v)&&v>=0&&v<=max) input.style.borderColor="rgba(232,160,32,0.5)";
+  else if(input.value!=="") input.style.borderColor="#e05555";
+  else input.style.borderColor="rgba(255,255,255,0.1)";
+  updateStudentTotal(sid);
   updateMultiSummaryLive();
+}
+
+function updateStudentTotal(sid){
+  if(!multiExamState) return;
+  const {subjects}=multiExamState;
+  const absBtn=document.getElementById("mab_"+sid);
+  const isAbsent=absBtn&&absBtn.dataset.absent==="1";
+  const totalEl=document.getElementById("mmtotal_"+sid); if(!totalEl) return;
+  if(isAbsent){ totalEl.innerHTML=`<span style="font-size:12px;font-weight:700;color:#e05555;">Absent</span>`; return; }
+  let total=0,maxTotal=0,allFilled=true;
+  subjects.forEach(sub=>{
+    const inp=document.getElementById("mmk_"+sid+"_"+sub.id);
+    maxTotal+=sub.max;
+    if(!inp||inp.value===""){ allFilled=false; return; }
+    const v=parseInt(inp.value);
+    if(!isNaN(v)&&v>=0) total+=v;
+  });
+  if(!allFilled){ totalEl.innerHTML=`<span style="font-size:12px;color:var(--muted);">—</span>`; return; }
+  const pct=Math.round(total/maxTotal*100);
+  const col=pct>=60?"#3dba7e":pct>=40?"var(--gold)":"#e05555";
+  totalEl.innerHTML=`<div style="font-size:13px;font-weight:700;color:${col};">${total}/${maxTotal}</div><div style="font-size:10px;color:${col};">${pct}%</div>`;
 }
 
 function toggleMultiAbsent(sid){
-  const inp=document.getElementById("mmk_"+sid),btn=document.getElementById("mab_"+sid),row=document.getElementById("mmrow_"+sid),statusEl=document.getElementById("mmkstat_"+sid);
-  if(!inp||!btn) return;
-  if(inp.disabled){
-    inp.disabled=false; inp.value=""; inp.style.opacity="1";
-    btn.style.background="rgba(224,85,85,0.1)"; btn.style.borderColor="rgba(224,85,85,0.3)"; btn.style.color="#e05555";
-    if(row){ row.style.background="rgba(255,255,255,0.025)"; row.style.borderColor="rgba(255,255,255,0.07)"; }
-    if(statusEl) statusEl.innerHTML=`<span style="font-size:11px;color:var(--muted);">—</span>`;
-  } else {
-    inp.disabled=true; inp.value=""; inp.style.opacity="0.3";
-    btn.style.background="rgba(224,85,85,0.35)"; btn.style.borderColor="#e05555"; btn.style.color="#ff4040";
-    if(row){ row.style.background="rgba(224,85,85,0.06)"; row.style.borderColor="rgba(224,85,85,0.2)"; }
-    if(statusEl) statusEl.innerHTML=`<span style="font-size:12px;font-weight:700;color:#e05555;">ABSENT</span>`;
-  }
+  if(!multiExamState) return;
+  const btn=document.getElementById("mab_"+sid);
+  const row=document.getElementById("mmrow_"+sid);
+  const isNowAbsent=btn.dataset.absent!=="1";
+  btn.dataset.absent=isNowAbsent?"1":"";
+  btn.style.background=isNowAbsent?"rgba(224,85,85,0.35)":"rgba(224,85,85,0.1)";
+  btn.style.borderColor=isNowAbsent?"#e05555":"rgba(224,85,85,0.3)";
+  btn.style.color=isNowAbsent?"#ff4040":"#e05555";
+  if(row) row.style.background=isNowAbsent?"rgba(224,85,85,0.05)":"";
+  multiExamState.subjects.forEach(sub=>{
+    const inp=document.getElementById("mmk_"+sid+"_"+sub.id);
+    if(!inp) return;
+    inp.disabled=isNowAbsent;
+    inp.style.opacity=isNowAbsent?"0.3":"1";
+    if(isNowAbsent) inp.value="";
+  });
+  updateStudentTotal(sid);
   updateMultiSummaryLive();
 }
 
 function updateMultiSummaryLive(){
   const el=document.getElementById("multiSummaryLive"); if(!el||!multiExamState) return;
-  const subjConf=multiExamState.subjects.find(s=>s.id===multiExamState.activeSubj); if(!subjConf) return;
-  const students=DB.get("students")||[];
-  const marks=students.map(s=>{ const inp=document.getElementById("mmk_"+s.id); return inp&&inp.value!==""&&!inp.disabled?parseInt(inp.value):null; }).filter(v=>v!==null&&!isNaN(v));
-  if(!marks.length){ el.innerHTML=`<div style="font-size:12px;color:var(--muted);">Enter marks above to see live summary</div>`; return; }
-  const max=subjConf.max,avg=Math.round(marks.reduce((a,b)=>a+b,0)/marks.length),highest=Math.max(...marks),lowest=Math.min(...marks),passing=marks.filter(m=>m/max>=0.33).length;
-  el.innerHTML=`<div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(110px,1fr));gap:10px;">
-    <div><div style="font-size:10px;color:var(--muted);text-transform:uppercase;">Entered</div><div style="font-size:20px;font-family:'Cormorant Garamond',serif;color:var(--gold);">${marks.length}/${students.length}</div></div>
-    <div><div style="font-size:10px;color:var(--muted);text-transform:uppercase;">Average</div><div style="font-size:20px;font-family:'Cormorant Garamond',serif;color:var(--gold);">${avg}/${max}</div></div>
-    <div><div style="font-size:10px;color:var(--muted);text-transform:uppercase;">Highest</div><div style="font-size:20px;font-family:'Cormorant Garamond',serif;color:#3dba7e;">${highest}</div></div>
-    <div><div style="font-size:10px;color:var(--muted);text-transform:uppercase;">Lowest</div><div style="font-size:20px;font-family:'Cormorant Garamond',serif;color:#e05555;">${lowest}</div></div>
-    <div><div style="font-size:10px;color:var(--muted);text-transform:uppercase;">Passing</div><div style="font-size:20px;font-family:'Cormorant Garamond',serif;color:#4a9eff;">${passing}</div></div>
-  </div>`;
-}
-
-function updateMultiSubjProgress(){
-  const el=document.getElementById("multiSubjProgress"); if(!el||!multiExamState) return;
-  const students=DB.get("students")||[];
-  const total=students.length;
-  el.innerHTML=`<div style="font-size:11px;color:var(--muted);font-weight:600;letter-spacing:.5px;text-transform:uppercase;margin-bottom:4px;">All Subjects Progress</div>`+
-  multiExamState.subjects.map(s=>{
-    const sub=SUBJECTS.find(x=>x.id===s.id);
-    const data=multiExamState.marksData[s.id]||{};
-    const entered=Object.values(data).filter(m=>m.marks!==null||m.absent).length;
-    const pct=total?Math.round(entered/total*100):0;
-    const done=entered===total&&total>0;
-    return `<div style="display:flex;align-items:center;gap:10px;">
-      <span style="font-size:13px;min-width:22px;">${sub?sub.emoji:""}</span>
-      <span style="font-size:12px;font-weight:600;min-width:110px;flex:1;">${sub?sub.name:s.id}</span>
-      <div style="flex:2;height:5px;background:rgba(255,255,255,0.08);border-radius:3px;overflow:hidden;">
-        <div style="height:100%;width:${pct}%;background:${done?"#3dba7e":"var(--gold)"};border-radius:3px;transition:width .3s;"></div>
-      </div>
-      <span style="font-size:11px;color:${done?"#3dba7e":"var(--muted)"};min-width:48px;text-align:right;">${entered}/${total}${done?" ✓":""}</span>
-    </div>`;
-  }).join("");
+  const {subjects,students}=multiExamState;
+  const subStats=subjects.map(sub=>{
+    const vals=students.map(s=>{
+      const absBtn=document.getElementById("mab_"+s.id);
+      if(absBtn&&absBtn.dataset.absent==="1") return null;
+      const inp=document.getElementById("mmk_"+s.id+"_"+sub.id);
+      return inp&&inp.value!==""?parseInt(inp.value):undefined;
+    }).filter(v=>v!==undefined&&v!==null&&!isNaN(v));
+    const avg=vals.length?Math.round(vals.reduce((a,b)=>a+b,0)/vals.length):null;
+    return {sub,avg,count:vals.length};
+  });
+  const hasAny=subStats.some(s=>s.count>0);
+  if(!hasAny){ el.innerHTML=`<div style="font-size:12px;color:var(--muted);">Enter marks above to see live summary</div>`; return; }
+  el.innerHTML=`<div style="display:flex;gap:16px;flex-wrap:wrap;">`+
+    subStats.map(({sub,avg,count})=>`
+      <div style="text-align:center;min-width:56px;">
+        <div style="font-size:10px;color:var(--muted);text-transform:uppercase;">${sub.emoji} ${sub.name}</div>
+        <div style="font-size:18px;font-family:'Cormorant Garamond',serif;color:var(--gold);">${avg!==null?avg+"/"+sub.max:"—"}</div>
+        <div style="font-size:10px;color:var(--muted);">${count}/${students.length}</div>
+      </div>`).join("")+`</div>`;
 }
 
 function submitMultiResults(){
   if(!multiExamState){ showToast("❌ No exam setup found"); return; }
-  saveMultiSubjMarks(); // save currently visible subject first
-  const students=(DB.get("students")||[]).sort((a,b)=>parseInt(a.roll)-parseInt(b.roll));
+  const {name,date,remarks,subjects,students}=multiExamState;
+  // Validate — every non-absent student must have all marks filled & valid
+  for(const s of students){
+    const absBtn=document.getElementById("mab_"+s.id);
+    if(absBtn&&absBtn.dataset.absent==="1") continue;
+    for(const sub of subjects){
+      const inp=document.getElementById("mmk_"+s.id+"_"+sub.id);
+      if(!inp||inp.value===""){ showToast(`❌ Missing: ${s.name} → ${sub.name}`); return; }
+      const v=parseInt(inp.value);
+      if(isNaN(v)||v<0||v>sub.max){ showToast(`❌ Invalid: ${s.name} → ${sub.name}`); return; }
+    }
+  }
   const notifs=DB.get("studentNotifications")||[];
   let savedCount=0;
-  for(const s of multiExamState.subjects){
-    const sub=SUBJECTS.find(x=>x.id===s.id);
-    const data=multiExamState.marksData[s.id]||{};
-    const marks=students.map(st=>{
-      const d=data[st.id]||{marks:null,absent:false};
-      return {studentId:st.id,name:st.name,roll:st.roll,marks:d.absent?null:d.marks,absent:d.absent||d.marks===null};
+  subjects.forEach(sub=>{
+    const marks=students.map(s=>{
+      const absBtn=document.getElementById("mab_"+s.id);
+      const isAbsent=absBtn&&absBtn.dataset.absent==="1";
+      if(isAbsent) return {studentId:s.id,name:s.name,roll:s.roll,marks:null,absent:true};
+      const v=parseInt(document.getElementById("mmk_"+s.id+"_"+sub.id).value);
+      return {studentId:s.id,name:s.name,roll:s.roll,marks:v,absent:false};
     });
-    const allM=marks.filter(m=>!m.absent&&m.marks!==null).map(m=>m.marks);
+    const allM=marks.filter(m=>!m.absent).map(m=>m.marks);
     const result={
       id:(Date.now()+savedCount).toString(),
-      test:multiExamState.name,
-      subject:s.id,
-      max:s.max,
-      date:multiExamState.date,
-      remarks:multiExamState.remarks,
-      by:currentUser.name,
-      byRole:currentUser.role,
+      test:name, subject:sub.id, max:sub.max,
+      date, remarks,
+      by:currentUser.name, byRole:currentUser.role,
       avg:allM.length?Math.round(allM.reduce((a,b)=>a+b,0)/allM.length):null,
       highest:allM.length?Math.max(...allM):null,
       lowest:allM.length?Math.min(...allM):null,
@@ -2735,20 +2710,20 @@ function submitMultiResults(){
       multiExam:true
     };
     DB.push("results",result);
-    notifs.unshift({id:(Date.now()+savedCount+1000).toString(),msg:`Results declared: ${multiExamState.name} — ${sub?sub.name:s.id} (Max: ${s.max})`,time:new Date().toLocaleString("en-IN"),read:false,resultId:result.id});
+    notifs.unshift({id:(Date.now()+savedCount+1000).toString(),msg:`Results declared: ${name} — ${sub.name} (Max: ${sub.max})`,time:new Date().toLocaleString("en-IN"),read:false,resultId:result.id});
     savedCount++;
-  }
+  });
   DB.set("studentNotifications",notifs);
   _refreshNotifDot();
-  // Reset multi form
   multiExamState=null;
   document.getElementById("multiSetupCard").style.display="";
   document.getElementById("multiMarksCard").style.display="none";
-  ["multiExamName","multiExamDate","multiExamRemarks"].forEach(id=>{ const el=document.getElementById(id); if(el) el.value=""; });
-  renderMultiSubjectList();
-  showToast(`✅ ${savedCount} subject result${savedCount!==1?"s":""} saved & declared!`);
+  ["multiExamName","multiExamDate","multiExamRemarks"].forEach(id=>{ const e=document.getElementById(id); if(e) e.value=""; });
+  renderMultiMaxGrid();
+  showToast(`✅ ${savedCount} subject results saved & declared!`);
   renderEnteredResults(); renderResults(); renderDashboard(); populateLeaderboardTestSelect();
 }
+
 
 function editResult(id){
   const r=(DB.get("results")||[]).find(x=>x.id===id); if(!r) return;
@@ -4489,27 +4464,6 @@ function renderMyDuties(){
 function openDutyCompletion(dutyId){
   const duties=DB.get("duties")||[];
   const d=duties.find(x=>x.id===dutyId); if(!d) return;
-  document.getElementById("dutyCompletionId").value=dutyId;
-  document.getElementById("dutyCompletionLabel").textContent=`${d.name} — Due: ${d.dueDate}`;
-  const grid=document.getElementById("dutyCompletionGrid");
-  grid.innerHTML=(d.students||[]).map(s=>{
-    const isDone=s.status==="done";
-    return `<div style="display:flex;align-items:center;gap:8px;padding:8px 10px;background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.07);border-radius:8px;">
-      <span style="font-family:'Cormorant Garamond',serif;font-size:16px;color:var(--gold);min-width:28px;">${s.roll}</span>
-      <span style="font-size:13px;font-weight:500;flex:1;">${s.name}</span>
-      <button id="dutyBtn_${s.id}" onclick="toggleDutyStudentStatus('${dutyId}','${s.id}',this)" style="padding:5px 14px;border-radius:7px;border:1.5px solid ${isDone?"#3dba7e":"rgba(255,255,255,0.2)"};background:${isDone?"rgba(61,186,126,0.2)":"transparent"};color:${isDone?"#3dba7e":"var(--muted)"};font-size:12px;font-weight:600;cursor:pointer;transition:all .15s;">
-        ${isDone?"✓ Done":"Pending"}
-      </button>
-    </div>`;
-  }).join("");
-  openModal("dutyCompletionModal");
-}
-
-// Temporary state for pending duty completion changes (in-modal only)
-let _pendingDutyStatus={};
-function openDutyCompletion(dutyId){
-  const duties=DB.get("duties")||[];
-  const d=duties.find(x=>x.id===dutyId); if(!d) return;
   _pendingDutyStatus={};
   (d.students||[]).forEach(s=>{ _pendingDutyStatus[s.id]=s.status||"pending"; });
   document.getElementById("dutyCompletionId").value=dutyId;
@@ -4562,7 +4516,6 @@ async function deleteDuty(id){
 }
 
 
-function liveSearch(q){ if(!q||q.length<2) return; const files=DB.get("files")||[]; const r=files.filter(f=>f.title.toLowerCase().includes(q.toLowerCase())||(SUBJECTS.find(s=>s.id===f.subject)?.name||"").toLowerCase().includes(q.toLowerCase())); showToast(`🔍 ${r.length} file${r.length!==1?"s":""} found for "${q}"`); }
 
 // ═══════════════════════════════════════════
 // TOAST + CONFIRM
