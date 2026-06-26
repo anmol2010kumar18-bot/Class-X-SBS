@@ -348,7 +348,35 @@ button:active, .btn:active, .nav-btn:active, .auth-btn:active, .role-card:active
 .lb-pct-bar{height:5px;background:rgba(255,255,255,0.08);border-radius:3px;overflow:hidden;width:60px;display:inline-block;vertical-align:middle;margin-right:6px;}
 .lb-pct-fill{height:100%;border-radius:3px;background:linear-gradient(90deg,#3dba7e,#4ec98a);}
 
-/* ── Weekly Spotlight ── */
+/* ── Report Card ── */
+.rc-wrap{background:#fff;color:#111;border-radius:14px;overflow:hidden;box-shadow:0 8px 40px rgba(0,0,0,0.3);}
+.rc-header{background:linear-gradient(135deg,#0a1628,#1a3a6e);color:#fff;padding:24px 28px;text-align:center;}
+.rc-school{font-size:13px;letter-spacing:1px;color:rgba(232,160,32,0.9);font-weight:700;text-transform:uppercase;}
+.rc-title{font-size:22px;font-family:'Cormorant Garamond',serif;font-weight:700;margin:4px 0;}
+.rc-sub{font-size:12px;color:rgba(255,255,255,0.6);margin-top:2px;}
+.rc-info-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:0;border-bottom:1px solid #e5e5e5;}
+.rc-info-cell{padding:12px 16px;border-right:1px solid #e5e5e5;}
+.rc-info-cell:last-child{border-right:none;}
+.rc-info-label{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.5px;color:#888;margin-bottom:2px;}
+.rc-info-val{font-size:14px;font-weight:700;color:#111;}
+.rc-section{padding:18px 20px;}
+.rc-section-title{font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:.6px;color:#555;border-bottom:2px solid #e8a020;padding-bottom:6px;margin-bottom:12px;}
+.rc-table{width:100%;border-collapse:collapse;font-size:13px;}
+.rc-table th{background:#f5f5f5;padding:8px 12px;text-align:left;font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.4px;color:#555;border-bottom:2px solid #ddd;}
+.rc-table td{padding:8px 12px;border-bottom:1px solid #f0f0f0;color:#222;}
+.rc-table tr:last-child td{border-bottom:none;}
+.rc-stat-row{display:grid;grid-template-columns:repeat(auto-fill,minmax(120px,1fr));gap:12px;margin-bottom:4px;}
+.rc-stat{text-align:center;padding:14px 10px;background:#f8f8f8;border-radius:10px;border:1px solid #eee;}
+.rc-stat-val{font-size:24px;font-weight:800;font-family:'Cormorant Garamond',serif;}
+.rc-stat-lbl{font-size:10px;color:#888;text-transform:uppercase;letter-spacing:.5px;margin-top:2px;}
+.rc-grade-badge{display:inline-block;padding:3px 10px;border-radius:6px;font-weight:800;font-size:13px;}
+.rc-footer{background:#f8f8f8;padding:14px 20px;display:flex;justify-content:space-between;align-items:center;border-top:1px solid #e5e5e5;font-size:11px;color:#888;}
+@media print{
+  body *{visibility:hidden !important;}
+  #rcPrintArea,#rcPrintArea *{visibility:visible !important;}
+  #rcPrintArea{position:fixed;top:0;left:0;width:100%;z-index:99999;background:#fff;}
+  .rc-wrap{box-shadow:none !important;border-radius:0 !important;}
+}
 .spotlight-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:18px;}
 @media(max-width:900px){.spotlight-grid{grid-template-columns:repeat(2,1fr);}}
 @media(max-width:520px){.spotlight-grid{grid-template-columns:1fr;}}
@@ -568,6 +596,7 @@ button:active, .btn:active, .nav-btn:active, .auth-btn:active, .role-card:active
     <button class="nav-btn" data-page="attendance" onclick="nav(this)"><span class="nav-icon">✅</span><span class="nav-label sb-text">Attendance</span></button>
     <button class="nav-btn" data-page="results" onclick="nav(this)"><span class="nav-icon">📊</span><span class="nav-label sb-text">Results</span></button>
     <button class="nav-btn" data-page="leaderboard" onclick="nav(this)"><span class="nav-icon">🏆</span><span class="nav-label sb-text">Leaderboard</span></button>
+    <button class="nav-btn" data-page="report_card" onclick="nav(this)"><span class="nav-icon">📄</span><span class="nav-label sb-text">Report Card</span></button>
     <button class="nav-btn" data-page="hw_view" onclick="nav(this)"><span class="nav-icon">📓</span><span class="nav-label sb-text">Homework</span><span class="nav-badge sb-text" id="hwViewBadge" style="display:none;background:#e8a020;">!</span></button>
     <button class="nav-btn perm-student" data-page="apply_leave" onclick="nav(this)" style="display:none;"><span class="nav-icon">🏖️</span><span class="nav-label sb-text">Apply Leave</span><span class="nav-badge sb-text" id="leaveStatusBadge" style="display:none;background:#4a9eff;">!</span></button>
     <button class="nav-btn perm-student" data-page="my_duties" onclick="nav(this)" style="display:none;"><span class="nav-icon">📋</span><span class="nav-label sb-text">My Duties</span><span class="nav-badge sb-text" id="myDutyBadge" style="display:none;background:#e05555;">!</span></button>
@@ -1213,6 +1242,28 @@ button:active, .btn:active, .nav-btn:active, .auth-btn:active, .role-card:active
       </div>
 
 
+      <!-- REPORT CARD PAGE -->
+      <div class="page" id="page-report_card">
+        <div class="hero" style="padding:20px 26px;margin-bottom:18px;">
+          <div class="hero-label">Academic</div>
+          <div class="hero-h" style="font-size:22px;">Student <span>Report Card</span></div>
+          <div class="hero-sub">Full academic report — attendance, marks, copy submission &amp; rank.</div>
+        </div>
+        <!-- Student selector (hidden for students, shown for teachers/CT) -->
+        <div class="card perm-upload" id="rcStudentPickerCard" style="margin-bottom:14px;display:none;">
+          <div class="card-title" style="margin-bottom:10px;">👤 Select Student</div>
+          <div style="display:flex;gap:10px;flex-wrap:wrap;align-items:center;">
+            <select class="form-select" id="rcStudentSelect" onchange="renderReportCard()" style="flex:1;min-width:180px;"></select>
+            <button class="btn btn-outline btn-sm" onclick="printReportCard()">🖨️ Print / Save PDF</button>
+          </div>
+        </div>
+        <!-- Print button for students (no picker) -->
+        <div class="perm-student" id="rcPrintBtnWrap" style="display:none;margin-bottom:14px;text-align:right;">
+          <button class="btn btn-outline btn-sm" onclick="printReportCard()">🖨️ Print / Save PDF</button>
+        </div>
+        <div id="reportCardContent"></div>
+      </div>
+
       <!-- MY DUTIES PAGE (Student View) -->
       <div class="page" id="page-my_duties">
         <div class="hero" style="padding:20px 26px;margin-bottom:18px;">
@@ -1686,7 +1737,7 @@ function setupFirebaseListeners(){
       if(wb.results){ try{renderResults();}catch(e){} try{renderEnteredResults();}catch(e){} try{populateLeaderboardTestSelect();}catch(e){} }
       if(wb.timetable){ try{renderTTDisplay();}catch(e){} try{renderTTPreview();}catch(e){} }
       if(wb.studentAttendance){ try{renderAttView();}catch(e){} }
-      if(wb.timetable||wb.studentAttendance||wb.results||wb.copySessions){ try{renderWeeklySpotlight();}catch(e){} }
+      if(wb.timetable||wb.studentAttendance||wb.results||wb.copySessions){ try{renderWeeklySpotlight();}catch(e){} try{_origRenderRC();}catch(e){} }
     }
   });
 }
@@ -1780,7 +1831,7 @@ const SUBJECTS=[
   {id:"economics",name:"Economics",emoji:"📈",teacher:"Raju Prasad"},
   {id:"hindi",name:"Hindi",emoji:"🇮🇳",teacher:"Richa"},
   {id:"general",name:"General / All",emoji:"📂",teacher:"—"},
-  {id:"computer",name:"Computer Sc.",emoji:"💻",teacher:"Rakesh Rajput"},
+  {id:"computer",name:"Computer Sc.",emoji:"💻",teacher:"Rakesh Singh"},
   {id:"atl",name:"ATL",emoji:"🔬",teacher:"Sanjeev Ranjan"},
   {id:"games",name:"Games",emoji:"⚽",teacher:"Shyam Singh"},
   {id:"library",name:"Library",emoji:"📚",teacher:"Anil Kumar Singh"}
@@ -1840,6 +1891,42 @@ let loginRole="student";
 function switchAuthTab(tab,btn){ document.querySelectorAll(".auth-tab").forEach(b=>b.classList.remove("active")); document.querySelectorAll(".auth-panel").forEach(p=>p.classList.remove("active")); document.getElementById("panel-"+tab).classList.add("active"); if(btn) btn.classList.add("active"); else document.querySelectorAll(".auth-tab")[tab==="login"?0:1].classList.add("active"); }
 function selectRole(card){ document.querySelectorAll(".role-card").forEach(c=>c.classList.remove("selected")); card.classList.add("selected"); loginRole=card.dataset.role; }
 
+// ── Session persistence ──
+// Keeps user logged in for SESSION_TIMEOUT ms after last activity.
+// On reopen within that window → auto-login silently, no password needed.
+const SESSION_KEY     = "davx_session";
+const SESSION_TIMEOUT = 8 * 60 * 60 * 1000; // 8 hours
+
+function saveSession(user){
+  try { localStorage.setItem(SESSION_KEY, JSON.stringify({user, ts: Date.now()})); } catch(e){}
+}
+function clearSession(){
+  try { localStorage.removeItem(SESSION_KEY); } catch(e){}
+}
+function loadSession(){
+  try {
+    const raw = localStorage.getItem(SESSION_KEY);
+    if(!raw) return null;
+    const {user, ts} = JSON.parse(raw);
+    if(!user || !ts) return null;
+    if(Date.now() - ts > SESSION_TIMEOUT) { clearSession(); return null; }
+    return user;
+  } catch(e){ return null; }
+}
+function touchSession(){
+  // Called on any user interaction to reset the timeout
+  try {
+    const raw = localStorage.getItem(SESSION_KEY);
+    if(!raw) return;
+    const parsed = JSON.parse(raw);
+    parsed.ts = Date.now();
+    localStorage.setItem(SESSION_KEY, JSON.stringify(parsed));
+  } catch(e){}
+}
+// Touch session on any click/keypress so timeout resets with activity
+document.addEventListener("click", touchSession, {passive:true});
+document.addEventListener("keydown", touchSession, {passive:true});
+
 function doLogin(){
   const user=document.getElementById("loginUser").value.trim(),pass=document.getElementById("loginPass").value;
   const errEl=document.getElementById("loginErr"),spinner=document.getElementById("loginSpinner"),btn=document.getElementById("loginBtn");
@@ -1850,6 +1937,7 @@ function doLogin(){
   setTimeout(()=>{
     btn.disabled=false; btn.textContent="Sign In →"; spinner.classList.remove("show");
     currentUser=r.user;
+    saveSession(currentUser); // ← persist session
     if(loginRole==="student"){ const sts=DB.get("students")||[],idx=sts.findIndex(x=>x.id===currentUser.id); if(idx>=0){ sts[idx].lastLogin=new Date().toLocaleString("en-IN"); DB.set("students",sts); } }
     document.getElementById("authScreen").classList.remove("active");
     document.getElementById("appScreen").classList.add("active");
@@ -1884,6 +1972,7 @@ function doRegister(){
 
 function doLogout(){
   currentUser=null; pendingStudentAtt={}; prevPage=null; ttEditorRows=[]; _pendingEditAtt={};
+  clearSession(); // ← wipe saved session so login screen shows next time
   const bar=document.getElementById("studentProfileBar"); if(bar) bar.remove();
   const chips=document.getElementById("heroInfoChips"); if(chips) chips.innerHTML="";
   document.getElementById("appScreen").classList.remove("active");
@@ -1894,6 +1983,26 @@ function doLogout(){
   document.getElementById("loginBtn").disabled=false;
   document.getElementById("loginBtn").textContent="Sign In →";
 }
+
+// ═══════════════════════════════════════════
+// AUTO-RESTORE SESSION ON PAGE LOAD
+// ═══════════════════════════════════════════
+// If a valid saved session exists (within 8 hours), skip the login screen
+// and go straight into the app — just like native apps do.
+(function tryAutoLogin(){
+  const saved = loadSession();
+  if(!saved) return; // no session → show login screen normally
+  // Brief delay so Firebase + DB finish initialising first
+  setTimeout(()=>{
+    currentUser = saved;
+    touchSession(); // reset the 8-hour clock from now
+    const auth = document.getElementById("authScreen");
+    const app  = document.getElementById("appScreen");
+    if(auth) auth.classList.remove("active");
+    if(app)  app.classList.add("active");
+    try{ initApp(); } catch(e){ clearSession(); location.reload(); }
+  }, 400);
+})();
 
 // ═══════════════════════════════════════════
 // INIT APP
@@ -1962,7 +2071,7 @@ function toggleMobSidebar(){ const sb=document.getElementById("sidebar"),ov=docu
 function closeMobSidebar(){ document.getElementById("sidebar").classList.remove("mob-open"); document.getElementById("mobOverlay").classList.remove("open"); document.getElementById("mobToggle").textContent="☰"; }
 function goHome(){ nav(document.querySelector("[data-page=dashboard]")); closeFolder(); }
 
-const PAGE_TITLES={dashboard:"Dashboard",subjects:"Subjects",notices:"Notice Board",gallery:"Gallery",timetable:"Timetable",attendance:"Attendance Record",results:"Results & Marks",leaderboard:"Class Leaderboard",hw_view:"Homework Board",upload:"Upload Files",post_notice:"Post Notice",manage_timetable:"Set Timetable",manage_results:"Enter Results",manage_attendance:"Mark Attendance",manage_students:"Students",copy_checking:"Copy Checking",homework:"Homework Manager",complain:"Complaints & Reports",student_info:"Student Information",assign_duty:"Assign Duty",my_duties:"My Duties",apply_leave:"Apply for Leave",manage_leaves:"Leave Requests"};
+const PAGE_TITLES={dashboard:"Dashboard",subjects:"Subjects",notices:"Notice Board",gallery:"Gallery",timetable:"Timetable",attendance:"Attendance Record",results:"Results & Marks",leaderboard:"Class Leaderboard",report_card:"Report Card",hw_view:"Homework Board",upload:"Upload Files",post_notice:"Post Notice",manage_timetable:"Set Timetable",manage_results:"Enter Results",manage_attendance:"Mark Attendance",manage_students:"Students",copy_checking:"Copy Checking",homework:"Homework Manager",complain:"Complaints & Reports",student_info:"Student Information",assign_duty:"Assign Duty",my_duties:"My Duties",apply_leave:"Apply for Leave",manage_leaves:"Leave Requests"};
 
 function nav(btn){
   if(!btn) return;
@@ -1971,7 +2080,7 @@ function nav(btn){
   document.querySelectorAll(".page").forEach(p=>p.classList.remove("active")); document.getElementById("page-"+pid).classList.add("active");
   document.getElementById("pageTitle").textContent=PAGE_TITLES[pid]||pid;
   const backBtn=document.getElementById("backBtn");
-  backBtn.classList.toggle("show",["upload","post_notice","manage_timetable","manage_results","manage_attendance","manage_students","results","leaderboard","copy_checking","homework","complain","student_info","assign_duty","my_duties","apply_leave","manage_leaves"].includes(pid));
+  backBtn.classList.toggle("show",["upload","post_notice","manage_timetable","manage_results","manage_attendance","manage_students","results","leaderboard","report_card","copy_checking","homework","complain","student_info","assign_duty","my_duties","apply_leave","manage_leaves"].includes(pid));
   closeFolder();
   if(window.innerWidth<=820) closeMobSidebar();
   if(pid==="notices"||pid==="post_notice") renderNotices();
@@ -1996,6 +2105,7 @@ function nav(btn){
   if(pid==="apply_leave"){ renderMyLeaves(); }
   if(pid==="manage_leaves"){ renderManageLeaves(); updateLeaveCTBadge(); }
   if(pid==="student_info") renderStudentInfoTable();
+  if(pid==="report_card") initReportCardPage();
   _refreshNotifDot();
 }
 function handleBack(){ nav(document.querySelector("[data-page=dashboard]")); }
@@ -4517,6 +4627,251 @@ async function deleteDuty(id){
 
 
 
+
+// ═══════════════════════════════════════════
+// REPORT CARD
+// ═══════════════════════════════════════════
+function initReportCardPage(){
+  const u=currentUser;
+  const isStaff=["classteacher","teacher","monitor"].includes(u.role);
+  // Show/hide picker
+  const picker=document.getElementById("rcStudentPickerCard");
+  const printWrap=document.getElementById("rcPrintBtnWrap");
+  if(picker) picker.style.display=isStaff?"":"none";
+  if(printWrap) printWrap.style.display=u.role==="student"?"":"none";
+  if(isStaff){
+    // Populate student dropdown
+    const sel=document.getElementById("rcStudentSelect");
+    const students=(DB.get("students")||[]).sort((a,b)=>parseInt(a.roll)-parseInt(b.roll));
+    if(!students.length){
+      document.getElementById("reportCardContent").innerHTML=`<div class="card"><div class="empty-state"><div class="empty-icon">👥</div><div class="empty-text">No students registered yet</div></div></div>`;
+      return;
+    }
+    const prev=sel.value;
+    sel.innerHTML=students.map(s=>`<option value="${s.id}">Roll ${s.roll} — ${s.name}</option>`).join("");
+    if(prev && students.find(s=>s.id===prev)) sel.value=prev;
+  }
+  renderReportCard();
+}
+
+function buildStudentReport(studentId){
+  const students=DB.get("students")||[];
+  const allAtt=DB.get("studentAttendance")||{};
+  const results=DB.get("results")||[];
+  const copySessions=DB.get("copySessions")||[];
+
+  const s=students.find(x=>x.id===studentId);
+  if(!s) return null;
+
+  // ── Attendance ──
+  let attPresent=0,attTotal=0;
+  Object.keys(allAtt).sort().forEach(date=>{
+    const v=(allAtt[date]||{})[studentId];
+    if(v==="present"||v==="absent"){ attTotal++; if(v==="present") attPresent++; }
+  });
+  const attPct=attTotal?Math.round(attPresent/attTotal*100):null;
+
+  // ── Subject-wise marks ──
+  const subjectResults={};
+  results.forEach(r=>{
+    const m=(r.studentMarks||[]).find(x=>x.studentId===studentId);
+    if(!m) return;
+    if(!subjectResults[r.subject]) subjectResults[r.subject]={tests:[],subjectId:r.subject};
+    subjectResults[r.subject].tests.push({
+      testName:r.test, max:r.max,
+      marks:m.absent?null:m.marks,
+      absent:m.absent||false,
+      date:r.date
+    });
+  });
+
+  // ── Copy submission ──
+  let copSubmitted=0,copTotal=0;
+  copySessions.forEach(cs=>{
+    const v=(cs.status||{})[studentId];
+    if(v==="submitted"||v==="not_submitted"||v==="absent"){
+      copTotal++;
+      if(v==="submitted") copSubmitted++;
+    }
+  });
+  const copPct=copTotal?Math.round(copSubmitted/copTotal*100):null;
+
+  // ── Overall rank from leaderboard ──
+  const {rows,totalTests}=computeOverallLeaderboard();
+  const rankRow=rows.find(r=>r.studentId===studentId);
+  const rank=rankRow?rankRow.rank:null;
+  const totalRanked=rows.length;
+  const avgPct=rankRow?Math.round(rankRow.avgPct):null;
+
+  return {student:s, attPresent, attTotal, attPct, subjectResults, copSubmitted, copTotal, copPct, rank, totalRanked, totalTests, avgPct};
+}
+
+function rcGradeInfo(pct){
+  if(pct===null||pct===undefined) return {grade:"—",col:"#aaa",bg:"#f5f5f5"};
+  if(pct>=90) return {grade:"A+",col:"#1a7a4a",bg:"#e6f9f0"};
+  if(pct>=80) return {grade:"A", col:"#1a7a4a",bg:"#e6f9f0"};
+  if(pct>=70) return {grade:"B+",col:"#1a5fa0",bg:"#e6f0fa"};
+  if(pct>=60) return {grade:"B", col:"#1a5fa0",bg:"#e6f0fa"};
+  if(pct>=50) return {grade:"C", col:"#a07a1a",bg:"#faf4e6"};
+  if(pct>=33) return {grade:"D", col:"#c04a1a",bg:"#faeee6"};
+  return {grade:"F",col:"#c01a1a",bg:"#fae6e6"};
+}
+
+function renderReportCard(){
+  const u=currentUser;
+  const el=document.getElementById("reportCardContent"); if(!el) return;
+  let studentId;
+  if(u.role==="student"){
+    studentId=u.id;
+  } else {
+    const sel=document.getElementById("rcStudentSelect");
+    studentId=sel?sel.value:null;
+  }
+  if(!studentId){ el.innerHTML=`<div class="card"><div class="empty-state"><div class="empty-icon">📄</div><div class="empty-text">Select a student to generate report</div></div></div>`; return; }
+
+  const d=buildStudentReport(studentId);
+  if(!d){ el.innerHTML=`<div class="card"><div class="empty-state"><div class="empty-icon">❌</div><div class="empty-text">Student data not found</div></div></div>`; return; }
+
+  const {student:s,attPresent,attTotal,attPct,subjectResults,copSubmitted,copTotal,copPct,rank,totalRanked,avgPct}=d;
+  const attGr=rcGradeInfo(attPct);
+  const marksGr=rcGradeInfo(avgPct);
+  const copGr=rcGradeInfo(copPct);
+
+  // ── Subject rows ──
+  const subjKeys=Object.keys(subjectResults);
+  const subjRows=subjKeys.length?subjKeys.map(subjId=>{
+    const sub=SUBJECTS.find(x=>x.id===subjId);
+    const tests=subjectResults[subjId].tests;
+    const attempted=tests.filter(t=>!t.absent&&t.marks!==null);
+    const totalMarks=attempted.reduce((a,t)=>a+t.marks,0);
+    const totalMax=attempted.reduce((a,t)=>a+t.max,0);
+    const subPct=totalMax?Math.round(totalMarks/totalMax*100):null;
+    const gr=rcGradeInfo(subPct);
+    return `<tr>
+      <td>${sub?sub.emoji+" "+sub.name:subjId}</td>
+      <td style="text-align:center;">${attempted.length}/${tests.length}</td>
+      <td style="text-align:center;font-weight:700;">${totalMax?totalMarks+"/"+totalMax:"—"}</td>
+      <td style="text-align:center;font-weight:700;color:${gr.col};">${subPct!==null?subPct+"%":"—"}</td>
+      <td style="text-align:center;"><span class="rc-grade-badge" style="color:${gr.col};background:${gr.bg};">${gr.grade}</span></td>
+    </tr>`;
+  }).join(""):`<tr><td colspan="5" style="text-align:center;color:#aaa;padding:16px;">No results recorded yet</td></tr>`;
+
+  // ── Test-wise rows ──
+  const allTests=results=>{
+    const rows=[];
+    (DB.get("results")||[]).forEach(r=>{
+      const m=(r.studentMarks||[]).find(x=>x.studentId===studentId);
+      if(!m) return;
+      const sub=SUBJECTS.find(x=>x.id===r.subject);
+      const pct=(!m.absent&&m.marks!==null)?Math.round(m.marks/r.max*100):null;
+      const gr=rcGradeInfo(pct);
+      rows.push(`<tr>
+        <td>${r.date||"—"}</td>
+        <td>${r.test}</td>
+        <td>${sub?sub.emoji+" "+sub.name:r.subject}</td>
+        <td style="text-align:center;">${r.max}</td>
+        <td style="text-align:center;font-weight:700;color:${m.absent?"#c01a1a":gr.col};">${m.absent?"Absent":(m.marks!==null?m.marks:"—")}</td>
+        <td style="text-align:center;font-weight:700;color:${gr.col};">${pct!==null?pct+"%":"—"}</td>
+        <td style="text-align:center;"><span class="rc-grade-badge" style="color:${m.absent?"#c01a1a":gr.col};background:${m.absent?"#fae6e6":gr.bg};">${m.absent?"AB":gr.grade}</span></td>
+      </tr>`);
+    });
+    return rows.length?rows.join(""):`<tr><td colspan="7" style="text-align:center;color:#aaa;padding:16px;">No test records yet</td></tr>`;
+  };
+
+  const rankStr=rank?`#${rank} of ${totalRanked}`:"—";
+  const now=new Date().toLocaleDateString("en-IN",{day:"2-digit",month:"long",year:"numeric"});
+
+  el.innerHTML=`<div id="rcPrintArea"><div class="rc-wrap">
+    <!-- Header -->
+    <div class="rc-header">
+      <div class="rc-school">🏫 USCD DAV Public School</div>
+      <div class="rc-title">Student Progress Report Card</div>
+      <div class="rc-sub">Class X — SBS &nbsp;·&nbsp; Generated on ${now}</div>
+    </div>
+    <!-- Student Info -->
+    <div class="rc-info-grid" style="background:#fff;">
+      <div class="rc-info-cell"><div class="rc-info-label">Student Name</div><div class="rc-info-val">${s.name}</div></div>
+      <div class="rc-info-cell"><div class="rc-info-label">Roll No.</div><div class="rc-info-val">${s.roll}</div></div>
+      <div class="rc-info-cell"><div class="rc-info-label">Adm. No.</div><div class="rc-info-val">${s.admNo}</div></div>
+      <div class="rc-info-cell"><div class="rc-info-label">Class</div><div class="rc-info-val">X — SBS</div></div>
+    </div>
+    <!-- Summary Stats -->
+    <div class="rc-section" style="background:#fff;">
+      <div class="rc-section-title">📊 Performance Summary</div>
+      <div class="rc-stat-row">
+        <div class="rc-stat">
+          <div class="rc-stat-val" style="color:${attGr.col};">${attPct!==null?attPct+"%":"—"}</div>
+          <div class="rc-stat-lbl">Attendance</div>
+          <div style="font-size:11px;color:#aaa;margin-top:2px;">${attPresent}/${attTotal} days</div>
+        </div>
+        <div class="rc-stat">
+          <div class="rc-stat-val" style="color:${marksGr.col};">${avgPct!==null?avgPct+"%":"—"}</div>
+          <div class="rc-stat-lbl">Avg. Marks</div>
+          <div style="font-size:11px;color:#aaa;margin-top:2px;"><span class="rc-grade-badge" style="color:${marksGr.col};background:${marksGr.bg};font-size:11px;">${marksGr.grade}</span></div>
+        </div>
+        <div class="rc-stat">
+          <div class="rc-stat-val" style="color:${copGr.col};">${copPct!==null?copPct+"%":"—"}</div>
+          <div class="rc-stat-lbl">Copy Submission</div>
+          <div style="font-size:11px;color:#aaa;margin-top:2px;">${copSubmitted}/${copTotal} sessions</div>
+        </div>
+        <div class="rc-stat">
+          <div class="rc-stat-val" style="color:#1a3a8a;">${rankStr}</div>
+          <div class="rc-stat-lbl">Class Rank</div>
+          <div style="font-size:11px;color:#aaa;margin-top:2px;">Overall</div>
+        </div>
+      </div>
+    </div>
+    <!-- Subject-wise Summary -->
+    <div class="rc-section" style="background:#fafafa;border-top:1px solid #eee;">
+      <div class="rc-section-title">📚 Subject-wise Performance</div>
+      <table class="rc-table">
+        <thead><tr><th>Subject</th><th style="text-align:center;">Tests</th><th style="text-align:center;">Marks</th><th style="text-align:center;">%</th><th style="text-align:center;">Grade</th></tr></thead>
+        <tbody>${subjRows}</tbody>
+      </table>
+    </div>
+    <!-- Test-wise detail -->
+    <div class="rc-section" style="background:#fff;border-top:1px solid #eee;">
+      <div class="rc-section-title">📝 Test-wise Detail</div>
+      <div style="overflow-x:auto;">
+        <table class="rc-table">
+          <thead><tr><th>Date</th><th>Test</th><th>Subject</th><th style="text-align:center;">Max</th><th style="text-align:center;">Marks</th><th style="text-align:center;">%</th><th style="text-align:center;">Grade</th></tr></thead>
+          <tbody>${allTests()}</tbody>
+        </table>
+      </div>
+    </div>
+    <!-- Attendance bar -->
+    <div class="rc-section" style="background:#fafafa;border-top:1px solid #eee;">
+      <div class="rc-section-title">✅ Attendance Overview</div>
+      <div style="display:flex;align-items:center;gap:12px;flex-wrap:wrap;">
+        <div style="flex:1;min-width:160px;height:12px;background:#eee;border-radius:6px;overflow:hidden;">
+          <div style="height:100%;width:${attPct||0}%;background:${attGr.col};border-radius:6px;transition:width .5s;"></div>
+        </div>
+        <span style="font-size:13px;font-weight:700;color:${attGr.col};">${attPct!==null?attPct+"%":"No data"}</span>
+        <span style="font-size:12px;color:#888;">${attPresent} present · ${attTotal-attPresent} absent · ${attTotal} total days</span>
+      </div>
+      ${attPct!==null&&attPct<75?`<div style="margin-top:8px;padding:8px 12px;background:#fae6e6;border-radius:8px;font-size:12px;color:#c01a1a;">⚠️ Attendance below 75% — may affect eligibility</div>`:""}
+    </div>
+    <!-- Footer -->
+    <div class="rc-footer">
+      <span>🏫 USCD DAV Public School · Class X SBS</span>
+      <span>Generated: ${now}</span>
+    </div>
+  </div></div>`;
+}
+
+function printReportCard(){
+  // Trigger browser print dialog — user can Save as PDF from there
+  window.print();
+}
+
+// Refresh report card when results/attendance/copy data changes remotely
+const _origRenderRC = () => {
+  if(document.getElementById("page-report_card") &&
+     document.getElementById("page-report_card").classList.contains("active")){
+    renderReportCard();
+  }
+};
+
 // ═══════════════════════════════════════════
 // TOAST + CONFIRM
 // ═══════════════════════════════════════════
@@ -4535,6 +4890,9 @@ document.getElementById("confirmOverlay").addEventListener("click",function(e){ 
 // ── 1. manifest.json is now a real file linked in <head> ──
 
 // ── 2. Register real Service Worker (sw.js) ──
+// Bump APP_VERSION with every new deployment so SW auto-refreshes all devices
+const APP_VERSION = "2.1.0";
+
 (function registerSW(){
   if(!('serviceWorker' in navigator)) return;
   window.addEventListener('load', ()=>{
@@ -4542,13 +4900,39 @@ document.getElementById("confirmOverlay").addEventListener("click",function(e){ 
       .then(reg => {
         console.log('[PWA] SW registered:', reg.scope);
         window._swReg = reg;
+
+        // Check for a new SW version on every page load
+        reg.update().catch(()=>{});
+
+        // If a new SW is already waiting, activate it immediately
+        if(reg.waiting){
+          reg.waiting.postMessage({type:'SKIP_WAITING'});
+        }
+
+        // Catch future updates that arrive while the page is open
+        reg.addEventListener('updatefound', ()=>{
+          const newSW = reg.installing;
+          if(!newSW) return;
+          newSW.addEventListener('statechange', ()=>{
+            if(newSW.state === 'installed' && navigator.serviceWorker.controller){
+              newSW.postMessage({type:'SKIP_WAITING'});
+            }
+          });
+        });
       })
       .catch(err => console.warn('[PWA] SW failed:', err));
+
+    // When controller changes (new SW activated), reload to get latest version
+    let _swRefreshing = false;
+    navigator.serviceWorker.addEventListener('controllerchange', ()=>{
+      if(_swRefreshing) return;
+      _swRefreshing = true;
+      window.location.reload();
+    });
   });
 })();
 
-// ── 3. In-App Notification System (like mobile apps) ──
-// Tracks what was last seen so we can show "new" banners
+// ── 3. In-App Notification System (kept for internal badge/dot tracking only) ──
 const _NOTIF_SEEN_KEY = 'davx_notif_seen';
 
 function _getSeenTimestamps(){
@@ -4560,105 +4944,84 @@ function _markSeenNow(type){
   try { localStorage.setItem(_NOTIF_SEEN_KEY, JSON.stringify(t)); } catch(e){}
 }
 
-// Show a mobile-style notification banner at top of screen
-function showAppNotification(opts){
-  const {title, body, icon='🔔', type='info', onClick, id} = opts;
-  // Don't show if already seen (within 5 min)
-  const seen = _getSeenTimestamps();
-  if(id && seen[id] && (Date.now()-seen[id]) < 5*60*1000) return;
-  if(id) _markSeenNow(id);
-  
-  // Remove existing notification of same type
-  const existing = document.getElementById('appNotifBanner_'+type);
-  if(existing) existing.remove();
-
-  const banner = document.createElement('div');
-  banner.id = 'appNotifBanner_' + type;
-  banner.style.cssText = `
-    position: fixed;
-    top: 0;
-    left: 0;
-    right: 0;
-    z-index: 9999;
-    background: linear-gradient(135deg, #122547, #1b3a6e);
-    border-bottom: 2px solid rgba(232,160,32,0.5);
-    padding: 12px 20px;
-    display: flex;
-    align-items: center;
-    gap: 13px;
-    box-shadow: 0 4px 24px rgba(0,0,0,0.5);
-    animation: slideDownNotif 0.4s cubic-bezier(.22,.61,.36,1);
-    cursor: ${onClick?'pointer':'default'};
-    font-family: 'DM Sans', sans-serif;
-  `;
-
-  // Add animation keyframe once
-  if(!document.getElementById('notifAnimStyle')){
-    const s = document.createElement('style');
-    s.id = 'notifAnimStyle';
-    s.textContent = `
-      @keyframes slideDownNotif { from { transform: translateY(-100%); opacity:0; } to { transform: translateY(0); opacity:1; } }
-      @keyframes slideUpNotif   { from { transform: translateY(0); opacity:1; } to { transform: translateY(-100%); opacity:0; } }
-      .notif-dismiss-btn { background: rgba(255,255,255,0.1); border: none; color: rgba(255,255,255,0.6); border-radius: 50%; width: 26px; height: 26px; cursor: pointer; font-size: 13px; display:flex;align-items:center;justify-content:center;flex-shrink:0; }
-      .notif-dismiss-btn:hover { background: rgba(255,255,255,0.2); }
-    `;
-    document.head.appendChild(s);
-  }
-
-  banner.innerHTML = `
-    <div style="font-size:22px;flex-shrink:0;">${icon}</div>
-    <div style="flex:1;min-width:0;">
-      <div style="font-size:13px;font-weight:700;color:#f8f4ee;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${title}</div>
-      <div style="font-size:11px;color:rgba(200,191,175,0.75);margin-top:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${body}</div>
-    </div>
-    <div style="font-size:10px;color:rgba(232,160,32,0.7);flex-shrink:0;">${new Date().toLocaleTimeString('en-IN',{hour:'2-digit',minute:'2-digit'})}</div>
-    <button class="notif-dismiss-btn" onclick="event.stopPropagation();dismissAppNotif('${type}')">✕</button>
-  `;
-
-  if(onClick) banner.addEventListener('click', onClick);
-  document.body.appendChild(banner);
-
-  // Auto-dismiss after 6 seconds
-  setTimeout(() => dismissAppNotif(type), 6000);
-}
-
+// Kept so any existing calls to dismissAppNotif don't break
+function showAppNotification(opts){ /* replaced by native notifications — no-op */ }
 function dismissAppNotif(type){
   const b = document.getElementById('appNotifBanner_' + type);
   if(!b) return;
-  b.style.animation = 'slideUpNotif 0.3s ease forwards';
-  setTimeout(()=>b.remove(), 300);
+  b.remove();
 }
 
-// ── 4. Firebase real-time notification triggers ──
-// Watch Firebase for new data and show in-app notifications
+// ── 4. Native (system-bar) notification via Service Worker ──
+// Works when app is installed (PWA) or open in browser.
+// Appears in the device notification bar like any other app.
+
+function requestNotifPermission(){
+  if(!('Notification' in window)) return Promise.resolve('denied');
+  if(Notification.permission === 'granted') return Promise.resolve('granted');
+  if(Notification.permission === 'denied') return Promise.resolve('denied');
+  return Notification.requestPermission().then(perm => {
+    if(perm === 'granted') showToast('🔔 Notifications enabled!');
+    return perm;
+  });
+}
+
+function sendNativeNotification(title, body, tag, icon){
+  if(!('Notification' in window) || Notification.permission !== 'granted') return;
+  // Prefer SW showNotification (works when app is in background / closed)
+  if(navigator.serviceWorker && navigator.serviceWorker.controller){
+    navigator.serviceWorker.ready.then(reg => {
+      reg.showNotification(title, {
+        body,
+        icon: icon || 'icon-192.png',
+        badge: 'icon-192.png',
+        tag: tag || 'davx-notif',         // tag groups same-type notifications
+        renotify: true,                    // vibrate/sound even if same tag
+        vibrate: [200, 100, 200],
+        data: { url: './' }
+      });
+    }).catch(()=>{});
+  } else {
+    // Fallback: direct Notification API (only works while app is open)
+    try {
+      const n = new Notification(title, {
+        body,
+        icon: icon || 'icon-192.png',
+        tag: tag || 'davx-notif',
+      });
+      n.onclick = () => { window.focus(); n.close(); };
+      setTimeout(() => n.close(), 7000);
+    } catch(e){}
+  }
+}
+
+// ── 5. Firebase real-time triggers → native system notifications ──
 function setupNotificationWatchers(){
   if(!_firebaseReady || !_db || !currentUser) return;
-  
+
+  // Ask for permission as soon as watchers are set up (after login)
+  requestNotifPermission();
+
   const now = Date.now();
-  
+
   // Watch notices
   _db.ref('davx/notices').on('child_added', snap => {
     const n = snap.val();
     if(!n || !n.id) return;
     const seen = _getSeenTimestamps();
-    if(seen['notice_'+n.id]) return; // already notified
-    // Only show if added recently (within 30s) = actually new
+    if(seen['notice_'+n.id]) return;
     const ts = parseInt(n.id) || 0;
     if(ts < now - 30000) return;
-    
     _markSeenNow('notice_'+n.id);
     const priIcon = n.priority==='urgent'?'🚨':n.priority==='exam'?'📝':'📌';
-    showAppNotification({
-      title: priIcon + ' ' + (n.title || 'New Notice'),
-      body: n.body ? n.body.substring(0,80) : 'Posted by ' + (n.by||''),
-      icon: priIcon,
-      type: 'notice',
-      id: 'notice_'+n.id,
-      onClick: () => { nav(document.querySelector('[data-page=notices]')); dismissAppNotif('notice'); }
-    });
+    sendNativeNotification(
+      priIcon + ' ' + (n.title || 'New Notice'),
+      n.body ? n.body.substring(0,100) : 'Posted by ' + (n.by||''),
+      'notice'
+    );
   });
 
-  // Watch files (uploads)
+  // Watch files
   _db.ref('davx/files').on('child_added', snap => {
     const f = snap.val();
     if(!f || !f.id) return;
@@ -4666,18 +5029,14 @@ function setupNotificationWatchers(){
     if(seen['file_'+f.id]) return;
     const ts = parseInt(f.id) || 0;
     if(ts < now - 30000) return;
-    
     _markSeenNow('file_'+f.id);
     const subj = (typeof SUBJECTS !== 'undefined') ? SUBJECTS.find(s=>s.id===f.subject) : null;
     const emoji = subj ? subj.emoji : '📁';
-    showAppNotification({
-      title: emoji + ' New file uploaded!',
-      body: (f.title||'Untitled') + ' — ' + (subj?subj.name:f.subject||''),
-      icon: emoji,
-      type: 'file',
-      id: 'file_'+f.id,
-      onClick: () => { if(f.subject) openFolder(f.subject); else nav(document.querySelector('[data-page=subjects]')); dismissAppNotif('file'); }
-    });
+    sendNativeNotification(
+      emoji + ' New file: ' + (f.title||'Untitled'),
+      (subj ? subj.name : f.subject||'') + ' · Uploaded by ' + (f.uploader||''),
+      'file'
+    );
   });
 
   // Watch results
@@ -4688,17 +5047,13 @@ function setupNotificationWatchers(){
     if(seen['result_'+r.id]) return;
     const ts = parseInt(r.id) || 0;
     if(ts < now - 30000) return;
-    
     _markSeenNow('result_'+r.id);
     const subj = (typeof SUBJECTS !== 'undefined') ? SUBJECTS.find(s=>s.id===r.subject) : null;
-    showAppNotification({
-      title: '📊 Results declared!',
-      body: (r.test||'Test') + ' — ' + (subj?subj.name:r.subject||'') + '  Max: ' + r.max,
-      icon: '📊',
-      type: 'result',
-      id: 'result_'+r.id,
-      onClick: () => { nav(document.querySelector('[data-page=results]')); dismissAppNotif('result'); }
-    });
+    sendNativeNotification(
+      '📊 Results declared: ' + (r.test||'Test'),
+      (subj ? subj.name : r.subject||'') + ' · Max marks: ' + r.max,
+      'result'
+    );
   });
 
   // Watch homework
@@ -4709,45 +5064,34 @@ function setupNotificationWatchers(){
     if(seen['hw_'+h.id]) return;
     const ts = parseInt(h.id) || 0;
     if(ts < now - 30000) return;
-    
     _markSeenNow('hw_'+h.id);
     const subj = (typeof SUBJECTS !== 'undefined') ? SUBJECTS.find(s=>s.id===h.subject) : null;
-    const urgent = h.priority==='urgent';
-    showAppNotification({
-      title: (urgent?'🚨':'📓') + ' New Homework!',
-      body: (h.title||'Homework') + ' — ' + (subj?subj.name:h.subject||'') + (h.due?' · Due: '+h.due:''),
-      icon: urgent?'🚨':'📓',
-      type: 'hw',
-      id: 'hw_'+h.id,
-      onClick: () => { nav(document.querySelector('[data-page=hw_view]')); dismissAppNotif('hw'); }
-    });
+    const urgent = h.priority === 'urgent';
+    sendNativeNotification(
+      (urgent ? '🚨 Urgent HW: ' : '📓 Homework: ') + (h.title||'New Homework'),
+      (subj ? subj.name : h.subject||'') + (h.due ? ' · Due: ' + h.due : ''),
+      'homework'
+    );
   });
-}
 
-// ── 5. Request browser notification permission & send native notifications ──
-function requestNotifPermission(){
-  if(!('Notification' in window)) return;
-  if(Notification.permission === 'default'){
-    Notification.requestPermission().then(perm => {
-      if(perm === 'granted') showToast('🔔 Notifications enabled!');
+  // Watch notices for CT (leave applications)
+  if(currentUser.role === 'classteacher'){
+    _db.ref('davx/leaveApplications').on('child_added', snap => {
+      const l = snap.val();
+      if(!l || !l.id) return;
+      const seen = _getSeenTimestamps();
+      if(seen['leave_'+l.id]) return;
+      const ts = parseInt(l.id) || 0;
+      if(ts < now - 30000) return;
+      _markSeenNow('leave_'+l.id);
+      sendNativeNotification(
+        '🏖️ Leave request: ' + (l.studentName||'A student'),
+        (l.reason||'') + ' · ' + (l.from||'') + ' to ' + (l.to||''),
+        'leave'
+      );
     });
   }
 }
-
-function sendBrowserNotification(title, body, icon){
-  if(!('Notification' in window) || Notification.permission !== 'granted') return;
-  try {
-    const n = new Notification(title, { body, icon: icon||'', badge: icon||'', vibrate:[200,100,200] });
-    n.onclick = () => { window.focus(); n.close(); };
-    setTimeout(()=>n.close(), 5000);
-  } catch(e){}
-}
-
-// Hook into existing post functions to send notifications
-const _origPostNotice = typeof postNotice !== 'undefined' ? postNotice : null;
-const _origUploadFile = typeof uploadFile !== 'undefined' ? uploadFile : null;
-const _origSubmitResults = typeof submitResults !== 'undefined' ? submitResults : null;
-const _origPostHW = typeof postHW !== 'undefined' ? postHW : null;
 
 
 // PWA — Install prompt (Android + PC Chrome/Edge)
