@@ -665,6 +665,7 @@ button:active, .btn:active, .nav-btn:active, .auth-btn:active, .role-card:active
       <div class="topbar-right">
         <input class="search-input" placeholder="🔍 Search files..." oninput="liveSearch(this.value)">
         <div class="icon-btn" onclick="nav(document.querySelector('[data-page=notices]'))">🔔<div class="notif-dot" id="notifDot" style="display:none;"></div></div>
+        <div class="icon-btn" id="notifEnableBtn" title="Enable Notifications" style="display:none;font-size:15px;" onclick="userRequestNotifPermission()">🔕</div>
         <div class="icon-btn" id="pwaInstallBtn" title="Install App" style="display:none;font-size:15px;" onclick="triggerPWAInstall()">📲</div>
         <div class="icon-btn" id="appSyncBtn" title="Sync" style="font-size:12px;" onclick="forceSyncFromFirebase()">☁️</div>
       </div>
@@ -1906,9 +1907,9 @@ function forceSyncFromFirebase() {
 // ═══════════════════════════════════════════
 const SUBJECTS=[
   {id:"maths",name:"Mathematics",emoji:"📐",teacher:"Ashwini Kumar Singh"},
-  {id:"physics",name:"Physics",emoji:"⚡",teacher:"Samrat Ashok"},
+  {id:"physics",name:"Physics",emoji:"⚡",teacher:"Vikas Giri"},
   {id:"chemistry",name:"Chemistry",emoji:"⚗️",teacher:"Ajit Kumar Singh"},
-  {id:"biology",name:"Biology",emoji:"🧬",teacher:"Murshid Alam"},
+  {id:"biology",name:"Biology",emoji:"🧬",teacher:"Mithelesh"},
   {id:"english",name:"English",emoji:"📖",teacher:"R.K. Singh"},
   {id:"history",name:"History",emoji:"🏛️",teacher:"Anshuman Bhushan"},
   {id:"geography",name:"Geography",emoji:"🗺️",teacher:"Raju Prasad"},
@@ -1916,9 +1917,9 @@ const SUBJECTS=[
   {id:"economics",name:"Economics",emoji:"📈",teacher:"Raju Prasad"},
   {id:"hindi",name:"Hindi",emoji:"🇮🇳",teacher:"Richa"},
   {id:"general",name:"General / All",emoji:"📂",teacher:"—"},
-  {id:"computer",name:"Computer Sc.",emoji:"💻",teacher:"Rakesh Singh"},
+  {id:"computer",name:"Computer Sc.",emoji:"💻",teacher:"Rakesh Rajput"},
   {id:"atl",name:"ATL",emoji:"🔬",teacher:"Sanjeev Ranjan"},
-  {id:"games",name:"Games",emoji:"⚽",teacher:"Shyam singh"},
+  {id:"games",name:"Games",emoji:"⚽",teacher:"Subham Ojha"},
   {id:"library",name:"Library",emoji:"📚",teacher:"Anil Kumar Singh"}
 ];
 const SUBJ_COLORS={maths:"#4a9eff",physics:"#ffd700",chemistry:"#3dba7e",biology:"#ff7eb6",english:"#e8a020",history:"#c060ff",geography:"#60d0ff",civics:"#ff9060",economics:"#60ff90",hindi:"#ff6060",computer:"#a0a0ff",atl:"#00e5cc",games:"#ff8c42",library:"#9b59b6"};
@@ -2027,6 +2028,7 @@ function doLogin(){
     document.getElementById("authScreen").classList.remove("active");
     document.getElementById("appScreen").classList.add("active");
     initApp();
+    setTimeout(()=>{ try{_updateNotifEnableBtn();}catch(e){} }, 500);
   },300);
 }
 
@@ -2087,6 +2089,7 @@ function doLogout(){
     if(auth) auth.classList.remove("active");
     if(app)  app.classList.add("active");
     try{ initApp(); } catch(e){ clearSession(); location.reload(); }
+    setTimeout(()=>{ try{_updateNotifEnableBtn();}catch(e){} }, 500);
   }, 400);
 })();
 
@@ -2763,30 +2766,35 @@ function renderMultiMarksGrid(){
   if(!students.length){ el.innerHTML=`<div class="empty-state"><div class="empty-icon">👥</div><div class="empty-text">No students registered yet</div></div>`; return; }
   const thS=`padding:9px 8px;text-align:center;color:var(--gold);font-size:11px;font-weight:700;letter-spacing:.4px;text-transform:uppercase;border-bottom:1px solid rgba(232,160,32,0.2);white-space:nowrap;`;
   const thL=`padding:9px 10px;text-align:left;color:var(--gold);font-size:11px;font-weight:700;letter-spacing:.4px;text-transform:uppercase;border-bottom:1px solid rgba(232,160,32,0.2);`;
-  const inpS=`width:62px;padding:6px 4px;text-align:center;background:rgba(255,255,255,0.07);border:1.5px solid rgba(255,255,255,0.1);border-radius:7px;color:var(--white);font-size:14px;font-weight:700;outline:none;`;
+  const inpS=`width:58px;padding:5px 3px;text-align:center;background:rgba(255,255,255,0.07);border:1.5px solid rgba(255,255,255,0.1);border-radius:7px;color:var(--white);font-size:13px;font-weight:700;outline:none;`;
+
   const rows=students.map(s=>`
     <tr id="mmrow_${s.id}" style="border-bottom:1px solid rgba(255,255,255,0.04);">
       <td style="padding:6px 10px;"><span style="font-family:'Cormorant Garamond',serif;font-size:18px;color:var(--gold);">${s.roll}</span></td>
       <td style="padding:6px 10px;font-size:13px;font-weight:600;white-space:nowrap;">${s.name}</td>
-      <td style="padding:6px 8px;text-align:center;">
-        <button id="mab_${s.id}" onclick="toggleMultiAbsent('${s.id}')" title="Mark absent"
-          style="width:32px;height:32px;border-radius:7px;border:1.5px solid rgba(224,85,85,0.3);background:rgba(224,85,85,0.1);color:#e05555;cursor:pointer;font-size:13px;">✗</button>
-      </td>
       ${subjects.map(sub=>`
-      <td style="padding:6px 6px;text-align:center;">
-        <input type="number" id="mmk_${s.id}_${sub.id}" min="0" max="${sub.max}"
-          style="${inpS}" placeholder="—"
-          oninput="onMultiInput('${s.id}','${sub.id}',${sub.max},this)">
+      <td style="padding:5px 4px;text-align:center;" id="mmcell_${s.id}_${sub.id}">
+        <div style="display:flex;flex-direction:column;align-items:center;gap:3px;">
+          <input type="number" id="mmk_${s.id}_${sub.id}" min="0" max="${sub.max}"
+            style="${inpS}" placeholder="—"
+            oninput="onMultiInput('${s.id}','${sub.id}',${sub.max},this)">
+          <button id="mab_${s.id}_${sub.id}"
+            onclick="toggleMultiSubjAbsent('${s.id}','${sub.id}')"
+            title="Mark absent for ${sub.name}"
+            style="width:58px;height:20px;border-radius:5px;border:1px solid rgba(224,85,85,0.3);background:rgba(224,85,85,0.08);color:#e05555;cursor:pointer;font-size:10px;font-weight:600;line-height:1;">
+            AB
+          </button>
+        </div>
       </td>`).join("")}
       <td style="padding:6px 10px;text-align:center;" id="mmtotal_${s.id}">
         <span style="font-size:12px;color:var(--muted);">—</span>
       </td>
     </tr>`).join("");
+
   el.innerHTML=`<table style="width:100%;border-collapse:collapse;font-size:13px;min-width:600px;">
     <thead><tr style="background:rgba(255,255,255,0.02);">
       <th style="${thL}">Roll</th>
       <th style="${thL}">Name</th>
-      <th style="${thS}">Absent</th>
       ${subjects.map(sub=>`<th style="${thS}">${sub.emoji}<br><span style="font-size:10px;">${sub.name}</span><br><span style="color:var(--muted);font-size:10px;font-weight:400;">/${sub.max}</span></th>`).join("")}
       <th style="${thS}">Total</th>
     </tr></thead>
@@ -2804,46 +2812,69 @@ function onMultiInput(sid,subjId,max,input){
   updateMultiSummaryLive();
 }
 
+// Returns true if a specific subject cell is marked absent
+function isSubjAbsent(sid,subjId){
+  const btn=document.getElementById("mab_"+sid+"_"+subjId);
+  return btn&&btn.dataset.absent==="1";
+}
+
+function toggleMultiSubjAbsent(sid,subjId){
+  if(!multiExamState) return;
+  const btn=document.getElementById("mab_"+sid+"_"+subjId);
+  const inp=document.getElementById("mmk_"+sid+"_"+subjId);
+  const cell=document.getElementById("mmcell_"+sid+"_"+subjId);
+  if(!btn||!inp) return;
+  const isNowAbsent=btn.dataset.absent!=="1";
+  btn.dataset.absent=isNowAbsent?"1":"";
+  // Style the AB button
+  btn.style.background=isNowAbsent?"rgba(224,85,85,0.4)":"rgba(224,85,85,0.08)";
+  btn.style.borderColor=isNowAbsent?"#e05555":"rgba(224,85,85,0.3)";
+  btn.style.color=isNowAbsent?"#ff4040":"#e05555";
+  btn.style.fontWeight=isNowAbsent?"800":"600";
+  // Style the input
+  inp.disabled=isNowAbsent;
+  inp.style.opacity=isNowAbsent?"0.25":"1";
+  inp.style.borderColor=isNowAbsent?"rgba(224,85,85,0.3)":"rgba(255,255,255,0.1)";
+  if(isNowAbsent) inp.value="";
+  // Tint the cell background
+  if(cell) cell.style.background=isNowAbsent?"rgba(224,85,85,0.06)":"";
+  updateStudentTotal(sid);
+  updateMultiSummaryLive();
+}
+
 function updateStudentTotal(sid){
   if(!multiExamState) return;
   const {subjects}=multiExamState;
-  const absBtn=document.getElementById("mab_"+sid);
-  const isAbsent=absBtn&&absBtn.dataset.absent==="1";
   const totalEl=document.getElementById("mmtotal_"+sid); if(!totalEl) return;
-  if(isAbsent){ totalEl.innerHTML=`<span style="font-size:12px;font-weight:700;color:#e05555;">Absent</span>`; return; }
-  let total=0,maxTotal=0,allFilled=true;
-  subjects.forEach(sub=>{
-    const inp=document.getElementById("mmk_"+sid+"_"+sub.id);
-    maxTotal+=sub.max;
-    if(!inp||inp.value===""){ allFilled=false; return; }
-    const v=parseInt(inp.value);
-    if(!isNaN(v)&&v>=0) total+=v;
-  });
-  if(!allFilled){ totalEl.innerHTML=`<span style="font-size:12px;color:var(--muted);">—</span>`; return; }
-  const pct=Math.round(total/maxTotal*100);
-  const col=pct>=60?"#3dba7e":pct>=40?"var(--gold)":"#e05555";
-  totalEl.innerHTML=`<div style="font-size:13px;font-weight:700;color:${col};">${total}/${maxTotal}</div><div style="font-size:10px;color:${col};">${pct}%</div>`;
-}
 
-function toggleMultiAbsent(sid){
-  if(!multiExamState) return;
-  const btn=document.getElementById("mab_"+sid);
-  const row=document.getElementById("mmrow_"+sid);
-  const isNowAbsent=btn.dataset.absent!=="1";
-  btn.dataset.absent=isNowAbsent?"1":"";
-  btn.style.background=isNowAbsent?"rgba(224,85,85,0.35)":"rgba(224,85,85,0.1)";
-  btn.style.borderColor=isNowAbsent?"#e05555":"rgba(224,85,85,0.3)";
-  btn.style.color=isNowAbsent?"#ff4040":"#e05555";
-  if(row) row.style.background=isNowAbsent?"rgba(224,85,85,0.05)":"";
-  multiExamState.subjects.forEach(sub=>{
+  let total=0,maxTotal=0,filledCount=0,absentCount=0;
+  subjects.forEach(sub=>{
+    const absent=isSubjAbsent(sid,sub.id);
+    if(absent){ absentCount++; return; }
+    maxTotal+=sub.max;
     const inp=document.getElementById("mmk_"+sid+"_"+sub.id);
-    if(!inp) return;
-    inp.disabled=isNowAbsent;
-    inp.style.opacity=isNowAbsent?"0.3":"1";
-    if(isNowAbsent) inp.value="";
+    if(inp&&inp.value!==""){
+      const v=parseInt(inp.value);
+      if(!isNaN(v)&&v>=0){ total+=v; filledCount++; }
+    }
   });
-  updateStudentTotal(sid);
-  updateMultiSummaryLive();
+
+  const attempted=subjects.length-absentCount;
+
+  // All subjects absent
+  if(absentCount===subjects.length){
+    totalEl.innerHTML=`<span style="font-size:11px;font-weight:700;color:#e05555;">All AB</span>`;
+    return;
+  }
+  // Some absent, some not — show AB badge + partial total if filled
+  const abBadge=absentCount?`<div style="font-size:9px;color:#e05555;margin-top:1px;">${absentCount} AB</div>`:"";
+  if(filledCount<attempted){
+    totalEl.innerHTML=`<span style="font-size:11px;color:var(--muted);">—</span>${abBadge}`;
+    return;
+  }
+  const pct=maxTotal?Math.round(total/maxTotal*100):0;
+  const col=pct>=60?"#3dba7e":pct>=40?"var(--gold)":"#e05555";
+  totalEl.innerHTML=`<div style="font-size:13px;font-weight:700;color:${col};">${total}/${maxTotal}</div><div style="font-size:10px;color:${col};">${pct}%</div>${abBadge}`;
 }
 
 function updateMultiSummaryLive(){
@@ -2851,46 +2882,44 @@ function updateMultiSummaryLive(){
   const {subjects,students}=multiExamState;
   const subStats=subjects.map(sub=>{
     const vals=students.map(s=>{
-      const absBtn=document.getElementById("mab_"+s.id);
-      if(absBtn&&absBtn.dataset.absent==="1") return null;
+      if(isSubjAbsent(s.id,sub.id)) return null; // absent for this subject
       const inp=document.getElementById("mmk_"+s.id+"_"+sub.id);
       return inp&&inp.value!==""?parseInt(inp.value):undefined;
     }).filter(v=>v!==undefined&&v!==null&&!isNaN(v));
+    const absentCount=students.filter(s=>isSubjAbsent(s.id,sub.id)).length;
     const avg=vals.length?Math.round(vals.reduce((a,b)=>a+b,0)/vals.length):null;
-    return {sub,avg,count:vals.length};
+    return {sub,avg,count:vals.length,absentCount};
   });
   const hasAny=subStats.some(s=>s.count>0);
   if(!hasAny){ el.innerHTML=`<div style="font-size:12px;color:var(--muted);">Enter marks above to see live summary</div>`; return; }
   el.innerHTML=`<div style="display:flex;gap:16px;flex-wrap:wrap;">`+
-    subStats.map(({sub,avg,count})=>`
+    subStats.map(({sub,avg,count,absentCount})=>`
       <div style="text-align:center;min-width:56px;">
         <div style="font-size:10px;color:var(--muted);text-transform:uppercase;">${sub.emoji} ${sub.name}</div>
         <div style="font-size:18px;font-family:'Cormorant Garamond',serif;color:var(--gold);">${avg!==null?avg+"/"+sub.max:"—"}</div>
-        <div style="font-size:10px;color:var(--muted);">${count}/${students.length}</div>
+        <div style="font-size:10px;color:var(--muted);">${count}/${students.length-absentCount} entered${absentCount?` · <span style="color:#e05555;">${absentCount} AB</span>`:""}</div>
       </div>`).join("")+`</div>`;
 }
 
 function submitMultiResults(){
   if(!multiExamState){ showToast("❌ No exam setup found"); return; }
   const {name,date,remarks,subjects,students}=multiExamState;
-  // Validate — every non-absent student must have all marks filled & valid
+  // Validate — for each student, each non-absent subject must have valid marks
   for(const s of students){
-    const absBtn=document.getElementById("mab_"+s.id);
-    if(absBtn&&absBtn.dataset.absent==="1") continue;
     for(const sub of subjects){
+      if(isSubjAbsent(s.id,sub.id)) continue; // absent for this subject — skip
       const inp=document.getElementById("mmk_"+s.id+"_"+sub.id);
       if(!inp||inp.value===""){ showToast(`❌ Missing: ${s.name} → ${sub.name}`); return; }
       const v=parseInt(inp.value);
-      if(isNaN(v)||v<0||v>sub.max){ showToast(`❌ Invalid: ${s.name} → ${sub.name}`); return; }
+      if(isNaN(v)||v<0||v>sub.max){ showToast(`❌ Invalid: ${s.name} → ${sub.name} (0–${sub.max})`); return; }
     }
   }
   const notifs=DB.get("studentNotifications")||[];
   let savedCount=0;
   subjects.forEach(sub=>{
     const marks=students.map(s=>{
-      const absBtn=document.getElementById("mab_"+s.id);
-      const isAbsent=absBtn&&absBtn.dataset.absent==="1";
-      if(isAbsent) return {studentId:s.id,name:s.name,roll:s.roll,marks:null,absent:true};
+      const absent=isSubjAbsent(s.id,sub.id);
+      if(absent) return {studentId:s.id,name:s.name,roll:s.roll,marks:null,absent:true};
       const v=parseInt(document.getElementById("mmk_"+s.id+"_"+sub.id).value);
       return {studentId:s.id,name:s.name,roll:s.roll,marks:v,absent:false};
     });
@@ -5465,143 +5494,180 @@ function dismissAppNotif(type){
 // Works when app is installed (PWA) or open in browser.
 // Appears in the device notification bar like any other app.
 
+function _updateNotifEnableBtn(){
+  // Show the 🔕 button in topbar if notifications are not yet granted
+  // so the user can tap it (required for mobile permission prompt)
+  const btn=document.getElementById('notifEnableBtn');
+  if(!btn) return;
+  if(!('Notification' in window)){ btn.style.display='none'; return; }
+  btn.style.display=Notification.permission==='granted'?'none':'';
+  btn.title=Notification.permission==='denied'?'Notifications blocked — enable in browser settings':'Enable Notifications';
+  btn.textContent=Notification.permission==='denied'?'🚫':'🔕';
+}
+
+function userRequestNotifPermission(){
+  // Called from user tap — guaranteed gesture context on mobile
+  if(!('Notification' in window)){ showToast('❌ Notifications not supported on this browser'); return; }
+  if(Notification.permission==='denied'){
+    showToast('⚙️ Please enable notifications in your browser settings');
+    return;
+  }
+  Notification.requestPermission().then(perm=>{
+    _updateNotifEnableBtn();
+    if(perm==='granted'){
+      showToast('🔔 Notifications enabled!');
+      // Send a test notification so user sees it worked
+      sendNativeNotification('🔔 Notifications ON','You will now get notified about new updates','test');
+    } else {
+      showToast('❌ Notification permission denied');
+    }
+  });
+}
+
 function requestNotifPermission(){
+  // Silent check — does NOT prompt on mobile (needs user gesture for that)
+  // Just updates the UI button so user can tap it themselves
+  _updateNotifEnableBtn();
+  // On desktop, try silent request if still default
   if(!('Notification' in window)) return Promise.resolve('denied');
-  if(Notification.permission === 'granted') return Promise.resolve('granted');
-  if(Notification.permission === 'denied') return Promise.resolve('denied');
-  return Notification.requestPermission().then(perm => {
-    if(perm === 'granted') showToast('🔔 Notifications enabled!');
+  if(Notification.permission==='granted') return Promise.resolve('granted');
+  if(Notification.permission==='denied') return Promise.resolve('denied');
+  // Only auto-prompt on desktop (mobile requires gesture — we show the button instead)
+  const isMobile=/android|iphone|ipad|ipod|mobile/i.test(navigator.userAgent);
+  if(isMobile) return Promise.resolve('default'); // let user tap the button
+  return Notification.requestPermission().then(perm=>{
+    _updateNotifEnableBtn();
+    if(perm==='granted') showToast('🔔 Notifications enabled!');
     return perm;
   });
 }
 
 function sendNativeNotification(title, body, tag, icon){
-  if(!('Notification' in window) || Notification.permission !== 'granted') return;
-  // Always use SW showNotification when available — works in background too.
-  // navigator.serviceWorker.controller can be null on first load even if SW is registered,
-  // so we use serviceWorker.ready which waits until SW is actually controlling the page.
+  if(!('Notification' in window) || Notification.permission!=='granted') return;
+
+  // Clean tag — no emoji, only alphanumeric+dash (some mobile browsers reject emoji tags)
+  const safeTag=(tag||'davx').replace(/[^a-zA-Z0-9\-_]/g,'').substring(0,32)||'davx';
+
+  // Notification options — vibrate only if supported (not all mobile browsers support it)
+  const opts={
+    body: body||'',
+    icon: icon||'icon-192.png',
+    badge: 'icon-192.png',
+    tag: safeTag,
+    renotify: true,
+    data: {url:'./'},
+  };
+  // Only add vibrate if supported (crashes on some older Android WebView)
+  if('vibrate' in navigator) opts.vibrate=[200,100,200];
+
+  // Use SW showNotification — works in background AND foreground on all platforms
+  // Falls back to direct Notification if SW isn't ready
   if('serviceWorker' in navigator){
-    navigator.serviceWorker.ready.then(reg => {
-      // reg.showNotification works regardless of whether controller is set
-      reg.showNotification(title, {
-        body: body || '',
-        icon: icon || 'icon-192.png',
-        badge: 'icon-192.png',
-        tag: tag || 'davx-notif',
-        renotify: true,
-        vibrate: [200, 100, 200],
-        data: { url: './' }
-      });
-    }).catch(() => {
-      // SW not available — use direct Notification API as fallback
-      _showDirectNotification(title, body, tag, icon);
+    navigator.serviceWorker.ready.then(reg=>{
+      // Some mobile browsers (Samsung Internet, older Chrome) need a timeout
+      // to ensure the SW is fully active before showNotification
+      setTimeout(()=>{
+        reg.showNotification(title, opts).catch(()=>{
+          // SW showNotification failed — try direct API
+          _showDirectNotification(title, body, safeTag, icon, opts);
+        });
+      }, 100);
+    }).catch(()=>{
+      _showDirectNotification(title, body, safeTag, icon, opts);
     });
   } else {
-    _showDirectNotification(title, body, tag, icon);
+    _showDirectNotification(title, body, safeTag, icon, opts);
   }
 }
 
-function _showDirectNotification(title, body, tag, icon){
-  try {
-    const n = new Notification(title, {
-      body: body || '',
-      icon: icon || 'icon-192.png',
-      tag: tag || 'davx-notif',
+function _showDirectNotification(title, body, tag, icon, opts){
+  // Direct Notification API — works when app is open/foreground
+  // Also the only option on iOS PWA (home screen app on iPhone)
+  try{
+    const n=new Notification(title, opts||{
+      body: body||'',
+      icon: icon||'icon-192.png',
+      tag: tag||'davx',
     });
-    n.onclick = () => { window.focus(); n.close(); };
-    setTimeout(() => n.close(), 7000);
-  } catch(e){}
+    n.onclick=()=>{ window.focus(); n.close(); };
+    setTimeout(()=>{ try{n.close();}catch(e){} }, 7000);
+  }catch(e){
+    // Last resort — some browsers (especially iOS Safari) block Notification constructor
+    // Nothing we can do without Push API + server-side keys
+    console.warn('[Notif] Direct notification failed:',e.message);
+  }
 }
 
 // ── Firebase real-time triggers → native system notifications ──
-let _watchersSetup = false;
+let _watchersSetup=false;
 function setupNotificationWatchers(){
-  if(_watchersSetup) return; // prevent duplicate watchers on re-login
-  if(!_firebaseReady || !_db || !currentUser) return;
-  _watchersSetup = true;
+  if(_watchersSetup) return;
+  if(!_firebaseReady||!_db||!currentUser) return;
+  _watchersSetup=true;
 
-  // Request permission (will only prompt once; subsequent calls are instant)
+  // Update the notif enable button (don't prompt — user must tap)
+  _updateNotifEnableBtn();
+  // On desktop silently request permission
   requestNotifPermission();
 
-  const now = Date.now();
-  // Only notify about items created within the last 60 seconds
-  // (child_added fires for all existing items on first attach — we skip those)
-  const FRESH_WINDOW = 60 * 1000;
+  const now=Date.now();
+  // 60s window — child_added fires for all existing items, we skip those
+  const FRESH_WINDOW=60*1000;
+  function isNew(id){ const ts=parseInt(id); return !isNaN(ts)&&ts>now-FRESH_WINDOW; }
 
-  function isNew(id){
-    const ts = parseInt(id);
-    return !isNaN(ts) && ts > now - FRESH_WINDOW;
-  }
-
-  _db.ref('davx/notices').on('child_added', snap => {
-    const n = snap.val();
-    if(!n || !n.id || !isNew(n.id)) return;
-    const seen = _getSeenTimestamps();
-    if(seen['notice_'+n.id]) return;
+  _db.ref('davx/notices').on('child_added',snap=>{
+    const n=snap.val(); if(!n||!n.id||!isNew(n.id)) return;
+    const seen=_getSeenTimestamps(); if(seen['notice_'+n.id]) return;
     _markSeenNow('notice_'+n.id);
-    const icon = n.priority==='urgent'?'🚨':n.priority==='exam'?'📝':'📌';
-    sendNativeNotification(icon+' '+(n.title||'New Notice'), n.body?n.body.substring(0,100):'Posted by '+(n.by||''), 'notice');
+    const icon=n.priority==='urgent'?'🚨':n.priority==='exam'?'📝':'📌';
+    sendNativeNotification(icon+' '+(n.title||'New Notice'),n.body?n.body.substring(0,100):'Posted by '+(n.by||''),'notice');
   });
 
-  _db.ref('davx/files').on('child_added', snap => {
-    const f = snap.val();
-    if(!f || !f.id || !isNew(f.id)) return;
-    const seen = _getSeenTimestamps();
-    if(seen['file_'+f.id]) return;
+  _db.ref('davx/files').on('child_added',snap=>{
+    const f=snap.val(); if(!f||!f.id||!isNew(f.id)) return;
+    const seen=_getSeenTimestamps(); if(seen['file_'+f.id]) return;
     _markSeenNow('file_'+f.id);
-    const subj = (typeof SUBJECTS!=='undefined') ? SUBJECTS.find(s=>s.id===f.subject) : null;
-    const emoji = subj ? subj.emoji : '📁';
-    sendNativeNotification(emoji+' New file: '+(f.title||'Untitled'), (subj?subj.name:f.subject||'')+' · Uploaded by '+(f.uploader||''), 'file');
+    const subj=typeof SUBJECTS!=='undefined'?SUBJECTS.find(s=>s.id===f.subject):null;
+    sendNativeNotification((subj?subj.emoji:'📁')+' New file: '+(f.title||'Untitled'),(subj?subj.name:f.subject||'')+' · '+(f.uploader||''),'file');
   });
 
-  _db.ref('davx/results').on('child_added', snap => {
-    const r = snap.val();
-    if(!r || !r.id || !isNew(r.id)) return;
-    const seen = _getSeenTimestamps();
-    if(seen['result_'+r.id]) return;
+  _db.ref('davx/results').on('child_added',snap=>{
+    const r=snap.val(); if(!r||!r.id||!isNew(r.id)) return;
+    const seen=_getSeenTimestamps(); if(seen['result_'+r.id]) return;
     _markSeenNow('result_'+r.id);
-    const subj = (typeof SUBJECTS!=='undefined') ? SUBJECTS.find(s=>s.id===r.subject) : null;
-    sendNativeNotification('📊 Results declared: '+(r.test||'Test'), (subj?subj.name:r.subject||'')+' · Max marks: '+r.max, 'result');
+    const subj=typeof SUBJECTS!=='undefined'?SUBJECTS.find(s=>s.id===r.subject):null;
+    sendNativeNotification('📊 Results: '+(r.test||'Test'),(subj?subj.name:r.subject||'')+' · Max: '+r.max,'result');
   });
 
-  _db.ref('davx/homework').on('child_added', snap => {
-    const h = snap.val();
-    if(!h || !h.id || !isNew(h.id)) return;
-    const seen = _getSeenTimestamps();
-    if(seen['hw_'+h.id]) return;
+  _db.ref('davx/homework').on('child_added',snap=>{
+    const h=snap.val(); if(!h||!h.id||!isNew(h.id)) return;
+    const seen=_getSeenTimestamps(); if(seen['hw_'+h.id]) return;
     _markSeenNow('hw_'+h.id);
-    const subj = (typeof SUBJECTS!=='undefined') ? SUBJECTS.find(s=>s.id===h.subject) : null;
-    const urgent = h.priority==='urgent';
-    sendNativeNotification((urgent?'🚨 Urgent HW: ':'📓 Homework: ')+(h.title||'New Homework'), (subj?subj.name:h.subject||'')+(h.due?' · Due: '+h.due:''), 'homework');
+    const subj=typeof SUBJECTS!=='undefined'?SUBJECTS.find(s=>s.id===h.subject):null;
+    sendNativeNotification((h.priority==='urgent'?'🚨 Urgent HW: ':'📓 HW: ')+(h.title||'Homework'),(subj?subj.name:h.subject||'')+(h.due?' · Due: '+h.due:''),'homework');
   });
 
-  _db.ref('davx/polls').on('child_added', snap => {
-    const p = snap.val();
-    if(!p || !p.id || !isNew(p.id)) return;
-    const seen = _getSeenTimestamps();
-    if(seen['poll_'+p.id]) return;
+  _db.ref('davx/polls').on('child_added',snap=>{
+    const p=snap.val(); if(!p||!p.id||!isNew(p.id)) return;
+    const seen=_getSeenTimestamps(); if(seen['poll_'+p.id]) return;
     _markSeenNow('poll_'+p.id);
-    sendNativeNotification('🗳️ New Poll: '+(p.question||''), 'Vote now in Class Polls', 'poll');
+    sendNativeNotification('🗳️ New Poll',(p.question||'').substring(0,100),'poll');
   });
 
-  _db.ref('davx/examSchedules').on('child_added', snap => {
-    const e = snap.val();
-    if(!e || !e.id || !isNew(e.id)) return;
-    const seen = _getSeenTimestamps();
-    if(seen['exam_'+e.id]) return;
+  _db.ref('davx/examSchedules').on('child_added',snap=>{
+    const e=snap.val(); if(!e||!e.id||!isNew(e.id)) return;
+    const seen=_getSeenTimestamps(); if(seen['exam_'+e.id]) return;
     _markSeenNow('exam_'+e.id);
-    const subj = (typeof EXAM_SUBJECTS!=='undefined') ? EXAM_SUBJECTS.find(s=>s.id===e.subject) : null;
-    sendNativeNotification('📋 Exam Scheduled: '+(e.name||''), (subj?subj.name+' · ':'')+'Date: '+new Date(e.date).toLocaleDateString("en-IN",{day:"2-digit",month:"short"}), 'exam');
+    const subj=typeof EXAM_SUBJECTS!=='undefined'?EXAM_SUBJECTS.find(s=>s.id===e.subject):null;
+    sendNativeNotification('📋 Exam: '+(e.name||''),(subj?subj.name+' · ':'')+(e.date?new Date(e.date).toLocaleDateString('en-IN',{day:'2-digit',month:'short'}):''),'exam');
   });
 
-  if(currentUser.role === 'classteacher'){
-    _db.ref('davx/leaveApplications').on('child_added', snap => {
-      const l = snap.val();
-      if(!l || !l.id || !isNew(l.id)) return;
-      const seen = _getSeenTimestamps();
-      if(seen['leave_'+l.id]) return;
+  if(currentUser.role==='classteacher'){
+    _db.ref('davx/leaveApplications').on('child_added',snap=>{
+      const l=snap.val(); if(!l||!l.id||!isNew(l.id)) return;
+      const seen=_getSeenTimestamps(); if(seen['leave_'+l.id]) return;
       _markSeenNow('leave_'+l.id);
-      sendNativeNotification('🏖️ Leave request: '+(l.studentName||'A student'), (l.reason||'')+' · '+(l.from||'')+' to '+(l.to||''), 'leave');
+      sendNativeNotification('🏖️ Leave: '+(l.studentName||'Student'),(l.reason||'').substring(0,80),'leave');
     });
   }
 }
