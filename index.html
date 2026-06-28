@@ -348,6 +348,41 @@ button:active, .btn:active, .nav-btn:active, .auth-btn:active, .role-card:active
 .lb-pct-bar{height:5px;background:rgba(255,255,255,0.08);border-radius:3px;overflow:hidden;width:60px;display:inline-block;vertical-align:middle;margin-right:6px;}
 .lb-pct-fill{height:100%;border-radius:3px;background:linear-gradient(90deg,#3dba7e,#4ec98a);}
 
+/* ── Exam Schedule ── */
+.exam-card{background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.08);border-radius:13px;padding:16px;margin-bottom:10px;transition:border-color .2s;}
+.exam-card:hover{border-color:rgba(232,160,32,0.3);}
+.exam-card.exam-upcoming{border-left:3px solid var(--gold);}
+.exam-card.exam-today{border-left:3px solid #3dba7e;background:rgba(61,186,126,0.04);}
+.exam-card.exam-past{opacity:.6;}
+.exam-subj-pill{display:inline-flex;align-items:center;gap:5px;padding:3px 10px;border-radius:20px;font-size:11px;font-weight:700;}
+.exam-syllabus-box{background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.07);border-radius:9px;padding:10px 13px;margin-top:10px;font-size:12px;color:var(--off);line-height:1.7;white-space:pre-wrap;}
+
+/* ── Polls ── */
+.poll-card{background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.08);border-radius:14px;padding:18px 16px;margin-bottom:12px;transition:border-color .2s;}
+.poll-card:hover{border-color:rgba(232,160,32,0.25);}
+.poll-card.poll-closed{opacity:.75;}
+.poll-q{font-size:15px;font-weight:700;color:var(--white);margin-bottom:4px;line-height:1.4;}
+.poll-meta{font-size:11px;color:var(--muted);margin-bottom:14px;display:flex;gap:10px;flex-wrap:wrap;}
+.poll-opt{position:relative;margin-bottom:8px;border-radius:10px;overflow:hidden;cursor:pointer;border:1.5px solid rgba(255,255,255,0.1);background:rgba(255,255,255,0.03);transition:border-color .15s;}
+.poll-opt:hover{border-color:rgba(232,160,32,0.4);}
+.poll-opt.selected{border-color:var(--gold);}
+.poll-opt.winning{border-color:rgba(61,186,126,0.5);}
+.poll-opt-bar{position:absolute;top:0;left:0;height:100%;background:rgba(232,160,32,0.1);border-radius:10px;transition:width .5s ease;}
+.poll-opt.winning .poll-opt-bar{background:rgba(61,186,126,0.12);}
+.poll-opt-inner{position:relative;display:flex;align-items:center;gap:10px;padding:10px 14px;}
+.poll-opt-check{width:18px;height:18px;border-radius:50%;border:2px solid rgba(255,255,255,0.25);display:flex;align-items:center;justify-content:center;flex-shrink:0;font-size:10px;transition:all .15s;}
+.poll-opt.selected .poll-opt-check{background:var(--gold);border-color:var(--gold);color:#1a1208;}
+.poll-opt-check.sq{border-radius:4px;}
+.poll-opt-label{flex:1;font-size:13px;font-weight:500;color:var(--off);}
+.poll-opt.selected .poll-opt-label{color:var(--white);font-weight:600;}
+.poll-opt-pct{font-size:12px;font-weight:700;color:var(--muted);min-width:36px;text-align:right;}
+.poll-opt-count{font-size:10px;color:var(--muted);}
+.poll-star{font-size:24px;cursor:pointer;transition:transform .1s;padding:0 2px;}
+.poll-star:hover{transform:scale(1.2);}
+.poll-actions{display:flex;gap:8px;margin-top:14px;flex-wrap:wrap;align-items:center;}
+.poll-voters-wrap{margin-top:10px;font-size:11px;color:var(--muted);}
+.poll-chip{display:inline-block;background:rgba(255,255,255,0.06);padding:2px 8px;border-radius:10px;margin:2px;}
+
 /* ── Report Card ── */
 .rc-wrap{background:#fff;color:#111;border-radius:14px;overflow:hidden;box-shadow:0 8px 40px rgba(0,0,0,0.3);}
 .rc-header{background:linear-gradient(135deg,#0a1628,#1a3a6e);color:#fff;padding:24px 28px;text-align:center;}
@@ -590,9 +625,11 @@ button:active, .btn:active, .nav-btn:active, .auth-btn:active, .role-card:active
     <button class="nav-btn active" data-page="dashboard" onclick="nav(this)"><span class="nav-icon">🏠</span><span class="nav-label sb-text">Dashboard</span></button>
     <button class="nav-btn" data-page="subjects" onclick="nav(this)"><span class="nav-icon">📚</span><span class="nav-label sb-text">Subjects</span><span class="nav-badge sb-text" id="totalBadge">0</span></button>
     <button class="nav-btn" data-page="notices" onclick="nav(this)"><span class="nav-icon">📌</span><span class="nav-label sb-text">Notice Board</span><span class="nav-badge sb-text" id="noticeBadge">0</span></button>
+    <button class="nav-btn" data-page="polls" onclick="nav(this)"><span class="nav-icon">🗳️</span><span class="nav-label sb-text">Polls</span><span class="nav-badge sb-text" id="pollBadge" style="display:none;background:#e8a020;">!</span></button>
     <button class="nav-btn" data-page="gallery" onclick="nav(this)"><span class="nav-icon">🖼️</span><span class="nav-label sb-text">Gallery</span></button>
     <div class="sb-section">Class</div>
     <button class="nav-btn" data-page="timetable" onclick="nav(this)"><span class="nav-icon">📅</span><span class="nav-label sb-text">Timetable</span></button>
+    <button class="nav-btn" data-page="exam_schedule" onclick="nav(this)"><span class="nav-icon">📋</span><span class="nav-label sb-text">Exam Schedule</span><span class="nav-badge sb-text" id="examBadge" style="display:none;background:#e05555;">!</span></button>
     <button class="nav-btn" data-page="attendance" onclick="nav(this)"><span class="nav-icon">✅</span><span class="nav-label sb-text">Attendance</span></button>
     <button class="nav-btn" data-page="results" onclick="nav(this)"><span class="nav-icon">📊</span><span class="nav-label sb-text">Results</span></button>
     <button class="nav-btn" data-page="leaderboard" onclick="nav(this)"><span class="nav-icon">🏆</span><span class="nav-label sb-text">Leaderboard</span></button>
@@ -682,6 +719,61 @@ button:active, .btn:active, .nav-btn:active, .auth-btn:active, .role-card:active
         <div id="noticesList"></div>
       </div>
 
+      <!-- POLLS -->
+      <div class="page" id="page-polls">
+        <div class="hero" style="padding:20px 26px;margin-bottom:18px;">
+          <div class="hero-label">Class Engagement</div>
+          <div class="hero-h" style="font-size:22px;">Class <span>Polls</span></div>
+          <div class="hero-sub">Vote on polls posted by your class teacher. Results update live.</div>
+        </div>
+        <!-- Create Poll (CT only) -->
+        <div class="card perm-ct" id="pollCreateCard" style="display:none;margin-bottom:14px;">
+          <div class="card-title">➕ Create New Poll</div>
+          <div class="form-group">
+            <label class="form-label">Poll Question</label>
+            <input class="form-input" id="pollQuestion" placeholder="e.g. Which day for extra class?">
+          </div>
+          <div class="form-group">
+            <label class="form-label">Poll Type</label>
+            <select class="form-select" id="pollType" onchange="onPollTypeChange()">
+              <option value="single">Single Choice (pick one)</option>
+              <option value="multi">Multiple Choice (pick many)</option>
+              <option value="yesno">Yes / No</option>
+              <option value="rating">Rating (1–5 stars)</option>
+            </select>
+          </div>
+          <div id="pollOptionsWrap" class="form-group">
+            <label class="form-label">Options <span style="font-size:10px;color:var(--muted);">(min 2, max 8)</span></label>
+            <div id="pollOptionsList" style="display:grid;gap:7px;margin-bottom:8px;"></div>
+            <button class="btn btn-outline btn-sm" onclick="addPollOption()">+ Add Option</button>
+          </div>
+          <div class="form-row-2">
+            <div class="form-group">
+              <label class="form-label">Deadline (optional)</label>
+              <input class="form-input" type="datetime-local" id="pollDeadline">
+            </div>
+            <div class="form-group">
+              <label class="form-label">Show results to</label>
+              <select class="form-select" id="pollResultsVisible">
+                <option value="all">Everyone (live)</option>
+                <option value="after">After voting only</option>
+                <option value="closed">Only after poll closes</option>
+              </select>
+            </div>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Allow anonymous voting</label>
+            <select class="form-select" id="pollAnonymous">
+              <option value="no">No — show who voted</option>
+              <option value="yes">Yes — keep voters anonymous</option>
+            </select>
+          </div>
+          <button class="btn btn-gold" onclick="createPoll()">🗳️ Launch Poll</button>
+        </div>
+        <!-- Polls list -->
+        <div id="pollsList"></div>
+      </div>
+
       <!-- GALLERY -->
       <div class="page" id="page-gallery">
         <div class="hero" style="padding:20px 26px;margin-bottom:18px;"><div class="hero-label">Memories</div><div class="hero-h" style="font-size:22px;">Class <span>Gallery</span></div><div class="hero-sub">Photos, albums and useful links — all in one place.</div></div>
@@ -757,6 +849,36 @@ button:active, .btn:active, .nav-btn:active, .auth-btn:active, .role-card:active
       <div class="page" id="page-timetable">
         <div class="hero" style="padding:20px 26px;margin-bottom:18px;"><div class="hero-label">Schedule</div><div class="hero-h" style="font-size:22px;">Class <span>Timetable</span></div></div>
         <div class="card"><div id="ttDisplay"></div></div>
+      </div>
+
+      <!-- EXAM SCHEDULE -->
+      <div class="page" id="page-exam_schedule">
+        <div class="hero" style="padding:20px 26px;margin-bottom:18px;">
+          <div class="hero-label">Academics</div>
+          <div class="hero-h" style="font-size:22px;">Exam <span>Schedule</span></div>
+          <div class="hero-sub">Upcoming exams, date sheet, timings, and subject-wise syllabus.</div>
+        </div>
+        <!-- Create Exam (CT only) -->
+        <div class="card perm-ct" id="examCreateCard" style="display:none;margin-bottom:14px;">
+          <div class="card-title">➕ Add Exam / Date Sheet Entry</div>
+          <div class="form-row-2">
+            <div class="form-group"><label class="form-label">Exam Name</label><input class="form-input" id="examName" placeholder="e.g. Half Yearly, Unit Test 1"></div>
+            <div class="form-group"><label class="form-label">Subject</label><select class="form-select" id="examSubject"></select></div>
+          </div>
+          <div class="form-row-2">
+            <div class="form-group"><label class="form-label">Date</label><input class="form-input" type="date" id="examDate"></div>
+            <div class="form-group"><label class="form-label">Time</label><input class="form-input" type="time" id="examTime" placeholder="e.g. 9:00 AM"></div>
+          </div>
+          <div class="form-row-2">
+            <div class="form-group"><label class="form-label">Duration</label><input class="form-input" id="examDuration" placeholder="e.g. 3 hours"></div>
+            <div class="form-group"><label class="form-label">Max Marks</label><input class="form-input" type="number" id="examMax" placeholder="e.g. 100"></div>
+          </div>
+          <div class="form-group"><label class="form-label">📚 Syllabus / Topics Covered</label><textarea class="form-textarea" id="examSyllabus" placeholder="e.g. Chapter 1 – Real Numbers, Chapter 2 – Polynomials, Chapter 3 – Linear Equations..." style="min-height:80px;"></textarea></div>
+          <div class="form-group"><label class="form-label">Instructions (optional)</label><input class="form-input" id="examInstructions" placeholder="e.g. Bring calculator, Blue pen only"></div>
+          <button class="btn btn-gold" onclick="addExamEntry()">📋 Add to Schedule</button>
+        </div>
+        <!-- Exam list -->
+        <div id="examScheduleList"></div>
       </div>
 
       <!-- ATTENDANCE VIEW -->
@@ -1086,63 +1208,7 @@ button:active, .btn:active, .nav-btn:active, .auth-btn:active, .role-card:active
         <div class="hero" style="padding:20px 26px;margin-bottom:18px;">
           <div class="hero-label">Staff</div>
           <div class="hero-h" style="font-size:22px;">Complaints & <span>Reports</span></div>
-          <div class="hero-sub">Log complaints, send disciplinary reports, and deliver weekly progress reports to parents via WhatsApp.</div>
-        </div>
-
-        <!-- ══ WEEKLY WHATSAPP REPORT ══ -->
-        <div class="card" style="background:linear-gradient(135deg,rgba(37,211,102,0.06),rgba(37,211,102,0.02));border:1px solid rgba(37,211,102,0.3);position:relative;overflow:hidden;margin-bottom:14px;">
-          <div style="position:absolute;top:-20px;right:-20px;font-size:80px;opacity:0.05;pointer-events:none;">📱</div>
-          <div style="display:flex;align-items:center;gap:10px;margin-bottom:6px;">
-            <div style="width:36px;height:36px;background:rgba(37,211,102,0.15);border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:18px;">📲</div>
-            <div>
-              <div class="card-title" style="color:#25d366;margin-bottom:0;">Weekly WhatsApp Report</div>
-              <div style="font-size:11px;color:rgba(37,211,102,0.6);">Send weekly progress report directly to parents</div>
-            </div>
-          </div>
-          <p style="font-size:12px;color:var(--muted);margin-bottom:14px;line-height:1.6;">Each report includes <strong style="color:var(--off);">day-wise attendance</strong>, <strong style="color:var(--off);">test results</strong>, and <strong style="color:var(--off);">copy/homework status</strong> for the selected week.</p>
-
-          <!-- Week selector -->
-          <div style="display:flex;gap:12px;flex-wrap:wrap;align-items:flex-end;margin-bottom:14px;">
-            <div>
-              <label class="form-label">📅 Select Week</label>
-              <input type="date" class="form-input" id="weeklyReportDate" style="max-width:170px;" onchange="updateWeekLabel()">
-              <div id="weekRangeLabel" style="font-size:11px;color:rgba(37,211,102,0.7);margin-top:4px;"></div>
-            </div>
-            <div style="display:flex;gap:6px;flex-wrap:wrap;">
-              <button class="btn btn-sm" style="background:rgba(37,211,102,0.15);color:#25d366;border:1px solid rgba(37,211,102,0.35);" onclick="shiftWeek(-1)">◀ Prev Week</button>
-              <button class="btn btn-sm" style="background:rgba(37,211,102,0.15);color:#25d366;border:1px solid rgba(37,211,102,0.35);" onclick="shiftWeek(1)">Next Week ▶</button>
-              <button class="btn btn-sm" style="background:rgba(37,211,102,0.08);color:#25d366;border:1px solid rgba(37,211,102,0.2);" onclick="setCurrentWeek()">This Week</button>
-            </div>
-          </div>
-
-          <!-- Send All -->
-          <div style="padding:12px 14px;background:rgba(37,211,102,0.06);border:1px solid rgba(37,211,102,0.18);border-radius:10px;margin-bottom:12px;">
-            <div style="font-size:12px;font-weight:600;color:#25d366;margin-bottom:8px;">📢 Send to All Parents</div>
-            <div style="font-size:11px;color:var(--muted);margin-bottom:10px;">Opens WhatsApp one-by-one for every student who has a parent mobile on record.</div>
-            <div style="display:flex;gap:8px;flex-wrap:wrap;">
-              <button class="btn btn-wa" onclick="sendWeeklyReportAll()">📲 Send to All Parents</button>
-              <button class="btn btn-outline btn-sm" onclick="previewWeeklyReport()">👁️ Preview Sample</button>
-            </div>
-          </div>
-
-          <!-- Send to Single Student -->
-          <div style="padding:12px 14px;background:rgba(74,158,255,0.06);border:1px solid rgba(74,158,255,0.18);border-radius:10px;">
-            <div style="font-size:12px;font-weight:600;color:#4a9eff;margin-bottom:8px;">👤 Send to Single Student's Parent</div>
-            <div style="display:flex;gap:10px;flex-wrap:wrap;align-items:flex-end;">
-              <div class="form-group" style="margin:0;flex:1;min-width:160px;">
-                <label class="form-label">Select Student</label>
-                <select class="form-select" id="singleReportStudent">
-                  <option value="">— Select Student —</option>
-                </select>
-              </div>
-              <button class="btn btn-sm" style="background:rgba(74,158,255,0.18);color:#4a9eff;border:1px solid rgba(74,158,255,0.35);" onclick="sendSingleReportFromComplain()">📲 Send Report</button>
-              <button class="btn btn-outline btn-sm" onclick="previewSingleReport()">👁️ Preview</button>
-            </div>
-            <div id="singleReportParentInfo" style="display:none;margin-top:8px;font-size:11px;color:#4a9eff;"></div>
-          </div>
-
-          <!-- Preview box -->
-          <div id="weeklyReportPreview" style="display:none;margin-top:14px;background:rgba(37,211,102,0.06);border:1px solid rgba(37,211,102,0.2);border-radius:10px;padding:14px;font-size:11.5px;white-space:pre-wrap;font-family:monospace;color:var(--white);max-height:260px;overflow-y:auto;line-height:1.6;"></div>
+          <div class="hero-sub">Log complaints and send disciplinary reports to parents via WhatsApp.</div>
         </div>
 
         <!-- ══ NEW COMPLAINT ══ -->
@@ -1732,11 +1798,23 @@ function setupFirebaseListeners(){
     if(Object.keys(wb).length>0&&currentUser){
       try{renderDashboard();}catch(e){}
       try{updateCTNotifBadge();}catch(e){}
+      try{_refreshNotifDot();}catch(e){}
       if(wb.students){ try{renderStudentInfoTable();}catch(e){} try{renderStudentsList();}catch(e){} try{populateComplainSelects();}catch(e){} }
       if(wb.notices){ try{renderNotices();}catch(e){} }
+      if(wb.files){ try{renderMyUploads();}catch(e){} try{renderSubjectList();}catch(e){} if(currentFolder) try{renderFolder(currentFolder);}catch(e){} }
+      if(wb.gallery){ try{renderGallery();}catch(e){} }
+      if(wb.homework){ try{updateHWBadge();}catch(e){} }
+      if(wb.copySessions){ try{renderCopySessionsList();}catch(e){} }
       if(wb.results){ try{renderResults();}catch(e){} try{renderEnteredResults();}catch(e){} try{populateLeaderboardTestSelect();}catch(e){} }
+      if(wb.polls){ try{renderPolls();}catch(e){} try{updatePollBadge();}catch(e){} }
+      if(wb.examSchedules){ try{renderExamSchedule();}catch(e){} try{updateExamBadge();}catch(e){} }
       if(wb.timetable){ try{renderTTDisplay();}catch(e){} try{renderTTPreview();}catch(e){} }
       if(wb.studentAttendance){ try{renderAttView();}catch(e){} }
+      if(wb.studentNotifications){ try{_refreshNotifDot();}catch(e){} }
+      if(wb.ct_notifications){ try{updateCTNotifBadge();}catch(e){} }
+      if(wb.leaveApplications){ try{updateLeaveCTBadge();}catch(e){} try{updateLeaveStatusBadge();}catch(e){} }
+      if(wb.duties){ try{renderMyDuties();}catch(e){} }
+      if(wb.complaints){ try{renderComplaintLog();}catch(e){} }
       if(wb.timetable||wb.studentAttendance||wb.results||wb.copySessions){ try{renderWeeklySpotlight();}catch(e){} try{_origRenderRC();}catch(e){} }
     }
   });
@@ -1758,7 +1836,7 @@ function forceSyncFromFirebase() {
     const remote = snap.val();
     if (remote) {
       // ✅ Replace each array key with remote version, filtered through tombstones
-      const arrayKeys = ["files", "students", "notices", "results", "gallery", "copySessions", "studentNotifications", "ct_notifications", "homework", "complaints", "duties", "leaveApplications"];
+      const arrayKeys = ["files", "students", "notices", "results", "gallery", "copySessions", "studentNotifications", "ct_notifications", "homework", "complaints", "duties", "leaveApplications", "polls", "examSchedules"];
       const atomicKeys = ["timetable", "studentAttendance"];
 
       arrayKeys.forEach(key => {
@@ -1804,11 +1882,18 @@ function forceSyncFromFirebase() {
       renderEnteredResults();
       renderCopySessionsList();
       updateCTNotifBadge();
+      updateHWBadge();
+      try{renderPolls();}catch(e){}
+      try{updatePollBadge();}catch(e){}
+      try{renderExamSchedule();}catch(e){}
+      try{updateExamBadge();}catch(e){}
       try{renderWeeklySpotlight();}catch(e){}
       try{populateLeaderboardTestSelect();}catch(e){}
-      
-      // Also refresh the current folder if open
-      if (currentFolder) renderFolder(currentFolder);
+      try{_refreshNotifDot();}catch(e){}
+      if(currentUser.role==="student"){ try{renderMyDuties();}catch(e){} try{updateLeaveStatusBadge();}catch(e){} }
+      if(currentUser.role==="classteacher"){ try{updateLeaveCTBadge();}catch(e){} }
+      if(currentUser.role==="student"){ try{initReportCardPage();}catch(e){} }
+      if(currentFolder) try{renderFolder(currentFolder);}catch(e){}
     }
   }).catch(e => {
     if (btn) btn.textContent = "☁️";
@@ -1833,7 +1918,7 @@ const SUBJECTS=[
   {id:"general",name:"General / All",emoji:"📂",teacher:"—"},
   {id:"computer",name:"Computer Sc.",emoji:"💻",teacher:"Rakesh Singh"},
   {id:"atl",name:"ATL",emoji:"🔬",teacher:"Sanjeev Ranjan"},
-  {id:"games",name:"Games",emoji:"⚽",teacher:"Shyam Singh"},
+  {id:"games",name:"Games",emoji:"⚽",teacher:"Shyam singh"},
   {id:"library",name:"Library",emoji:"📚",teacher:"Anil Kumar Singh"}
 ];
 const SUBJ_COLORS={maths:"#4a9eff",physics:"#ffd700",chemistry:"#3dba7e",biology:"#ff7eb6",english:"#e8a020",history:"#c060ff",geography:"#60d0ff",civics:"#ff9060",economics:"#60ff90",hindi:"#ff6060",computer:"#a0a0ff",atl:"#00e5cc",games:"#ff8c42",library:"#9b59b6"};
@@ -1972,6 +2057,7 @@ function doRegister(){
 
 function doLogout(){
   currentUser=null; pendingStudentAtt={}; prevPage=null; ttEditorRows=[]; _pendingEditAtt={};
+  _watchersSetup=false;
   clearSession(); // ← wipe saved session so login screen shows next time
   const bar=document.getElementById("studentProfileBar"); if(bar) bar.remove();
   const chips=document.getElementById("heroInfoChips"); if(chips) chips.innerHTML="";
@@ -2017,13 +2103,13 @@ function initApp(){
   show("perm-upload",canUpload); show("perm-notice",canNotice); show("perm-ct",isCT); show("perm-results",canResults); show("perm-monitor",canMonitor); show("perm-hw",canHW); show("perm-complain",canComplain); show("perm-student",u.role==="student"); if(u.role==="student") updateLeaveStatusBadge(); if(u.role==="classteacher") updateLeaveCTBadge();
   populateAllSubjectSelects();
   buildTTEditor(); renderTTPreview(); setAttDate(); populateAttHistFilter();
-  renderDashboard(); renderTTDisplay(); renderAttView(); renderResults(); populateLeaderboardTestSelect(); renderGallery(); renderMyUploads(); renderStudentsList(); renderEnteredResults(); renderCopySessionsList(); updateCTNotifBadge(); updateHWBadge(); if(currentUser&&currentUser.role==="student"){ renderMyDuties(); updateLeaveStatusBadge(); } if(currentUser&&currentUser.role==="classteacher") updateLeaveCTBadge();
+  renderDashboard(); renderTTDisplay(); renderAttView(); renderResults(); populateLeaderboardTestSelect(); renderGallery(); renderMyUploads(); renderStudentsList(); renderEnteredResults(); renderCopySessionsList(); updateCTNotifBadge(); updateHWBadge(); renderPolls(); updatePollBadge(); updateExamBadge(); if(currentUser&&currentUser.role==="student"){ renderMyDuties(); updateLeaveStatusBadge(); } if(currentUser&&currentUser.role==="classteacher") updateLeaveCTBadge();
   if(canHW){ renderAllHW(); }
   if(canComplain) populateComplainSelects();
   if(isCT) renderStudentInfoTable();
   if(u.role==="student") injectStudentProfileCard();
   _refreshNotifDot();
-  setTimeout(setupNotificationWatchers, 2500);
+  setTimeout(setupNotificationWatchers, 3000);
 }
 
 function injectStudentProfileCard(){
@@ -2071,7 +2157,7 @@ function toggleMobSidebar(){ const sb=document.getElementById("sidebar"),ov=docu
 function closeMobSidebar(){ document.getElementById("sidebar").classList.remove("mob-open"); document.getElementById("mobOverlay").classList.remove("open"); document.getElementById("mobToggle").textContent="☰"; }
 function goHome(){ nav(document.querySelector("[data-page=dashboard]")); closeFolder(); }
 
-const PAGE_TITLES={dashboard:"Dashboard",subjects:"Subjects",notices:"Notice Board",gallery:"Gallery",timetable:"Timetable",attendance:"Attendance Record",results:"Results & Marks",leaderboard:"Class Leaderboard",report_card:"Report Card",hw_view:"Homework Board",upload:"Upload Files",post_notice:"Post Notice",manage_timetable:"Set Timetable",manage_results:"Enter Results",manage_attendance:"Mark Attendance",manage_students:"Students",copy_checking:"Copy Checking",homework:"Homework Manager",complain:"Complaints & Reports",student_info:"Student Information",assign_duty:"Assign Duty",my_duties:"My Duties",apply_leave:"Apply for Leave",manage_leaves:"Leave Requests"};
+const PAGE_TITLES={dashboard:"Dashboard",subjects:"Subjects",notices:"Notice Board",polls:"Polls",gallery:"Gallery",timetable:"Timetable",exam_schedule:"Exam Schedule",attendance:"Attendance Record",results:"Results & Marks",leaderboard:"Class Leaderboard",report_card:"Report Card",hw_view:"Homework Board",upload:"Upload Files",post_notice:"Post Notice",manage_timetable:"Set Timetable",manage_results:"Enter Results",manage_attendance:"Mark Attendance",manage_students:"Students",copy_checking:"Copy Checking",homework:"Homework Manager",complain:"Complaints & Reports",student_info:"Student Information",assign_duty:"Assign Duty",my_duties:"My Duties",apply_leave:"Apply for Leave",manage_leaves:"Leave Requests"};
 
 function nav(btn){
   if(!btn) return;
@@ -2080,7 +2166,7 @@ function nav(btn){
   document.querySelectorAll(".page").forEach(p=>p.classList.remove("active")); document.getElementById("page-"+pid).classList.add("active");
   document.getElementById("pageTitle").textContent=PAGE_TITLES[pid]||pid;
   const backBtn=document.getElementById("backBtn");
-  backBtn.classList.toggle("show",["upload","post_notice","manage_timetable","manage_results","manage_attendance","manage_students","results","leaderboard","report_card","copy_checking","homework","complain","student_info","assign_duty","my_duties","apply_leave","manage_leaves"].includes(pid));
+  backBtn.classList.toggle("show",["upload","post_notice","manage_timetable","manage_results","manage_attendance","manage_students","results","leaderboard","report_card","exam_schedule","copy_checking","homework","complain","student_info","assign_duty","my_duties","apply_leave","manage_leaves"].includes(pid));
   closeFolder();
   if(window.innerWidth<=820) closeMobSidebar();
   if(pid==="notices"||pid==="post_notice") renderNotices();
@@ -2088,6 +2174,7 @@ function nav(btn){
   if(pid==="results"){ renderResults(); if(currentUser.role==="student"){ const sn=DB.get("studentNotifications")||[]; sn.forEach(n=>n.read=true); DB.set("studentNotifications",sn); const nd=document.getElementById("notifDot"); if(nd) nd.style.display="none"; } }
   if(pid==="leaderboard"){ populateLeaderboardTestSelect(); renderLeaderboard(); }
   if(pid==="timetable") renderTTDisplay();
+  if(pid==="exam_schedule"){ initExamSchedulePage(); }
   if(pid==="manage_timetable") buildTTEditor();
   if(pid==="attendance") renderAttView();
   if(pid==="manage_attendance"){ renderStudentRollCall(); renderAttHistory(); populateAttHistFilter(); }
@@ -2104,6 +2191,7 @@ function nav(btn){
   if(pid==="my_duties") renderMyDuties();
   if(pid==="apply_leave"){ renderMyLeaves(); }
   if(pid==="manage_leaves"){ renderManageLeaves(); updateLeaveCTBadge(); }
+  if(pid==="polls"){ renderPolls(); updatePollBadge(); }
   if(pid==="student_info") renderStudentInfoTable();
   if(pid==="report_card") initReportCardPage();
   _refreshNotifDot();
@@ -4872,6 +4960,427 @@ const _origRenderRC = () => {
   }
 };
 
+
+
+// ═══════════════════════════════════════════
+// EXAM SCHEDULE
+// ═══════════════════════════════════════════
+// Fixed subjects for exam schedule
+const EXAM_SUBJECTS=[
+  {id:"maths",   name:"Mathematics",emoji:"📐"},
+  {id:"science", name:"Science",    emoji:"🔬"},
+  {id:"sst",     name:"SST",        emoji:"🗺️"},
+  {id:"hindi",   name:"Hindi",      emoji:"🇮🇳"},
+  {id:"english", name:"English",    emoji:"📖"},
+  {id:"it",      name:"IT/Computer",emoji:"💻"},
+];
+const EXAM_SUBJ_COLORS={maths:"#4a9eff",science:"#3dba7e",sst:"#ff9060",hindi:"#ff6060",english:"#e8a020",it:"#a0a0ff"};
+
+function initExamSchedulePage(){
+  const isCT=currentUser&&currentUser.role==="classteacher";
+  const cc=document.getElementById("examCreateCard");
+  if(cc) cc.style.display=isCT?"":"none";
+  // Populate subject dropdown
+  const sel=document.getElementById("examSubject");
+  if(sel) sel.innerHTML=EXAM_SUBJECTS.map(s=>`<option value="${s.id}">${s.emoji} ${s.name}</option>`).join("");
+  // Set today as default date
+  const dateEl=document.getElementById("examDate");
+  if(dateEl&&!dateEl.value) dateEl.value=new Date().toISOString().split("T")[0];
+  renderExamSchedule();
+}
+
+function addExamEntry(){
+  const name=document.getElementById("examName").value.trim();
+  const subject=document.getElementById("examSubject").value;
+  const date=document.getElementById("examDate").value;
+  const time=document.getElementById("examTime").value;
+  const duration=document.getElementById("examDuration").value.trim();
+  const max=document.getElementById("examMax").value;
+  const syllabus=document.getElementById("examSyllabus").value.trim();
+  const instructions=document.getElementById("examInstructions").value.trim();
+  if(!name){ showToast("❌ Enter exam name"); return; }
+  if(!date){ showToast("❌ Select exam date"); return; }
+  const entry={
+    id:Date.now().toString(),
+    name, subject, date, time:time||"", duration:duration||"",
+    max:max?parseInt(max):null,
+    syllabus, instructions,
+    by:currentUser.name,
+    createdTs:Date.now(),
+    createdAt:new Date().toLocaleDateString("en-IN")
+  };
+  DB.push("examSchedules",entry);
+  // Clear form
+  ["examName","examDuration","examMax","examSyllabus","examInstructions","examTime"].forEach(id=>{
+    const el=document.getElementById(id); if(el) el.value="";
+  });
+  showToast("📋 Exam added to schedule!");
+  renderExamSchedule();
+  updateExamBadge();
+  const sub=EXAM_SUBJECTS.find(s=>s.id===subject);
+  sendNativeNotification(
+    "📋 Exam Scheduled: "+name,
+    (sub?sub.name+" · ":"")+"Date: "+new Date(date).toLocaleDateString("en-IN",{day:"2-digit",month:"short"}),
+    "exam"
+  );
+}
+
+async function deleteExamEntry(id){
+  if(!await customConfirm("Delete this exam entry?","Delete Exam","📋","Delete")) return;
+  DB.del("examSchedules",id);
+  showToast("🗑️ Deleted");
+  renderExamSchedule();
+  updateExamBadge();
+}
+
+function updateExamBadge(){
+  const badge=document.getElementById("examBadge"); if(!badge) return;
+  const exams=DB.get("examSchedules")||[];
+  const today=new Date().toISOString().split("T")[0];
+  const upcoming=exams.filter(e=>e.date>=today);
+  badge.style.display=upcoming.length?"":"none";
+  badge.textContent=upcoming.length||"";
+}
+
+function renderExamSchedule(){
+  const el=document.getElementById("examScheduleList"); if(!el) return;
+  const exams=(DB.get("examSchedules")||[]).sort((a,b)=>a.date.localeCompare(b.date));
+  if(!exams.length){
+    el.innerHTML=`<div class="card"><div class="empty-state"><div class="empty-icon">📋</div><div class="empty-text">No exams scheduled yet</div></div></div>`;
+    return;
+  }
+  const today=new Date().toISOString().split("T")[0];
+  // Group by exam name
+  const groups={};
+  exams.forEach(e=>{
+    if(!groups[e.name]) groups[e.name]={name:e.name,entries:[]};
+    groups[e.name].entries.push(e);
+  });
+
+  const isCT=currentUser&&currentUser.role==="classteacher";
+
+  el.innerHTML=Object.values(groups).map(g=>{
+    const firstDate=g.entries[0].date;
+    const lastDate=g.entries[g.entries.length-1].date;
+    const allPast=g.entries.every(e=>e.date<today);
+    const hasToday=g.entries.some(e=>e.date===today);
+    const statusCls=hasToday?"exam-today":allPast?"exam-past":"exam-upcoming";
+    const statusLabel=hasToday?`<span style="font-size:11px;background:rgba(61,186,126,0.2);color:#3dba7e;padding:2px 9px;border-radius:10px;">📍 Today</span>`:
+      allPast?`<span style="font-size:11px;background:rgba(255,255,255,0.06);color:var(--muted);padding:2px 9px;border-radius:10px;">✓ Completed</span>`:
+      `<span style="font-size:11px;background:rgba(232,160,32,0.15);color:var(--gold);padding:2px 9px;border-radius:10px;">⏰ Upcoming</span>`;
+
+    const entriesHtml=g.entries.map(e=>{
+      const sub=EXAM_SUBJECTS.find(s=>s.id===e.subject);
+      const col=EXAM_SUBJ_COLORS[e.subject]||"var(--gold)";
+      const daysLeft=Math.ceil((new Date(e.date)-new Date(today))/(1000*60*60*24));
+      const daysLabel=e.date===today?"Today":daysLeft>0?`In ${daysLeft}d`:daysLeft===0?"Today":`${Math.abs(daysLeft)}d ago`;
+      const timeStr=e.time?new Date("2000-01-01T"+e.time).toLocaleTimeString("en-IN",{hour:"2-digit",minute:"2-digit",hour12:true}):"";
+      return `<div style="border:1px solid rgba(255,255,255,0.07);border-radius:10px;padding:13px 14px;margin-bottom:8px;background:rgba(255,255,255,0.02);">
+        <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:8px;">
+          <span class="exam-subj-pill" style="background:${col}22;color:${col};">${sub?sub.emoji+" "+sub.name:e.subject}</span>
+          <div style="flex:1;">
+            <div style="font-size:13px;font-weight:700;color:var(--white);">
+              📅 ${new Date(e.date).toLocaleDateString("en-IN",{weekday:"short",day:"2-digit",month:"long",year:"numeric"})}
+              ${timeStr?` · ⏰ ${timeStr}`:""}
+            </div>
+            <div style="font-size:11px;color:var(--muted);margin-top:2px;display:flex;gap:10px;flex-wrap:wrap;">
+              ${e.duration?`<span>⌛ ${e.duration}</span>`:""}
+              ${e.max?`<span>📊 Max: ${e.max} marks</span>`:""}
+              <span style="color:${e.date>=today?"var(--gold)":"var(--muted)"};">${daysLabel}</span>
+            </div>
+          </div>
+          ${isCT?`<button onclick="deleteExamEntry('${e.id}')" style="background:rgba(224,85,85,0.1);border:1px solid rgba(224,85,85,0.2);color:#e05555;border-radius:7px;padding:4px 10px;cursor:pointer;font-size:11px;">🗑️</button>`:""}
+        </div>
+        ${e.syllabus?`<div style="margin-bottom:6px;">
+          <div style="font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.5px;color:var(--muted);margin-bottom:5px;">📚 Syllabus</div>
+          <div class="exam-syllabus-box">${e.syllabus.replace(/\n/g,"<br>")}</div>
+        </div>`:""}
+        ${e.instructions?`<div style="font-size:11px;color:#4a9eff;margin-top:6px;">📌 ${e.instructions}</div>`:""}
+      </div>`;
+    }).join("");
+
+    const dateRange=firstDate===lastDate
+      ?new Date(firstDate).toLocaleDateString("en-IN",{day:"2-digit",month:"short",year:"numeric"})
+      :`${new Date(firstDate).toLocaleDateString("en-IN",{day:"2-digit",month:"short"})} – ${new Date(lastDate).toLocaleDateString("en-IN",{day:"2-digit",month:"short",year:"numeric"})}`;
+
+    return `<div class="exam-card ${statusCls}">
+      <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:6px;margin-bottom:12px;">
+        <div>
+          <div style="font-size:16px;font-weight:700;color:var(--white);">${g.name}</div>
+          <div style="font-size:11px;color:var(--muted);margin-top:2px;">📅 ${dateRange} · ${g.entries.length} subject${g.entries.length!==1?"s":""}</div>
+        </div>
+        ${statusLabel}
+      </div>
+      ${entriesHtml}
+    </div>`;
+  }).join("");
+}
+
+// ═══════════════════════════════════════════
+// POLLS
+// ═══════════════════════════════════════════
+let _pollOptions=["",""];
+
+function onPollTypeChange(){
+  const t=document.getElementById("pollType").value;
+  const wrap=document.getElementById("pollOptionsWrap");
+  if(t==="yesno"||t==="rating") wrap.style.display="none";
+  else { wrap.style.display=""; if(!_pollOptions.length) _pollOptions=["",""]; renderPollOptionInputs(); }
+}
+
+function renderPollOptionInputs(){
+  const el=document.getElementById("pollOptionsList"); if(!el) return;
+  el.innerHTML=_pollOptions.map((v,i)=>`
+    <div style="display:flex;gap:8px;align-items:center;">
+      <input class="form-input" style="flex:1;" placeholder="Option ${i+1}" value="${v}"
+        oninput="_pollOptions[${i}]=this.value">
+      ${_pollOptions.length>2?`<button onclick="_pollOptions.splice(${i},1);renderPollOptionInputs();" style="background:rgba(224,85,85,0.15);border:1px solid rgba(224,85,85,0.3);color:#e05555;border-radius:7px;width:30px;height:30px;cursor:pointer;font-size:14px;">✕</button>`:""}
+    </div>`).join("");
+}
+
+function addPollOption(){
+  if(_pollOptions.length>=8){ showToast("Max 8 options"); return; }
+  _pollOptions.push("");
+  renderPollOptionInputs();
+}
+
+function createPoll(){
+  const q=document.getElementById("pollQuestion").value.trim();
+  const type=document.getElementById("pollType").value;
+  const deadline=document.getElementById("pollDeadline").value;
+  const resultsVisible=document.getElementById("pollResultsVisible").value;
+  const anonymous=document.getElementById("pollAnonymous").value==="yes";
+  if(!q){ showToast("❌ Enter a question"); return; }
+  let options=[];
+  if(type==="yesno") options=["Yes","No"];
+  else if(type==="rating") options=["⭐ 1","⭐⭐ 2","⭐⭐⭐ 3","⭐⭐⭐⭐ 4","⭐⭐⭐⭐⭐ 5"];
+  else {
+    options=_pollOptions.map(o=>o.trim()).filter(Boolean);
+    if(options.length<2){ showToast("❌ Add at least 2 options"); return; }
+  }
+  const poll={
+    id:Date.now().toString(),
+    question:q, type, options,
+    deadline:deadline||null,
+    resultsVisible,
+    anonymous,
+    by:currentUser.name,
+    createdAt:new Date().toLocaleString("en-IN"),
+    createdTs:Date.now(),
+    votes:{},   // {studentId: [optionIndex,...]}
+    closed:false
+  };
+  DB.push("polls",poll);
+  // Reset form
+  document.getElementById("pollQuestion").value="";
+  document.getElementById("pollDeadline").value="";
+  _pollOptions=["",""];
+  renderPollOptionInputs();
+  showToast("🗳️ Poll launched!");
+  renderPolls();
+  sendNativeNotification("🗳️ New Poll: "+q,"Vote now in the Class Polls section","poll");
+}
+
+function castVote(pollId, optionIdx){
+  const polls=DB.get("polls")||[];
+  const p=polls.find(x=>x.id===pollId); if(!p||p.closed) return;
+  if(!p.votes) p.votes={};
+  const uid=currentUser.id;
+  // Check deadline
+  if(p.deadline&&new Date(p.deadline)<new Date()){ showToast("⏰ Poll has expired"); return; }
+  const isMulti=p.type==="multi";
+  let current=p.votes[uid]||[];
+  if(isMulti){
+    if(current.includes(optionIdx)) current=current.filter(i=>i!==optionIdx);
+    else current=[...current,optionIdx];
+  } else {
+    if(current.includes(optionIdx)) current=[];
+    else current=[optionIdx];
+  }
+  p.votes[uid]=current;
+  DB.set("polls",polls);
+  renderPolls();
+  if(current.length) showToast("✅ Vote recorded!");
+}
+
+function castStarVote(pollId, star){
+  castVote(pollId, star-1);
+}
+
+function closePoll(pollId){
+  const polls=DB.get("polls")||[];
+  const p=polls.find(x=>x.id===pollId); if(!p) return;
+  p.closed=true;
+  DB.set("polls",polls);
+  showToast("🔒 Poll closed");
+  renderPolls();
+}
+
+function reopenPoll(pollId){
+  const polls=DB.get("polls")||[];
+  const p=polls.find(x=>x.id===pollId); if(!p) return;
+  p.closed=false;
+  DB.set("polls",polls);
+  showToast("🔓 Poll reopened");
+  renderPolls();
+}
+
+async function deletePoll(pollId){
+  if(!await customConfirm("Delete this poll permanently?","Delete Poll","🗳️","Delete")) return;
+  DB.del("polls",pollId);
+  showToast("🗑️ Poll deleted");
+  renderPolls();
+}
+
+function updatePollBadge(){
+  const badge=document.getElementById("pollBadge"); if(!badge) return;
+  const polls=DB.get("polls")||[];
+  const uid=currentUser?currentUser.id:null; if(!uid) return;
+  const unvoted=polls.filter(p=>{
+    if(p.closed) return false;
+    if(p.deadline&&new Date(p.deadline)<new Date()) return false;
+    const v=p.votes?p.votes[uid]:null;
+    return !v||!v.length;
+  });
+  badge.style.display=unvoted.length?"":"none";
+  badge.textContent=unvoted.length||"";
+}
+
+function canSeeResults(p){
+  const isCT=currentUser.role==="classteacher";
+  if(isCT) return true;
+  if(p.resultsVisible==="all") return true;
+  if(p.resultsVisible==="after"){
+    const uid=currentUser.id;
+    const v=p.votes?p.votes[uid]:null;
+    return v&&v.length>0;
+  }
+  if(p.resultsVisible==="closed") return p.closed;
+  return false;
+}
+
+function renderPolls(){
+  const el=document.getElementById("pollsList"); if(!el) return;
+  const isCT=currentUser&&currentUser.role==="classteacher";
+  // Show create card for CT
+  const cc=document.getElementById("pollCreateCard");
+  if(cc) cc.style.display=isCT?"":"none";
+  if(isCT&&_pollOptions.length===0){ _pollOptions=["",""]; renderPollOptionInputs(); }
+  if(isCT) renderPollOptionInputs();
+
+  const polls=(DB.get("polls")||[]).sort((a,b)=>b.createdTs-a.createdTs);
+  if(!polls.length){
+    el.innerHTML=`<div class="card"><div class="empty-state"><div class="empty-icon">🗳️</div><div class="empty-text">No polls yet${isCT?" — create one above":""}</div></div></div>`;
+    return;
+  }
+
+  el.innerHTML=polls.map(p=>{
+    const uid=currentUser.id;
+    const myVotes=p.votes?p.votes[uid]||[]:[];
+    const totalVoters=Object.keys(p.votes||{}).filter(k=>(p.votes[k]||[]).length>0).length;
+    const isExpired=p.deadline&&new Date(p.deadline)<new Date();
+    const isClosed=p.closed||isExpired;
+    const showRes=canSeeResults(p);
+    const isMulti=p.type==="multi";
+    const isRating=p.type==="rating";
+
+    // Vote counts per option
+    const optCounts=p.options.map((_,i)=>
+      Object.values(p.votes||{}).filter(v=>v.includes(i)).length
+    );
+    const maxCount=Math.max(...optCounts,1);
+
+    // Build options UI
+    let optsHtml="";
+    if(isRating){
+      const myRating=myVotes.length?myVotes[0]+1:0;
+      const avgRating=totalVoters?
+        (Object.values(p.votes||{}).reduce((s,v)=>s+(v.length?v[0]+1:0),0)/totalVoters).toFixed(1):
+        "—";
+      optsHtml=`<div style="margin:10px 0;">
+        <div style="display:flex;gap:4px;margin-bottom:10px;">
+          ${[1,2,3,4,5].map(star=>`
+            <span class="poll-star" onclick="${isClosed?"":"castStarVote('"+p.id+"',"+star+")"}"
+              style="color:${myRating>=star?"#e8a020":"rgba(255,255,255,0.15)"};">
+              ★
+            </span>`).join("")}
+          ${myRating?`<span style="font-size:12px;color:var(--muted);margin-left:6px;">You rated ${myRating}</span>`:""}
+        </div>
+        ${showRes?`<div style="font-size:13px;color:var(--gold);font-weight:700;">Average: ${avgRating} ★ &nbsp;<span style="font-size:11px;color:var(--muted);">(${totalVoters} ${totalVoters===1?"vote":"votes"})</span></div>`:""}
+      </div>`;
+    } else {
+      optsHtml=p.options.map((opt,i)=>{
+        const cnt=optCounts[i];
+        const pct=totalVoters?Math.round(cnt/totalVoters*100):0;
+        const sel=myVotes.includes(i);
+        const win=showRes&&cnt===maxCount&&cnt>0;
+        const checkIcon=isMulti?"✓":"●";
+        return `<div class="poll-opt${sel?" selected":""}${win?" winning":""}"
+          onclick="${isClosed?"":"castVote('"+p.id+"',"+i+")"}">
+          <div class="poll-opt-bar" style="width:${showRes?pct:0}%;"></div>
+          <div class="poll-opt-inner">
+            <div class="poll-opt-check${isMulti?" sq":""}">${sel?checkIcon:""}</div>
+            <span class="poll-opt-label">${opt}${win?" 🏆":""}</span>
+            ${showRes?`<span class="poll-opt-pct">${pct}%</span><span class="poll-opt-count">${cnt}v</span>`:""}
+          </div>
+        </div>`;
+      }).join("");
+    }
+
+    // Voter names (if not anonymous and CT)
+    let votersHtml="";
+    if(isCT&&!p.anonymous){
+      const students=DB.get("students")||[];
+      const voterNames=Object.entries(p.votes||{})
+        .filter(([k,v])=>v&&v.length)
+        .map(([k])=>{ const s=students.find(x=>x.id===k); return s?s.name:k; });
+      if(voterNames.length){
+        votersHtml=`<div class="poll-voters-wrap">
+          <span style="font-weight:600;color:var(--off);">Voted: </span>
+          ${voterNames.map(n=>`<span class="poll-chip">${n}</span>`).join("")}
+        </div>`;
+      }
+    }
+
+    const statusBadge=isClosed
+      ?`<span style="font-size:10px;background:rgba(224,85,85,0.15);color:#e05555;padding:2px 8px;border-radius:10px;">${isExpired?"⏰ Expired":"🔒 Closed"}</span>`
+      :`<span style="font-size:10px;background:rgba(61,186,126,0.15);color:#3dba7e;padding:2px 8px;border-radius:10px;">🟢 Active</span>`;
+
+    const visibilityNote=!isClosed&&!showRes?
+      `<div style="font-size:11px;color:var(--muted);margin-top:8px;">
+        ${p.resultsVisible==="after"?"📊 Results visible after you vote":
+          p.resultsVisible==="closed"?"📊 Results visible after poll closes":""}
+      </div>`:"";
+
+    const ctActions=isCT?`
+      <button class="btn btn-sm btn-outline" onclick="${isClosed?"reopenPoll":"closePoll"}('${p.id}')">
+        ${isClosed?"🔓 Reopen":"🔒 Close Poll"}
+      </button>
+      <button class="btn btn-sm" style="background:rgba(224,85,85,0.12);border:1px solid rgba(224,85,85,0.25);color:#e05555;" onclick="deletePoll('${p.id}')">🗑️</button>`:"";
+
+    return `<div class="poll-card${isClosed?" poll-closed":""}">
+      <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:8px;margin-bottom:6px;">
+        <div class="poll-q">${p.question}</div>
+        ${statusBadge}
+      </div>
+      <div class="poll-meta">
+        <span>by ${p.by}</span>
+        <span>${p.createdAt}</span>
+        ${p.deadline?`<span>⏰ Until ${new Date(p.deadline).toLocaleString("en-IN",{day:"2-digit",month:"short",hour:"2-digit",minute:"2-digit"})}</span>`:""}
+        <span>${totalVoters} voted</span>
+        ${p.anonymous?`<span>👤 Anonymous</span>`:""}
+        <span style="text-transform:capitalize;">${p.type==="yesno"?"Yes/No":p.type==="multi"?"Multi-choice":p.type==="rating"?"Rating":"Single choice"}</span>
+      </div>
+      ${optsHtml}
+      ${visibilityNote}
+      ${votersHtml}
+      <div class="poll-actions">
+        ${ctActions}
+      </div>
+    </div>`;
+  }).join("");
+}
+
 // ═══════════════════════════════════════════
 // TOAST + CONFIRM
 // ═══════════════════════════════════════════
@@ -4968,127 +5477,131 @@ function requestNotifPermission(){
 
 function sendNativeNotification(title, body, tag, icon){
   if(!('Notification' in window) || Notification.permission !== 'granted') return;
-  // Prefer SW showNotification (works when app is in background / closed)
-  if(navigator.serviceWorker && navigator.serviceWorker.controller){
+  // Always use SW showNotification when available — works in background too.
+  // navigator.serviceWorker.controller can be null on first load even if SW is registered,
+  // so we use serviceWorker.ready which waits until SW is actually controlling the page.
+  if('serviceWorker' in navigator){
     navigator.serviceWorker.ready.then(reg => {
+      // reg.showNotification works regardless of whether controller is set
       reg.showNotification(title, {
-        body,
+        body: body || '',
         icon: icon || 'icon-192.png',
         badge: 'icon-192.png',
-        tag: tag || 'davx-notif',         // tag groups same-type notifications
-        renotify: true,                    // vibrate/sound even if same tag
+        tag: tag || 'davx-notif',
+        renotify: true,
         vibrate: [200, 100, 200],
         data: { url: './' }
       });
-    }).catch(()=>{});
+    }).catch(() => {
+      // SW not available — use direct Notification API as fallback
+      _showDirectNotification(title, body, tag, icon);
+    });
   } else {
-    // Fallback: direct Notification API (only works while app is open)
-    try {
-      const n = new Notification(title, {
-        body,
-        icon: icon || 'icon-192.png',
-        tag: tag || 'davx-notif',
-      });
-      n.onclick = () => { window.focus(); n.close(); };
-      setTimeout(() => n.close(), 7000);
-    } catch(e){}
+    _showDirectNotification(title, body, tag, icon);
   }
 }
 
-// ── 5. Firebase real-time triggers → native system notifications ──
-function setupNotificationWatchers(){
-  if(!_firebaseReady || !_db || !currentUser) return;
+function _showDirectNotification(title, body, tag, icon){
+  try {
+    const n = new Notification(title, {
+      body: body || '',
+      icon: icon || 'icon-192.png',
+      tag: tag || 'davx-notif',
+    });
+    n.onclick = () => { window.focus(); n.close(); };
+    setTimeout(() => n.close(), 7000);
+  } catch(e){}
+}
 
-  // Ask for permission as soon as watchers are set up (after login)
+// ── Firebase real-time triggers → native system notifications ──
+let _watchersSetup = false;
+function setupNotificationWatchers(){
+  if(_watchersSetup) return; // prevent duplicate watchers on re-login
+  if(!_firebaseReady || !_db || !currentUser) return;
+  _watchersSetup = true;
+
+  // Request permission (will only prompt once; subsequent calls are instant)
   requestNotifPermission();
 
   const now = Date.now();
+  // Only notify about items created within the last 60 seconds
+  // (child_added fires for all existing items on first attach — we skip those)
+  const FRESH_WINDOW = 60 * 1000;
 
-  // Watch notices
+  function isNew(id){
+    const ts = parseInt(id);
+    return !isNaN(ts) && ts > now - FRESH_WINDOW;
+  }
+
   _db.ref('davx/notices').on('child_added', snap => {
     const n = snap.val();
-    if(!n || !n.id) return;
+    if(!n || !n.id || !isNew(n.id)) return;
     const seen = _getSeenTimestamps();
     if(seen['notice_'+n.id]) return;
-    const ts = parseInt(n.id) || 0;
-    if(ts < now - 30000) return;
     _markSeenNow('notice_'+n.id);
-    const priIcon = n.priority==='urgent'?'🚨':n.priority==='exam'?'📝':'📌';
-    sendNativeNotification(
-      priIcon + ' ' + (n.title || 'New Notice'),
-      n.body ? n.body.substring(0,100) : 'Posted by ' + (n.by||''),
-      'notice'
-    );
+    const icon = n.priority==='urgent'?'🚨':n.priority==='exam'?'📝':'📌';
+    sendNativeNotification(icon+' '+(n.title||'New Notice'), n.body?n.body.substring(0,100):'Posted by '+(n.by||''), 'notice');
   });
 
-  // Watch files
   _db.ref('davx/files').on('child_added', snap => {
     const f = snap.val();
-    if(!f || !f.id) return;
+    if(!f || !f.id || !isNew(f.id)) return;
     const seen = _getSeenTimestamps();
     if(seen['file_'+f.id]) return;
-    const ts = parseInt(f.id) || 0;
-    if(ts < now - 30000) return;
     _markSeenNow('file_'+f.id);
-    const subj = (typeof SUBJECTS !== 'undefined') ? SUBJECTS.find(s=>s.id===f.subject) : null;
+    const subj = (typeof SUBJECTS!=='undefined') ? SUBJECTS.find(s=>s.id===f.subject) : null;
     const emoji = subj ? subj.emoji : '📁';
-    sendNativeNotification(
-      emoji + ' New file: ' + (f.title||'Untitled'),
-      (subj ? subj.name : f.subject||'') + ' · Uploaded by ' + (f.uploader||''),
-      'file'
-    );
+    sendNativeNotification(emoji+' New file: '+(f.title||'Untitled'), (subj?subj.name:f.subject||'')+' · Uploaded by '+(f.uploader||''), 'file');
   });
 
-  // Watch results
   _db.ref('davx/results').on('child_added', snap => {
     const r = snap.val();
-    if(!r || !r.id) return;
+    if(!r || !r.id || !isNew(r.id)) return;
     const seen = _getSeenTimestamps();
     if(seen['result_'+r.id]) return;
-    const ts = parseInt(r.id) || 0;
-    if(ts < now - 30000) return;
     _markSeenNow('result_'+r.id);
-    const subj = (typeof SUBJECTS !== 'undefined') ? SUBJECTS.find(s=>s.id===r.subject) : null;
-    sendNativeNotification(
-      '📊 Results declared: ' + (r.test||'Test'),
-      (subj ? subj.name : r.subject||'') + ' · Max marks: ' + r.max,
-      'result'
-    );
+    const subj = (typeof SUBJECTS!=='undefined') ? SUBJECTS.find(s=>s.id===r.subject) : null;
+    sendNativeNotification('📊 Results declared: '+(r.test||'Test'), (subj?subj.name:r.subject||'')+' · Max marks: '+r.max, 'result');
   });
 
-  // Watch homework
   _db.ref('davx/homework').on('child_added', snap => {
     const h = snap.val();
-    if(!h || !h.id) return;
+    if(!h || !h.id || !isNew(h.id)) return;
     const seen = _getSeenTimestamps();
     if(seen['hw_'+h.id]) return;
-    const ts = parseInt(h.id) || 0;
-    if(ts < now - 30000) return;
     _markSeenNow('hw_'+h.id);
-    const subj = (typeof SUBJECTS !== 'undefined') ? SUBJECTS.find(s=>s.id===h.subject) : null;
-    const urgent = h.priority === 'urgent';
-    sendNativeNotification(
-      (urgent ? '🚨 Urgent HW: ' : '📓 Homework: ') + (h.title||'New Homework'),
-      (subj ? subj.name : h.subject||'') + (h.due ? ' · Due: ' + h.due : ''),
-      'homework'
-    );
+    const subj = (typeof SUBJECTS!=='undefined') ? SUBJECTS.find(s=>s.id===h.subject) : null;
+    const urgent = h.priority==='urgent';
+    sendNativeNotification((urgent?'🚨 Urgent HW: ':'📓 Homework: ')+(h.title||'New Homework'), (subj?subj.name:h.subject||'')+(h.due?' · Due: '+h.due:''), 'homework');
   });
 
-  // Watch notices for CT (leave applications)
+  _db.ref('davx/polls').on('child_added', snap => {
+    const p = snap.val();
+    if(!p || !p.id || !isNew(p.id)) return;
+    const seen = _getSeenTimestamps();
+    if(seen['poll_'+p.id]) return;
+    _markSeenNow('poll_'+p.id);
+    sendNativeNotification('🗳️ New Poll: '+(p.question||''), 'Vote now in Class Polls', 'poll');
+  });
+
+  _db.ref('davx/examSchedules').on('child_added', snap => {
+    const e = snap.val();
+    if(!e || !e.id || !isNew(e.id)) return;
+    const seen = _getSeenTimestamps();
+    if(seen['exam_'+e.id]) return;
+    _markSeenNow('exam_'+e.id);
+    const subj = (typeof EXAM_SUBJECTS!=='undefined') ? EXAM_SUBJECTS.find(s=>s.id===e.subject) : null;
+    sendNativeNotification('📋 Exam Scheduled: '+(e.name||''), (subj?subj.name+' · ':'')+'Date: '+new Date(e.date).toLocaleDateString("en-IN",{day:"2-digit",month:"short"}), 'exam');
+  });
+
   if(currentUser.role === 'classteacher'){
     _db.ref('davx/leaveApplications').on('child_added', snap => {
       const l = snap.val();
-      if(!l || !l.id) return;
+      if(!l || !l.id || !isNew(l.id)) return;
       const seen = _getSeenTimestamps();
       if(seen['leave_'+l.id]) return;
-      const ts = parseInt(l.id) || 0;
-      if(ts < now - 30000) return;
       _markSeenNow('leave_'+l.id);
-      sendNativeNotification(
-        '🏖️ Leave request: ' + (l.studentName||'A student'),
-        (l.reason||'') + ' · ' + (l.from||'') + ' to ' + (l.to||''),
-        'leave'
-      );
+      sendNativeNotification('🏖️ Leave request: '+(l.studentName||'A student'), (l.reason||'')+' · '+(l.from||'')+' to '+(l.to||''), 'leave');
     });
   }
 }
