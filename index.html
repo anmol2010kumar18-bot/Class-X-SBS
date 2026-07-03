@@ -637,6 +637,7 @@ button:active, .btn:active, .nav-btn:active, .auth-btn:active, .role-card:active
     <button class="nav-btn" data-page="hw_view" onclick="nav(this)"><span class="nav-icon">📓</span><span class="nav-label sb-text">Homework</span><span class="nav-badge sb-text" id="hwViewBadge" style="display:none;background:#e8a020;">!</span></button>
     <button class="nav-btn perm-student" data-page="apply_leave" onclick="nav(this)" style="display:none;"><span class="nav-icon">🏖️</span><span class="nav-label sb-text">Apply Leave</span><span class="nav-badge sb-text" id="leaveStatusBadge" style="display:none;background:#4a9eff;">!</span></button>
     <button class="nav-btn perm-student" data-page="my_duties" onclick="nav(this)" style="display:none;"><span class="nav-icon">📋</span><span class="nav-label sb-text">My Duties</span><span class="nav-badge sb-text" id="myDutyBadge" style="display:none;background:#e05555;">!</span></button>
+    <button class="nav-btn perm-student" data-page="my_copy" onclick="nav(this)" style="display:none;"><span class="nav-icon">📔</span><span class="nav-label sb-text">My Copy Records</span></button>
     <div class="sb-section perm-upload" style="display:none;">Manage</div>
     <button class="nav-btn perm-upload" data-page="upload" onclick="nav(this)" style="display:none;"><span class="nav-icon">⬆️</span><span class="nav-label sb-text">Upload Files</span></button>
     <button class="nav-btn perm-monitor" data-page="copy_checking" onclick="nav(this)" style="display:none;"><span class="nav-icon">📋</span><span class="nav-label sb-text">Copy Checking</span></button>
@@ -1157,6 +1158,23 @@ button:active, .btn:active, .nav-btn:active, .auth-btn:active, .role-card:active
         </div>
       </div>
 
+      <!-- MY COPY RECORDS (student) -->
+      <div class="page" id="page-my_copy">
+        <div class="hero" style="padding:20px 26px;margin-bottom:18px;">
+          <div class="hero-label">Student</div>
+          <div class="hero-h" style="font-size:22px;">My Copy <span>Submission Records</span></div>
+          <div class="hero-sub">Your copy/notebook submission history across every collection round, synced live from all devices.</div>
+        </div>
+        <div class="card" id="myCopySummaryCard">
+          <div class="card-title">📚 Subject-wise Summary</div>
+          <div id="myCopySummary"></div>
+        </div>
+        <div class="card" style="margin-top:14px;">
+          <div class="card-title">🗂️ All Collection Rounds</div>
+          <div id="myCopyHistory"></div>
+        </div>
+      </div>
+
       <!-- HOMEWORK MANAGER (staff) -->
       <div class="page" id="page-homework">
         <div class="hero" style="padding:20px 26px;margin-bottom:18px;">
@@ -1488,6 +1506,68 @@ button:active, .btn:active, .nav-btn:active, .auth-btn:active, .role-card:active
   </div>
 </div>
 
+<!-- STEP-UP RE-VERIFICATION MODAL (password or signature re-check before high-risk edits) -->
+<div id="stepUpOverlay" style="position:fixed;inset:0;background:rgba(11,28,54,0.9);backdrop-filter:blur(8px);z-index:900;display:none;align-items:center;justify-content:center;">
+  <div style="background:#122547;border:1px solid rgba(232,160,32,0.35);border-radius:16px;padding:26px 28px;width:380px;max-width:92vw;box-shadow:0 24px 60px rgba(0,0,0,0.5);">
+    <div style="font-size:26px;margin-bottom:8px;">🔒</div>
+    <div style="font-family:'Cormorant Garamond',serif;font-size:19px;color:#f8f4ee;margin-bottom:4px;">Confirm it's you</div>
+    <div style="font-size:12.5px;color:rgba(200,191,175,0.7);margin-bottom:14px;line-height:1.5;" id="stepUpMsg">Re-enter your password to continue with this action.</div>
+
+    <div class="auth-tabs" style="margin-bottom:14px;">
+      <button class="auth-tab active" id="stepUpTabPassBtn" onclick="_stepUpSwitchTab('pass')" type="button">🔑 Password</button>
+      <button class="auth-tab" id="stepUpTabSigBtn" onclick="_stepUpSwitchTab('sig')" type="button">✍️ Signature</button>
+    </div>
+
+    <div class="auth-err" id="stepUpErr" style="margin-bottom:10px;"></div>
+
+    <!-- PASSWORD PANEL -->
+    <div id="stepUpPanelPass" class="auth-panel active">
+      <div style="position:relative;margin-bottom:14px;">
+        <input class="form-input" type="password" id="stepUpPass" placeholder="Password" style="padding-right:40px;" autocomplete="off">
+        <button type="button" onclick="togglePassVis('stepUpPass','stepUpEye')" style="position:absolute;right:10px;top:50%;transform:translateY(-50%);background:none;border:none;cursor:pointer;font-size:16px;color:var(--muted);padding:4px;" id="stepUpEye">👁️</button>
+      </div>
+      <div style="display:flex;gap:10px;">
+        <button onclick="_stepUpCancel()" style="flex:1;padding:10px;background:transparent;border:1px solid rgba(255,255,255,0.15);color:rgba(200,191,175,0.7);border-radius:9px;cursor:pointer;font-size:13px;font-family:'DM Sans',sans-serif;">Cancel</button>
+        <button id="stepUpOkBtn" onclick="_stepUpSubmit()" style="flex:1;padding:10px;background:linear-gradient(135deg,var(--gold),var(--gold2));color:var(--navy);border:none;border-radius:9px;cursor:pointer;font-size:13px;font-weight:700;font-family:'DM Sans',sans-serif;">Verify →</button>
+      </div>
+    </div>
+
+    <!-- SIGNATURE PANEL -->
+    <div id="stepUpPanelSig" class="auth-panel">
+      <div id="sigVerifyBlock" style="display:none;">
+        <div style="font-size:11px;color:var(--muted);margin-bottom:6px;">Draw your signature below</div>
+        <canvas id="sigVerifyCanvas" width="300" height="110" style="width:100%;height:110px;background:#fff;border-radius:9px;touch-action:none;cursor:crosshair;display:block;"></canvas>
+        <div style="display:flex;gap:8px;margin-top:10px;">
+          <button type="button" onclick="_sigClear('sigVerifyCanvas')" style="padding:8px 12px;background:transparent;border:1px solid rgba(255,255,255,0.15);color:rgba(200,191,175,0.7);border-radius:8px;cursor:pointer;font-size:12px;">Clear</button>
+          <button onclick="_stepUpCancel()" style="flex:1;padding:10px;background:transparent;border:1px solid rgba(255,255,255,0.15);color:rgba(200,191,175,0.7);border-radius:9px;cursor:pointer;font-size:13px;">Cancel</button>
+          <button id="sigVerifyBtn" onclick="_stepUpVerifySignature()" style="flex:1;padding:10px;background:linear-gradient(135deg,var(--gold),var(--gold2));color:var(--navy);border:none;border-radius:9px;cursor:pointer;font-size:13px;font-weight:700;">Verify →</button>
+        </div>
+      </div>
+      <div id="sigNoneBlock" style="display:none;">
+        <div style="font-size:12px;color:var(--muted);margin-bottom:12px;line-height:1.5;">No signature saved for this role yet. Verify with your password once to set one up.</div>
+        <div style="position:relative;margin-bottom:12px;">
+          <input class="form-input" type="password" id="sigEnrollPass" placeholder="Password" style="padding-right:40px;" autocomplete="off">
+          <button type="button" onclick="togglePassVis('sigEnrollPass','sigEnrollEye')" style="position:absolute;right:10px;top:50%;transform:translateY(-50%);background:none;border:none;cursor:pointer;font-size:16px;color:var(--muted);padding:4px;" id="sigEnrollEye">👁️</button>
+        </div>
+        <div style="display:flex;gap:10px;">
+          <button onclick="_stepUpCancel()" style="flex:1;padding:10px;background:transparent;border:1px solid rgba(255,255,255,0.15);color:rgba(200,191,175,0.7);border-radius:9px;cursor:pointer;font-size:13px;">Cancel</button>
+          <button onclick="_sigEnrollCheckPass()" style="flex:1;padding:10px;background:linear-gradient(135deg,var(--gold),var(--gold2));color:var(--navy);border:none;border-radius:9px;cursor:pointer;font-size:13px;font-weight:700;">Continue →</button>
+        </div>
+      </div>
+      <div id="sigDrawBlock" style="display:none;">
+        <div style="font-size:11px;color:var(--muted);margin-bottom:6px;">Draw your signature to save it</div>
+        <canvas id="sigEnrollCanvas" width="300" height="110" style="width:100%;height:110px;background:#fff;border-radius:9px;touch-action:none;cursor:crosshair;display:block;"></canvas>
+        <div style="display:flex;gap:8px;margin-top:10px;">
+          <button type="button" onclick="_sigClear('sigEnrollCanvas')" style="padding:8px 12px;background:transparent;border:1px solid rgba(255,255,255,0.15);color:rgba(200,191,175,0.7);border-radius:8px;cursor:pointer;font-size:12px;">Clear</button>
+          <button onclick="_stepUpCancel()" style="flex:1;padding:10px;background:transparent;border:1px solid rgba(255,255,255,0.15);color:rgba(200,191,175,0.7);border-radius:9px;cursor:pointer;font-size:13px;">Cancel</button>
+          <button onclick="_sigEnrollSave()" style="flex:1;padding:10px;background:linear-gradient(135deg,#3dba7e,#2f9d68);color:#fff;border:none;border-radius:9px;cursor:pointer;font-size:13px;font-weight:700;">Save Signature</button>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
 <!-- Edit Notice Modal -->
 <div class="modal-overlay" id="editNoticeModal">
   <div class="modal-box">
@@ -1727,6 +1807,11 @@ function initFirebase(){
               // Merge: update existing items AND add new ones, but respect tombstones
               const lmap={}; local.forEach(x=>{ if(x&&x.id&&!tombs[x.id]) lmap[x.id]=x; });
               cr.forEach(item=>{ if(item&&item.id&&!tombs[item.id]){ lmap[item.id]=Object.assign({},lmap[item.id]||{},item); } });
+              // Remote is the source of truth for which ids exist — drop any locally-cached
+              // id that's no longer present remotely (e.g. deleted on another device while
+              // this device was offline), so deletions can't be resurrected by write-back.
+              const remoteIds=new Set((remote[k]||[]).filter(x=>x&&x.id).map(x=>x.id));
+              Object.keys(lmap).forEach(id=>{ if(!remoteIds.has(id)) delete lmap[id]; });
               const merged=Object.values(lmap);
               _memCache[k]=merged; wb[k]=merged;
             }
@@ -1789,6 +1874,11 @@ function setupFirebaseListeners(){
             }
           });
           Object.keys(tombs).forEach(id=>{ if(lmap[id]){ delete lmap[id]; changed=true; } });
+          // Remote is the source of truth for which ids exist — drop any locally-held id
+          // that's no longer present remotely (covers deletions made on another device
+          // during this session, even if this tab's tombstone cache hasn't caught up).
+          const remoteIds=new Set((remote[k]||[]).filter(x=>x&&x.id).map(x=>x.id));
+          Object.keys(lmap).forEach(id=>{ if(!remoteIds.has(id)){ delete lmap[id]; changed=true; } });
           if(changed){ _memCache[k]=Object.values(lmap); wb[k]=_memCache[k]; }
         }
       } else if(local===null||local===undefined){ _memCache[k]=remote[k]; }
@@ -1804,8 +1894,8 @@ function setupFirebaseListeners(){
       if(wb.notices){ try{renderNotices();}catch(e){} }
       if(wb.files){ try{renderMyUploads();}catch(e){} try{renderSubjectList();}catch(e){} if(currentFolder) try{renderFolder(currentFolder);}catch(e){} }
       if(wb.gallery){ try{renderGallery();}catch(e){} }
-      if(wb.homework){ try{updateHWBadge();}catch(e){} }
-      if(wb.copySessions){ try{renderCopySessionsList();}catch(e){} }
+      if(wb.homework){ try{updateHWBadge();}catch(e){} try{renderAllHW();}catch(e){} try{renderHWView();}catch(e){} }
+      if(wb.copySessions){ try{renderCopySessionsList();}catch(e){} try{renderMyCopyRecords();}catch(e){} }
       if(wb.results){ try{renderResults();}catch(e){} try{renderEnteredResults();}catch(e){} try{populateLeaderboardTestSelect();}catch(e){} }
       if(wb.polls){ try{renderPolls();}catch(e){} try{updatePollBadge();}catch(e){} }
       if(wb.examSchedules){ try{renderExamSchedule();}catch(e){} try{updateExamBadge();}catch(e){} }
@@ -1813,8 +1903,8 @@ function setupFirebaseListeners(){
       if(wb.studentAttendance){ try{renderAttView();}catch(e){} }
       if(wb.studentNotifications){ try{_refreshNotifDot();}catch(e){} }
       if(wb.ct_notifications){ try{updateCTNotifBadge();}catch(e){} }
-      if(wb.leaveApplications){ try{updateLeaveCTBadge();}catch(e){} try{updateLeaveStatusBadge();}catch(e){} }
-      if(wb.duties){ try{renderMyDuties();}catch(e){} }
+      if(wb.leaveApplications){ try{updateLeaveCTBadge();}catch(e){} try{updateLeaveStatusBadge();}catch(e){} try{renderMyLeaves();}catch(e){} try{renderManageLeaves();}catch(e){} }
+      if(wb.duties){ try{renderMyDuties();}catch(e){} try{renderDutyLog();}catch(e){} }
       if(wb.complaints){ try{renderComplaintLog();}catch(e){} }
       if(wb.timetable||wb.studentAttendance||wb.results||wb.copySessions){ try{renderWeeklySpotlight();}catch(e){} try{_origRenderRC();}catch(e){} }
     }
@@ -1907,9 +1997,9 @@ function forceSyncFromFirebase() {
 // ═══════════════════════════════════════════
 const SUBJECTS=[
   {id:"maths",name:"Mathematics",emoji:"📐",teacher:"Ashwini Kumar Singh"},
-  {id:"physics",name:"Physics",emoji:"⚡",teacher:"Samrat Ashok"},
+  {id:"physics",name:"Physics",emoji:"⚡",teacher:"Vikas Giri"},
   {id:"chemistry",name:"Chemistry",emoji:"⚗️",teacher:"Ajit Kumar Singh"},
-  {id:"biology",name:"Biology",emoji:"🧬",teacher:"Murshid Alam"},
+  {id:"biology",name:"Biology",emoji:"🧬",teacher:"Mithelesh"},
   {id:"english",name:"English",emoji:"📖",teacher:"R.K. Singh"},
   {id:"history",name:"History",emoji:"🏛️",teacher:"Anshuman Bhushan"},
   {id:"geography",name:"Geography",emoji:"🗺️",teacher:"Raju Prasad"},
@@ -1917,9 +2007,9 @@ const SUBJECTS=[
   {id:"economics",name:"Economics",emoji:"📈",teacher:"Raju Prasad"},
   {id:"hindi",name:"Hindi",emoji:"🇮🇳",teacher:"Richa"},
   {id:"general",name:"General / All",emoji:"📂",teacher:"—"},
-  {id:"computer",name:"Computer Sc.",emoji:"💻",teacher:"Rakesh Singh"},
+  {id:"computer",name:"Computer Sc.",emoji:"💻",teacher:"Rakesh Rajput"},
   {id:"atl",name:"ATL",emoji:"🔬",teacher:"Sanjeev Ranjan"},
-  {id:"games",name:"Games",emoji:"⚽",teacher:"Shyam Singh"},
+  {id:"games",name:"Games",emoji:"⚽",teacher:"Subham Ojha"},
   {id:"library",name:"Library",emoji:"📚",teacher:"Anil Kumar Singh"}
 ];
 const SUBJ_COLORS={maths:"#4a9eff",physics:"#ffd700",chemistry:"#3dba7e",biology:"#ff7eb6",english:"#e8a020",history:"#c060ff",geography:"#60d0ff",civics:"#ff9060",economics:"#60ff90",hindi:"#ff6060",computer:"#a0a0ff",atl:"#00e5cc",games:"#ff8c42",library:"#9b59b6"};
@@ -1927,6 +2017,247 @@ const FIXED=
 {classteacher:{pass:"classpass2026",name:"Class Teacher",role:"classteacher",avatar:"CT"},
 teacher:{pass:"teach@dav18",name:"Subject Teacher",role:"teacher",avatar:"ST"},
 monitor:{pass:"mon@dav18",name:"Class Monitor",role:"monitor",avatar:"MO"}};
+// ═══════════════════════════════════════════
+// STEP-UP RE-VERIFICATION (password re-check before high-risk edits)
+// Applies only to shared-password staff roles: classteacher / teacher / monitor.
+// Uses its own dedicated code — separate from each role's login password —
+// so it can be the same across all three roles without touching anyone's login.
+// A successful check stays valid for STEP_UP_VALIDITY_MS, so people aren't
+// asked over and over during one editing burst — but it expires and asks again.
+// ═══════════════════════════════════════════
+const STEP_UP_CODE        = "verify@18";  // shared re-verification code for all staff roles
+const STEP_UP_VALIDITY_MS = 8*60*1000;   // stays "verified" for 8 minutes after success
+const STEP_UP_LOCK_MS     = 2*60*1000;   // lockout duration after too many wrong attempts
+const STEP_UP_MAX_FAILS   = 3;
+const STEP_UP_ROLES       = new Set(["classteacher","teacher","monitor"]); // shared-password roles only
+
+let _stepUp = { validUntil:0, fails:0, lockUntil:0, resolve:null };
+
+function _stepUpCredentialOk(pass){
+  if(!currentUser) return false;
+  if(!STEP_UP_ROLES.has(currentUser.role)) return true; // students aren't gated (they already have per-person logins)
+  return pass === STEP_UP_CODE;
+}
+
+// Call as: if(!await requireStepUp("delete this attendance record")) return;
+function requireStepUp(actionLabel){
+  return new Promise(resolve=>{
+    if(!currentUser || !STEP_UP_ROLES.has(currentUser.role)){ resolve(true); return; } // students skip
+    const now = Date.now();
+    if(now < _stepUp.validUntil){ resolve(true); return; } // still within the recent-verification window
+    _stepUp.resolve = resolve;
+    document.getElementById("stepUpMsg").textContent = actionLabel
+      ? `Re-enter your password to ${actionLabel}.`
+      : "Re-enter your password to continue with this action.";
+    const errEl=document.getElementById("stepUpErr"); errEl.classList.remove("show"); errEl.textContent="";
+    document.getElementById("stepUpPass").value="";
+    _stepUpSwitchTab('pass');
+    _stepUpRenderLockState();
+    document.getElementById("stepUpOverlay").style.display="flex";
+    setTimeout(()=>{ const p=document.getElementById("stepUpPass"); if(p) p.focus(); },50);
+  });
+}
+
+function _stepUpRenderLockState(){
+  const btn=document.getElementById("stepUpOkBtn"), sigBtn=document.getElementById("sigVerifyBtn"), errEl=document.getElementById("stepUpErr");
+  const remaining = _stepUp.lockUntil - Date.now();
+  if(remaining > 0){
+    btn.disabled=true; btn.style.opacity="0.5"; btn.style.cursor="not-allowed";
+    if(sigBtn){ sigBtn.disabled=true; sigBtn.style.opacity="0.5"; sigBtn.style.cursor="not-allowed"; }
+    const mins=Math.ceil(remaining/60000);
+    errEl.textContent = `🔒 Too many attempts. Try again in ~${mins} minute${mins===1?"":"s"}.`;
+    errEl.classList.add("show");
+    if(!_stepUp._lockTimer){
+      _stepUp._lockTimer = setInterval(()=>{
+        if(Date.now() >= _stepUp.lockUntil){ clearInterval(_stepUp._lockTimer); _stepUp._lockTimer=null; _stepUp.fails=0; _stepUpRenderLockState(); }
+        else _stepUpRenderLockState();
+      },5000);
+    }
+  } else {
+    btn.disabled=false; btn.style.opacity="1"; btn.style.cursor="pointer";
+    if(sigBtn){ sigBtn.disabled=false; sigBtn.style.opacity="1"; sigBtn.style.cursor="pointer"; }
+  }
+}
+
+function _stepUpSubmit(){
+  if(Date.now() < _stepUp.lockUntil) return; // locked out
+  const pass=document.getElementById("stepUpPass").value;
+  if(_stepUpCredentialOk(pass)){
+    _stepUpGrant();
+  } else {
+    _stepUpRegisterFail("❌ Incorrect password.");
+    document.getElementById("stepUpPass").value="";
+    document.getElementById("stepUpPass").focus();
+  }
+}
+
+// Shared success path — used by both password and signature verification
+function _stepUpGrant(){
+  _stepUp.fails=0;
+  _stepUp.validUntil = Date.now() + STEP_UP_VALIDITY_MS;
+  document.getElementById("stepUpOverlay").style.display="none";
+  const r=_stepUp.resolve; _stepUp.resolve=null;
+  if(r) r(true);
+}
+
+// Shared failure path — one lockout counter covers both password AND signature attempts,
+// so someone can't dodge the lockout by switching tabs and guessing the other way instead.
+function _stepUpRegisterFail(baseMsg){
+  const errEl=document.getElementById("stepUpErr");
+  _stepUp.fails++;
+  if(_stepUp.fails >= STEP_UP_MAX_FAILS){
+    _stepUp.lockUntil = Date.now() + STEP_UP_LOCK_MS;
+    _stepUpRenderLockState();
+  } else {
+    errEl.textContent = `${baseMsg} ${STEP_UP_MAX_FAILS-_stepUp.fails} attempt${STEP_UP_MAX_FAILS-_stepUp.fails===1?"":"s"} left before a short lockout.`;
+    errEl.classList.add("show");
+  }
+}
+
+function _stepUpCancel(){
+  document.getElementById("stepUpOverlay").style.display="none";
+  const r=_stepUp.resolve; _stepUp.resolve=null;
+  if(r) r(false);
+}
+
+document.addEventListener("keydown", e=>{
+  if(e.key==="Enter" && document.getElementById("stepUpOverlay").style.display==="flex"){
+    const activePanel=document.getElementById("stepUpPanelPass").classList.contains("active");
+    if(activePanel) _stepUpSubmit();
+  }
+});
+
+// ═══════════════════════════════════════════
+// SIGNATURE VERIFICATION (optional alternative to password re-entry)
+// IMPORTANT — honest limitation: this compares the ink SHAPE drawn on a canvas
+// against a saved reference shape. It has no pressure/speed/pen-biometric data,
+// so it is much weaker than the password and can be approximated by anyone who
+// has seen the signature. Treat it as a convenience, not as strong security —
+// the password remains the authoritative check (and always stays available).
+// ═══════════════════════════════════════════
+const SIG_GRID_W = 40, SIG_GRID_H = 14;      // normalized comparison resolution
+const SIG_MATCH_THRESHOLD = 0.40;             // Dice similarity needed to accept (tune if too strict/loose)
+let _sigPadState = {}; // per-canvas-id: {drawing:false, hasInk:false}
+
+function _stepUpSwitchTab(tab){
+  document.getElementById("stepUpTabPassBtn").classList.toggle("active", tab==='pass');
+  document.getElementById("stepUpTabSigBtn").classList.toggle("active", tab==='sig');
+  document.getElementById("stepUpPanelPass").classList.toggle("active", tab==='pass');
+  document.getElementById("stepUpPanelSig").classList.toggle("active", tab==='sig');
+  const errEl=document.getElementById("stepUpErr"); errEl.classList.remove("show"); errEl.textContent="";
+  if(tab==='sig'){
+    const role=currentUser.role;
+    const sigs=DB.get("roleSignatures")||{};
+    const hasRef = sigs[role] && sigs[role].length===SIG_GRID_W*SIG_GRID_H;
+    document.getElementById("sigVerifyBlock").style.display = hasRef ? "block" : "none";
+    document.getElementById("sigNoneBlock").style.display = hasRef ? "none" : "block";
+    document.getElementById("sigDrawBlock").style.display = "none";
+    if(hasRef) setTimeout(()=>_sigInitCanvas("sigVerifyCanvas"),30);
+  }
+}
+
+function _sigInitCanvas(id){
+  const canvas=document.getElementById(id);
+  if(!canvas || canvas._sigBound) { _sigClear(id); return; }
+  canvas._sigBound = true;
+  const ctx=canvas.getContext("2d");
+  ctx.lineWidth=2.5; ctx.lineCap="round"; ctx.lineJoin="round"; ctx.strokeStyle="#0b1c36";
+  _sigPadState[id]={drawing:false, hasInk:false};
+  const getPos=(e)=>{
+    const rect=canvas.getBoundingClientRect();
+    const cx = (e.touches ? e.touches[0].clientX : e.clientX) - rect.left;
+    const cy = (e.touches ? e.touches[0].clientY : e.clientY) - rect.top;
+    return { x: cx*(canvas.width/rect.width), y: cy*(canvas.height/rect.height) };
+  };
+  const start=(e)=>{ e.preventDefault(); const p=getPos(e); _sigPadState[id].drawing=true; _sigPadState[id].hasInk=true; ctx.beginPath(); ctx.moveTo(p.x,p.y); };
+  const move=(e)=>{ if(!_sigPadState[id].drawing) return; e.preventDefault(); const p=getPos(e); ctx.lineTo(p.x,p.y); ctx.stroke(); };
+  const end=(e)=>{ _sigPadState[id].drawing=false; };
+  canvas.addEventListener("mousedown",start); canvas.addEventListener("mousemove",move);
+  window.addEventListener("mouseup",end);
+  canvas.addEventListener("touchstart",start,{passive:false}); canvas.addEventListener("touchmove",move,{passive:false});
+  canvas.addEventListener("touchend",end);
+  _sigClear(id);
+}
+
+function _sigClear(id){
+  const canvas=document.getElementById(id); if(!canvas) return;
+  if(!canvas._sigBound){ _sigInitCanvas(id); return; }
+  const ctx=canvas.getContext("2d");
+  ctx.fillStyle="#fff"; ctx.fillRect(0,0,canvas.width,canvas.height);
+  if(_sigPadState[id]) _sigPadState[id].hasInk=false;
+}
+
+// Downsamples the drawn strokes into a fixed-size ink/no-ink grid, cropped to the
+// signature's own bounding box so pen position on the canvas doesn't matter.
+function _sigCaptureGrid(id){
+  const canvas=document.getElementById(id); const ctx=canvas.getContext("2d");
+  const {width:w,height:h}=canvas;
+  const data=ctx.getImageData(0,0,w,h).data;
+  let minX=w,minY=h,maxX=0,maxY=0,found=false;
+  const isInk=(x,y)=>{ const i=(y*w+x)*4; return data[i]<200 || data[i+1]<200 || data[i+2]<200; }; // darker than near-white
+  for(let y=0;y<h;y+=2){ for(let x=0;x<w;x+=2){ if(isInk(x,y)){ found=true; if(x<minX)minX=x; if(x>maxX)maxX=x; if(y<minY)minY=y; if(y>maxY)maxY=y; } } }
+  if(!found) return null;
+  const bw=Math.max(maxX-minX,1), bh=Math.max(maxY-minY,1);
+  const grid=new Array(SIG_GRID_W*SIG_GRID_H).fill(0);
+  for(let gy=0;gy<SIG_GRID_H;gy++){
+    for(let gx=0;gx<SIG_GRID_W;gx++){
+      const px=Math.floor(minX + (gx/SIG_GRID_W)*bw), py=Math.floor(minY + (gy/SIG_GRID_H)*bh);
+      const px2=Math.floor(minX + ((gx+1)/SIG_GRID_W)*bw), py2=Math.floor(minY + ((gy+1)/SIG_GRID_H)*bh);
+      let cellInk=false;
+      for(let y=py;y<=py2 && !cellInk;y+=2){ for(let x=px;x<=px2 && !cellInk;x+=2){ if(x>=0&&y>=0&&x<w&&y<h&&isInk(x,y)) cellInk=true; } }
+      grid[gy*SIG_GRID_W+gx]=cellInk?1:0;
+    }
+  }
+  return grid;
+}
+
+function _sigDiceSimilarity(gridA,gridB){
+  let inA=0,inB=0,both=0;
+  for(let i=0;i<gridA.length;i++){ if(gridA[i]) inA++; if(gridB[i]) inB++; if(gridA[i]&&gridB[i]) both++; }
+  if(inA===0 || inB===0) return 0;
+  return (2*both)/(inA+inB);
+}
+
+function _stepUpVerifySignature(){
+  if(Date.now() < _stepUp.lockUntil) return;
+  const grid=_sigCaptureGrid("sigVerifyCanvas");
+  const errEl=document.getElementById("stepUpErr");
+  if(!grid){ errEl.textContent="✋ Draw your signature first."; errEl.classList.add("show"); return; }
+  const sigs=DB.get("roleSignatures")||{}; const ref=sigs[currentUser.role];
+  const score=_sigDiceSimilarity(grid,ref);
+  if(score >= SIG_MATCH_THRESHOLD){
+    _stepUpGrant();
+  } else {
+    _stepUpRegisterFail("❌ Signature didn't match.");
+    _sigClear("sigVerifyCanvas");
+  }
+}
+
+function _sigEnrollCheckPass(){
+  const pass=document.getElementById("sigEnrollPass").value;
+  const errEl=document.getElementById("stepUpErr");
+  if(_stepUpCredentialOk(pass)){
+    errEl.classList.remove("show"); errEl.textContent="";
+    document.getElementById("sigNoneBlock").style.display="none";
+    document.getElementById("sigDrawBlock").style.display="block";
+    setTimeout(()=>_sigInitCanvas("sigEnrollCanvas"),30);
+  } else {
+    _stepUpRegisterFail("❌ Incorrect password.");
+    document.getElementById("sigEnrollPass").value="";
+  }
+}
+
+function _sigEnrollSave(){
+  const grid=_sigCaptureGrid("sigEnrollCanvas");
+  const errEl=document.getElementById("stepUpErr");
+  if(!grid){ errEl.textContent="✋ Draw your signature first."; errEl.classList.add("show"); return; }
+  const sigs=DB.get("roleSignatures")||{};
+  sigs[currentUser.role]=grid;
+  DB.set("roleSignatures",sigs);
+  showToast("✅ Signature saved for future verification");
+  _stepUpGrant(); // they just proved identity via password, so grant this action too
+}
+
 const DAYS=["Monday","Tuesday","Wednesday","Thursday","Friday","Saturday"];
 const DEFAULT_TIMES=[{start:"8:00",end:"8:45"},{start:"8:45",end:"9:30"},{start:"9:30",end:"10:15"},{start:"10:30",end:"11:15"},{start:"11:15",end:"12:00"},{start:"12:45",end:"1:30"}];
 
@@ -2023,6 +2354,7 @@ function doLogin(){
   setTimeout(()=>{
     btn.disabled=false; btn.textContent="Sign In →"; spinner.classList.remove("show");
     currentUser=r.user;
+    _stepUp.validUntil=0; _stepUp.fails=0; _stepUp.lockUntil=0; // fresh login = fresh verification state
     saveSession(currentUser); // ← persist session
     if(loginRole==="student"){ const sts=DB.get("students")||[],idx=sts.findIndex(x=>x.id===currentUser.id); if(idx>=0){ sts[idx].lastLogin=new Date().toLocaleString("en-IN"); DB.set("students",sts); } }
     document.getElementById("authScreen").classList.remove("active");
@@ -2059,6 +2391,7 @@ function doRegister(){
 
 function doLogout(){
   currentUser=null; pendingStudentAtt={}; prevPage=null; ttEditorRows=[]; _pendingEditAtt={};
+  _stepUp.validUntil=0; _stepUp.fails=0; _stepUp.lockUntil=0;
   _watchersSetup=false;
   clearSession(); // ← wipe saved session so login screen shows next time
   const bar=document.getElementById("studentProfileBar"); if(bar) bar.remove();
@@ -2160,7 +2493,7 @@ function toggleMobSidebar(){ const sb=document.getElementById("sidebar"),ov=docu
 function closeMobSidebar(){ document.getElementById("sidebar").classList.remove("mob-open"); document.getElementById("mobOverlay").classList.remove("open"); document.getElementById("mobToggle").textContent="☰"; }
 function goHome(){ nav(document.querySelector("[data-page=dashboard]")); closeFolder(); }
 
-const PAGE_TITLES={dashboard:"Dashboard",subjects:"Subjects",notices:"Notice Board",polls:"Polls",gallery:"Gallery",timetable:"Timetable",exam_schedule:"Exam Schedule",attendance:"Attendance Record",results:"Results & Marks",leaderboard:"Class Leaderboard",report_card:"Report Card",hw_view:"Homework Board",upload:"Upload Files",post_notice:"Post Notice",manage_timetable:"Set Timetable",manage_results:"Enter Results",manage_attendance:"Mark Attendance",manage_students:"Students",copy_checking:"Copy Checking",homework:"Homework Manager",complain:"Complaints & Reports",student_info:"Student Information",assign_duty:"Assign Duty",my_duties:"My Duties",apply_leave:"Apply for Leave",manage_leaves:"Leave Requests"};
+const PAGE_TITLES={dashboard:"Dashboard",subjects:"Subjects",notices:"Notice Board",polls:"Polls",gallery:"Gallery",timetable:"Timetable",exam_schedule:"Exam Schedule",attendance:"Attendance Record",results:"Results & Marks",leaderboard:"Class Leaderboard",report_card:"Report Card",hw_view:"Homework Board",upload:"Upload Files",post_notice:"Post Notice",manage_timetable:"Set Timetable",manage_results:"Enter Results",manage_attendance:"Mark Attendance",manage_students:"Students",copy_checking:"Copy Checking",homework:"Homework Manager",complain:"Complaints & Reports",student_info:"Student Information",assign_duty:"Assign Duty",my_duties:"My Duties",apply_leave:"Apply for Leave",manage_leaves:"Leave Requests",my_copy:"My Copy Records"};
 
 function nav(btn){
   if(!btn) return;
@@ -2169,7 +2502,7 @@ function nav(btn){
   document.querySelectorAll(".page").forEach(p=>p.classList.remove("active")); document.getElementById("page-"+pid).classList.add("active");
   document.getElementById("pageTitle").textContent=PAGE_TITLES[pid]||pid;
   const backBtn=document.getElementById("backBtn");
-  backBtn.classList.toggle("show",["upload","post_notice","manage_timetable","manage_results","manage_attendance","manage_students","results","leaderboard","report_card","exam_schedule","copy_checking","homework","complain","student_info","assign_duty","my_duties","apply_leave","manage_leaves"].includes(pid));
+  backBtn.classList.toggle("show",["upload","post_notice","manage_timetable","manage_results","manage_attendance","manage_students","results","leaderboard","report_card","exam_schedule","copy_checking","homework","complain","student_info","assign_duty","my_duties","apply_leave","manage_leaves","my_copy"].includes(pid));
   closeFolder();
   if(window.innerWidth<=820) closeMobSidebar();
   if(pid==="notices"||pid==="post_notice") renderNotices();
@@ -2192,6 +2525,7 @@ function nav(btn){
   if(pid==="complain"){ populateComplainSelects(); renderComplaintLog(); }
   if(pid==="assign_duty"){ populateDutySelects(); renderDutyLog(); }
   if(pid==="my_duties") renderMyDuties();
+  if(pid==="my_copy") renderMyCopyRecords();
   if(pid==="apply_leave"){ renderMyLeaves(); }
   if(pid==="manage_leaves"){ renderManageLeaves(); updateLeaveCTBadge(); }
   if(pid==="polls"){ renderPolls(); updatePollBadge(); }
@@ -2358,12 +2692,19 @@ function computeWeeklySpotlight(){
 
   const topAtt=[...rows].filter(r=>r.attTotal>0).sort((a,b)=>{
     const da=(b.attPct??-1)-(a.attPct??-1); if(da!==0) return da; return b.attPresent-a.attPresent;
-  }).slice(0,3);
-  const topMarks=[...rows].filter(r=>r.mksCount>0).sort((a,b)=>(b.mksPct??-1)-(a.mksPct??-1)).slice(0,3);
+  }).slice(0,5);
+  // Top Marks is sourced from the same ranking used on the Leaderboard page
+  // (computeOverallLeaderboard: attempted-all-tests priority, then avg %, with
+  // proper competition-style rank/tie handling) so the two stay consistent.
+  const {rows:lbRows}=computeOverallLeaderboard();
+  const topMarks=lbRows.slice(0,5).map(r=>({
+    id:r.studentId,name:r.name,roll:r.roll,
+    mksPct:r.avgPct,rank:r.rank,attempted:r.attempted,hasAllTests:r.hasAllTests
+  }));
   const topOverall=[...rows].sort((a,b)=>b.overallScore-a.overallScore).slice(0,3);
   const topCopy=[...rows].filter(r=>r.copTotal>0).sort((a,b)=>{
     const d=(b.copPct??-1)-(a.copPct??-1); return d!==0?d:b.copSubmitted-a.copSubmitted;
-  }).slice(0,3);
+  }).slice(0,5);
 
   return {topOverall,topAtt,topMarks,topCopy,firstDate,todayISO};
 }
@@ -2382,8 +2723,8 @@ function renderWeeklySpotlight(){
   const fmt=d=>{ const p=d.split("-"); return p[2]+"/"+p[1]+"/"+p[0]; };
   const periodLabel=firstDate===todayISO?fmt(todayISO):`${fmt(firstDate)} → ${fmt(todayISO)}`;
 
-  const posIco=["🥇","🥈","🥉"];
-  const posCls=["sp-pos-1","sp-pos-2","sp-pos-3"];
+  const posIco=["🥇","🥈","🥉","4️⃣","5️⃣"];
+  const posCls=["sp-pos-1","sp-pos-2","sp-pos-3","",""];
 
   const ov=topOverall[0];
   const card1=topOverall.length?`<div class="sp-podium">${topOverall.map((s,i)=>`
@@ -2465,7 +2806,7 @@ function fileItemHTML(f){
 function handleFileSelect(input){ const file=input.files[0]; if(!file) return; if(file.size>10*1024*1024){ showToast("❌ File too large (max 10MB)"); input.value=""; return; } const p=document.getElementById("filePreview"); p.style.display="block"; p.textContent="📎 "+file.name+" ("+Math.round(file.size/1024)+" KB)"; }
 function uploadFile(){ const title=document.getElementById("upTitle").value.trim(),subject=document.getElementById("upSubject").value,type=document.getElementById("upType").value,desc=document.getElementById("upDesc").value.trim(),input=document.getElementById("fileInput"); if(!title||!subject){ showToast("❌ Fill in title and subject"); return; } const save=(dataUrl,fname)=>{ DB.push("files",{id:Date.now().toString(),title,subject,type,desc,uploader:currentUser.name,date:new Date().toLocaleDateString("en-IN"),dataUrl:dataUrl||null,filename:fname||null}); document.getElementById("upTitle").value=""; document.getElementById("upDesc").value=""; document.getElementById("upSubject").value=""; document.getElementById("filePreview").style.display="none"; input.value=""; showToast("✅ Uploaded successfully!"); renderMyUploads(); renderDashboard(); }; if(input.files[0]){ const file=input.files[0],r=new FileReader(); r.onload=e=>save(e.target.result,file.name); r.readAsDataURL(file); } else save(null,null); }
 function downloadFile(id){ const f=(DB.get("files")||[]).find(x=>x.id===id); if(!f||!f.dataUrl){ showToast("⚠️ No file attached"); return; } const a=document.createElement("a"); a.href=f.dataUrl; a.download=f.filename||f.title; a.click(); }
-async function deleteFile(id){ if(!await customConfirm("This file will be permanently removed.","Delete File","📁","Delete")) return; DB.del("files",id); showToast("🗑️ File deleted"); renderMyUploads(); renderDashboard(); renderSubjectList(); if(currentFolder) renderFolder(currentFolder); }
+async function deleteFile(id){ if(!await customConfirm("This file will be permanently removed.","Delete File","📁","Delete")) return; if(!await requireStepUp("delete this file")) return; DB.del("files",id); showToast("🗑️ File deleted"); renderMyUploads(); renderDashboard(); renderSubjectList(); if(currentFolder) renderFolder(currentFolder); }
 function renderMyUploads(){ const el=document.getElementById("myUploads"); if(!el) return; const files=(DB.get("files")||[]).filter(f=>f.uploader===currentUser.name); el.innerHTML=files.length?files.map(f=>fileItemHTML(f)).join(""):`<div class="empty-state"><div class="empty-icon">📂</div><div class="empty-text">You haven't uploaded anything yet</div></div>`; }
 
 // ═══════════════════════════════════════════
@@ -2494,7 +2835,7 @@ function noticeHTML(n,showActions=true){
 }
 function renderNotices(){ const notices=DB.get("notices")||[]; const nl=document.getElementById("noticesList"); if(nl) nl.innerHTML=notices.length?notices.map(n=>noticeHTML(n)).join(""):`<div class="empty-state"><div class="empty-icon">📭</div><div class="empty-text">No notices yet</div></div>`; const pl=document.getElementById("postedNotices"); if(pl) pl.innerHTML=notices.filter(n=>n.by===currentUser.name).map(n=>noticeHTML(n)).join("")||`<div class="empty-state"><div class="empty-icon">📭</div><div class="empty-text">You haven't posted any notices</div></div>`; const nb=document.getElementById("noticeBadge"); if(nb) nb.textContent=notices.length; }
 function postNotice(){ const title=document.getElementById("noticeTitle").value.trim(),body=document.getElementById("noticeBody").value.trim(),date=document.getElementById("noticeDate").value,prio=document.getElementById("noticePriority").value; if(!title||!body){ showToast("❌ Title and message required"); return; } DB.push("notices",{id:Date.now().toString(),title,body,date:date||new Date().toLocaleDateString("en-IN"),priority:prio,by:currentUser.name}); ["noticeTitle","noticeBody","noticeDate"].forEach(id=>document.getElementById(id).value=""); showToast("📌 Notice posted!"); renderNotices(); renderDashboard(); }
-async function deleteNotice(id){ if(!await customConfirm("This notice will be permanently removed.","Delete Notice","📌","Delete")) return; DB.del("notices",id); renderNotices(); renderDashboard(); showToast("🗑️ Notice deleted"); }
+async function deleteNotice(id){ if(!await customConfirm("This notice will be permanently removed.","Delete Notice","📌","Delete")) return; if(!await requireStepUp("delete this notice")) return; DB.del("notices",id); renderNotices(); renderDashboard(); showToast("🗑️ Notice deleted"); }
 
 function editNotice(id){
   const n=(DB.get("notices")||[]).find(x=>x.id===id); if(!n) return;
@@ -2549,7 +2890,7 @@ function addPeriod(){ ttEditorRows.push({day:"Monday",startTime:"",endTime:"",su
 async function resetTimetable(){ if(!await customConfirm("Reset the entire timetable?","Reset Timetable","🗓️","Reset")) return; ttEditorRows=[]; DAYS.forEach(day=>{ DEFAULT_TIMES.forEach(t=>{ ttEditorRows.push({day,startTime:t.start,endTime:t.end,subject:""}); }); }); renderTTEditor(); showToast("🔄 Timetable reset"); }
 function copyDayToAll(sourceDay){ const srcRows=ttEditorRows.filter(r=>r.day===sourceDay); if(!srcRows.length){ showToast("❌ "+sourceDay+" has no periods"); return; } ttEditorRows=ttEditorRows.filter(r=>r.day===sourceDay); DAYS.forEach(day=>{ if(day===sourceDay) return; srcRows.forEach(r=>{ ttEditorRows.push({day,startTime:r.startTime,endTime:r.endTime,subject:r.subject}); }); }); renderTTEditor(); showToast("📋 Copied to all days!"); }
 function showCopyDayModal(){ const overlay=document.createElement("div"); overlay.id="copyDayOverlay"; overlay.style.cssText="position:fixed;inset:0;background:rgba(11,28,54,0.85);backdrop-filter:blur(8px);z-index:600;display:flex;align-items:center;justify-content:center;"; overlay.innerHTML=`<div style="background:#122547;border:1px solid rgba(232,160,32,0.25);border-radius:16px;padding:26px 28px;width:340px;max-width:92vw;box-shadow:0 24px 60px rgba(0,0,0,0.5);animation:fadeUp .25s ease;"><div style="font-size:20px;margin-bottom:6px;">📋</div><div style="font-family:'Cormorant Garamond',serif;font-size:19px;color:#f8f4ee;margin-bottom:6px;">Copy Day to All Days</div><div style="font-size:13px;color:rgba(200,191,175,0.6);margin-bottom:18px;line-height:1.5;">Select a day to copy its schedule to all other days.</div><div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:18px;">${DAYS.map(day=>{ const cnt=ttEditorRows.filter(r=>r.day===day&&r.subject).length; return `<button onclick="copyDayToAll('${day}');document.getElementById('copyDayOverlay').remove();" style="padding:10px;background:rgba(232,160,32,0.08);border:1px solid rgba(232,160,32,0.2);border-radius:9px;color:var(--white);cursor:pointer;font-family:'DM Sans',sans-serif;font-size:13px;text-align:left;" onmouseover="this.style.background='rgba(232,160,32,0.18)'" onmouseout="this.style.background='rgba(232,160,32,0.08)'"><div style="font-weight:600;">${day}</div><div style="font-size:10px;color:var(--gold);margin-top:2px;">${cnt} period${cnt!==1?"s":""}</div></button>`; }).join("")}</div><button onclick="document.getElementById('copyDayOverlay').remove();" style="width:100%;padding:9px;background:transparent;border:1px solid rgba(255,255,255,0.15);color:rgba(200,191,175,0.7);border-radius:9px;cursor:pointer;font-size:13px;font-family:'DM Sans',sans-serif;">Cancel</button></div>`; document.body.appendChild(overlay); overlay.addEventListener("click",e=>{ if(e.target===overlay) overlay.remove(); }); }
-function saveTimetable(){ const toSave=ttEditorRows.filter(r=>r.subject&&r.startTime).map((r,i)=>({id:r.day+"_"+r.startTime.replace(":","")+"_"+i,day:r.day,startTime:r.startTime,endTime:r.endTime||"",subject:r.subject})); if(!toSave.length){ showToast("❌ Add at least one period with subject and start time"); return; } DB.set("timetable",toSave); showToast("💾 Timetable saved!"); renderTTPreview(); renderTTDisplay(); }
+async function saveTimetable(){ const toSave=ttEditorRows.filter(r=>r.subject&&r.startTime).map((r,i)=>({id:r.day+"_"+r.startTime.replace(":","")+"_"+i,day:r.day,startTime:r.startTime,endTime:r.endTime||"",subject:r.subject})); if(!toSave.length){ showToast("❌ Add at least one period with subject and start time"); return; } if(!await requireStepUp("save changes to the timetable")) return; DB.set("timetable",toSave); showToast("💾 Timetable saved!"); renderTTPreview(); renderTTDisplay(); }
 function renderTTPreview(){ const el=document.getElementById("ttPreview"); if(!el) return; const rows=ttEditorRows.filter(r=>r.subject&&r.startTime); if(!rows.length){ el.innerHTML=`<div style="color:var(--muted);font-size:13px;padding:8px 0;">No periods with subjects yet.</div>`; return; } _renderTTTable(el,rows); }
 function renderTTDisplay(){ const tt=DB.get("timetable"),el=document.getElementById("ttDisplay"); if(!el) return; if(!tt||!tt.length){ el.innerHTML=`<div class="empty-state"><div class="empty-icon">📅</div><div class="empty-text">No timetable set yet</div></div>`; return; } _renderTTTable(el,tt); }
 function _renderTTTable(el,rows){
@@ -2582,7 +2923,7 @@ function renderStudentRollCall(){
 }
 function setStudentAtt(sid,status){ pendingStudentAtt[sid]=status; renderStudentRollCall(); }
 function markAllAtt(status){ const students=DB.get("students")||[]; students.forEach(s=>{ pendingStudentAtt[s.id]=status; }); renderStudentRollCall(); showToast(status==="holiday"?"🏖️ All Holiday":status==="present"?"✓ All Present":"✗ All Absent"); }
-function saveStudentAttendance(){ const dateEl=document.getElementById("attDate"); if(!dateEl||!dateEl.value){ showToast("❌ Select a date"); return; } if(!Object.keys(pendingStudentAtt).length){ showToast("❌ Mark at least one student"); return; } const date=dateEl.value,allAtt=DB.get("studentAttendance")||{}; allAtt[date]={...(allAtt[date]||{}),...pendingStudentAtt}; DB.set("studentAttendance",allAtt); pendingStudentAtt={}; showToast("✅ Attendance saved for "+date+"!"); renderStudentRollCall(); renderAttHistory(); renderAttView(); }
+async function saveStudentAttendance(){ const dateEl=document.getElementById("attDate"); if(!dateEl||!dateEl.value){ showToast("❌ Select a date"); return; } if(!Object.keys(pendingStudentAtt).length){ showToast("❌ Mark at least one student"); return; } if(!await requireStepUp("save attendance")) return; const date=dateEl.value,allAtt=DB.get("studentAttendance")||{}; allAtt[date]={...(allAtt[date]||{}),...pendingStudentAtt}; DB.set("studentAttendance",allAtt); pendingStudentAtt={}; showToast("✅ Attendance saved for "+date+"!"); renderStudentRollCall(); renderAttHistory(); renderAttView(); }
 function renderAttHistory(){
   const el=document.getElementById("attLog"); if(!el) return;
   const allAtt=DB.get("studentAttendance")||{},dates=Object.keys(allAtt).sort().reverse();
@@ -2596,7 +2937,7 @@ function renderAttHistory(){
   }).join("")+`</div>`;
 }
 function toggleAttDay(id){ const el=document.getElementById(id); if(el) el.style.display=el.style.display==="none"?"":"none"; }
-async function delDayAtt(date){ if(!await customConfirm("Attendance for "+date+" will be removed.","Delete Attendance","✅","Delete")) return; const a=DB.get("studentAttendance")||{}; delete a[date]; DB.set("studentAttendance",a); renderAttHistory(); renderAttView(); showToast("🗑️ Attendance deleted"); }
+async function delDayAtt(date){ if(!await customConfirm("Attendance for "+date+" will be removed.","Delete Attendance","✅","Delete")) return; if(!await requireStepUp("delete this attendance record")) return; const a=DB.get("studentAttendance")||{}; delete a[date]; DB.set("studentAttendance",a); renderAttHistory(); renderAttView(); showToast("🗑️ Attendance deleted"); }
 
 function editDayAtt(date){
   const allAtt=DB.get("studentAttendance")||{},dayAtt=allAtt[date]||{};
@@ -2626,8 +2967,9 @@ function setEditAtt(sid,status,_btn){
   const students=(DB.get("students")||[]).sort((a,b)=>parseInt(a.roll)-parseInt(b.roll));
   renderEditAttGrid(students);
 }
-function saveEditedAtt(){
+async function saveEditedAtt(){
   const date=document.getElementById("editAttDate").value;
+  if(!await requireStepUp("save these attendance edits")) return;
   const allAtt=DB.get("studentAttendance")||{};
   allAtt[date]={...(allAtt[date]||{}),..._pendingEditAtt};
   DB.set("studentAttendance",allAtt);
@@ -2680,12 +3022,13 @@ function toggleAbsent(sid){ const inp=document.getElementById("marks_"+sid),btn=
 function fillAllMarks(){ const val=prompt(`Enter marks for all students (max ${currentResTest?currentResTest.max:100}):`); if(val===null) return; const n=parseInt(val); (DB.get("students")||[]).forEach(s=>{ const el=document.getElementById("marks_"+s.id); if(el){ el.value=n; onMarksInput(s.id,el); } }); }
 function clearAllMarks(){ (DB.get("students")||[]).forEach(s=>{ const el=document.getElementById("marks_"+s.id); if(el){ el.value=""; onMarksInput(s.id,el); } }); }
 function updateResSummaryLive(){ const el=document.getElementById("resSummaryLive"); if(!el||!currentResTest) return; const students=DB.get("students")||[],marks=students.map(s=>{ const inp=document.getElementById("marks_"+s.id); return inp&&inp.value!==""?parseInt(inp.value):null; }).filter(v=>v!==null&&!isNaN(v)); if(!marks.length){ el.innerHTML=`<div style="font-size:12px;color:var(--muted);">Enter marks above to see live summary</div>`; return; } const max=currentResTest.max,avg=Math.round(marks.reduce((a,b)=>a+b,0)/marks.length),highest=Math.max(...marks),lowest=Math.min(...marks),passing=marks.filter(m=>m/max>=0.33).length; el.innerHTML=`<div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(110px,1fr));gap:10px;"><div><div style="font-size:10px;color:var(--muted);text-transform:uppercase;">Entered</div><div style="font-size:20px;font-family:'Cormorant Garamond',serif;color:var(--gold);">${marks.length}/${students.length}</div></div><div><div style="font-size:10px;color:var(--muted);text-transform:uppercase;">Average</div><div style="font-size:20px;font-family:'Cormorant Garamond',serif;color:var(--gold);">${avg}/${max}</div></div><div><div style="font-size:10px;color:var(--muted);text-transform:uppercase;">Highest</div><div style="font-size:20px;font-family:'Cormorant Garamond',serif;color:#3dba7e;">${highest}</div></div><div><div style="font-size:10px;color:var(--muted);text-transform:uppercase;">Lowest</div><div style="font-size:20px;font-family:'Cormorant Garamond',serif;color:#e05555;">${lowest}</div></div><div><div style="font-size:10px;color:var(--muted);text-transform:uppercase;">Passing</div><div style="font-size:20px;font-family:'Cormorant Garamond',serif;color:#4a9eff;">${passing}</div></div></div>`; }
-function submitResults(){
+async function submitResults(){
   if(!currentResTest){ showToast("❌ No test selected"); return; }
   const students=(DB.get("students")||[]).sort((a,b)=>parseInt(a.roll)-parseInt(b.roll));
   const marks=[]; let missing=false;
   students.forEach(s=>{ const inp=document.getElementById("marks_"+s.id),val=inp?inp.value:""; if(val===""){ marks.push({studentId:s.id,name:s.name,roll:s.roll,marks:null,absent:true}); } else { const n=parseInt(val); if(isNaN(n)||n<0||n>currentResTest.max){ missing=true; return; } marks.push({studentId:s.id,name:s.name,roll:s.roll,marks:n,absent:false}); } });
   if(missing){ showToast("❌ Some marks are invalid"); return; }
+  if(!await requireStepUp("declare these results")) return;
   const allMarks=marks.filter(m=>!m.absent).map(m=>m.marks),avg=allMarks.length?Math.round(allMarks.reduce((a,b)=>a+b,0)/allMarks.length):null;
   const result={id:Date.now().toString(),test:currentResTest.test,subject:currentResTest.subject,max:currentResTest.max,date:currentResTest.date,remarks:currentResTest.remarks,by:currentUser.name,byRole:currentUser.role,avg,highest:allMarks.length?Math.max(...allMarks):null,lowest:allMarks.length?Math.min(...allMarks):null,studentMarks:marks,declaredOn:new Date().toLocaleDateString("en-IN")};
   DB.push("results",result);
@@ -2901,7 +3244,7 @@ function updateMultiSummaryLive(){
       </div>`).join("")+`</div>`;
 }
 
-function submitMultiResults(){
+async function submitMultiResults(){
   if(!multiExamState){ showToast("❌ No exam setup found"); return; }
   const {name,date,remarks,subjects,students}=multiExamState;
   // Validate — for each student, each non-absent subject must have valid marks
@@ -2914,6 +3257,7 @@ function submitMultiResults(){
       if(isNaN(v)||v<0||v>sub.max){ showToast(`❌ Invalid: ${s.name} → ${sub.name} (0–${sub.max})`); return; }
     }
   }
+  if(!await requireStepUp("declare these results")) return;
   const notifs=DB.get("studentNotifications")||[];
   let savedCount=0;
   subjects.forEach(sub=>{
@@ -2982,9 +3326,10 @@ function toggleEditAbsent(sid,maxStr){
   if(inp.disabled){ inp.disabled=false; inp.value=""; inp.style.opacity="1"; btn.style.background="rgba(224,85,85,0.1)"; btn.style.borderColor="rgba(224,85,85,0.3)"; btn.style.color="#e05555"; }
   else { inp.disabled=true; inp.value=""; inp.style.opacity="0.3"; btn.style.background="rgba(224,85,85,0.3)"; btn.style.borderColor="#e05555"; btn.style.color="#ff4040"; }
 }
-function saveEditedResult(){
+async function saveEditedResult(){
   const id=document.getElementById("editResultId").value,test=document.getElementById("editResTest").value.trim(),subject=document.getElementById("editResSubject").value,max=parseInt(document.getElementById("editResMax").value),date=document.getElementById("editResDate").value,remarks=document.getElementById("editResRemarks").value.trim();
   if(!test||!subject||!max){ showToast("❌ Fill all required fields"); return; }
+  if(!await requireStepUp("save these edited results")) return;
   const results=DB.get("results")||[],idx=results.findIndex(r=>r.id===id); if(idx<0) return;
   const students=(DB.get("students")||[]).sort((a,b)=>parseInt(a.roll)-parseInt(b.roll));
   const newMarks=students.map(s=>{ const inp=document.getElementById("editMark_"+s.id); if(!inp||inp.disabled) return{studentId:s.id,name:s.name,roll:s.roll,marks:null,absent:true}; const v=parseInt(inp.value); if(isNaN(v)) return{studentId:s.id,name:s.name,roll:s.roll,marks:null,absent:true}; return{studentId:s.id,name:s.name,roll:s.roll,marks:v,absent:false}; });
@@ -3090,7 +3435,7 @@ function toggleResultSummary(id){
   el.style.display=open?"":"none";
   if(arrow) arrow.textContent=open?"▲":"▼";
 }
-async function delResult(id){ if(!await customConfirm("This result will be permanently removed.","Delete Result","📊","Delete")) return; DB.del("results",id); renderEnteredResults(); renderResults(); renderDashboard(); populateLeaderboardTestSelect(); showToast("🗑️ Result deleted"); }
+async function delResult(id){ if(!await customConfirm("This result will be permanently removed.","Delete Result","📊","Delete")) return; if(!await requireStepUp("delete this result")) return; DB.del("results",id); renderEnteredResults(); renderResults(); renderDashboard(); populateLeaderboardTestSelect(); showToast("🗑️ Result deleted"); }
 
 // ═══════════════════════════════════════════
 // LEADERBOARD
@@ -3419,7 +3764,7 @@ function renderGallery(){
   }).join("");
 }
 
-async function delAlbum(id){ if(!await customConfirm("Delete this item?","Delete","🖼️","Delete")) return; DB.del("gallery",id); renderGallery(); showToast("🗑️ Deleted"); }
+async function delAlbum(id){ if(!await customConfirm("Delete this item?","Delete","🖼️","Delete")) return; if(!await requireStepUp("delete this gallery item")) return; DB.del("gallery",id); renderGallery(); showToast("🗑️ Deleted"); }
 
 // ── LIGHTBOX ──
 let _lbAlbum=[],_lbIdx=0;
@@ -3493,7 +3838,7 @@ function renderStudentsList(){
   const sorted=[...students].sort((a,b)=>parseInt(a.roll)-parseInt(b.roll));
   el.innerHTML=notifsHTML+`<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;"><div style="font-size:13px;color:var(--muted);">${students.length} student${students.length!==1?"s":""} registered</div><button class="btn btn-danger btn-sm" onclick="removeAllStudents()">🗑️ Remove All</button></div><table class="students-table"><thead><tr><th>#</th><th>Name</th><th>Roll No</th><th>Adm. No</th><th>Parent Mobile</th><th>Registered On</th><th>Last Login</th><th>Action</th></tr></thead><tbody>`+sorted.map((s,i)=>`<tr><td style="color:var(--muted);">${i+1}</td><td style="font-weight:600;">${s.name}</td><td><span style="background:rgba(232,160,32,.15);color:var(--gold);padding:2px 8px;border-radius:6px;font-size:12px;">${s.roll}</span></td><td style="font-size:12px;color:var(--muted);">${s.admNo}</td><td style="font-size:12px;">${s.parentMobile?`<span class="wa-chip">📱 ${s.parentMobile}</span>`:`<button class="btn btn-outline btn-sm" onclick="openEditParentMobile('${s.id}')">+ Add</button>`}</td><td style="font-size:11px;color:var(--muted);">${s.joinedOn}</td><td style="font-size:11px;color:var(--muted);">${s.lastLogin||"Never"}</td><td style="display:flex;gap:4px;">${s.parentMobile?`<button class="btn btn-outline btn-sm" onclick="openEditParentMobile('${s.id}')">✏️</button>`:""}<button class="btn btn-danger btn-sm" onclick="deleteStudent('${s.id}')">🗑️</button></td></tr>`).join("")+`</tbody></table>`;
 }
-async function deleteStudent(id){ const students=DB.get("students")||[],s=students.find(x=>x.id===id); if(!s) return; if(!await customConfirm(`Remove "${s.name}" (Roll: ${s.roll})?`,"Remove Student","👤","Remove")) return; DB.del("students",id); renderStudentsList(); showToast("🗑️ Student removed"); }
+async function deleteStudent(id){ const students=DB.get("students")||[],s=students.find(x=>x.id===id); if(!s) return; if(!await customConfirm(`Remove "${s.name}" (Roll: ${s.roll})?`,"Remove Student","👤","Remove")) return; if(!await requireStepUp("remove this student")) return; DB.del("students",id); renderStudentsList(); showToast("🗑️ Student removed"); }
 async function removeAllStudents(){ const students=DB.get("students")||[]; if(!students.length){ showToast("No students to remove"); return; } if(!await customConfirm(`Remove ALL ${students.length} students?`,"Remove All","⚠️","Remove All")) return; DB.set("students",[]); DB.set("ct_notifications",[]); renderStudentsList(); showToast("🗑️ All students removed"); }
 function markNotifsRead(){ const notifs=DB.get("ct_notifications")||[]; notifs.forEach(n=>n.read=true); DB.set("ct_notifications",notifs); updateCTNotifBadge(); renderStudentsList(); showToast("✓ All read"); }
 
@@ -3505,9 +3850,10 @@ function openEditParentMobile(studentId){
   document.getElementById("editParentMobileInput").value=s.parentMobile||"";
   openModal("editParentMobileModal");
 }
-function saveParentMobile(){
+async function saveParentMobile(){
   const id=document.getElementById("editParentMobileStudentId").value,mobile=document.getElementById("editParentMobileInput").value.trim();
   if(mobile&&!/^\d{7,15}$/.test(mobile)){ showToast("❌ Enter a valid mobile number (digits only)"); return; }
+  if(!await requireStepUp("update this student's parent contact")) return;
   const students=DB.get("students")||[],idx=students.findIndex(s=>s.id===id); if(idx<0) return;
   students[idx].parentMobile=mobile;
   DB.set("students",students);
@@ -3836,6 +4182,49 @@ function previewSingleReport(){
 function createCopySession(){ const subject=document.getElementById("copySubjectName").value.trim(),date=document.getElementById("copyDate").value,note=document.getElementById("copyNote").value.trim(); if(!subject){ showToast("❌ Enter subject or topic"); return; } const session={id:Date.now().toString(),subject,note,date:date||new Date().toLocaleDateString("en-IN"),createdBy:currentUser.name,createdAt:new Date().toLocaleString("en-IN"),status:{}}; DB.push("copySessions",session); ["copySubjectName","copyDate","copyNote"].forEach(id=>{ const el=document.getElementById(id); if(el) el.value=""; }); showToast("📋 Record created!"); renderCopySessionsList(); openCopyDetail(session.id); }
 function renderCopySessionsList(){ const el=document.getElementById("copySessionsList"); if(!el) return; const sessions=DB.get("copySessions")||[]; if(!sessions.length){ el.innerHTML=`<div class="empty-state"><div class="empty-icon">📋</div><div class="empty-text">No copy collection records yet</div></div>`; return; } el.innerHTML=`<div style="display:grid;gap:8px;">`+sessions.map(s=>{ const students=DB.get("students")||[],total=students.length,submitted=Object.values(s.status||{}).filter(v=>v==="submitted").length,notSub=Object.values(s.status||{}).filter(v=>v==="not_submitted").length,absent=Object.values(s.status||{}).filter(v=>v==="absent").length; const canDel=currentUser.role==="classteacher"||s.createdBy===currentUser.name; return `<div style="background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.07);border-radius:11px;padding:13px 15px;cursor:pointer;" onclick="openCopyDetail('${s.id}')"><div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap;"><div style="flex:1;"><div style="font-size:14px;font-weight:600;">📋 ${s.subject}</div><div style="font-size:11px;color:var(--muted);margin-top:3px;">📅 ${s.date} · By ${s.createdBy}${s.note?" · "+s.note:""}</div></div><div style="display:flex;gap:6px;align-items:center;flex-wrap:wrap;"><span style="font-size:11px;background:rgba(61,186,126,.18);color:#3dba7e;padding:2px 9px;border-radius:8px;">✓ ${submitted}</span>${notSub?`<span style="font-size:11px;background:rgba(224,85,85,.15);color:#e05555;padding:2px 9px;border-radius:8px;">✗ ${notSub}</span>`:""}${absent?`<span style="font-size:11px;background:rgba(232,160,32,.15);color:var(--gold);padding:2px 9px;border-radius:8px;">H ${absent}</span>`:""}${canDel?`<button class="btn btn-outline btn-sm" onclick="event.stopPropagation();editCopySession('${s.id}')" style="font-size:10px;">✏️ Edit</button><button class="btn btn-danger btn-sm" onclick="event.stopPropagation();deleteCopySession('${s.id}')">🗑️</button>`:""}</div></div><div style="margin-top:8px;height:4px;background:rgba(255,255,255,.08);border-radius:2px;overflow:hidden;"><div style="height:100%;width:${total?submitted/total*100:0}%;background:linear-gradient(90deg,#3dba7e,#4ec98a);border-radius:2px;"></div></div></div>`; }).join("")+`</div>`; }
 function openCopyDetail(sessionId){ const sessions=DB.get("copySessions")||[],session=sessions.find(s=>s.id===sessionId); if(!session) return; currentCopySessionId=sessionId; pendingCopyStatus={...(session.status||{})}; document.getElementById("copyDetailTitle").textContent="📋 "+session.subject+" — "+session.date; document.getElementById("newCopySessionCard").style.display="none"; const listCard=document.querySelector("#copySessionsList")?.closest(".card"); if(listCard) listCard.style.display="none"; document.getElementById("copyDetailView").style.display=""; renderCopyStudentGrid(session); }
+
+// ── MY COPY RECORDS (student view) — reads the same DB.get("copySessions"),
+// which is synced live via Firebase, so this stays in sync across every device. ──
+function renderMyCopyRecords(){
+  const u=currentUser; if(!u||u.role!=="student") return;
+  const summaryEl=document.getElementById("myCopySummary"), histEl=document.getElementById("myCopyHistory");
+  if(!summaryEl||!histEl) return;
+  const sessions=(DB.get("copySessions")||[]).filter(s=>s.status&&Object.prototype.hasOwnProperty.call(s.status,u.id))
+    .sort((a,b)=>new Date(b.date)-new Date(a.date));
+  if(!sessions.length){
+    summaryEl.innerHTML=`<div class="empty-state"><div class="empty-icon">📔</div><div class="empty-text">No copy collection records yet</div></div>`;
+    histEl.innerHTML="";
+    return;
+  }
+  const bySubj={};
+  sessions.forEach(s=>{
+    const st=s.status[u.id];
+    if(!bySubj[s.subject]) bySubj[s.subject]={submitted:0,not_submitted:0,absent:0,total:0};
+    bySubj[s.subject][st]=(bySubj[s.subject][st]||0)+1;
+    bySubj[s.subject].total++;
+  });
+  summaryEl.innerHTML=`<div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(180px,1fr));gap:10px;">`+Object.keys(bySubj).map(subj=>{
+    const d=bySubj[subj],pct=d.total?Math.round((d.submitted||0)/d.total*100):0;
+    return `<div style="padding:13px 15px;border-radius:11px;background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.07);">
+      <div style="font-size:13px;font-weight:600;margin-bottom:8px;">📋 ${subj}</div>
+      <div style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:8px;">
+        <span style="font-size:11px;background:rgba(61,186,126,.18);color:#3dba7e;padding:2px 9px;border-radius:8px;">✓ ${d.submitted||0}</span>
+        <span style="font-size:11px;background:rgba(224,85,85,.15);color:#e05555;padding:2px 9px;border-radius:8px;">✗ ${d.not_submitted||0}</span>
+        <span style="font-size:11px;background:rgba(232,160,32,.15);color:var(--gold);padding:2px 9px;border-radius:8px;">H ${d.absent||0}</span>
+      </div>
+      <div style="height:4px;background:rgba(255,255,255,.08);border-radius:2px;overflow:hidden;"><div style="height:100%;width:${pct}%;background:linear-gradient(90deg,#3dba7e,#4ec98a);border-radius:2px;"></div></div>
+      <div style="font-size:10px;color:var(--muted);margin-top:5px;">${d.submitted||0}/${d.total} rounds submitted (${pct}%)</div>
+    </div>`;
+  }).join("")+`</div>`;
+  histEl.innerHTML=`<div style="display:grid;gap:8px;">`+sessions.map(s=>{
+    const st=s.status[u.id],col=st==="submitted"?"#3dba7e":st==="absent"?"var(--gold)":"#e05555",ico=st==="submitted"?"✅":st==="absent"?"🏖️":"❌",label=st==="submitted"?"Submitted":st==="absent"?"Absent":"Not Submitted";
+    return `<div style="display:flex;align-items:center;gap:10px;padding:10px 13px;background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.07);border-radius:10px;flex-wrap:wrap;">
+      <span style="font-size:16px;">${ico}</span>
+      <div style="flex:1;min-width:120px;"><div style="font-size:13px;font-weight:600;">📋 ${s.subject}</div><div style="font-size:11px;color:var(--muted);">📅 ${s.date} · By ${s.createdBy}${s.note?" · "+s.note:""}</div></div>
+      <span style="font-size:11px;font-weight:700;color:${col};">${label}</span>
+    </div>`;
+  }).join("")+`</div>`;
+}
 function closeCopyDetail(){ currentCopySessionId=null; pendingCopyStatus={}; document.getElementById("copyDetailView").style.display="none"; const listCard=document.querySelector("#copySessionsList")?.closest(".card"); if(listCard) listCard.style.display=""; document.getElementById("newCopySessionCard").style.display=""; renderCopySessionsList(); }
 function renderCopyStudentGrid(session){
   const students=(DB.get("students")||[]).sort((a,b)=>parseInt(a.roll)-parseInt(b.roll)),el=document.getElementById("copyStudentGrid"); if(!el) return;
@@ -3851,7 +4240,7 @@ function setCopyStatus(sid,status){ pendingCopyStatus[sid]=status; const session
 function markAllCopy(status){ const students=DB.get("students")||[]; students.forEach(s=>{ pendingCopyStatus[s.id]=status; }); const sessions=DB.get("copySessions")||[],session=sessions.find(s=>s.id===currentCopySessionId); if(session) renderCopyStudentGrid(session); showToast(status==="submitted"?"✓ All Submitted":status==="not_submitted"?"✗ All Not Submitted":"🏖️ All Absent"); }
 function updateCopyStats(){ const students=DB.get("students")||[],total=students.length,submitted=Object.values(pendingCopyStatus).filter(v=>v==="submitted").length,notSub=Object.values(pendingCopyStatus).filter(v=>v==="not_submitted").length,absent=Object.values(pendingCopyStatus).filter(v=>v==="absent").length; const el=document.getElementById("copyDetailStats"); if(!el) return; el.innerHTML=`<span style="font-size:12px;background:rgba(61,186,126,.18);color:#3dba7e;padding:3px 10px;border-radius:8px;">✓ ${submitted}/${total}</span>`+(notSub?`<span style="font-size:12px;background:rgba(224,85,85,.15);color:#e05555;padding:3px 10px;border-radius:8px;">✗ ${notSub}</span>`:"")+(absent?`<span style="font-size:12px;background:rgba(232,160,32,.15);color:var(--gold);padding:3px 10px;border-radius:8px;">H ${absent}</span>`:""); }
 function saveCopySession(){ if(!currentCopySessionId){ showToast("❌ No session selected"); return; } if(!Object.keys(pendingCopyStatus).length){ showToast("❌ Mark at least one student"); return; } const sessions=DB.get("copySessions")||[],idx=sessions.findIndex(s=>s.id===currentCopySessionId); if(idx<0){ showToast("❌ Session not found"); return; } sessions[idx].status={...(sessions[idx].status||{}),...pendingCopyStatus}; sessions[idx].lastUpdated=new Date().toLocaleString("en-IN"); DB.set("copySessions",sessions); showToast("✅ Copy status saved!"); renderCopyStudentGrid(sessions[idx]); renderCopySessionsList(); }
-async function deleteCopySession(id){ if(!await customConfirm("Delete this collection record?","Delete Record","📋","Delete")) return; DB.del("copySessions",id); renderCopySessionsList(); showToast("🗑️ Record deleted"); }
+async function deleteCopySession(id){ if(!await customConfirm("Delete this collection record?","Delete Record","📋","Delete")) return; if(!await requireStepUp("delete this record")) return; DB.del("copySessions",id); renderCopySessionsList(); showToast("🗑️ Record deleted"); }
 
 // ── EDIT COPY SESSION ──
 function editCopySession(id){
@@ -4094,7 +4483,7 @@ function saveEditedHW(){
     r.readAsDataURL(file);
   });
 }
-async function deleteHW(id){ if(!await customConfirm("Delete this homework?","Delete Homework","📓","Delete")) return; DB.del("homework",id); renderAllHW(); updateHWBadge(); showToast("🗑️ Deleted"); }
+async function deleteHW(id){ if(!await customConfirm("Delete this homework?","Delete Homework","📓","Delete")) return; if(!await requireStepUp("delete this homework")) return; DB.del("homework",id); renderAllHW(); updateHWBadge(); showToast("🗑️ Deleted"); }
 
 // ═══════════════════════════════════════════
 // COMPLAINTS
@@ -4220,18 +4609,19 @@ function editComplaint(id){
   document.getElementById("editComplaintStatus").value=c.status||"open";
   openModal("editComplaintModal");
 }
-function saveEditedComplaint(){
+async function saveEditedComplaint(){
   const id=document.getElementById("editComplaintId").value;
   const body=document.getElementById("editComplaintBody").value.trim();
   const cat=document.getElementById("editComplaintCategory").value;
   const sev=document.getElementById("editComplaintSeverity").value;
   const status=document.getElementById("editComplaintStatus").value;
   if(!body){ showToast("❌ Details required"); return; }
+  if(!await requireStepUp("save these complaint edits")) return;
   const complaints=DB.get("complaints")||[],idx=complaints.findIndex(c=>c.id===id); if(idx<0) return;
   complaints[idx]={...complaints[idx],body,category:cat,severity:sev,status,editedOn:new Date().toLocaleDateString("en-IN")};
   DB.set("complaints",complaints); closeModal("editComplaintModal"); showToast("✅ Complaint updated!"); renderComplaintLog();
 }
-async function deleteComplaint(id){ if(!await customConfirm("Delete this complaint record?","Delete Complaint","⚠️","Delete")) return; DB.del("complaints",id); renderComplaintLog(); showToast("🗑️ Deleted"); }
+async function deleteComplaint(id){ if(!await customConfirm("Delete this complaint record?","Delete Complaint","⚠️","Delete")) return; if(!await requireStepUp("delete this complaint record")) return; DB.del("complaints",id); renderComplaintLog(); showToast("🗑️ Deleted"); }
 
 // ═══════════════════════════════════════════
 // ASSIGN DUTY
@@ -4582,7 +4972,7 @@ function openEditLeave(id){
   m.style.display="flex";
 }
 
-function confirmEditLeave(){
+async function confirmEditLeave(){
   const id=document.getElementById("editLeaveId").value;
   const from=document.getElementById("editLeaveFrom").value;
   const to=document.getElementById("editLeaveTo").value;
@@ -4590,6 +4980,7 @@ function confirmEditLeave(){
   if(!from||!to){ showToast("❌ Please select both dates"); return; }
   if(!reason){ showToast("❌ Please enter a reason"); return; }
   if(new Date(to)<new Date(from)){ showToast("❌ End date must be after start date"); return; }
+  if(!await requireStepUp("save these leave application edits")) return;
   const apps=DB.get("leaveApplications")||[];
   const idx=apps.findIndex(a=>a.id===id); if(idx<0) return;
   const days=Math.max(1,Math.round((new Date(to)-new Date(from))/(1000*60*60*24))+1);
@@ -4604,8 +4995,9 @@ function confirmEditLeave(){
   updateLeaveStatusBadge();
 }
 
-function deleteLeave(id, role){
+async function deleteLeave(id, role){
   if(!confirm("Delete this leave application?")) return;
+  if(role==="ct" && !await requireStepUp("delete this leave application")) return;
   const apps=DB.get("leaveApplications")||[];
   DB.set("leaveApplications", apps.filter(a=>a.id!==id));
   showToast("🗑️ Leave application deleted.");
@@ -4737,6 +5129,7 @@ function saveDutyCompletion(){
 
 async function deleteDuty(id){
   if(!await customConfirm("Delete this duty record?","Delete Duty","📋","Delete")) return;
+  if(!await requireStepUp("delete this duty record")) return;
   DB.del("duties",id);
   renderDutyLog();
   showToast("🗑️ Duty deleted");
@@ -5056,6 +5449,7 @@ function addExamEntry(){
 
 async function deleteExamEntry(id){
   if(!await customConfirm("Delete this exam entry?","Delete Exam","📋","Delete")) return;
+  if(!await requireStepUp("delete this exam entry")) return;
   DB.del("examSchedules",id);
   showToast("🗑️ Deleted");
   renderExamSchedule();
@@ -5256,6 +5650,7 @@ function reopenPoll(pollId){
 
 async function deletePoll(pollId){
   if(!await customConfirm("Delete this poll permanently?","Delete Poll","🗳️","Delete")) return;
+  if(!await requireStepUp("delete this poll")) return;
   DB.del("polls",pollId);
   showToast("🗑️ Poll deleted");
   renderPolls();
