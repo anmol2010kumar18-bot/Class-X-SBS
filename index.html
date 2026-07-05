@@ -947,7 +947,7 @@ button:active, .btn:active, .nav-btn:active, .auth-btn:active, .role-card:active
           <div class="upload-zone" onclick="document.getElementById('fileInput').click()">
             <input type="file" id="fileInput" style="display:none;" onchange="handleFileSelect(this)">
             <div class="uz-icon">☁️</div><div class="uz-text"><span>Click to browse file</span></div>
-            <div class="uz-hint">PDF, DOC, DOCX, PPT, JPG, PNG — max 10MB</div>
+            <div class="uz-hint">PDF, DOC, DOCX, PPT, JPG, PNG — max 50MB</div>
             <div class="uz-preview" id="filePreview"></div>
           </div>
           <button class="btn btn-gold" onclick="uploadFile()">⬆️ Upload File</button>
@@ -1844,9 +1844,20 @@ function initFirebase(){
 }
 
 let _writeLock=false;
+let _pendingSnapshotDuringLock=null;
+function _clearWriteLock(){
+  _writeLock=false;
+  // A remote update may have arrived while this device's own write was still in flight.
+  // Instead of letting it be silently dropped, process it now that the lock is clear.
+  if(_pendingSnapshotDuringLock){
+    const snap=_pendingSnapshotDuringLock;
+    _pendingSnapshotDuringLock=null;
+    try{ _processDavxSnapshot(snap); }catch(e){}
+  }
+}
 const DB={
   get(k){ return _memCache[k]!==undefined?_memCache[k]:null; },
-  set(k,v){ _memCache[k]=v; try{ const s=JSON.stringify(v); if(s.length<500000){ localStorage.setItem("davx_"+k,s); } else { localStorage.removeItem("davx_"+k); }}catch(e){ try{ localStorage.removeItem("davx_"+k); }catch(e2){}} if(_firebaseReady&&_db){ _writeLock=true; _db.ref("davx/"+k).set(v).then(()=>{ setTimeout(()=>{ _writeLock=false; },800); }).catch(e=>{ _writeLock=false; }); } },
+  set(k,v){ _memCache[k]=v; try{ const s=JSON.stringify(v); if(s.length<500000){ localStorage.setItem("davx_"+k,s); } else { localStorage.removeItem("davx_"+k); }}catch(e){ try{ localStorage.removeItem("davx_"+k); }catch(e2){}} if(_firebaseReady&&_db){ _writeLock=true; _db.ref("davx/"+k).set(v).then(()=>{ setTimeout(_clearWriteLock,800); }).catch(e=>{ _clearWriteLock(); try{ showToast("⚠️ Cloud sync failed — saved on this device only"); }catch(e2){} }); } },
   push(k,item){ const a=DB.get(k)||[]; a.unshift(item); DB.set(k,a); return a; },
   del(k,id){ const a=(DB.get(k)||[]).filter(i=>i.id!==id); DB.set(k,a); const t=DB._getTombs(); if(!t[k]) t[k]={}; t[k][id]=Date.now(); DB._saveTombs(t); if(_firebaseReady&&_db) _db.ref("davx_tombs/"+k+"/"+id).set(Date.now()).catch(e=>{}); return a; },
   _getTombs(){ try{ return JSON.parse(localStorage.getItem("davx_tombstones")||"{}"); }catch(e){ return {}; } },
@@ -1858,7 +1869,15 @@ const DB={
 function setupFirebaseListeners(){
   if(!_firebaseReady||!_db) return;
   _db.ref("davx").on("value",snap=>{
-    if(!snap.val()||_writeLock) return;
+    if(!snap.val()) return;
+    // Don't drop a remote update just because our own write is still in flight —
+    // buffer it and it'll be applied as soon as the lock clears.
+    if(_writeLock){ _pendingSnapshotDuringLock=snap; return; }
+    _processDavxSnapshot(snap);
+  });
+}
+
+function _processDavxSnapshot(snap){
     const remote=snap.val(),wb={};
     // Keys that are set atomically (not item-merged) — always take remote as truth
     const ATOMIC_KEYS=new Set(["timetable","studentAttendance"]);
@@ -1877,16 +1896,12 @@ function setupFirebaseListeners(){
           cr.forEach(item=>{
             if(item&&item.id&&!tombs[item.id]){
               const existing=lmap[item.id];
-              const merged=Object.assign({},item,existing||{});
-              // For fields where local has a value but remote might be stale (e.g. parentMobile),
-              // prefer local. But if local field is empty/missing, use remote field.
-              if(existing){
-                Object.keys(item).forEach(field=>{
-                  if(existing[field]===undefined||existing[field]===null||existing[field]===""){
-                    merged[field]=item[field];
-                  }
-                });
-              }
+              // Remote is the source of truth for edits made elsewhere (results, notices,
+              // homework, student info, etc.) — take the remote record as-is. The one
+              // deliberate exception is parentMobile, which may be edited locally slightly
+              // ahead of a remote write landing; keep the local value there if it's filled in.
+              const merged=Object.assign({},item);
+              if(existing&&existing.parentMobile){ merged.parentMobile=existing.parentMobile; }
               if(!existing||JSON.stringify(existing)!==JSON.stringify(merged)){ lmap[item.id]=merged; changed=true; }
             }
           });
@@ -1925,7 +1940,6 @@ function setupFirebaseListeners(){
       if(wb.complaints){ try{renderComplaintLog();}catch(e){} }
       if(wb.timetable||wb.studentAttendance||wb.results||wb.copySessions){ try{renderWeeklySpotlight();}catch(e){} try{_origRenderRC();}catch(e){} }
     }
-  });
 }
 
 // ═══════════════════════════════════════════
@@ -2932,7 +2946,7 @@ function fileItemHTML(f){
   const canDel=currentUser&&(currentUser.role==="classteacher"||(currentUser.name===f.uploader&&["teacher","monitor"].includes(currentUser.role)));
   return `<div class="file-item"><div class="file-ico">${ico}</div><div class="file-info"><div class="file-name">${f.title}</div><div class="file-meta">${s?s.name:f.subject} · ${f.uploader} · ${f.date}${f.desc?" · "+f.desc:""}</div></div><div class="file-actions"><span class="tag ${tag}">${f.type}</span>${f.dataUrl?`<button class="btn btn-outline btn-sm" onclick="downloadFile('${f.id}')">⬇️</button>`:""} ${canDel?`<button class="btn btn-danger btn-sm" onclick="deleteFile('${f.id}')">🗑️</button>`:""}</div></div>`;
 }
-function handleFileSelect(input){ const file=input.files[0]; if(!file) return; if(file.size>10*1024*1024){ showToast("❌ File too large (max 10MB)"); input.value=""; return; } const p=document.getElementById("filePreview"); p.style.display="block"; p.textContent="📎 "+file.name+" ("+Math.round(file.size/1024)+" KB)"; }
+function handleFileSelect(input){ const file=input.files[0]; if(!file) return; if(file.size>50*1024*1024){ showToast("❌ File too large (max 50MB)"); input.value=""; return; } const p=document.getElementById("filePreview"); p.style.display="block"; p.textContent="📎 "+file.name+" ("+Math.round(file.size/1024)+" KB)"; }
 function uploadFile(){ const title=document.getElementById("upTitle").value.trim(),subject=document.getElementById("upSubject").value,type=document.getElementById("upType").value,desc=document.getElementById("upDesc").value.trim(),input=document.getElementById("fileInput"); if(!title||!subject){ showToast("❌ Fill in title and subject"); return; } const save=(dataUrl,fname)=>{ DB.push("files",{id:Date.now().toString(),title,subject,type,desc,uploader:currentUser.name,date:new Date().toLocaleDateString("en-IN"),dataUrl:dataUrl||null,filename:fname||null}); document.getElementById("upTitle").value=""; document.getElementById("upDesc").value=""; document.getElementById("upSubject").value=""; document.getElementById("filePreview").style.display="none"; input.value=""; showToast("✅ Uploaded successfully!"); renderMyUploads(); renderDashboard(); }; if(input.files[0]){ const file=input.files[0],r=new FileReader(); r.onload=e=>save(e.target.result,file.name); r.readAsDataURL(file); } else save(null,null); }
 function downloadFile(id){ const f=(DB.get("files")||[]).find(x=>x.id===id); if(!f||!f.dataUrl){ showToast("⚠️ No file attached"); return; } const a=document.createElement("a"); a.href=f.dataUrl; a.download=f.filename||f.title; a.click(); }
 async function deleteFile(id){ if(!await customConfirm("This file will be permanently removed.","Delete File","📁","Delete")) return; if(!await requireStepUp("delete this file")) return; DB.del("files",id); showToast("🗑️ File deleted"); renderMyUploads(); renderDashboard(); renderSubjectList(); if(currentFolder) renderFolder(currentFolder); }
