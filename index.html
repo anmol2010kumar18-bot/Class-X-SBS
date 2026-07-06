@@ -1816,8 +1816,9 @@ function initFirebase(){
           // Atomic keys — remote is always the single source of truth
           if(k==="timetable"||k==="studentAttendance"){
             _memCache[k]=remote[k];
-          } else if(Array.isArray(remote[k])){
-            const cr=DB._applyTombs(k,remote[k]);
+          } else if(Array.isArray(remote[k])||PER_ITEM_KEYS.has(k)){
+            const remoteArr=PER_ITEM_KEYS.has(k)?_asArray(remote[k]):remote[k];
+            const cr=DB._applyTombs(k,remoteArr);
             if(!Array.isArray(local)||local.length===0){ _memCache[k]=cr; }
             else {
               const tombs=DB._getTombs()[k]||{};
@@ -1827,16 +1828,27 @@ function initFirebase(){
               // Remote is the source of truth for which ids exist — drop any locally-cached
               // id that's no longer present remotely (e.g. deleted on another device while
               // this device was offline), so deletions can't be resurrected by write-back.
-              const remoteIds=new Set((remote[k]||[]).filter(x=>x&&x.id).map(x=>x.id));
+              const remoteIds=new Set(remoteArr.filter(x=>x&&x.id).map(x=>x.id));
               Object.keys(lmap).forEach(id=>{ if(!remoteIds.has(id)) delete lmap[id]; });
               const merged=Object.values(lmap);
               _memCache[k]=merged; wb[k]=merged;
             }
           } else { _memCache[k]=remote[k]; }
         });
-        // Don't write atomic keys back — remote is authoritative for them
-        Object.keys(wb).filter(k=>k!=="timetable"&&k!=="studentAttendance").forEach(k=>{ _db.ref("davx/"+k).set(wb[k]).catch(e=>{}); });
-      } else if(Object.keys(_memCache).length>0){ Object.keys(_memCache).forEach(k=>{ if(_memCache[k]!=null) _db.ref("davx/"+k).set(_memCache[k]).catch(e=>{}); }); }
+        // Don't write atomic keys back — remote is authoritative for them.
+        // Don't write files/gallery back as one array either — they're stored per-item in Firebase.
+        Object.keys(wb).filter(k=>k!=="timetable"&&k!=="studentAttendance"&&!PER_ITEM_KEYS.has(k)).forEach(k=>{ _db.ref("davx/"+k).set(wb[k]).catch(e=>{}); });
+      } else if(Object.keys(_memCache).length>0){
+        Object.keys(_memCache).forEach(k=>{
+          if(_memCache[k]==null) return;
+          if(PER_ITEM_KEYS.has(k)&&Array.isArray(_memCache[k])){
+            // Seed a brand-new empty database one item at a time, not as one giant array.
+            _memCache[k].forEach(item=>{ if(item&&item.id) _db.ref("davx/"+k+"/"+item.id).set(item).catch(e=>{}); });
+          } else {
+            _db.ref("davx/"+k).set(_memCache[k]).catch(e=>{});
+          }
+        });
+      }
       Object.keys(_memCache).forEach(k=>{ try{ localStorage.setItem("davx_"+k,JSON.stringify(_memCache[k])); }catch(e){} });
       if(currentUser) try{ renderDashboard(); renderTTDisplay(); updateCTNotifBadge(); _refreshNotifDot(); }catch(e){}
     }).catch(e=>{});
@@ -1855,11 +1867,31 @@ function _clearWriteLock(){
     try{ _processDavxSnapshot(snap); }catch(e){}
   }
 }
+// Keys whose items can carry large embedded data (base64 files/images). For these, each
+// item is stored as its own child node in Firebase (davx/<key>/<id>) instead of the whole
+// collection being rewritten as one array on every single add/delete — otherwise every new
+// upload has to re-transmit every file ever uploaded, which is what made uploads slow (and,
+// once the combined payload got big enough, made the write fail outright).
+const PER_ITEM_KEYS=new Set(["files","gallery"]);
+function _asArray(v){ if(Array.isArray(v)) return v; if(v&&typeof v==="object") return Object.values(v); return []; }
+function _fbWriteFailToast(){ try{ showToast("⚠️ Cloud sync failed — saved on this device only"); }catch(e2){} }
 const DB={
   get(k){ return _memCache[k]!==undefined?_memCache[k]:null; },
-  set(k,v){ _memCache[k]=v; try{ const s=JSON.stringify(v); if(s.length<500000){ localStorage.setItem("davx_"+k,s); } else { localStorage.removeItem("davx_"+k); }}catch(e){ try{ localStorage.removeItem("davx_"+k); }catch(e2){}} if(_firebaseReady&&_db){ _writeLock=true; _db.ref("davx/"+k).set(v).then(()=>{ setTimeout(_clearWriteLock,800); }).catch(e=>{ _clearWriteLock(); try{ showToast("⚠️ Cloud sync failed — saved on this device only"); }catch(e2){} }); } },
-  push(k,item){ const a=DB.get(k)||[]; a.unshift(item); DB.set(k,a); return a; },
-  del(k,id){ const a=(DB.get(k)||[]).filter(i=>i.id!==id); DB.set(k,a); const t=DB._getTombs(); if(!t[k]) t[k]={}; t[k][id]=Date.now(); DB._saveTombs(t); if(_firebaseReady&&_db) _db.ref("davx_tombs/"+k+"/"+id).set(Date.now()).catch(e=>{}); return a; },
+  set(k,v){ _memCache[k]=v; try{ const s=JSON.stringify(v); if(s.length<500000){ localStorage.setItem("davx_"+k,s); } else { localStorage.removeItem("davx_"+k); }}catch(e){ try{ localStorage.removeItem("davx_"+k); }catch(e2){}} if(_firebaseReady&&_db&&!PER_ITEM_KEYS.has(k)){ _writeLock=true; _db.ref("davx/"+k).set(v).then(()=>{ setTimeout(_clearWriteLock,800); }).catch(e=>{ _clearWriteLock(); _fbWriteFailToast(); }); } },
+  push(k,item){
+    const a=DB.get(k)||[]; a.unshift(item); DB.set(k,a);
+    if(PER_ITEM_KEYS.has(k)&&_firebaseReady&&_db){ _writeLock=true; _db.ref("davx/"+k+"/"+item.id).set(item).then(()=>{ setTimeout(_clearWriteLock,800); }).catch(e=>{ _clearWriteLock(); _fbWriteFailToast(); }); }
+    return a;
+  },
+  del(k,id){
+    const a=(DB.get(k)||[]).filter(i=>i.id!==id); DB.set(k,a);
+    const t=DB._getTombs(); if(!t[k]) t[k]={}; t[k][id]=Date.now(); DB._saveTombs(t);
+    if(_firebaseReady&&_db){
+      _db.ref("davx_tombs/"+k+"/"+id).set(Date.now()).catch(e=>{});
+      if(PER_ITEM_KEYS.has(k)){ _db.ref("davx/"+k+"/"+id).remove().catch(e=>{}); }
+    }
+    return a;
+  },
   _getTombs(){ try{ return JSON.parse(localStorage.getItem("davx_tombstones")||"{}"); }catch(e){ return {}; } },
   _saveTombs(t){ try{ localStorage.setItem("davx_tombstones",JSON.stringify(t)); }catch(e){} },
   _loadRemoteTombs(){ if(!_firebaseReady||!_db) return; _db.ref("davx_tombs").once("value").then(snap=>{ if(!snap.val()) return; const rt=snap.val(),local=DB._getTombs(); Object.keys(rt).forEach(k=>{ if(!local[k]) local[k]={}; Object.keys(rt[k]).forEach(id=>{ local[k][id]=rt[k][id]; }); }); DB._saveTombs(local); }).catch(e=>{}); },
@@ -1886,8 +1918,11 @@ function _processDavxSnapshot(snap){
       if(ATOMIC_KEYS.has(k)){
         // Always replace from remote; remote is the single source of truth
         if(JSON.stringify(local)!==JSON.stringify(remote[k])){ _memCache[k]=remote[k]; wb[k]=remote[k]; }
-      } else if(Array.isArray(remote[k])){
-        const cr=DB._applyTombs(k,remote[k]);
+      } else if(Array.isArray(remote[k])||PER_ITEM_KEYS.has(k)){
+        // files/gallery are stored as an object of child nodes in Firebase now (one per item)
+        // rather than a single array, so each upload/delete only touches its own node.
+        const remoteArr=PER_ITEM_KEYS.has(k)?_asArray(remote[k]):remote[k];
+        const cr=DB._applyTombs(k,remoteArr);
         if(!Array.isArray(local)||local.length===0){ _memCache[k]=cr; }
         else {
           const lmap={}; local.forEach(x=>{ if(x&&x.id) lmap[x.id]=x; });
@@ -1909,15 +1944,15 @@ function _processDavxSnapshot(snap){
           // Remote is the source of truth for which ids exist — drop any locally-held id
           // that's no longer present remotely (covers deletions made on another device
           // during this session, even if this tab's tombstone cache hasn't caught up).
-          const remoteIds=new Set((remote[k]||[]).filter(x=>x&&x.id).map(x=>x.id));
+          const remoteIds=new Set(remoteArr.filter(x=>x&&x.id).map(x=>x.id));
           Object.keys(lmap).forEach(id=>{ if(!remoteIds.has(id)){ delete lmap[id]; changed=true; } });
           if(changed){ _memCache[k]=Object.values(lmap); wb[k]=_memCache[k]; }
         }
       } else if(local===null||local===undefined){ _memCache[k]=remote[k]; }
     });
-    // Only write merged arrays back — never write atomic keys back (timetable, studentAttendance)
-    // to avoid overwriting a newer remote value with stale local data
-    Object.keys(wb).filter(k=>!ATOMIC_KEYS.has(k)).forEach(k=>{ _db.ref("davx/"+k).set(wb[k]).catch(e=>{}); });
+    // Only write merged arrays back — never write atomic keys back (timetable, studentAttendance),
+    // and never write files/gallery back as one array (they're stored per-item in Firebase).
+    Object.keys(wb).filter(k=>!ATOMIC_KEYS.has(k)&&!PER_ITEM_KEYS.has(k)).forEach(k=>{ _db.ref("davx/"+k).set(wb[k]).catch(e=>{}); });
     if(Object.keys(wb).length>0&&currentUser){
       try{renderDashboard();}catch(e){}
       try{updateCTNotifBadge();}catch(e){}
@@ -1963,7 +1998,7 @@ function forceSyncFromFirebase() {
 
       arrayKeys.forEach(key => {
         if (remote[key] !== undefined) {
-          _memCache[key] = Array.isArray(remote[key]) ? DB._applyTombs(key, remote[key]) : remote[key];
+          _memCache[key] = DB._applyTombs(key, _asArray(remote[key]));
         }
       });
       atomicKeys.forEach(key => {
@@ -2944,12 +2979,74 @@ function fileItemHTML(f){
   const ico=typeIcons[f.type]||"📄",tag=typeTags[f.type]||"tag-note";
   const s=SUBJECTS.find(x=>x.id===f.subject);
   const canDel=currentUser&&(currentUser.role==="classteacher"||(currentUser.name===f.uploader&&["teacher","monitor"].includes(currentUser.role)));
-  return `<div class="file-item"><div class="file-ico">${ico}</div><div class="file-info"><div class="file-name">${f.title}</div><div class="file-meta">${s?s.name:f.subject} · ${f.uploader} · ${f.date}${f.desc?" · "+f.desc:""}</div></div><div class="file-actions"><span class="tag ${tag}">${f.type}</span>${f.dataUrl?`<button class="btn btn-outline btn-sm" onclick="downloadFile('${f.id}')">⬇️</button>`:""} ${canDel?`<button class="btn btn-danger btn-sm" onclick="deleteFile('${f.id}')">🗑️</button>`:""}</div></div>`;
+  return `<div class="file-item"><div class="file-ico">${ico}</div><div class="file-info"><div class="file-name">${f.title}</div><div class="file-meta">${s?s.name:f.subject} · ${f.uploader} · ${f.date}${f.desc?" · "+f.desc:""}</div></div><div class="file-actions"><span class="tag ${tag}">${f.type}</span>${(f.dataUrl||f.chunked)?`<button class="btn btn-outline btn-sm" onclick="downloadFile('${f.id}')">⬇️</button>`:""} ${canDel?`<button class="btn btn-danger btn-sm" onclick="deleteFile('${f.id}')">🗑️</button>`:""}</div></div>`;
 }
 function handleFileSelect(input){ const file=input.files[0]; if(!file) return; if(file.size>50*1024*1024){ showToast("❌ File too large (max 50MB)"); input.value=""; return; } const p=document.getElementById("filePreview"); p.style.display="block"; p.textContent="📎 "+file.name+" ("+Math.round(file.size/1024)+" KB)"; }
-function uploadFile(){ const title=document.getElementById("upTitle").value.trim(),subject=document.getElementById("upSubject").value,type=document.getElementById("upType").value,desc=document.getElementById("upDesc").value.trim(),input=document.getElementById("fileInput"); if(!title||!subject){ showToast("❌ Fill in title and subject"); return; } const save=(dataUrl,fname)=>{ DB.push("files",{id:Date.now().toString(),title,subject,type,desc,uploader:currentUser.name,date:new Date().toLocaleDateString("en-IN"),dataUrl:dataUrl||null,filename:fname||null}); document.getElementById("upTitle").value=""; document.getElementById("upDesc").value=""; document.getElementById("upSubject").value=""; document.getElementById("filePreview").style.display="none"; input.value=""; showToast("✅ Uploaded successfully!"); renderMyUploads(); renderDashboard(); }; if(input.files[0]){ const file=input.files[0],r=new FileReader(); r.onload=e=>save(e.target.result,file.name); r.readAsDataURL(file); } else save(null,null); }
-function downloadFile(id){ const f=(DB.get("files")||[]).find(x=>x.id===id); if(!f||!f.dataUrl){ showToast("⚠️ No file attached"); return; } const a=document.createElement("a"); a.href=f.dataUrl; a.download=f.filename||f.title; a.click(); }
-async function deleteFile(id){ if(!await customConfirm("This file will be permanently removed.","Delete File","📁","Delete")) return; if(!await requireStepUp("delete this file")) return; DB.del("files",id); showToast("🗑️ File deleted"); renderMyUploads(); renderDashboard(); renderSubjectList(); if(currentFolder) renderFolder(currentFolder); }
+function uploadFile(){
+  const title=document.getElementById("upTitle").value.trim(),subject=document.getElementById("upSubject").value,type=document.getElementById("upType").value,desc=document.getElementById("upDesc").value.trim(),input=document.getElementById("fileInput");
+  if(!title||!subject){ showToast("❌ Fill in title and subject"); return; }
+  const preview=document.getElementById("filePreview");
+  const finish=(extra,id)=>{
+    DB.push("files",Object.assign({id:id||Date.now().toString(),title,subject,type,desc,uploader:currentUser.name,date:new Date().toLocaleDateString("en-IN"),dataUrl:null,filename:null},extra));
+    document.getElementById("upTitle").value=""; document.getElementById("upDesc").value=""; document.getElementById("upSubject").value="";
+    if(preview){ preview.style.display="none"; }
+    input.value="";
+    showToast("✅ Uploaded successfully!");
+    renderMyUploads(); renderDashboard();
+  };
+  const file=input.files[0];
+  if(!file){ finish({},null); return; }
+  const id=Date.now().toString();
+  // A single write to the Realtime Database has a real practical size ceiling — large base64
+  // strings (files over ~10MB once encoded) can fail outright. Instead of writing one huge
+  // value, split the encoded file into several safely-sized pieces and write each separately,
+  // then stitch them back together on download. No extra service or billing plan needed.
+  const INLINE_SAFE_LIMIT=3*1024*1024;
+  const CHUNK_SIZE=2500000; // ~2.5MB of base64 text per chunk, well under the failure threshold
+  const r=new FileReader();
+  r.onload=async e=>{
+    const dataUrl=e.target.result;
+    if(dataUrl.length<=INLINE_SAFE_LIMIT){
+      finish({dataUrl,filename:file.name},id);
+      return;
+    }
+    if(!_firebaseReady||!_db){ showToast("❌ Can't upload large files while offline"); return; }
+    const chunks=[]; for(let i=0;i<dataUrl.length;i+=CHUNK_SIZE){ chunks.push(dataUrl.slice(i,i+CHUNK_SIZE)); }
+    if(preview){ preview.style.display="block"; preview.textContent="⬆️ Uploading "+file.name+"… 0%"; }
+    let done=0;
+    try{
+      await Promise.all(chunks.map((chunk,i)=>
+        _db.ref("davx_file_chunks/"+id+"/"+i).set(chunk).then(()=>{
+          done++; if(preview){ preview.textContent="⬆️ Uploading "+file.name+"… "+Math.round(done/chunks.length*100)+"%"; }
+        })
+      ));
+      finish({chunked:true,chunkCount:chunks.length,filename:file.name},id);
+    }catch(err){
+      console.error(err);
+      _db.ref("davx_file_chunks/"+id).remove().catch(e=>{});
+      showToast("❌ Upload failed — check your connection and try again");
+      if(preview) preview.style.display="none";
+    }
+  };
+  r.onerror=()=>showToast("❌ Couldn't read the file");
+  r.readAsDataURL(file);
+}
+async function downloadFile(id){
+  const f=(DB.get("files")||[]).find(x=>x.id===id);
+  if(!f||(!f.dataUrl&&!f.chunked)){ showToast("⚠️ No file attached"); return; }
+  if(f.dataUrl){ const a=document.createElement("a"); a.href=f.dataUrl; a.download=f.filename||f.title; a.click(); return; }
+  if(!_firebaseReady||!_db){ showToast("❌ Can't download while offline"); return; }
+  showToast("⏳ Preparing download…");
+  try{
+    const snap=await _db.ref("davx_file_chunks/"+id).once("value");
+    const val=snap.val();
+    if(!val){ showToast("⚠️ File data not found"); return; }
+    const count=f.chunkCount||Object.keys(val).length;
+    let dataUrl=""; for(let i=0;i<count;i++){ dataUrl+=val[i]||""; }
+    const a=document.createElement("a"); a.href=dataUrl; a.download=f.filename||f.title; a.click();
+  }catch(e){ console.error(e); showToast("❌ Couldn't download this file"); }
+}
+async function deleteFile(id){ if(!await customConfirm("This file will be permanently removed.","Delete File","📁","Delete")) return; if(!await requireStepUp("delete this file")) return; const f=(DB.get("files")||[]).find(x=>x.id===id); DB.del("files",id); if(f&&f.chunked&&_firebaseReady&&_db){ _db.ref("davx_file_chunks/"+id).remove().catch(e=>{}); } showToast("🗑️ File deleted"); renderMyUploads(); renderDashboard(); renderSubjectList(); if(currentFolder) renderFolder(currentFolder); }
 function renderMyUploads(){ const el=document.getElementById("myUploads"); if(!el) return; const files=(DB.get("files")||[]).filter(f=>f.uploader===currentUser.name); el.innerHTML=files.length?files.map(f=>fileItemHTML(f)).join(""):`<div class="empty-state"><div class="empty-icon">📂</div><div class="empty-text">You haven't uploaded anything yet</div></div>`; }
 
 // ═══════════════════════════════════════════
@@ -5141,8 +5238,7 @@ async function confirmEditLeave(){
 async function deleteLeave(id, role){
   if(!confirm("Delete this leave application?")) return;
   if(role==="ct" && !await requireStepUp("delete this leave application")) return;
-  const apps=DB.get("leaveApplications")||[];
-  DB.set("leaveApplications", apps.filter(a=>a.id!==id));
+  DB.del("leaveApplications", id);
   showToast("🗑️ Leave application deleted.");
   if(role==="ct"){ renderManageLeaves(); updateLeaveCTBadge(); }
   else { renderMyLeaves(); updateLeaveStatusBadge(); }
