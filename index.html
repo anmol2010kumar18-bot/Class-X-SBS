@@ -1887,14 +1887,20 @@ const DB={
     const a=(DB.get(k)||[]).filter(i=>i.id!==id); DB.set(k,a);
     const t=DB._getTombs(); if(!t[k]) t[k]={}; t[k][id]=Date.now(); DB._saveTombs(t);
     if(_firebaseReady&&_db){
-      _db.ref("davx_tombs/"+k+"/"+id).set(Date.now()).catch(e=>{});
-      if(PER_ITEM_KEYS.has(k)){ _db.ref("davx/"+k+"/"+id).remove().catch(e=>{}); }
+      // The tombstone is what actually makes a deletion permanent everywhere (it's what every
+      // device checks before re-merging an item), so it gets its own failure handling rather
+      // than failing silently like before.
+      _db.ref("davx_tombs/"+k+"/"+id).set(Date.now()).catch(e=>{ console.error(e); _fbWriteFailToast(); });
+      if(PER_ITEM_KEYS.has(k)){ _db.ref("davx/"+k+"/"+id).remove().catch(e=>{ console.error(e); }); }
     }
     return a;
   },
   _getTombs(){ try{ return JSON.parse(localStorage.getItem("davx_tombstones")||"{}"); }catch(e){ return {}; } },
   _saveTombs(t){ try{ localStorage.setItem("davx_tombstones",JSON.stringify(t)); }catch(e){} },
-  _loadRemoteTombs(){ if(!_firebaseReady||!_db) return; _db.ref("davx_tombs").once("value").then(snap=>{ if(!snap.val()) return; const rt=snap.val(),local=DB._getTombs(); Object.keys(rt).forEach(k=>{ if(!local[k]) local[k]={}; Object.keys(rt[k]).forEach(id=>{ local[k][id]=rt[k][id]; }); }); DB._saveTombs(local); }).catch(e=>{}); },
+  // Keep watching for delete-markers for the whole session, not just once at startup — otherwise
+  // a device that's been open a while never learns about something deleted elsewhere, and the
+  // "deleted" item can come right back the next time this device syncs.
+  _loadRemoteTombs(){ if(!_firebaseReady||!_db) return; _db.ref("davx_tombs").on("value",snap=>{ if(!snap.val()) return; const rt=snap.val(),local=DB._getTombs(); let changed=false; Object.keys(rt).forEach(k=>{ if(!local[k]) local[k]={}; Object.keys(rt[k]).forEach(id=>{ if(local[k][id]!==rt[k][id]){ local[k][id]=rt[k][id]; changed=true; } }); }); if(changed) DB._saveTombs(local); }); },
   _applyTombs(k,arr){ if(!Array.isArray(arr)) return arr; const t=DB._getTombs(); if(!t[k]) return arr; return arr.filter(item=>item&&item.id&&!t[k][item.id]); }
 };
 
@@ -2019,38 +2025,39 @@ function forceSyncFromFirebase() {
         } catch(e) { console.warn("localStorage write failed", k, e); }
       });
       
-      showToast("✅ Sync complete - " + (remote.files?.length || 0) + " files loaded");
+      showToast("✅ Sync complete - " + _asArray(remote.files).length + " files loaded");
     } else {
       showToast("☁️ Cloud is empty — nothing to sync");
     }
     if (btn) btn.textContent = "☁️";
     
-    // 🔄 Refresh all UI components
+    // 🔄 Refresh all UI components — each wrapped individually so one screen failing to
+    // re-render doesn't surface as a scary "Sync failed" error when the sync itself worked fine.
     if (currentUser) {
-      renderDashboard();
-      renderStudentsList();
-      renderMyUploads();
-      renderSubjectList();
-      renderNotices();
-      renderGallery();
-      renderTTDisplay();
-      renderAttView();
-      renderResults();
-      renderEnteredResults();
-      renderCopySessionsList();
-      updateCTNotifBadge();
-      updateHWBadge();
-      try{renderPolls();}catch(e){}
-      try{updatePollBadge();}catch(e){}
-      try{renderExamSchedule();}catch(e){}
-      try{updateExamBadge();}catch(e){}
-      try{renderWeeklySpotlight();}catch(e){}
-      try{populateLeaderboardTestSelect();}catch(e){}
-      try{_refreshNotifDot();}catch(e){}
-      if(currentUser.role==="student"){ try{renderMyDuties();}catch(e){} try{updateLeaveStatusBadge();}catch(e){} }
-      if(currentUser.role==="classteacher"){ try{updateLeaveCTBadge();}catch(e){} }
-      if(currentUser.role==="student"){ try{initReportCardPage();}catch(e){} }
-      if(currentFolder) try{renderFolder(currentFolder);}catch(e){}
+      try{renderDashboard();}catch(e){console.error(e);}
+      try{renderStudentsList();}catch(e){console.error(e);}
+      try{renderMyUploads();}catch(e){console.error(e);}
+      try{renderSubjectList();}catch(e){console.error(e);}
+      try{renderNotices();}catch(e){console.error(e);}
+      try{renderGallery();}catch(e){console.error(e);}
+      try{renderTTDisplay();}catch(e){console.error(e);}
+      try{renderAttView();}catch(e){console.error(e);}
+      try{renderResults();}catch(e){console.error(e);}
+      try{renderEnteredResults();}catch(e){console.error(e);}
+      try{renderCopySessionsList();}catch(e){console.error(e);}
+      try{updateCTNotifBadge();}catch(e){console.error(e);}
+      try{updateHWBadge();}catch(e){console.error(e);}
+      try{renderPolls();}catch(e){console.error(e);}
+      try{updatePollBadge();}catch(e){console.error(e);}
+      try{renderExamSchedule();}catch(e){console.error(e);}
+      try{updateExamBadge();}catch(e){console.error(e);}
+      try{renderWeeklySpotlight();}catch(e){console.error(e);}
+      try{populateLeaderboardTestSelect();}catch(e){console.error(e);}
+      try{_refreshNotifDot();}catch(e){console.error(e);}
+      if(currentUser.role==="student"){ try{renderMyDuties();}catch(e){console.error(e);} try{updateLeaveStatusBadge();}catch(e){console.error(e);} }
+      if(currentUser.role==="classteacher"){ try{updateLeaveCTBadge();}catch(e){console.error(e);} }
+      if(currentUser.role==="student"){ try{initReportCardPage();}catch(e){console.error(e);} }
+      if(currentFolder){ try{renderFolder(currentFolder);}catch(e){console.error(e);} }
     }
   }).catch(e => {
     if (btn) btn.textContent = "☁️";
@@ -2175,9 +2182,9 @@ function exportBackupExcel(){
 // ═══════════════════════════════════════════
 const SUBJECTS=[
   {id:"maths",name:"Mathematics",emoji:"📐",teacher:"Ashwini Kumar Singh"},
-  {id:"physics",name:"Physics",emoji:"⚡",teacher:"Samrat Ashok"},
+  {id:"physics",name:"Physics",emoji:"⚡",teacher:"Vikas Giri"},
   {id:"chemistry",name:"Chemistry",emoji:"⚗️",teacher:"Ajit Kumar Singh"},
-  {id:"biology",name:"Biology",emoji:"🧬",teacher:"Murshid Alam"},
+  {id:"biology",name:"Biology",emoji:"🧬",teacher:"Mithelesh"},
   {id:"english",name:"English",emoji:"📖",teacher:"R.K. Singh"},
   {id:"history",name:"History",emoji:"🏛️",teacher:"Anshuman Bhushan"},
   {id:"geography",name:"Geography",emoji:"🗺️",teacher:"Raju Prasad"},
@@ -2185,9 +2192,9 @@ const SUBJECTS=[
   {id:"economics",name:"Economics",emoji:"📈",teacher:"Raju Prasad"},
   {id:"hindi",name:"Hindi",emoji:"🇮🇳",teacher:"Richa"},
   {id:"general",name:"General / All",emoji:"📂",teacher:"—"},
-  {id:"computer",name:"Computer Sc.",emoji:"💻",teacher:"Rakesh Singh"},
+  {id:"computer",name:"Computer Sc.",emoji:"💻",teacher:"Rakesh Rajput"},
   {id:"atl",name:"ATL",emoji:"🔬",teacher:"Sanjeev Ranjan"},
-  {id:"games",name:"Games",emoji:"⚽",teacher:"Shyam Singh"},
+  {id:"games",name:"Games",emoji:"⚽",teacher:"Subham Ojha"},
   {id:"library",name:"Library",emoji:"📚",teacher:"Anil Kumar Singh"}
 ];
 const SUBJ_COLORS={maths:"#4a9eff",physics:"#ffd700",chemistry:"#3dba7e",biology:"#ff7eb6",english:"#e8a020",history:"#c060ff",geography:"#60d0ff",civics:"#ff9060",economics:"#60ff90",hindi:"#ff6060",computer:"#a0a0ff",atl:"#00e5cc",games:"#ff8c42",library:"#9b59b6"};
@@ -4079,7 +4086,7 @@ function renderStudentsList(){
   el.innerHTML=notifsHTML+`<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;"><div style="font-size:13px;color:var(--muted);">${students.length} student${students.length!==1?"s":""} registered</div><button class="btn btn-danger btn-sm" onclick="removeAllStudents()">🗑️ Remove All</button></div><table class="students-table"><thead><tr><th>#</th><th>Name</th><th>Roll No</th><th>Adm. No</th><th>Parent Mobile</th><th>Registered On</th><th>Last Login</th><th>Action</th></tr></thead><tbody>`+sorted.map((s,i)=>`<tr><td style="color:var(--muted);">${i+1}</td><td style="font-weight:600;">${s.name}</td><td><span style="background:rgba(232,160,32,.15);color:var(--gold);padding:2px 8px;border-radius:6px;font-size:12px;">${s.roll}</span></td><td style="font-size:12px;color:var(--muted);">${s.admNo}</td><td style="font-size:12px;">${s.parentMobile?`<span class="wa-chip">📱 ${s.parentMobile}</span>`:`<button class="btn btn-outline btn-sm" onclick="openEditParentMobile('${s.id}')">+ Add</button>`}</td><td style="font-size:11px;color:var(--muted);">${s.joinedOn}</td><td style="font-size:11px;color:var(--muted);">${s.lastLogin||"Never"}</td><td style="display:flex;gap:4px;">${s.parentMobile?`<button class="btn btn-outline btn-sm" onclick="openEditParentMobile('${s.id}')">✏️</button>`:""}<button class="btn btn-danger btn-sm" onclick="deleteStudent('${s.id}')">🗑️</button></td></tr>`).join("")+`</tbody></table>`;
 }
 async function deleteStudent(id){ const students=DB.get("students")||[],s=students.find(x=>x.id===id); if(!s) return; if(!await customConfirm(`Remove "${s.name}" (Roll: ${s.roll})?`,"Remove Student","👤","Remove")) return; if(!await requireStepUp("remove this student")) return; DB.del("students",id); renderStudentsList(); showToast("🗑️ Student removed"); }
-async function removeAllStudents(){ const students=DB.get("students")||[]; if(!students.length){ showToast("No students to remove"); return; } if(!await customConfirm(`Remove ALL ${students.length} students?`,"Remove All","⚠️","Remove All")) return; DB.set("students",[]); DB.set("ct_notifications",[]); renderStudentsList(); showToast("🗑️ All students removed"); }
+async function removeAllStudents(){ const students=DB.get("students")||[]; if(!students.length){ showToast("No students to remove"); return; } if(!await customConfirm(`Remove ALL ${students.length} students?`,"Remove All","⚠️","Remove All")) return; const t=DB._getTombs(); if(!t.students) t.students={}; students.forEach(s=>{ t.students[s.id]=Date.now(); }); DB._saveTombs(t); if(_firebaseReady&&_db){ students.forEach(s=>{ _db.ref("davx_tombs/students/"+s.id).set(Date.now()).catch(e=>{}); }); } DB.set("students",[]); DB.set("ct_notifications",[]); renderStudentsList(); showToast("🗑️ All students removed"); }
 function markNotifsRead(){ const notifs=DB.get("ct_notifications")||[]; notifs.forEach(n=>n.read=true); DB.set("ct_notifications",notifs); updateCTNotifBadge(); renderStudentsList(); showToast("✓ All read"); }
 
 // ── PARENT MOBILE ──
