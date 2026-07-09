@@ -337,6 +337,34 @@ button:active, .btn:active, .nav-btn:active, .auth-btn:active, .role-card:active
 .students-table td{padding:8px 11px;border-bottom:1px solid rgba(255,255,255,.05);vertical-align:middle;}
 .students-table tr:hover td{background:rgba(255,255,255,.02);}
 
+/* Fee tracking */
+.fee-stats-row{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:18px;}
+.fee-stat{background:var(--card);border:1px solid var(--border);border-radius:var(--r);padding:15px 10px;text-align:center;position:relative;overflow:hidden;transition:all .2s;}
+.fee-stat::before{content:"";position:absolute;top:0;left:0;right:0;height:2px;}
+.fee-stat.tone-gold::before{background:linear-gradient(90deg,var(--gold),var(--gold2));}
+.fee-stat.tone-green::before{background:linear-gradient(90deg,#3dba7e,#5ed99a);}
+.fee-stat.tone-red::before{background:linear-gradient(90deg,#e05555,#ff8080);}
+.fee-stat:hover{transform:translateY(-2px);}
+.fee-stat-num{font-family:"Cormorant Garamond",serif;font-size:25px;line-height:1;}
+.fee-stat-lbl{font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:.6px;margin-top:6px;}
+
+.fee-status-pill{display:inline-flex;align-items:center;gap:6px;font-size:12px;font-weight:600;padding:6px 18px;border-radius:20px;}
+
+.fee-month-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(84px,1fr));gap:7px;}
+.fee-month-chip{border-radius:10px;padding:8px 4px;text-align:center;border:1px solid transparent;transition:all .18s;}
+.fee-month-chip .fm-icon{font-size:13px;display:block;line-height:1;margin-bottom:3px;}
+.fee-month-chip .fm-label{font-size:10px;font-weight:600;letter-spacing:.2px;}
+.fee-month-chip.paid{background:rgba(61,186,126,.12);border-color:rgba(61,186,126,.3);color:#3dba7e;}
+.fee-month-chip.unpaid{background:rgba(224,85,85,.12);border-color:rgba(224,85,85,.3);color:#e05555;}
+.fee-month-chip.future{background:rgba(255,255,255,.03);border-color:rgba(255,255,255,.08);color:var(--muted);}
+
+.fee-payment-box{background:rgba(232,160,32,.06);border:1px solid var(--border);border-radius:var(--r);padding:15px;}
+.fee-payment-preview{font-size:12px;color:var(--muted);margin-top:9px;padding:9px 11px;background:rgba(255,255,255,.04);border-radius:8px;}
+
+.fee-payment-row{display:flex;justify-content:space-between;align-items:center;gap:8px;padding:10px 12px;background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.06);border-radius:10px;margin-bottom:7px;transition:all .18s;}
+.fee-payment-row:hover{background:rgba(255,255,255,.05);border-color:rgba(255,255,255,.1);}
+@media(max-width:640px){ .fee-stats-row{grid-template-columns:repeat(2,1fr);} }
+
 .lb-mode-btn{padding:8px 16px;border-radius:8px;border:none;background:transparent;color:var(--muted);font-size:12px;font-weight:600;cursor:pointer;font-family:'DM Sans',sans-serif;transition:all .2s ease;}
 .lb-mode-btn.active{background:var(--gold);color:#1a1208;}
 .lb-row-me{background:rgba(232,160,32,0.1) !important;}
@@ -639,6 +667,7 @@ button:active, .btn:active, .nav-btn:active, .auth-btn:active, .role-card:active
     <button class="nav-btn perm-student" data-page="apply_leave" onclick="nav(this)" style="display:none;"><span class="nav-icon">🏖️</span><span class="nav-label sb-text">Apply Leave</span><span class="nav-badge sb-text" id="leaveStatusBadge" style="display:none;background:#4a9eff;">!</span></button>
     <button class="nav-btn perm-student" data-page="my_duties" onclick="nav(this)" style="display:none;"><span class="nav-icon">📋</span><span class="nav-label sb-text">My Duties</span><span class="nav-badge sb-text" id="myDutyBadge" style="display:none;background:#e05555;">!</span></button>
     <button class="nav-btn perm-student" data-page="my_copy" onclick="nav(this)" style="display:none;"><span class="nav-icon">📔</span><span class="nav-label sb-text">My Copy Records</span></button>
+    <button class="nav-btn perm-student" data-page="my_fees" onclick="nav(this)" style="display:none;"><span class="nav-icon">💰</span><span class="nav-label sb-text">My Fees</span></button>
     <div class="sb-section perm-upload" style="display:none;">Manage</div>
     <button class="nav-btn perm-upload" data-page="upload" onclick="nav(this)" style="display:none;"><span class="nav-icon">⬆️</span><span class="nav-label sb-text">Upload Files</span></button>
     <button class="nav-btn perm-monitor" data-page="copy_checking" onclick="nav(this)" style="display:none;"><span class="nav-icon">📋</span><span class="nav-label sb-text">Copy Checking</span></button>
@@ -649,6 +678,7 @@ button:active, .btn:active, .nav-btn:active, .auth-btn:active, .role-card:active
     <button class="nav-btn perm-ct" data-page="manage_students" onclick="nav(this)" style="display:none;" id="studentsNavBtn"><span class="nav-icon">👥</span><span class="nav-label sb-text">Students</span><span class="nav-badge sb-text" id="ctNotifBadge" style="display:none;background:#e05555;">0</span></button>
     <button class="nav-btn perm-ct" data-page="manage_leaves" onclick="nav(this)" style="display:none;"><span class="nav-icon">🏖️</span><span class="nav-label sb-text">Leave Requests</span><span class="nav-badge sb-text" id="leaveCTBadge" style="display:none;background:#e05555;">!</span></button>
     <button class="nav-btn perm-ct" data-page="student_info" onclick="nav(this)" style="display:none;"><span class="nav-icon">👨‍👩‍👧</span><span class="nav-label sb-text">Student Info</span></button>
+    <button class="nav-btn perm-ct" data-page="manage_fees" onclick="nav(this)" style="display:none;"><span class="nav-icon">💰</span><span class="nav-label sb-text">Fee Tracking</span><span class="nav-badge sb-text" id="feeBadge" style="display:none;background:#e05555;">0</span></button>
     <button class="nav-btn perm-hw" data-page="homework" onclick="nav(this)" style="display:none;"><span class="nav-icon">📓</span><span class="nav-label sb-text">Homework Mgr</span><span class="nav-badge sb-text" id="hwBadge" style="display:none;">0</span></button>
     <button class="nav-btn perm-complain" data-page="complain" onclick="nav(this)" style="display:none;"><span class="nav-icon">⚠️</span><span class="nav-label sb-text">Complaints</span></button>
     <button class="nav-btn perm-monitor" data-page="assign_duty" onclick="nav(this)" style="display:none;"><span class="nav-icon">📋</span><span class="nav-label sb-text">Assign Duty</span></button>
@@ -1122,6 +1152,43 @@ button:active, .btn:active, .nav-btn:active, .auth-btn:active, .role-card:active
           <div id="studentInfoStats" style="display:flex;gap:8px;flex-wrap:wrap;"></div>
         </div>
         <div id="studentInfoTable"></div>
+      </div>
+
+      <!-- FEE TRACKING -->
+      <div class="page" id="page-manage_fees">
+        <div class="hero" style="padding:20px 26px;margin-bottom:18px;">
+          <div class="hero-label">Class Teacher</div>
+          <div class="hero-h" style="font-size:22px;">Fee <span>Tracking</span></div>
+          <div class="hero-sub">See at a glance which students have paid their school fee and who still owes.</div>
+        </div>
+
+        <!-- Summary stats -->
+        <div id="feeStats" style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:16px;"></div>
+
+        <div style="font-size:11px;color:var(--muted);margin-bottom:16px;">💰 Monthly fee is fixed at ₹3700/student. A ₹20 late fine is added if paid after the 20th of that month, rising to ₹50 once the month has ended.</div>
+
+        <!-- Search + filter -->
+        <div class="card" style="margin-bottom:16px;">
+          <div style="display:flex;gap:10px;flex-wrap:wrap;align-items:center;justify-content:space-between;">
+            <input class="form-input" id="feeSearch" placeholder="🔍 Search by name or roll no..." style="max-width:260px;" oninput="renderFeesPage()">
+            <div style="display:flex;gap:6px;flex-wrap:wrap;" id="feeFilterBtns">
+              <button class="btn btn-outline btn-sm fee-filter-btn" data-filter="all" onclick="setFeeFilter('all')">All</button>
+              <button class="btn btn-outline btn-sm fee-filter-btn" data-filter="paid" onclick="setFeeFilter('paid')">✓ Up to Date</button>
+              <button class="btn btn-outline btn-sm fee-filter-btn" data-filter="unpaid" onclick="setFeeFilter('unpaid')">✗ Owing</button>
+            </div>
+          </div>
+        </div>
+
+        <div class="card"><div class="card-title">🎓 Class X SBS — Fee Status</div><div id="feesList"></div></div>
+      </div>
+
+      <!-- STUDENT-FACING: MY FEES -->
+      <div class="page" id="page-my_fees">
+        <div class="hero" style="padding:20px 26px;margin-bottom:18px;">
+          <div class="hero-label">My Account</div>
+          <div class="hero-h" style="font-size:22px;">My <span>Fee Status</span></div>
+        </div>
+        <div id="myFeesCard"></div>
       </div>
 
       <!-- COPY CHECKING -->
@@ -1755,6 +1822,35 @@ button:active, .btn:active, .nav-btn:active, .auth-btn:active, .role-card:active
   </div>
 </div>
 
+<!-- ══ FEE DETAIL MODAL ══ -->
+<div class="modal-overlay" id="feeDetailModal">
+  <div class="modal-box" style="max-width:460px;">
+    <div style="font-family:'Cormorant Garamond',serif;font-size:22px;color:var(--gold);margin-bottom:4px;">💰 Fee Details</div>
+    <div style="font-size:12px;color:var(--muted);margin-bottom:16px;" id="feeDetailName"></div>
+
+    <div id="feeDetailSummary"></div>
+
+    <div style="font-size:12px;font-weight:600;color:var(--muted);margin:18px 0 9px;">Month-wise Status</div>
+    <div class="fee-month-grid" id="feeDetailMonths"></div>
+
+    <div class="fee-payment-box" style="margin-top:18px;">
+      <div style="font-size:12px;font-weight:600;color:var(--gold);margin-bottom:10px;">➕ Record a Month's Payment</div>
+      <select class="form-input" id="feePaymentMonth" onchange="updateFeePaymentAmountPreview()"></select>
+      <input class="form-input" id="feePaymentNote" placeholder="Note (optional, e.g. Cash / UPI ref)" style="margin-top:9px;">
+      <div class="fee-payment-preview" id="feePaymentAmountPreview"></div>
+      <button class="btn btn-gold btn-sm" style="width:100%;margin-top:10px;" onclick="addFeePayment()">Record Payment</button>
+    </div>
+
+    <div style="font-size:12px;font-weight:600;color:var(--muted);margin:18px 0 9px;">Payment History</div>
+    <div id="feeDetailPayments" style="max-height:200px;overflow-y:auto;"></div>
+
+    <div style="display:flex;gap:10px;margin-top:16px;">
+      <button class="btn btn-wa btn-sm" id="feeReminderBtn" style="flex:1;display:none;" onclick="sendFeeReminder()">📱 Remind Parent</button>
+      <button class="btn btn-outline" style="flex:1;" onclick="closeModal('feeDetailModal')">Close</button>
+    </div>
+  </div>
+</div>
+
 <!-- ══ DATA BACKUP / EXPORT MODAL (Class Teacher) ══ -->
 <div class="modal-overlay" id="backupModal">
   <div class="modal-box" style="max-width:440px;">
@@ -1924,6 +2020,56 @@ function setupFirebaseListeners(){
     if(_writeLock){ _pendingSnapshotDuringLock=snap; return; }
     _processDavxSnapshot(snap);
   });
+  // Listen live on davx_tombs too, separately from the main "davx" data listener above.
+  // A tombstone is the one signal that's supposed to make a deletion permanent — but if we
+  // only ever pick tombstones up once at page load (via _loadRemoteTombs in initFirebase),
+  // a delete made on another device *during* this session would never be learned about here,
+  // and worse: if that other device's own node-removal write silently failed (e.g. a Firebase
+  // rule blocking removes), the item would keep looking "alive" in the main data forever.
+  // Listening here means the moment ANY device records a tombstone, every other device
+  // immediately purges that item from its own local cache — the tombstone alone is now
+  // enough to keep something deleted, regardless of whether the underlying node removal
+  // itself ever succeeded.
+  _db.ref("davx_tombs").on("value",snap=>{
+    const rt=snap.val(); if(!rt) return;
+    const local=DB._getTombs();
+    let learnedNew=false;
+    Object.keys(rt).forEach(k=>{
+      if(!local[k]) local[k]={};
+      Object.keys(rt[k]).forEach(id=>{
+        if(!local[k][id]){ local[k][id]=rt[k][id]; learnedNew=true; }
+      });
+    });
+    if(!learnedNew) return;
+    DB._saveTombs(local);
+    let purgedAny=false;
+    Object.keys(rt).forEach(k=>{
+      const arr=_memCache[k];
+      if(Array.isArray(arr)&&arr.length){
+        const tombs=local[k]||{};
+        const filtered=arr.filter(item=>!(item&&item.id&&tombs[item.id]));
+        if(filtered.length!==arr.length){
+          _memCache[k]=filtered;
+          try{ localStorage.setItem("davx_"+k,JSON.stringify(filtered)); }catch(e){}
+          purgedAny=true;
+        }
+      }
+    });
+    if(purgedAny && currentUser){
+      try{renderDashboard();}catch(e){}
+      try{renderMyUploads();}catch(e){}
+      try{renderSubjectList();}catch(e){}
+      try{renderGallery();}catch(e){}
+      try{renderNotices();}catch(e){}
+      try{renderResults();}catch(e){}
+      try{renderEnteredResults();}catch(e){}
+      try{renderStudentsList();}catch(e){}
+      try{renderComplaintLog();}catch(e){}
+      try{renderCopySessionsList();}catch(e){}
+      try{renderPolls();}catch(e){}
+      if(currentFolder) try{renderFolder(currentFolder);}catch(e){}
+    }
+  });
 }
 
 function _processDavxSnapshot(snap){
@@ -2016,7 +2162,7 @@ function forceSyncFromFirebase() {
     const remote = snap.val();
     if (remote) {
       // ✅ Replace each array key with remote version, filtered through tombstones
-      const arrayKeys = ["files", "students", "notices", "results", "gallery", "copySessions", "studentNotifications", "ct_notifications", "homework", "complaints", "duties", "leaveApplications", "polls", "examSchedules"];
+      const arrayKeys = ["files", "students", "notices", "results", "gallery", "copySessions", "studentNotifications", "ct_notifications", "homework", "complaints", "duties", "leaveApplications", "polls", "examSchedules", "feeRecords"];
       const atomicKeys = ["timetable", "studentAttendance"];
 
       arrayKeys.forEach(key => {
@@ -2090,7 +2236,7 @@ function forceSyncFromFirebase() {
 // DATA BACKUP / EXPORT (Class Teacher safety net — independent of Firebase)
 // ═══════════════════════════════════════════
 // All known data keys used across the app, kept in one place so exports never miss a table.
-const BACKUP_KEYS=["students","notices","files","results","homework","polls","examSchedules","leaveApplications","complaints","copySessions","duties","gallery","timetable","studentAttendance","roleSignatures","ct_notifications","studentNotifications"];
+const BACKUP_KEYS=["students","notices","files","results","homework","polls","examSchedules","leaveApplications","complaints","copySessions","duties","gallery","timetable","studentAttendance","roleSignatures","ct_notifications","studentNotifications","feeRecords"];
 
 function _backupTimestamp(){
   const d=new Date(),p=n=>String(n).padStart(2,"0");
@@ -2644,10 +2790,10 @@ function initApp(){
   show("perm-upload",canUpload); show("perm-notice",canNotice); show("perm-ct",isCT); show("perm-results",canResults); show("perm-monitor",canMonitor); show("perm-hw",canHW); show("perm-complain",canComplain); show("perm-student",u.role==="student"); if(u.role==="student") updateLeaveStatusBadge(); if(u.role==="classteacher") updateLeaveCTBadge();
   populateAllSubjectSelects();
   buildTTEditor(); renderTTPreview(); setAttDate(); populateAttHistFilter();
-  renderDashboard(); renderTTDisplay(); renderAttView(); renderResults(); populateLeaderboardTestSelect(); renderGallery(); renderMyUploads(); renderStudentsList(); renderEnteredResults(); renderCopySessionsList(); updateCTNotifBadge(); updateHWBadge(); renderPolls(); updatePollBadge(); updateExamBadge(); if(currentUser&&currentUser.role==="student"){ renderMyDuties(); updateLeaveStatusBadge(); } if(currentUser&&currentUser.role==="classteacher") updateLeaveCTBadge();
+  renderDashboard(); renderTTDisplay(); renderAttView(); renderResults(); populateLeaderboardTestSelect(); renderGallery(); renderMyUploads(); renderStudentsList(); renderEnteredResults(); renderCopySessionsList(); updateCTNotifBadge(); updateHWBadge(); renderPolls(); updatePollBadge(); updateExamBadge(); if(currentUser&&currentUser.role==="student"){ renderMyDuties(); updateLeaveStatusBadge(); renderMyFees(); } if(currentUser&&currentUser.role==="classteacher") updateLeaveCTBadge();
   if(canHW){ renderAllHW(); }
   if(canComplain) populateComplainSelects();
-  if(isCT) renderStudentInfoTable();
+  if(isCT){ renderStudentInfoTable(); updateFeeBadge(); }
   if(u.role==="student") injectStudentProfileCard();
   _refreshNotifDot();
   setTimeout(setupNotificationWatchers, 3000);
@@ -2685,8 +2831,8 @@ function updateHWBadge(){
 // ═══════════════════════════════════════════
 // MODAL HELPERS
 // ═══════════════════════════════════════════
-function openModal(id){ document.getElementById(id).classList.add("open"); }
-function closeModal(id){ const m=document.getElementById(id); if(!m) return; m.classList.remove("open"); m.style.display="none"; }
+function openModal(id){ const m=document.getElementById(id); if(!m) return; m.style.display=""; m.classList.add("open"); }
+function closeModal(id){ const m=document.getElementById(id); if(!m) return; m.classList.remove("open"); m.style.display=""; }
 function togglePassVis(inputId,btnId){ const inp=document.getElementById(inputId),btn=document.getElementById(btnId); if(!inp) return; const show=inp.type==="password"; inp.type=show?"text":"password"; if(btn) btn.textContent=show?"🙈":"👁️"; }
 document.querySelectorAll(".modal-overlay").forEach(m=>{ m.addEventListener("click",function(e){ if(e.target===this) closeModal(this.id); }); });
 
@@ -2698,7 +2844,7 @@ function toggleMobSidebar(){ const sb=document.getElementById("sidebar"),ov=docu
 function closeMobSidebar(){ document.getElementById("sidebar").classList.remove("mob-open"); document.getElementById("mobOverlay").classList.remove("open"); document.getElementById("mobToggle").textContent="☰"; }
 function goHome(){ nav(document.querySelector("[data-page=dashboard]")); closeFolder(); }
 
-const PAGE_TITLES={dashboard:"Dashboard",subjects:"Subjects",notices:"Notice Board",polls:"Polls",gallery:"Gallery",timetable:"Timetable",exam_schedule:"Exam Schedule",attendance:"Attendance Record",results:"Results & Marks",leaderboard:"Class Leaderboard",report_card:"Report Card",hw_view:"Homework Board",upload:"Upload Files",post_notice:"Post Notice",manage_timetable:"Set Timetable",manage_results:"Enter Results",manage_attendance:"Mark Attendance",manage_students:"Students",copy_checking:"Copy Checking",homework:"Homework Manager",complain:"Complaints & Reports",student_info:"Student Information",assign_duty:"Assign Duty",my_duties:"My Duties",apply_leave:"Apply for Leave",manage_leaves:"Leave Requests",my_copy:"My Copy Records"};
+const PAGE_TITLES={dashboard:"Dashboard",subjects:"Subjects",notices:"Notice Board",polls:"Polls",gallery:"Gallery",timetable:"Timetable",exam_schedule:"Exam Schedule",attendance:"Attendance Record",results:"Results & Marks",leaderboard:"Class Leaderboard",report_card:"Report Card",hw_view:"Homework Board",upload:"Upload Files",post_notice:"Post Notice",manage_timetable:"Set Timetable",manage_results:"Enter Results",manage_attendance:"Mark Attendance",manage_students:"Students",copy_checking:"Copy Checking",homework:"Homework Manager",complain:"Complaints & Reports",student_info:"Student Information",assign_duty:"Assign Duty",my_duties:"My Duties",apply_leave:"Apply for Leave",manage_leaves:"Leave Requests",my_copy:"My Copy Records",manage_fees:"Fee Tracking",my_fees:"My Fees"};
 
 function nav(btn){
   if(!btn) return;
@@ -2707,7 +2853,7 @@ function nav(btn){
   document.querySelectorAll(".page").forEach(p=>p.classList.remove("active")); document.getElementById("page-"+pid).classList.add("active");
   document.getElementById("pageTitle").textContent=PAGE_TITLES[pid]||pid;
   const backBtn=document.getElementById("backBtn");
-  backBtn.classList.toggle("show",["upload","post_notice","manage_timetable","manage_results","manage_attendance","manage_students","results","leaderboard","report_card","exam_schedule","copy_checking","homework","complain","student_info","assign_duty","my_duties","apply_leave","manage_leaves","my_copy"].includes(pid));
+  backBtn.classList.toggle("show",["upload","post_notice","manage_timetable","manage_results","manage_attendance","manage_students","results","leaderboard","report_card","exam_schedule","copy_checking","homework","complain","student_info","assign_duty","my_duties","apply_leave","manage_leaves","my_copy","manage_fees","my_fees"].includes(pid));
   closeFolder();
   if(window.innerWidth<=820) closeMobSidebar();
   if(pid==="notices"||pid==="post_notice") renderNotices();
@@ -2736,6 +2882,8 @@ function nav(btn){
   if(pid==="polls"){ renderPolls(); updatePollBadge(); }
   if(pid==="student_info") renderStudentInfoTable();
   if(pid==="report_card") initReportCardPage();
+  if(pid==="manage_fees"){ renderFeesPage(); updateFeeBadge(); }
+  if(pid==="my_fees") renderMyFees();
   _refreshNotifDot();
 }
 function handleBack(){ nav(document.querySelector("[data-page=dashboard]")); }
@@ -3113,9 +3261,10 @@ function editNotice(id){
   document.getElementById("editNoticePriority").value=n.priority||"normal";
   openModal("editNoticeModal");
 }
-function saveEditedNotice(){
+async function saveEditedNotice(){
   const id=document.getElementById("editNoticeId").value,title=document.getElementById("editNoticeTitle").value.trim(),body=document.getElementById("editNoticeBody").value.trim(),date=document.getElementById("editNoticeDate").value,prio=document.getElementById("editNoticePriority").value;
   if(!title||!body){ showToast("❌ Title and message required"); return; }
+  if(!await requireStepUp("save these notice edits")) return;
   const notices=DB.get("notices")||[],idx=notices.findIndex(n=>n.id===id); if(idx<0) return;
   notices[idx]={...notices[idx],title,body,date:date||notices[idx].date,priority:prio,editedOn:new Date().toLocaleDateString("en-IN")};
   DB.set("notices",notices); closeModal("editNoticeModal"); showToast("✅ Notice updated!"); renderNotices(); renderDashboard();
@@ -4105,9 +4254,261 @@ function renderStudentsList(){
   const sorted=[...students].sort((a,b)=>parseInt(a.roll)-parseInt(b.roll));
   el.innerHTML=notifsHTML+`<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;"><div style="font-size:13px;color:var(--muted);">${students.length} student${students.length!==1?"s":""} registered</div><button class="btn btn-danger btn-sm" onclick="removeAllStudents()">🗑️ Remove All</button></div><table class="students-table"><thead><tr><th>#</th><th>Name</th><th>Roll No</th><th>Adm. No</th><th>Parent Mobile</th><th>Registered On</th><th>Last Login</th><th>Action</th></tr></thead><tbody>`+sorted.map((s,i)=>`<tr><td style="color:var(--muted);">${i+1}</td><td style="font-weight:600;">${s.name}</td><td><span style="background:rgba(232,160,32,.15);color:var(--gold);padding:2px 8px;border-radius:6px;font-size:12px;">${s.roll}</span></td><td style="font-size:12px;color:var(--muted);">${s.admNo}</td><td style="font-size:12px;">${s.parentMobile?`<span class="wa-chip">📱 ${s.parentMobile}</span>`:`<button class="btn btn-outline btn-sm" onclick="openEditParentMobile('${s.id}')">+ Add</button>`}</td><td style="font-size:11px;color:var(--muted);">${s.joinedOn}</td><td style="font-size:11px;color:var(--muted);">${s.lastLogin||"Never"}</td><td style="display:flex;gap:4px;">${s.parentMobile?`<button class="btn btn-outline btn-sm" onclick="openEditParentMobile('${s.id}')">✏️</button>`:""}<button class="btn btn-danger btn-sm" onclick="deleteStudent('${s.id}')">🗑️</button></td></tr>`).join("")+`</tbody></table>`;
 }
-async function deleteStudent(id){ const students=DB.get("students")||[],s=students.find(x=>x.id===id); if(!s) return; if(!await customConfirm(`Remove "${s.name}" (Roll: ${s.roll})?`,"Remove Student","👤","Remove")) return; if(!await requireStepUp("remove this student")) return; DB.del("students",id); renderStudentsList(); showToast("🗑️ Student removed"); }
-async function removeAllStudents(){ const students=DB.get("students")||[]; if(!students.length){ showToast("No students to remove"); return; } if(!await customConfirm(`Remove ALL ${students.length} students?`,"Remove All","⚠️","Remove All")) return; DB.set("students",[]); DB.set("ct_notifications",[]); renderStudentsList(); showToast("🗑️ All students removed"); }
+async function deleteStudent(id){ const students=DB.get("students")||[],s=students.find(x=>x.id===id); if(!s) return; if(!await customConfirm(`Remove "${s.name}" (Roll: ${s.roll})?`,"Remove Student","👤","Remove")) return; if(!await requireStepUp("remove this student")) return; DB.del("students",id); const recs=(DB.get("feeRecords")||[]).filter(r=>r.id!==id); DB.set("feeRecords",recs); renderStudentsList(); try{updateFeeBadge();}catch(e){} showToast("🗑️ Student removed"); }
+async function removeAllStudents(){ const students=DB.get("students")||[]; if(!students.length){ showToast("No students to remove"); return; } if(!await customConfirm(`Remove ALL ${students.length} students?`,"Remove All","⚠️","Remove All")) return; DB.set("students",[]); DB.set("ct_notifications",[]); DB.set("feeRecords",[]); renderStudentsList(); try{updateFeeBadge();}catch(e){} showToast("🗑️ All students removed"); }
 function markNotifsRead(){ const notifs=DB.get("ct_notifications")||[]; notifs.forEach(n=>n.read=true); DB.set("ct_notifications",notifs); updateCTNotifBadge(); renderStudentsList(); showToast("✓ All read"); }
+
+// ═══════════════════════════════════════════
+// FEE TRACKING
+// ═══════════════════════════════════════════
+// Month-wise fee tracking. Fee is fixed at ₹3700/month per student; a ₹20 late fine is
+// added if a month is recorded as paid after the 20th of that month, rising to ₹50 total
+// once that month has fully ended.
+// Each month is paid in full in one go — there is no partial payment for a month.
+//
+// One record per student: { id, payments:[{id,month:"YYYY-MM",amount,date,note,recordedBy}] }.
+// A fee record's own "id" is just the student's id (one record per student), which matters:
+// it's what lets this collection merge/sync the same way every other array collection here
+// does (students, notices, results, ...) — that shared logic matches and merges items by
+// their "id" field, so a fee record without one wouldn't merge correctly across devices.
+// A month is "paid" simply if a payment record exists for that month key — there's no
+// separate stored status, so it can never drift out of sync with the payment list.
+const FEE_MONTHLY_AMOUNT=3700;
+const FEE_LATE_FINE=20;        // fine once past the 20th, still within that same month
+const FEE_LATE_FINE_AFTER_MONTH=50; // fine total once the whole month has ended (₹30 more added on top of the ₹20)
+const FEE_LATE_DAY=20;
+let currentFeeStudentId=null, _feeFilter="all";
+
+function ymKey(y,m){ return y+"-"+String(m).padStart(2,"0"); } // m is 1-12
+function monthLabelFromKey(key){
+  const [y,m]=key.split("-").map(Number);
+  return new Date(y,m-1,1).toLocaleString("en-US",{month:"long",year:"numeric"});
+}
+// The academic session runs April → March. Returns the 12 month keys for the session
+// that contains "today" (or contains refDate if given).
+function getFeeSessionMonths(refDate){
+  const now=refDate||new Date();
+  const startYear = now.getMonth()>=3 ? now.getFullYear() : now.getFullYear()-1; // April = month index 3
+  const months=[];
+  for(let i=0;i<12;i++){
+    let y=startYear, m=4+i; // April=4 .. March=15
+    if(m>12){ y+=1; m-=12; }
+    months.push(ymKey(y,m));
+  }
+  return months;
+}
+// Months that have "arrived" (current month or earlier) within the session — these are
+// the only months a student is actually required to have paid so far.
+function getElapsedFeeMonths(refDate){
+  const now=refDate||new Date();
+  const curKey=ymKey(now.getFullYear(),now.getMonth()+1);
+  return getFeeSessionMonths(now).filter(k=>k<=curKey);
+}
+// Fee amount for a given month, as of asOfDate (defaults to today — i.e. "what would it
+// cost to pay right now"). Three tiers:
+//   on/before the 20th of that month        → ₹3700
+//   after the 20th, still within that month → ₹3700 + ₹20 = ₹3720
+//   the month has fully ended               → ₹3700 + ₹50 = ₹3750
+function monthFeeAmount(monthKey,asOfDate){
+  const [y,m]=monthKey.split("-").map(Number);
+  const deadline=new Date(y,m-1,FEE_LATE_DAY,23,59,59,999);
+  const monthEnd=new Date(y,m,0,23,59,59,999); // last instant of that month
+  const check=asOfDate?new Date(asOfDate):new Date();
+  if(check<=deadline) return FEE_MONTHLY_AMOUNT;
+  if(check<=monthEnd) return FEE_MONTHLY_AMOUNT+FEE_LATE_FINE;
+  return FEE_MONTHLY_AMOUNT+FEE_LATE_FINE_AFTER_MONTH;
+}
+function getFeeRecord(studentId){
+  const recs=DB.get("feeRecords")||[];
+  return recs.find(r=>r.id===studentId) || {id:studentId,payments:[]};
+}
+// Summary for a student: which elapsed months are still unpaid, and what they'd cost
+// to pay today (fine included where applicable).
+function _feeSummary(rec){
+  const paidMonths=new Set((rec.payments||[]).map(p=>p.month));
+  const totalPaid=(rec.payments||[]).reduce((a,p)=>a+(p.amount||0),0);
+  const elapsed=getElapsedFeeMonths();
+  const unpaidMonths=elapsed.filter(k=>!paidMonths.has(k));
+  const balance=unpaidMonths.reduce((a,k)=>a+monthFeeAmount(k),0);
+  const status=unpaidMonths.length?"unpaid":"paid";
+  return {paid:totalPaid,balance,status,paidMonths,unpaidMonths};
+}
+function setFeeFilter(f){
+  _feeFilter=f;
+  document.querySelectorAll(".fee-filter-btn").forEach(b=>b.classList.toggle("active",b.dataset.filter===f));
+  renderFeesPage();
+}
+function renderFeesPage(){
+  const el=document.getElementById("feesList"); if(!el) return;
+  const students=(DB.get("students")||[]).sort((a,b)=>parseInt(a.roll)-parseInt(b.roll));
+  const recs=DB.get("feeRecords")||[];
+  const q=(document.getElementById("feeSearch")?.value||"").trim().toLowerCase();
+
+  let totalPaid=0,totalPending=0,counts={paid:0,unpaid:0};
+  const rows=students.map(s=>{
+    const rec=recs.find(r=>r.id===s.id)||{id:s.id,payments:[]};
+    const {paid,balance,status}=_feeSummary(rec);
+    totalPaid+=paid; totalPending+=balance; counts[status]++;
+    return {s,rec,paid,balance,status};
+  });
+
+  const statsEl=document.getElementById("feeStats");
+  if(statsEl){
+    statsEl.innerHTML=`<div class="fee-stats-row">
+      <div class="fee-stat tone-green"><div class="fee-stat-num" style="color:#3dba7e;">₹${totalPaid}</div><div class="fee-stat-lbl">✅ Collected</div></div>
+      <div class="fee-stat tone-red"><div class="fee-stat-num" style="color:#e05555;">₹${totalPending}</div><div class="fee-stat-lbl">⏳ Pending</div></div>
+      <div class="fee-stat tone-green"><div class="fee-stat-num" style="color:#3dba7e;">${counts.paid}</div><div class="fee-stat-lbl">✓ Up to Date</div></div>
+      <div class="fee-stat tone-red"><div class="fee-stat-num" style="color:#e05555;">${counts.unpaid}</div><div class="fee-stat-lbl">✗ Owing</div></div>
+    </div>`;
+  }
+
+  if(!students.length){ el.innerHTML=`<div class="empty-state"><div class="empty-icon">👥</div><div class="empty-text">No students registered yet</div></div>`; return; }
+
+  const filtered=rows.filter(r=>{
+    if(_feeFilter!=="all" && r.status!==_feeFilter) return false;
+    if(q && !(r.s.name.toLowerCase().includes(q)||String(r.s.roll).includes(q))) return false;
+    return true;
+  });
+  if(!filtered.length){ el.innerHTML=`<div class="empty-state"><div class="empty-icon">🔍</div><div class="empty-text">No students match this filter</div></div>`; return; }
+
+  const badgeFor=status=>({
+    paid:`<span style="background:rgba(61,186,126,.15);color:#3dba7e;padding:2px 9px;border-radius:8px;font-size:11px;">✓ Up to Date</span>`,
+    unpaid:`<span style="background:rgba(224,85,85,.15);color:#e05555;padding:2px 9px;border-radius:8px;font-size:11px;">✗ Owing</span>`
+  }[status]);
+
+  el.innerHTML=`<table class="students-table"><thead><tr><th>#</th><th>Name</th><th>Roll</th><th>Paid</th><th>Balance</th><th>Status</th><th>Action</th></tr></thead><tbody>`+
+    filtered.map((r,i)=>`<tr><td style="color:var(--muted);">${i+1}</td><td style="font-weight:600;">${r.s.name}</td><td><span style="background:rgba(232,160,32,.15);color:var(--gold);padding:2px 8px;border-radius:6px;font-size:12px;">${r.s.roll}</span></td><td style="color:#3dba7e;">₹${r.paid}</td><td style="color:${r.balance>0?'#e05555':'var(--muted)'};">₹${r.balance}</td><td>${badgeFor(r.status)}</td><td><button class="btn btn-outline btn-sm" onclick="openFeeDetail('${r.s.id}')">💰 Manage</button></td></tr>`).join("")+
+    `</tbody></table>`;
+}
+function openFeeDetail(studentId){
+  currentFeeStudentId=studentId;
+  const s=(DB.get("students")||[]).find(x=>x.id===studentId); if(!s) return;
+  document.getElementById("feePaymentNote").value="";
+  renderFeeDetailModal();
+  openModal("feeDetailModal");
+}
+function updateFeePaymentAmountPreview(){
+  const monthSel=document.getElementById("feePaymentMonth");
+  const preview=document.getElementById("feePaymentAmountPreview");
+  if(!monthSel||!monthSel.value||!preview){ if(preview) preview.innerHTML=""; return; }
+  const amt=monthFeeAmount(monthSel.value);
+  const fine=amt-FEE_MONTHLY_AMOUNT;
+  let note="";
+  if(fine===FEE_LATE_FINE) note=` <span style="color:#e05555;">(₹${FEE_MONTHLY_AMOUNT} fee + ₹${FEE_LATE_FINE} late fine — past the 20th)</span>`;
+  else if(fine===FEE_LATE_FINE_AFTER_MONTH) note=` <span style="color:#e05555;">(₹${FEE_MONTHLY_AMOUNT} fee + ₹${FEE_LATE_FINE_AFTER_MONTH} late fine — that month has ended)</span>`;
+  preview.innerHTML=`Amount to record today: <b style="color:${fine>0?'#e05555':'#3dba7e'};">₹${amt}</b>${note}`;
+}
+function renderFeeDetailModal(){
+  const s=(DB.get("students")||[]).find(x=>x.id===currentFeeStudentId); if(!s) return;
+  const rec=getFeeRecord(currentFeeStudentId);
+  const {paid,balance,status,paidMonths}=_feeSummary(rec);
+  document.getElementById("feeDetailName").textContent=`${s.name} — Roll ${s.roll}`;
+  const statusLabel={paid:"✓ Up to Date",unpaid:"✗ Owing"}[status];
+  const statusColor=status==="paid"?"#3dba7e":"#e05555";
+  document.getElementById("feeDetailSummary").innerHTML=`<div class="fee-stats-row" style="grid-template-columns:1fr 1fr;">
+      <div class="fee-stat tone-green"><div class="fee-stat-num" style="color:#3dba7e;">₹${paid}</div><div class="fee-stat-lbl">Paid</div></div>
+      <div class="fee-stat ${balance>0?'tone-red':'tone-green'}"><div class="fee-stat-num" style="color:${balance>0?'#e05555':'#3dba7e'};">₹${balance}</div><div class="fee-stat-lbl">Balance</div></div>
+    </div>
+    <div style="text-align:center;margin-top:12px;"><span class="fee-status-pill" style="background:${statusColor}22;color:${statusColor};">${statusLabel}</span></div>`;
+
+  // Month-wise status grid for the whole session
+  const sessionMonths=getFeeSessionMonths();
+  const curKey=ymKey(new Date().getFullYear(),new Date().getMonth()+1);
+  const monthsEl=document.getElementById("feeDetailMonths");
+  monthsEl.innerHTML=sessionMonths.map(k=>{
+    const isPaid=paidMonths.has(k);
+    const isFuture=k>curKey;
+    const cls=isPaid?"paid":isFuture?"future":"unpaid";
+    const icon=isPaid?"✓":isFuture?"—":"✗";
+    const label=monthLabelFromKey(k).split(" ")[0].slice(0,3)+" '"+k.split("-")[0].slice(2);
+    return `<div class="fee-month-chip ${cls}" title="${monthLabelFromKey(k)}"><span class="fm-icon">${icon}</span><span class="fm-label">${label}</span></div>`;
+  }).join("");
+
+  // Populate the month dropdown with unpaid months only (elapsed months first, then future)
+  const monthSel=document.getElementById("feePaymentMonth");
+  const unpaid=sessionMonths.filter(k=>!paidMonths.has(k));
+  monthSel.innerHTML=unpaid.length?unpaid.map(k=>`<option value="${k}">${monthLabelFromKey(k)}${k<=curKey?"":" (upcoming)"}</option>`).join(""):`<option value="">All months paid</option>`;
+  updateFeePaymentAmountPreview();
+
+  const list=document.getElementById("feeDetailPayments");
+  const payments=(rec.payments||[]).slice().sort((a,b)=>(b.month||"").localeCompare(a.month||""));
+  list.innerHTML=payments.length?payments.map(p=>`<div class="fee-payment-row"><div><div style="font-size:13px;font-weight:600;color:#3dba7e;">₹${p.amount} <span style="color:var(--muted);font-weight:400;">· ${monthLabelFromKey(p.month)}</span></div><div style="font-size:11px;color:var(--muted);">Recorded ${p.date}${p.note?" · "+p.note:""}</div></div><button class="btn btn-danger btn-sm" onclick="deleteFeePayment('${p.id}')">🗑️</button></div>`).join(""):`<div style="font-size:12px;color:var(--muted);text-align:center;padding:10px;">No payments recorded yet</div>`;
+  const remindBtn=document.getElementById("feeReminderBtn");
+  if(remindBtn) remindBtn.style.display=(balance>0 && s.parentMobile)?"":"none";
+}
+async function addFeePayment(){
+  const monthSel=document.getElementById("feePaymentMonth");
+  const month=monthSel.value;
+  if(!month){ showToast("❌ No month available to record"); return; }
+  const date=new Date().toISOString().split("T")[0];
+  const note=document.getElementById("feePaymentNote").value.trim();
+  const amt=monthFeeAmount(month);
+  if(!await requireStepUp("record this fee payment")) return;
+  let recs=DB.get("feeRecords")||[];
+  let idx=recs.findIndex(r=>r.id===currentFeeStudentId);
+  if(idx<0){ recs.push({id:currentFeeStudentId,payments:[]}); idx=recs.length-1; }
+  if(!recs[idx].payments) recs[idx].payments=[];
+  if(recs[idx].payments.some(p=>p.month===month)){ showToast("❌ That month is already marked paid"); return; }
+  recs[idx].payments.push({id:"fp_"+Date.now(),month,amount:amt,date,note,recordedBy:currentUser.name});
+  DB.set("feeRecords",recs);
+  document.getElementById("feePaymentNote").value="";
+  renderFeeDetailModal(); renderFeesPage(); updateFeeBadge();
+  showToast(`✅ ${monthLabelFromKey(month)} marked paid (₹${amt})`);
+}
+async function deleteFeePayment(paymentId){
+  if(!await customConfirm("Remove this month's payment record?","Delete Payment","💰","Delete")) return;
+  if(!await requireStepUp("delete this payment record")) return;
+  let recs=DB.get("feeRecords")||[];
+  const idx=recs.findIndex(r=>r.id===currentFeeStudentId);
+  if(idx<0) return;
+  recs[idx].payments=(recs[idx].payments||[]).filter(p=>p.id!==paymentId);
+  DB.set("feeRecords",recs);
+  renderFeeDetailModal(); renderFeesPage(); updateFeeBadge();
+  showToast("🗑️ Payment removed");
+}
+function sendFeeReminder(){
+  const s=(DB.get("students")||[]).find(x=>x.id===currentFeeStudentId); if(!s||!s.parentMobile){ showToast("❌ No parent mobile"); return; }
+  const {balance,unpaidMonths}=_feeSummary(getFeeRecord(currentFeeStudentId));
+  const monthsList=unpaidMonths.map(monthLabelFromKey).join(", ");
+  const msg=`🏫 Hello, this is ${currentUser.name} from USCD DAV Public School.\nThis is a gentle reminder regarding the pending school fee of *₹${balance}* for *${s.name}* (Roll No: ${s.roll}, Class X — SBS), covering: ${monthsList}.\n\nKindly clear the dues at your earliest convenience. Thank you.`;
+  window.open(`https://wa.me/91${s.parentMobile}?text=${encodeURIComponent(msg)}`,"_blank");
+}
+function updateFeeBadge(){
+  if(!currentUser||currentUser.role!=="classteacher") return;
+  const students=DB.get("students")||[],recs=DB.get("feeRecords")||[];
+  const owing=students.filter(s=>{ const {status}=_feeSummary(recs.find(r=>r.id===s.id)||{payments:[]}); return status==="unpaid"; }).length;
+  const badge=document.getElementById("feeBadge"); if(badge){ badge.textContent=owing; badge.style.display=owing?"":"none"; }
+}
+function renderMyFees(){
+  const el=document.getElementById("myFeesCard"); if(!el||!currentUser||currentUser.role!=="student") return;
+  const rec=getFeeRecord(currentUser.id);
+  const {paid,balance,status,paidMonths}=_feeSummary(rec);
+  const statusLabel={paid:"✓ Up to Date",unpaid:"✗ Owing"}[status];
+  const statusColor=status==="paid"?"#3dba7e":"#e05555";
+  const sessionMonths=getFeeSessionMonths();
+  const curKey=ymKey(new Date().getFullYear(),new Date().getMonth()+1);
+  const payments=(rec.payments||[]).slice().sort((a,b)=>(b.month||"").localeCompare(a.month||""));
+  const monthsHtml=sessionMonths.map(k=>{
+    const isPaid=paidMonths.has(k);
+    const isFuture=k>curKey;
+    const cls=isPaid?"paid":isFuture?"future":"unpaid";
+    const icon=isPaid?"✓":isFuture?"—":"✗";
+    const label=monthLabelFromKey(k).split(" ")[0].slice(0,3)+" '"+k.split("-")[0].slice(2);
+    return `<div class="fee-month-chip ${cls}" title="${monthLabelFromKey(k)}"><span class="fm-icon">${icon}</span><span class="fm-label">${label}</span></div>`;
+  }).join("");
+  el.innerHTML=`<div class="card">
+    <div class="fee-stats-row" style="grid-template-columns:1fr 1fr;">
+      <div class="fee-stat tone-green"><div class="fee-stat-num" style="color:#3dba7e;">₹${paid}</div><div class="fee-stat-lbl">Paid</div></div>
+      <div class="fee-stat ${balance>0?'tone-red':'tone-green'}"><div class="fee-stat-num" style="color:${statusColor};">₹${balance}</div><div class="fee-stat-lbl">Balance</div></div>
+    </div>
+    <div style="text-align:center;margin:14px 0 16px;"><span class="fee-status-pill" style="background:${statusColor}22;color:${statusColor};">${statusLabel}</span></div>
+    <div style="font-size:12px;color:var(--muted);margin-bottom:16px;text-align:center;">Fee is ₹${FEE_MONTHLY_AMOUNT}/month. A ₹${FEE_LATE_FINE} late fine applies after the 20th, rising to ₹${FEE_LATE_FINE_AFTER_MONTH} once the month has ended.</div>
+    <div style="font-size:12px;font-weight:600;color:var(--muted);margin-bottom:9px;">Month-wise Status</div>
+    <div class="fee-month-grid" style="margin-bottom:18px;">${monthsHtml}</div>
+    <div style="font-size:12px;font-weight:600;color:var(--muted);margin-bottom:9px;">Payment History</div>
+    ${payments.length?payments.map(p=>`<div class="fee-payment-row"><div style="font-size:13px;font-weight:600;color:#3dba7e;">₹${p.amount} <span style="color:var(--muted);font-weight:400;">· ${monthLabelFromKey(p.month)}</span></div><div style="font-size:11px;color:var(--muted);">Recorded ${p.date}${p.note?" · "+p.note:""}</div></div>`).join(""):`<div class="empty-state" style="padding:16px;"><div class="empty-icon">📭</div><div class="empty-text">No payments recorded yet</div></div>`}
+  </div>`;
+}
 
 // ── PARENT MOBILE ──
 function openEditParentMobile(studentId){
@@ -4518,9 +4919,10 @@ function editCopySession(id){
   document.getElementById("editCopyNote").value=s.note||"";
   openModal("editCopyModal");
 }
-function saveEditedCopySession(){
+async function saveEditedCopySession(){
   const id=document.getElementById("editCopyId").value,subject=document.getElementById("editCopySubject").value.trim(),date=document.getElementById("editCopyDate").value,note=document.getElementById("editCopyNote").value.trim();
   if(!subject){ showToast("❌ Subject required"); return; }
+  if(!await requireStepUp("save these copy/session edits")) return;
   const sessions=DB.get("copySessions")||[],idx=sessions.findIndex(s=>s.id===id); if(idx<0) return;
   sessions[idx]={...sessions[idx],subject,date:date||sessions[idx].date,note};
   DB.set("copySessions",sessions); closeModal("editCopyModal"); showToast("✅ Record updated!"); renderCopySessionsList();
@@ -4727,7 +5129,7 @@ function editHW(id){
   const newGrid=document.getElementById("editHWNewImgGrid"); if(newGrid) newGrid.style.display="none";
   openModal("editHWModal");
 }
-function saveEditedHW(){
+async function saveEditedHW(){
   const id=document.getElementById("editHWId").value;
   const title=document.getElementById("editHWTitle").value.trim();
   const subject=document.getElementById("editHWSubject").value;
@@ -4735,6 +5137,7 @@ function saveEditedHW(){
   const due=document.getElementById("editHWDue").value;
   const priority=document.getElementById("editHWPriority").value;
   if(!title||!body){ showToast("❌ Title and description required"); return; }
+  if(!await requireStepUp("save these homework edits")) return;
   const hw=DB.get("homework")||[],idx=hw.findIndex(h=>h.id===id); if(idx<0) return;
   const save=(newImgs)=>{
     const allImgs=[..._editHWKeptImgs,...newImgs];
