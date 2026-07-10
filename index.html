@@ -365,6 +365,21 @@ button:active, .btn:active, .nav-btn:active, .auth-btn:active, .role-card:active
 .fee-payment-row:hover{background:rgba(255,255,255,.05);border-color:rgba(255,255,255,.1);}
 @media(max-width:640px){ .fee-stats-row{grid-template-columns:repeat(2,1fr);} }
 
+/* Audit log */
+.audit-row{background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.06);border-radius:10px;padding:11px 13px;margin-bottom:8px;transition:all .18s;}
+.audit-row:hover{background:rgba(255,255,255,.05);border-color:rgba(255,255,255,.1);}
+.audit-row-top{display:flex;flex-wrap:wrap;align-items:center;gap:7px;margin-bottom:6px;}
+.audit-tag{font-size:10px;font-weight:700;letter-spacing:.4px;padding:2px 9px;border-radius:7px;text-transform:uppercase;}
+.audit-tag.edit{background:rgba(74,158,255,.15);color:#4a9eff;}
+.audit-tag.delete{background:rgba(224,85,85,.15);color:#e05555;}
+.audit-tag.record{background:rgba(61,186,126,.15);color:#3dba7e;}
+.audit-meta{font-size:11px;color:var(--muted);}
+.audit-changes{font-size:12px;margin-top:5px;padding-left:2px;}
+.audit-change-line{display:flex;gap:6px;flex-wrap:wrap;padding:3px 0;color:var(--off);}
+.audit-change-field{color:var(--gold);font-weight:600;min-width:80px;}
+.audit-change-from{color:#e05555;text-decoration:line-through;opacity:.75;}
+.audit-change-to{color:#3dba7e;}
+
 .lb-mode-btn{padding:8px 16px;border-radius:8px;border:none;background:transparent;color:var(--muted);font-size:12px;font-weight:600;cursor:pointer;font-family:'DM Sans',sans-serif;transition:all .2s ease;}
 .lb-mode-btn.active{background:var(--gold);color:#1a1208;}
 .lb-row-me{background:rgba(232,160,32,0.1) !important;}
@@ -679,6 +694,7 @@ button:active, .btn:active, .nav-btn:active, .auth-btn:active, .role-card:active
     <button class="nav-btn perm-ct" data-page="manage_leaves" onclick="nav(this)" style="display:none;"><span class="nav-icon">🏖️</span><span class="nav-label sb-text">Leave Requests</span><span class="nav-badge sb-text" id="leaveCTBadge" style="display:none;background:#e05555;">!</span></button>
     <button class="nav-btn perm-ct" data-page="student_info" onclick="nav(this)" style="display:none;"><span class="nav-icon">👨‍👩‍👧</span><span class="nav-label sb-text">Student Info</span></button>
     <button class="nav-btn perm-ct" data-page="manage_fees" onclick="nav(this)" style="display:none;"><span class="nav-icon">💰</span><span class="nav-label sb-text">Fee Tracking</span><span class="nav-badge sb-text" id="feeBadge" style="display:none;background:#e05555;">0</span></button>
+    <button class="nav-btn perm-ct" data-page="audit_log" onclick="nav(this)" style="display:none;"><span class="nav-icon">🕵️</span><span class="nav-label sb-text">Audit Log</span></button>
     <button class="nav-btn perm-hw" data-page="homework" onclick="nav(this)" style="display:none;"><span class="nav-icon">📓</span><span class="nav-label sb-text">Homework Mgr</span><span class="nav-badge sb-text" id="hwBadge" style="display:none;">0</span></button>
     <button class="nav-btn perm-complain" data-page="complain" onclick="nav(this)" style="display:none;"><span class="nav-icon">⚠️</span><span class="nav-label sb-text">Complaints</span></button>
     <button class="nav-btn perm-monitor" data-page="assign_duty" onclick="nav(this)" style="display:none;"><span class="nav-icon">📋</span><span class="nav-label sb-text">Assign Duty</span></button>
@@ -1189,6 +1205,34 @@ button:active, .btn:active, .nav-btn:active, .auth-btn:active, .role-card:active
           <div class="hero-h" style="font-size:22px;">My <span>Fee Status</span></div>
         </div>
         <div id="myFeesCard"></div>
+      </div>
+
+      <!-- AUDIT LOG (Class Teacher only) -->
+      <div class="page" id="page-audit_log">
+        <div class="hero" style="padding:20px 26px;margin-bottom:18px;">
+          <div class="hero-label">Class Teacher</div>
+          <div class="hero-h" style="font-size:22px;">Audit <span>Log</span></div>
+          <div class="hero-sub">A running, append-only record of every edit and delete across the app — who did it, from which device, and exactly what changed.</div>
+        </div>
+
+        <div id="auditStats" style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:16px;"></div>
+
+        <div class="card" style="margin-bottom:16px;">
+          <div style="display:flex;gap:10px;flex-wrap:wrap;align-items:center;justify-content:space-between;">
+            <input class="form-input" id="auditSearch" placeholder="🔍 Search by person, section, or item..." style="max-width:280px;" oninput="renderAuditLog()">
+            <div style="display:flex;gap:6px;flex-wrap:wrap;" id="auditFilterBtns">
+              <button class="btn btn-outline btn-sm audit-filter-btn" data-filter="all" onclick="setAuditFilter('all')">All</button>
+              <button class="btn btn-outline btn-sm audit-filter-btn" data-filter="edit" onclick="setAuditFilter('edit')">✏️ Edits</button>
+              <button class="btn btn-outline btn-sm audit-filter-btn" data-filter="delete" onclick="setAuditFilter('delete')">🗑️ Deletes</button>
+              <button class="btn btn-outline btn-sm audit-filter-btn" data-filter="record" onclick="setAuditFilter('record')">➕ Records</button>
+            </div>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="card-title">🕵️ Activity History</div>
+          <div id="auditLogList"></div>
+        </div>
       </div>
 
       <!-- COPY CHECKING -->
@@ -2236,7 +2280,7 @@ function forceSyncFromFirebase() {
 // DATA BACKUP / EXPORT (Class Teacher safety net — independent of Firebase)
 // ═══════════════════════════════════════════
 // All known data keys used across the app, kept in one place so exports never miss a table.
-const BACKUP_KEYS=["students","notices","files","results","homework","polls","examSchedules","leaveApplications","complaints","copySessions","duties","gallery","timetable","studentAttendance","roleSignatures","ct_notifications","studentNotifications","feeRecords"];
+const BACKUP_KEYS=["students","notices","files","results","homework","polls","examSchedules","leaveApplications","complaints","copySessions","duties","gallery","timetable","studentAttendance","roleSignatures","ct_notifications","studentNotifications","feeRecords","auditLog"];
 
 function _backupTimestamp(){
   const d=new Date(),p=n=>String(n).padStart(2,"0");
@@ -2477,6 +2521,126 @@ document.addEventListener("keydown", e=>{
     if(activePanel) _stepUpSubmit();
   }
 });
+
+// ═══════════════════════════════════════════
+// AUDIT LOG
+// Append-only record of every edit/delete (and a few noteworthy "record" actions like
+// marking a fee payment) — who did it, from what device, and exactly what changed.
+// Visible only to the Class Teacher. Doesn't prevent bad actions, but makes them traceable.
+//
+// Honest limitation: this runs entirely in the browser, so a determined person with dev
+// tools could in principle tamper with or clear it — it's a deterrent and record-keeping
+// tool for normal use, not a tamper-proof ledger.
+// ═══════════════════════════════════════════
+const AUDIT_MAX_ENTRIES=400; // oldest entries are dropped past this to keep it lightweight
+let _auditFilter="all";
+
+// There's no real "device name" available to a webpage (browsers don't expose that for
+// privacy reasons) — so this builds the closest useful substitute: browser + OS, plus a
+// short random ID that's generated once and saved in this browser's localStorage, so the
+// same physical device/browser shows the same tag every time it's used again.
+function _deviceId(){
+  try{
+    let id=localStorage.getItem("davx_deviceId");
+    if(!id){ id=Math.random().toString(36).slice(2,7).toUpperCase(); localStorage.setItem("davx_deviceId",id); }
+    return id;
+  }catch(e){ return "????"; }
+}
+function getDeviceLabel(){
+  const ua=navigator.userAgent||"";
+  let os="Unknown device";
+  if(/Windows/i.test(ua)) os="Windows PC";
+  else if(/Android/i.test(ua)) os="Android device";
+  else if(/iPhone|iPad|iPod/i.test(ua)) os="iPhone/iPad";
+  else if(/Macintosh|Mac OS X/i.test(ua)) os="Mac";
+  else if(/Linux/i.test(ua)) os="Linux PC";
+  let browser="Browser";
+  if(/Edg\//i.test(ua)) browser="Edge";
+  else if(/Chrome\//i.test(ua)&&!/Edg\//i.test(ua)) browser="Chrome";
+  else if(/Firefox\//i.test(ua)) browser="Firefox";
+  else if(/Safari\//i.test(ua)&&!/Chrome/i.test(ua)) browser="Safari";
+  return `${browser} on ${os} · #${_deviceId()}`;
+}
+// Compares oldObj vs newObj across a whitelist of {key,label,fmt?} fields and returns only
+// the fields that actually changed. Deliberately whitelist-based (never dumps every key)
+// so large/binary fields (images, signatures, file data) never end up in the log — those
+// pass a custom fmt() that reports a count/size instead of the raw content.
+function _diffFields(oldObj,newObj,fields){
+  const changes=[];
+  fields.forEach(f=>{
+    const ov=oldObj?oldObj[f.key]:undefined, nv=newObj?newObj[f.key]:undefined;
+    const fmt=f.fmt||(x=>(x===undefined||x===null||x==="")?"—":String(x));
+    const os=fmt(ov), ns=fmt(nv);
+    if(os!==ns) changes.push({field:f.label,from:os.length>70?os.slice(0,70)+"…":os,to:ns.length>70?ns.slice(0,70)+"…":ns});
+  });
+  return changes;
+}
+// action: "edit" | "delete" | "record"
+// changes: array from _diffFields (or null for deletes/records where a plain summary reads better)
+function logAudit(entity,action,label,changes,summary){
+  if(!currentUser) return;
+  let log=DB.get("auditLog")||[];
+  log.push({
+    id:"al_"+Date.now()+"_"+Math.random().toString(36).slice(2,6),
+    ts:Date.now(),
+    when:new Date().toLocaleString("en-IN",{dateStyle:"medium",timeStyle:"short"}),
+    by:currentUser.name, role:currentUser.role, device:getDeviceLabel(),
+    action, entity, label:label||"", changes:changes&&changes.length?changes:null, summary:summary||""
+  });
+  if(log.length>AUDIT_MAX_ENTRIES) log=log.slice(log.length-AUDIT_MAX_ENTRIES);
+  DB.set("auditLog",log);
+}
+function setAuditFilter(f){
+  _auditFilter=f;
+  document.querySelectorAll(".audit-filter-btn").forEach(b=>b.classList.toggle("active",b.dataset.filter===f));
+  renderAuditLog();
+}
+function renderAuditLog(){
+  const listEl=document.getElementById("auditLogList"); if(!listEl) return;
+  const log=(DB.get("auditLog")||[]).slice().sort((a,b)=>b.ts-a.ts);
+  const q=(document.getElementById("auditSearch")?.value||"").trim().toLowerCase();
+
+  const statsEl=document.getElementById("auditStats");
+  if(statsEl){
+    const counts={edit:0,delete:0,record:0};
+    log.forEach(e=>{ if(counts[e.action]!==undefined) counts[e.action]++; });
+    statsEl.innerHTML=`<div class="fee-stats-row">
+      <div class="fee-stat tone-gold"><div class="fee-stat-num" style="color:var(--gold);">${log.length}</div><div class="fee-stat-lbl">Total Entries</div></div>
+      <div class="fee-stat tone-red"><div class="fee-stat-num" style="color:#4a9eff;">${counts.edit}</div><div class="fee-stat-lbl">✏️ Edits</div></div>
+      <div class="fee-stat tone-red"><div class="fee-stat-num" style="color:#e05555;">${counts.delete}</div><div class="fee-stat-lbl">🗑️ Deletes</div></div>
+      <div class="fee-stat tone-green"><div class="fee-stat-num" style="color:#3dba7e;">${counts.record}</div><div class="fee-stat-lbl">➕ Records</div></div>
+    </div>`;
+  }
+
+  const filtered=log.filter(e=>{
+    if(_auditFilter!=="all" && e.action!==_auditFilter) return false;
+    if(q){
+      const hay=`${e.by} ${e.entity} ${e.label} ${e.device} ${e.summary}`.toLowerCase();
+      if(!hay.includes(q)) return false;
+    }
+    return true;
+  });
+
+  if(!filtered.length){ listEl.innerHTML=`<div class="empty-state"><div class="empty-icon">🕵️</div><div class="empty-text">No activity recorded yet</div></div>`; return; }
+
+  const tagHTML=e=>({
+    edit:`<span class="audit-tag edit">✏️ Edit</span>`,
+    delete:`<span class="audit-tag delete">🗑️ Delete</span>`,
+    record:`<span class="audit-tag record">➕ Record</span>`
+  }[e.action]||"");
+
+  listEl.innerHTML=filtered.map(e=>{
+    const changesHTML=e.changes?`<div class="audit-changes">${e.changes.map(c=>`<div class="audit-change-line"><span class="audit-change-field">${c.field}:</span><span class="audit-change-from">${c.from}</span><span>→</span><span class="audit-change-to">${c.to}</span></div>`).join("")}</div>`:(e.summary?`<div class="audit-changes" style="color:var(--muted);">${e.summary}</div>`:"");
+    return `<div class="audit-row">
+      <div class="audit-row-top">
+        ${tagHTML(e)}
+        <span style="font-weight:600;color:var(--white);font-size:13px;">${e.entity}${e.label?": "+e.label:""}</span>
+      </div>
+      <div class="audit-meta">👤 ${e.by} (${({classteacher:"Class Teacher",teacher:"Subject Teacher",monitor:"Class Monitor",student:"Student"})[e.role]||e.role}) · 🕒 ${e.when} · 📱 ${e.device}</div>
+      ${changesHTML}
+    </div>`;
+  }).join("");
+}
 
 // ═══════════════════════════════════════════
 // SIGNATURE VERIFICATION (optional alternative to password re-entry)
@@ -2844,7 +3008,7 @@ function toggleMobSidebar(){ const sb=document.getElementById("sidebar"),ov=docu
 function closeMobSidebar(){ document.getElementById("sidebar").classList.remove("mob-open"); document.getElementById("mobOverlay").classList.remove("open"); document.getElementById("mobToggle").textContent="☰"; }
 function goHome(){ nav(document.querySelector("[data-page=dashboard]")); closeFolder(); }
 
-const PAGE_TITLES={dashboard:"Dashboard",subjects:"Subjects",notices:"Notice Board",polls:"Polls",gallery:"Gallery",timetable:"Timetable",exam_schedule:"Exam Schedule",attendance:"Attendance Record",results:"Results & Marks",leaderboard:"Class Leaderboard",report_card:"Report Card",hw_view:"Homework Board",upload:"Upload Files",post_notice:"Post Notice",manage_timetable:"Set Timetable",manage_results:"Enter Results",manage_attendance:"Mark Attendance",manage_students:"Students",copy_checking:"Copy Checking",homework:"Homework Manager",complain:"Complaints & Reports",student_info:"Student Information",assign_duty:"Assign Duty",my_duties:"My Duties",apply_leave:"Apply for Leave",manage_leaves:"Leave Requests",my_copy:"My Copy Records",manage_fees:"Fee Tracking",my_fees:"My Fees"};
+const PAGE_TITLES={dashboard:"Dashboard",subjects:"Subjects",notices:"Notice Board",polls:"Polls",gallery:"Gallery",timetable:"Timetable",exam_schedule:"Exam Schedule",attendance:"Attendance Record",results:"Results & Marks",leaderboard:"Class Leaderboard",report_card:"Report Card",hw_view:"Homework Board",upload:"Upload Files",post_notice:"Post Notice",manage_timetable:"Set Timetable",manage_results:"Enter Results",manage_attendance:"Mark Attendance",manage_students:"Students",copy_checking:"Copy Checking",homework:"Homework Manager",complain:"Complaints & Reports",student_info:"Student Information",assign_duty:"Assign Duty",my_duties:"My Duties",apply_leave:"Apply for Leave",manage_leaves:"Leave Requests",my_copy:"My Copy Records",manage_fees:"Fee Tracking",my_fees:"My Fees",audit_log:"Audit Log"};
 
 function nav(btn){
   if(!btn) return;
@@ -2853,7 +3017,7 @@ function nav(btn){
   document.querySelectorAll(".page").forEach(p=>p.classList.remove("active")); document.getElementById("page-"+pid).classList.add("active");
   document.getElementById("pageTitle").textContent=PAGE_TITLES[pid]||pid;
   const backBtn=document.getElementById("backBtn");
-  backBtn.classList.toggle("show",["upload","post_notice","manage_timetable","manage_results","manage_attendance","manage_students","results","leaderboard","report_card","exam_schedule","copy_checking","homework","complain","student_info","assign_duty","my_duties","apply_leave","manage_leaves","my_copy","manage_fees","my_fees"].includes(pid));
+  backBtn.classList.toggle("show",["upload","post_notice","manage_timetable","manage_results","manage_attendance","manage_students","results","leaderboard","report_card","exam_schedule","copy_checking","homework","complain","student_info","assign_duty","my_duties","apply_leave","manage_leaves","my_copy","manage_fees","my_fees","audit_log"].includes(pid));
   closeFolder();
   if(window.innerWidth<=820) closeMobSidebar();
   if(pid==="notices"||pid==="post_notice") renderNotices();
@@ -2884,6 +3048,7 @@ function nav(btn){
   if(pid==="report_card") initReportCardPage();
   if(pid==="manage_fees"){ renderFeesPage(); updateFeeBadge(); }
   if(pid==="my_fees") renderMyFees();
+  if(pid==="audit_log") renderAuditLog();
   _refreshNotifDot();
 }
 function handleBack(){ nav(document.querySelector("[data-page=dashboard]")); }
@@ -3221,7 +3386,7 @@ async function downloadFile(id){
     const a=document.createElement("a"); a.href=dataUrl; a.download=f.filename||f.title; a.click();
   }catch(e){ console.error(e); showToast("❌ Couldn't download this file"); }
 }
-async function deleteFile(id){ if(!await customConfirm("This file will be permanently removed.","Delete File","📁","Delete")) return; if(!await requireStepUp("delete this file")) return; const f=(DB.get("files")||[]).find(x=>x.id===id); DB.del("files",id); if(f&&f.chunked&&_firebaseReady&&_db){ _db.ref("davx_file_chunks/"+id).remove().catch(e=>{}); } showToast("🗑️ File deleted"); renderMyUploads(); renderDashboard(); renderSubjectList(); if(currentFolder) renderFolder(currentFolder); }
+async function deleteFile(id){ if(!await customConfirm("This file will be permanently removed.","Delete File","📁","Delete")) return; if(!await requireStepUp("delete this file")) return; const f=(DB.get("files")||[]).find(x=>x.id===id); DB.del("files",id); if(f&&f.chunked&&_firebaseReady&&_db){ _db.ref("davx_file_chunks/"+id).remove().catch(e=>{}); } logAudit("File","delete",f?f.title:id,null,f?`Subject: ${f.subject||"—"} · Uploaded by ${f.uploader||"—"}`:""); showToast("🗑️ File deleted"); renderMyUploads(); renderDashboard(); renderSubjectList(); if(currentFolder) renderFolder(currentFolder); }
 function renderMyUploads(){ const el=document.getElementById("myUploads"); if(!el) return; const files=(DB.get("files")||[]).filter(f=>f.uploader===currentUser.name); el.innerHTML=files.length?files.map(f=>fileItemHTML(f)).join(""):`<div class="empty-state"><div class="empty-icon">📂</div><div class="empty-text">You haven't uploaded anything yet</div></div>`; }
 
 // ═══════════════════════════════════════════
@@ -3250,7 +3415,7 @@ function noticeHTML(n,showActions=true){
 }
 function renderNotices(){ const notices=DB.get("notices")||[]; const nl=document.getElementById("noticesList"); if(nl) nl.innerHTML=notices.length?notices.map(n=>noticeHTML(n)).join(""):`<div class="empty-state"><div class="empty-icon">📭</div><div class="empty-text">No notices yet</div></div>`; const pl=document.getElementById("postedNotices"); if(pl) pl.innerHTML=notices.filter(n=>n.by===currentUser.name).map(n=>noticeHTML(n)).join("")||`<div class="empty-state"><div class="empty-icon">📭</div><div class="empty-text">You haven't posted any notices</div></div>`; const nb=document.getElementById("noticeBadge"); if(nb) nb.textContent=notices.length; }
 function postNotice(){ const title=document.getElementById("noticeTitle").value.trim(),body=document.getElementById("noticeBody").value.trim(),date=document.getElementById("noticeDate").value,prio=document.getElementById("noticePriority").value; if(!title||!body){ showToast("❌ Title and message required"); return; } DB.push("notices",{id:Date.now().toString(),title,body,date:date||new Date().toLocaleDateString("en-IN"),priority:prio,by:currentUser.name}); ["noticeTitle","noticeBody","noticeDate"].forEach(id=>document.getElementById(id).value=""); showToast("📌 Notice posted!"); renderNotices(); renderDashboard(); }
-async function deleteNotice(id){ if(!await customConfirm("This notice will be permanently removed.","Delete Notice","📌","Delete")) return; if(!await requireStepUp("delete this notice")) return; DB.del("notices",id); renderNotices(); renderDashboard(); showToast("🗑️ Notice deleted"); }
+async function deleteNotice(id){ const n=(DB.get("notices")||[]).find(x=>x.id===id); if(!await customConfirm("This notice will be permanently removed.","Delete Notice","📌","Delete")) return; if(!await requireStepUp("delete this notice")) return; DB.del("notices",id); logAudit("Notice","delete",n?n.title:id,null,n?`Priority: ${n.priority||"normal"} · Posted by ${n.by}`:""); renderNotices(); renderDashboard(); showToast("🗑️ Notice deleted"); }
 
 function editNotice(id){
   const n=(DB.get("notices")||[]).find(x=>x.id===id); if(!n) return;
@@ -3266,7 +3431,10 @@ async function saveEditedNotice(){
   if(!title||!body){ showToast("❌ Title and message required"); return; }
   if(!await requireStepUp("save these notice edits")) return;
   const notices=DB.get("notices")||[],idx=notices.findIndex(n=>n.id===id); if(idx<0) return;
+  const before={...notices[idx]};
   notices[idx]={...notices[idx],title,body,date:date||notices[idx].date,priority:prio,editedOn:new Date().toLocaleDateString("en-IN")};
+  const changes=_diffFields(before,notices[idx],[{key:"title",label:"Title"},{key:"body",label:"Message"},{key:"date",label:"Date"},{key:"priority",label:"Priority"}]);
+  logAudit("Notice","edit",notices[idx].title,changes);
   DB.set("notices",notices); closeModal("editNoticeModal"); showToast("✅ Notice updated!"); renderNotices(); renderDashboard();
 }
 
@@ -3306,7 +3474,7 @@ function addPeriod(){ ttEditorRows.push({day:"Monday",startTime:"",endTime:"",su
 async function resetTimetable(){ if(!await customConfirm("Reset the entire timetable?","Reset Timetable","🗓️","Reset")) return; ttEditorRows=[]; DAYS.forEach(day=>{ DEFAULT_TIMES.forEach(t=>{ ttEditorRows.push({day,startTime:t.start,endTime:t.end,subject:""}); }); }); renderTTEditor(); showToast("🔄 Timetable reset"); }
 function copyDayToAll(sourceDay){ const srcRows=ttEditorRows.filter(r=>r.day===sourceDay); if(!srcRows.length){ showToast("❌ "+sourceDay+" has no periods"); return; } ttEditorRows=ttEditorRows.filter(r=>r.day===sourceDay); DAYS.forEach(day=>{ if(day===sourceDay) return; srcRows.forEach(r=>{ ttEditorRows.push({day,startTime:r.startTime,endTime:r.endTime,subject:r.subject}); }); }); renderTTEditor(); showToast("📋 Copied to all days!"); }
 function showCopyDayModal(){ const overlay=document.createElement("div"); overlay.id="copyDayOverlay"; overlay.style.cssText="position:fixed;inset:0;background:rgba(11,28,54,0.85);backdrop-filter:blur(8px);z-index:600;display:flex;align-items:center;justify-content:center;"; overlay.innerHTML=`<div style="background:#122547;border:1px solid rgba(232,160,32,0.25);border-radius:16px;padding:26px 28px;width:340px;max-width:92vw;box-shadow:0 24px 60px rgba(0,0,0,0.5);animation:fadeUp .25s ease;"><div style="font-size:20px;margin-bottom:6px;">📋</div><div style="font-family:'Cormorant Garamond',serif;font-size:19px;color:#f8f4ee;margin-bottom:6px;">Copy Day to All Days</div><div style="font-size:13px;color:rgba(200,191,175,0.6);margin-bottom:18px;line-height:1.5;">Select a day to copy its schedule to all other days.</div><div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:18px;">${DAYS.map(day=>{ const cnt=ttEditorRows.filter(r=>r.day===day&&r.subject).length; return `<button onclick="copyDayToAll('${day}');document.getElementById('copyDayOverlay').remove();" style="padding:10px;background:rgba(232,160,32,0.08);border:1px solid rgba(232,160,32,0.2);border-radius:9px;color:var(--white);cursor:pointer;font-family:'DM Sans',sans-serif;font-size:13px;text-align:left;" onmouseover="this.style.background='rgba(232,160,32,0.18)'" onmouseout="this.style.background='rgba(232,160,32,0.08)'"><div style="font-weight:600;">${day}</div><div style="font-size:10px;color:var(--gold);margin-top:2px;">${cnt} period${cnt!==1?"s":""}</div></button>`; }).join("")}</div><button onclick="document.getElementById('copyDayOverlay').remove();" style="width:100%;padding:9px;background:transparent;border:1px solid rgba(255,255,255,0.15);color:rgba(200,191,175,0.7);border-radius:9px;cursor:pointer;font-size:13px;font-family:'DM Sans',sans-serif;">Cancel</button></div>`; document.body.appendChild(overlay); overlay.addEventListener("click",e=>{ if(e.target===overlay) overlay.remove(); }); }
-async function saveTimetable(){ const toSave=ttEditorRows.filter(r=>r.subject&&r.startTime).map((r,i)=>({id:r.day+"_"+r.startTime.replace(":","")+"_"+i,day:r.day,startTime:r.startTime,endTime:r.endTime||"",subject:r.subject})); if(!toSave.length){ showToast("❌ Add at least one period with subject and start time"); return; } if(!await requireStepUp("save changes to the timetable")) return; DB.set("timetable",toSave); showToast("💾 Timetable saved!"); renderTTPreview(); renderTTDisplay(); }
+async function saveTimetable(){ const toSave=ttEditorRows.filter(r=>r.subject&&r.startTime).map((r,i)=>({id:r.day+"_"+r.startTime.replace(":","")+"_"+i,day:r.day,startTime:r.startTime,endTime:r.endTime||"",subject:r.subject})); if(!toSave.length){ showToast("❌ Add at least one period with subject and start time"); return; } if(!await requireStepUp("save changes to the timetable")) return; DB.set("timetable",toSave); logAudit("Timetable","edit","Class Timetable",null,`${toSave.length} period(s) set across the week`); showToast("💾 Timetable saved!"); renderTTPreview(); renderTTDisplay(); }
 function renderTTPreview(){ const el=document.getElementById("ttPreview"); if(!el) return; const rows=ttEditorRows.filter(r=>r.subject&&r.startTime); if(!rows.length){ el.innerHTML=`<div style="color:var(--muted);font-size:13px;padding:8px 0;">No periods with subjects yet.</div>`; return; } _renderTTTable(el,rows); }
 function renderTTDisplay(){ const tt=DB.get("timetable"),el=document.getElementById("ttDisplay"); if(!el) return; if(!tt||!tt.length){ el.innerHTML=`<div class="empty-state"><div class="empty-icon">📅</div><div class="empty-text">No timetable set yet</div></div>`; return; } _renderTTTable(el,tt); }
 function _renderTTTable(el,rows){
@@ -3387,7 +3555,15 @@ async function saveEditedAtt(){
   const date=document.getElementById("editAttDate").value;
   if(!await requireStepUp("save these attendance edits")) return;
   const allAtt=DB.get("studentAttendance")||{};
+  const before={...(allAtt[date]||{})};
   allAtt[date]={...(allAtt[date]||{}),..._pendingEditAtt};
+  const students=DB.get("students")||[];
+  const changes=Object.keys(_pendingEditAtt).map(sid=>{
+    const s=students.find(x=>x.id===sid), ov=before[sid]||"not marked", nv=_pendingEditAtt[sid];
+    if(ov===nv) return null;
+    return {field:s?s.name:sid,from:ov,to:nv};
+  }).filter(Boolean);
+  if(changes.length) logAudit("Attendance","edit",date,changes);
   DB.set("studentAttendance",allAtt);
   _pendingEditAtt={};
   closeModal("editAttModal");
@@ -3747,10 +3923,15 @@ async function saveEditedResult(){
   if(!test||!subject||!max){ showToast("❌ Fill all required fields"); return; }
   if(!await requireStepUp("save these edited results")) return;
   const results=DB.get("results")||[],idx=results.findIndex(r=>r.id===id); if(idx<0) return;
+  const before={...results[idx]};
   const students=(DB.get("students")||[]).sort((a,b)=>parseInt(a.roll)-parseInt(b.roll));
   const newMarks=students.map(s=>{ const inp=document.getElementById("editMark_"+s.id); if(!inp||inp.disabled) return{studentId:s.id,name:s.name,roll:s.roll,marks:null,absent:true}; const v=parseInt(inp.value); if(isNaN(v)) return{studentId:s.id,name:s.name,roll:s.roll,marks:null,absent:true}; return{studentId:s.id,name:s.name,roll:s.roll,marks:v,absent:false}; });
   const allM=newMarks.filter(m=>!m.absent).map(m=>m.marks);
   results[idx]={...results[idx],test,subject,max,date:date||results[idx].date,remarks,studentMarks:newMarks,avg:allM.length?Math.round(allM.reduce((a,b)=>a+b,0)/allM.length):null,highest:allM.length?Math.max(...allM):null,lowest:allM.length?Math.min(...allM):null,editedOn:new Date().toLocaleDateString("en-IN")};
+  const changes=_diffFields(before,results[idx],[{key:"test",label:"Test Name"},{key:"subject",label:"Subject"},{key:"max",label:"Max Marks"},{key:"date",label:"Date"},{key:"remarks",label:"Remarks"}]);
+  const oldMarksMap={}; (before.studentMarks||[]).forEach(m=>oldMarksMap[m.studentId]=m.absent?"absent":m.marks);
+  const marksChangedCount=newMarks.filter(m=>oldMarksMap[m.studentId]!==(m.absent?"absent":m.marks)).length;
+  logAudit("Result","edit",results[idx].test,changes,marksChangedCount?`Marks changed for ${marksChangedCount} student${marksChangedCount!==1?"s":""}`:"");
   DB.set("results",results); closeModal("editResultModal"); showToast("✅ Result updated!"); renderEnteredResults(); renderResults(); populateLeaderboardTestSelect();
 }
 
@@ -3851,7 +4032,7 @@ function toggleResultSummary(id){
   el.style.display=open?"":"none";
   if(arrow) arrow.textContent=open?"▲":"▼";
 }
-async function delResult(id){ if(!await customConfirm("This result will be permanently removed.","Delete Result","📊","Delete")) return; if(!await requireStepUp("delete this result")) return; DB.del("results",id); renderEnteredResults(); renderResults(); renderDashboard(); populateLeaderboardTestSelect(); showToast("🗑️ Result deleted"); }
+async function delResult(id){ const r=(DB.get("results")||[]).find(x=>x.id===id); if(!await customConfirm("This result will be permanently removed.","Delete Result","📊","Delete")) return; if(!await requireStepUp("delete this result")) return; DB.del("results",id); logAudit("Result","delete",r?r.test:id,null,r?`Subject: ${r.subject} · Max: ${r.max}`:""); renderEnteredResults(); renderResults(); renderDashboard(); populateLeaderboardTestSelect(); showToast("🗑️ Result deleted"); }
 
 // ═══════════════════════════════════════════
 // LEADERBOARD
@@ -4254,8 +4435,8 @@ function renderStudentsList(){
   const sorted=[...students].sort((a,b)=>parseInt(a.roll)-parseInt(b.roll));
   el.innerHTML=notifsHTML+`<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;"><div style="font-size:13px;color:var(--muted);">${students.length} student${students.length!==1?"s":""} registered</div><button class="btn btn-danger btn-sm" onclick="removeAllStudents()">🗑️ Remove All</button></div><table class="students-table"><thead><tr><th>#</th><th>Name</th><th>Roll No</th><th>Adm. No</th><th>Parent Mobile</th><th>Registered On</th><th>Last Login</th><th>Action</th></tr></thead><tbody>`+sorted.map((s,i)=>`<tr><td style="color:var(--muted);">${i+1}</td><td style="font-weight:600;">${s.name}</td><td><span style="background:rgba(232,160,32,.15);color:var(--gold);padding:2px 8px;border-radius:6px;font-size:12px;">${s.roll}</span></td><td style="font-size:12px;color:var(--muted);">${s.admNo}</td><td style="font-size:12px;">${s.parentMobile?`<span class="wa-chip">📱 ${s.parentMobile}</span>`:`<button class="btn btn-outline btn-sm" onclick="openEditParentMobile('${s.id}')">+ Add</button>`}</td><td style="font-size:11px;color:var(--muted);">${s.joinedOn}</td><td style="font-size:11px;color:var(--muted);">${s.lastLogin||"Never"}</td><td style="display:flex;gap:4px;">${s.parentMobile?`<button class="btn btn-outline btn-sm" onclick="openEditParentMobile('${s.id}')">✏️</button>`:""}<button class="btn btn-danger btn-sm" onclick="deleteStudent('${s.id}')">🗑️</button></td></tr>`).join("")+`</tbody></table>`;
 }
-async function deleteStudent(id){ const students=DB.get("students")||[],s=students.find(x=>x.id===id); if(!s) return; if(!await customConfirm(`Remove "${s.name}" (Roll: ${s.roll})?`,"Remove Student","👤","Remove")) return; if(!await requireStepUp("remove this student")) return; DB.del("students",id); const recs=(DB.get("feeRecords")||[]).filter(r=>r.id!==id); DB.set("feeRecords",recs); renderStudentsList(); try{updateFeeBadge();}catch(e){} showToast("🗑️ Student removed"); }
-async function removeAllStudents(){ const students=DB.get("students")||[]; if(!students.length){ showToast("No students to remove"); return; } if(!await customConfirm(`Remove ALL ${students.length} students?`,"Remove All","⚠️","Remove All")) return; DB.set("students",[]); DB.set("ct_notifications",[]); DB.set("feeRecords",[]); renderStudentsList(); try{updateFeeBadge();}catch(e){} showToast("🗑️ All students removed"); }
+async function deleteStudent(id){ const students=DB.get("students")||[],s=students.find(x=>x.id===id); if(!s) return; if(!await customConfirm(`Remove "${s.name}" (Roll: ${s.roll})?`,"Remove Student","👤","Remove")) return; if(!await requireStepUp("remove this student")) return; DB.del("students",id); const recs=(DB.get("feeRecords")||[]).filter(r=>r.id!==id); DB.set("feeRecords",recs); logAudit("Student","delete",s.name,null,`Roll No: ${s.roll} · Adm. No: ${s.admNo}`); renderStudentsList(); try{updateFeeBadge();}catch(e){} showToast("🗑️ Student removed"); }
+async function removeAllStudents(){ const students=DB.get("students")||[]; if(!students.length){ showToast("No students to remove"); return; } if(!await customConfirm(`Remove ALL ${students.length} students?`,"Remove All","⚠️","Remove All")) return; if(!await requireStepUp("remove ALL students")) return; DB.set("students",[]); DB.set("ct_notifications",[]); DB.set("feeRecords",[]); logAudit("Student","delete",`ALL ${students.length} students`,null,"Bulk removal — entire class roster cleared"); renderStudentsList(); try{updateFeeBadge();}catch(e){} showToast("🗑️ All students removed"); }
 function markNotifsRead(){ const notifs=DB.get("ct_notifications")||[]; notifs.forEach(n=>n.read=true); DB.set("ct_notifications",notifs); updateCTNotifBadge(); renderStudentsList(); showToast("✓ All read"); }
 
 // ═══════════════════════════════════════════
@@ -4451,6 +4632,8 @@ async function addFeePayment(){
   if(recs[idx].payments.some(p=>p.month===month)){ showToast("❌ That month is already marked paid"); return; }
   recs[idx].payments.push({id:"fp_"+Date.now(),month,amount:amt,date,note,recordedBy:currentUser.name});
   DB.set("feeRecords",recs);
+  const stu=(DB.get("students")||[]).find(x=>x.id===currentFeeStudentId);
+  logAudit("Fee Payment","record",stu?stu.name:currentFeeStudentId,null,`${monthLabelFromKey(month)} · ₹${amt}${note?" · "+note:""}`);
   document.getElementById("feePaymentNote").value="";
   renderFeeDetailModal(); renderFeesPage(); updateFeeBadge();
   showToast(`✅ ${monthLabelFromKey(month)} marked paid (₹${amt})`);
@@ -4461,8 +4644,11 @@ async function deleteFeePayment(paymentId){
   let recs=DB.get("feeRecords")||[];
   const idx=recs.findIndex(r=>r.id===currentFeeStudentId);
   if(idx<0) return;
+  const pay=(recs[idx].payments||[]).find(p=>p.id===paymentId);
   recs[idx].payments=(recs[idx].payments||[]).filter(p=>p.id!==paymentId);
   DB.set("feeRecords",recs);
+  const stu=(DB.get("students")||[]).find(x=>x.id===currentFeeStudentId);
+  logAudit("Fee Payment","delete",stu?stu.name:currentFeeStudentId,null,pay?`${monthLabelFromKey(pay.month)} · ₹${pay.amount}`:"");
   renderFeeDetailModal(); renderFeesPage(); updateFeeBadge();
   showToast("🗑️ Payment removed");
 }
@@ -4523,7 +4709,9 @@ async function saveParentMobile(){
   if(mobile&&!/^\d{7,15}$/.test(mobile)){ showToast("❌ Enter a valid mobile number (digits only)"); return; }
   if(!await requireStepUp("update this student's parent contact")) return;
   const students=DB.get("students")||[],idx=students.findIndex(s=>s.id===id); if(idx<0) return;
+  const before=students[idx].parentMobile;
   students[idx].parentMobile=mobile;
+  if(before!==mobile) logAudit("Student","edit",students[idx].name,[{field:"Parent Mobile",from:before||"—",to:mobile||"—"}]);
   DB.set("students",students);
   closeModal("editParentMobileModal");
   showToast("✅ Parent mobile saved!");
@@ -4908,7 +5096,7 @@ function setCopyStatus(sid,status){ pendingCopyStatus[sid]=status; const session
 function markAllCopy(status){ const students=DB.get("students")||[]; students.forEach(s=>{ pendingCopyStatus[s.id]=status; }); const sessions=DB.get("copySessions")||[],session=sessions.find(s=>s.id===currentCopySessionId); if(session) renderCopyStudentGrid(session); showToast(status==="submitted"?"✓ All Submitted":status==="not_submitted"?"✗ All Not Submitted":"🏖️ All Absent"); }
 function updateCopyStats(){ const students=DB.get("students")||[],total=students.length,submitted=Object.values(pendingCopyStatus).filter(v=>v==="submitted").length,notSub=Object.values(pendingCopyStatus).filter(v=>v==="not_submitted").length,absent=Object.values(pendingCopyStatus).filter(v=>v==="absent").length; const el=document.getElementById("copyDetailStats"); if(!el) return; el.innerHTML=`<span style="font-size:12px;background:rgba(61,186,126,.18);color:#3dba7e;padding:3px 10px;border-radius:8px;">✓ ${submitted}/${total}</span>`+(notSub?`<span style="font-size:12px;background:rgba(224,85,85,.15);color:#e05555;padding:3px 10px;border-radius:8px;">✗ ${notSub}</span>`:"")+(absent?`<span style="font-size:12px;background:rgba(232,160,32,.15);color:var(--gold);padding:3px 10px;border-radius:8px;">H ${absent}</span>`:""); }
 function saveCopySession(){ if(!currentCopySessionId){ showToast("❌ No session selected"); return; } if(!Object.keys(pendingCopyStatus).length){ showToast("❌ Mark at least one student"); return; } const sessions=DB.get("copySessions")||[],idx=sessions.findIndex(s=>s.id===currentCopySessionId); if(idx<0){ showToast("❌ Session not found"); return; } sessions[idx].status={...(sessions[idx].status||{}),...pendingCopyStatus}; sessions[idx].lastUpdated=new Date().toLocaleString("en-IN"); DB.set("copySessions",sessions); showToast("✅ Copy status saved!"); renderCopyStudentGrid(sessions[idx]); renderCopySessionsList(); }
-async function deleteCopySession(id){ if(!await customConfirm("Delete this collection record?","Delete Record","📋","Delete")) return; if(!await requireStepUp("delete this record")) return; DB.del("copySessions",id); renderCopySessionsList(); showToast("🗑️ Record deleted"); }
+async function deleteCopySession(id){ const s=(DB.get("copySessions")||[]).find(x=>x.id===id); if(!await customConfirm("Delete this collection record?","Delete Record","📋","Delete")) return; if(!await requireStepUp("delete this record")) return; DB.del("copySessions",id); logAudit("Copy/Session Record","delete",s?s.subject:id,null,s?`Date: ${s.date}`:""); renderCopySessionsList(); showToast("🗑️ Record deleted"); }
 
 // ── EDIT COPY SESSION ──
 function editCopySession(id){
@@ -4924,7 +5112,10 @@ async function saveEditedCopySession(){
   if(!subject){ showToast("❌ Subject required"); return; }
   if(!await requireStepUp("save these copy/session edits")) return;
   const sessions=DB.get("copySessions")||[],idx=sessions.findIndex(s=>s.id===id); if(idx<0) return;
+  const before={...sessions[idx]};
   sessions[idx]={...sessions[idx],subject,date:date||sessions[idx].date,note};
+  const changes=_diffFields(before,sessions[idx],[{key:"subject",label:"Subject"},{key:"date",label:"Date"},{key:"note",label:"Note"}]);
+  logAudit("Copy/Session Record","edit",sessions[idx].subject,changes);
   DB.set("copySessions",sessions); closeModal("editCopyModal"); showToast("✅ Record updated!"); renderCopySessionsList();
 }
 // ═══════════════════════════════════════════
@@ -5139,9 +5330,12 @@ async function saveEditedHW(){
   if(!title||!body){ showToast("❌ Title and description required"); return; }
   if(!await requireStepUp("save these homework edits")) return;
   const hw=DB.get("homework")||[],idx=hw.findIndex(h=>h.id===id); if(idx<0) return;
+  const before={...hw[idx]};
   const save=(newImgs)=>{
     const allImgs=[..._editHWKeptImgs,...newImgs];
     hw[idx]={...hw[idx],title,subject,body,due,priority,images:allImgs};
+    const changes=_diffFields(before,hw[idx],[{key:"title",label:"Title"},{key:"subject",label:"Subject"},{key:"body",label:"Description"},{key:"due",label:"Due Date"},{key:"priority",label:"Priority"},{key:"images",label:"Attached Images",fmt:x=>(x&&x.length?x.length+" image"+(x.length!==1?"s":""):"none")}]);
+    logAudit("Homework","edit",hw[idx].title,changes);
     DB.set("homework",hw); closeModal("editHWModal"); showToast("✅ Homework updated!"); renderAllHW(); renderHWView(); updateHWBadge();
   };
   if(!_editHWNewFiles.length){ save([]); return; }
@@ -5153,7 +5347,7 @@ async function saveEditedHW(){
     r.readAsDataURL(file);
   });
 }
-async function deleteHW(id){ if(!await customConfirm("Delete this homework?","Delete Homework","📓","Delete")) return; if(!await requireStepUp("delete this homework")) return; DB.del("homework",id); renderAllHW(); updateHWBadge(); showToast("🗑️ Deleted"); }
+async function deleteHW(id){ const h=(DB.get("homework")||[]).find(x=>x.id===id); if(!await customConfirm("Delete this homework?","Delete Homework","📓","Delete")) return; if(!await requireStepUp("delete this homework")) return; DB.del("homework",id); logAudit("Homework","delete",h?h.title:id,null,h?`Subject: ${h.subject} · Due: ${h.due||"—"}`:""); renderAllHW(); updateHWBadge(); showToast("🗑️ Deleted"); }
 
 // ═══════════════════════════════════════════
 // COMPLAINTS
@@ -5288,10 +5482,13 @@ async function saveEditedComplaint(){
   if(!body){ showToast("❌ Details required"); return; }
   if(!await requireStepUp("save these complaint edits")) return;
   const complaints=DB.get("complaints")||[],idx=complaints.findIndex(c=>c.id===id); if(idx<0) return;
+  const before={...complaints[idx]};
   complaints[idx]={...complaints[idx],body,category:cat,severity:sev,status,editedOn:new Date().toLocaleDateString("en-IN")};
+  const changes=_diffFields(before,complaints[idx],[{key:"body",label:"Details"},{key:"category",label:"Category"},{key:"severity",label:"Severity"},{key:"status",label:"Status"}]);
+  logAudit("Complaint","edit",complaints[idx].studentName||id,changes);
   DB.set("complaints",complaints); closeModal("editComplaintModal"); showToast("✅ Complaint updated!"); renderComplaintLog();
 }
-async function deleteComplaint(id){ if(!await customConfirm("Delete this complaint record?","Delete Complaint","⚠️","Delete")) return; if(!await requireStepUp("delete this complaint record")) return; DB.del("complaints",id); renderComplaintLog(); showToast("🗑️ Deleted"); }
+async function deleteComplaint(id){ const c=(DB.get("complaints")||[]).find(x=>x.id===id); if(!await customConfirm("Delete this complaint record?","Delete Complaint","⚠️","Delete")) return; if(!await requireStepUp("delete this complaint record")) return; DB.del("complaints",id); logAudit("Complaint","delete",c?c.studentName:id,null,c?`Category: ${c.category} · Severity: ${c.severity}`:""); renderComplaintLog(); showToast("🗑️ Deleted"); }
 
 // ═══════════════════════════════════════════
 // ASSIGN DUTY
@@ -5666,9 +5863,11 @@ async function confirmEditLeave(){
 }
 
 async function deleteLeave(id, role){
+  const a=(DB.get("leaveApplications")||[]).find(x=>x.id===id);
   if(!confirm("Delete this leave application?")) return;
   if(role==="ct" && !await requireStepUp("delete this leave application")) return;
   DB.del("leaveApplications", id);
+  logAudit("Leave Application","delete",a?a.studentName:id,null,a?`${a.fromDate} to ${a.toDate} (${a.days} day${a.days!==1?"s":""})`:"");
   showToast("🗑️ Leave application deleted.");
   if(role==="ct"){ renderManageLeaves(); updateLeaveCTBadge(); }
   else { renderMyLeaves(); updateLeaveStatusBadge(); }
@@ -5797,9 +5996,11 @@ function saveDutyCompletion(){
 }
 
 async function deleteDuty(id){
+  const d=(DB.get("duties")||[]).find(x=>x.id===id);
   if(!await customConfirm("Delete this duty record?","Delete Duty","📋","Delete")) return;
   if(!await requireStepUp("delete this duty record")) return;
   DB.del("duties",id);
+  logAudit("Duty","delete",d?d.name:id,null,d?`Due: ${d.dueDate} · ${d.students?d.students.length:0} student(s) assigned`:"");
   renderDutyLog();
   showToast("🗑️ Duty deleted");
 }
@@ -6117,9 +6318,11 @@ function addExamEntry(){
 }
 
 async function deleteExamEntry(id){
+  const ex=(DB.get("examSchedules")||[]).find(x=>x.id===id);
   if(!await customConfirm("Delete this exam entry?","Delete Exam","📋","Delete")) return;
   if(!await requireStepUp("delete this exam entry")) return;
   DB.del("examSchedules",id);
+  logAudit("Exam Entry","delete",ex?ex.name:id,null,ex?`Date: ${ex.date}`:"");
   showToast("🗑️ Deleted");
   renderExamSchedule();
   updateExamBadge();
@@ -6318,9 +6521,11 @@ function reopenPoll(pollId){
 }
 
 async function deletePoll(pollId){
+  const p=(DB.get("polls")||[]).find(x=>x.id===pollId);
   if(!await customConfirm("Delete this poll permanently?","Delete Poll","🗳️","Delete")) return;
   if(!await requireStepUp("delete this poll")) return;
   DB.del("polls",pollId);
+  logAudit("Poll","delete",p?p.question:pollId,null,p?`${Object.keys(p.votes||{}).length} response(s) recorded`:"");
   showToast("🗑️ Poll deleted");
   renderPolls();
 }
@@ -7094,7 +7299,7 @@ window.addEventListener('load', () => {
   <div class="ai-panel-header">
     <div class="ai-avatar">🤖</div>
     <div class="ai-panel-info">
-      <div class="ai-panel-name">SONAMOL AI</div>
+      <div class="ai-panel-name"> PRE-GOL AI </div>
       <div class="ai-panel-status">Online — Ready to help</div>
     </div>
     <button class="ai-close-btn" onclick="toggleAITutor()" title="Close">✕</button>
@@ -7112,7 +7317,7 @@ window.addEventListener('load', () => {
   <!-- Messages -->
   <div class="ai-messages" id="aiMessages">
     <div class="ai-bubble bot">
-      👋 Hello! I'm your <strong> SONAMOL AI </strong> for Class X.<br><br>
+      👋 Hello! I'm your <strong>SONAMOL AI</strong> for Class X.<br><br>
       Ask me anything — doubts, homework help, topic explanations, or practice questions. I'm here to help! 🎓
     </div>
   </div>
