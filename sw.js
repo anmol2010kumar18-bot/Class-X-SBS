@@ -1,5 +1,5 @@
 // sw.js — Service Worker for USCD DAV Class X SBS
-const CACHE = 'davx-v8';  // bump this on every new deployment
+const CACHE = 'davx-v9';  // bump this on every new deployment
 const SHELL = ['./'];
 
 self.addEventListener('install', e => {

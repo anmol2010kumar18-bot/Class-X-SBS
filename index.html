@@ -630,19 +630,27 @@ button:active, .btn:active, .nav-btn:active, .auth-btn:active, .role-card:active
       <div class="auth-switch">New student? <span onclick="switchAuthTab('register',null)">Create account</span></div>
     </div>
     <div class="auth-panel" id="panel-register">
-      <div class="fixed-creds-note">ℹ️ Registration is only for <strong>Students</strong>. Teachers, Class Teacher &amp; Monitor accounts are pre-configured.</div>
-      <div class="auth-err" id="regErr"></div>
-      <div class="auth-ok" id="regOk"></div>
-      <div class="form-group"><label class="form-label">Full Name</label><input class="form-input" id="regName" placeholder="e.g. Anmol Kumar"></div>
-      <div class="form-row-2">
-        <div class="form-group"><label class="form-label">Roll Number</label><input class="form-input" id="regRoll" placeholder="e.g. 43"></div>
-        <div class="form-group"><label class="form-label">Admission Number</label><input class="form-input" id="regAdm" placeholder="e.g. 6016"></div>
+      <div id="regClosedMsg" style="display:none;text-align:center;padding:30px 10px;">
+        <div style="font-size:40px;margin-bottom:10px;">🔒</div>
+        <div style="font-size:15px;font-weight:600;color:var(--white);margin-bottom:6px;">Registration is closed</div>
+        <div style="font-size:12px;color:var(--muted);line-height:1.6;">All students have already registered. If you believe this is a mistake, please contact your Class Teacher directly.</div>
+        <div class="auth-switch" style="margin-top:16px;">Already have an account? <span onclick="switchAuthTab('login',null)">Sign in</span></div>
       </div>
-      <div class="form-group"><label class="form-label">Parent Mobile (WhatsApp)</label><input class="form-input" id="regParentMobile" placeholder="e.g. 9876543210" type="tel" maxlength="15"></div>
-      <div class="form-group"><label class="form-label">Create Password</label><div style="position:relative;"><input class="form-input" type="password" id="regPass" placeholder="Min 6 characters" style="padding-right:40px;"><button type="button" onclick="togglePassVis('regPass','eyeReg1')" style="position:absolute;right:10px;top:50%;transform:translateY(-50%);background:none;border:none;cursor:pointer;font-size:16px;color:var(--muted);padding:4px;" id="eyeReg1">👁️</button></div></div>
-      <div class="form-group"><label class="form-label">Confirm Password</label><div style="position:relative;"><input class="form-input" type="password" id="regPass2" placeholder="Re-enter password" style="padding-right:40px;"><button type="button" onclick="togglePassVis('regPass2','eyeReg2')" style="position:absolute;right:10px;top:50%;transform:translateY(-50%);background:none;border:none;cursor:pointer;font-size:16px;color:var(--muted);padding:4px;" id="eyeReg2">👁️</button></div></div>
-      <button class="auth-btn" onclick="doRegister()">Create Account →</button>
-      <div class="auth-switch">Already have an account? <span onclick="switchAuthTab('login',null)">Sign in</span></div>
+      <div id="regFormFields">
+        <div class="fixed-creds-note">ℹ️ Registration is only for <strong>Students</strong>. Teachers, Class Teacher &amp; Monitor accounts are pre-configured.</div>
+        <div class="auth-err" id="regErr"></div>
+        <div class="auth-ok" id="regOk"></div>
+        <div class="form-group"><label class="form-label">Full Name</label><input class="form-input" id="regName" placeholder="e.g. Anmol Kumar"></div>
+        <div class="form-row-2">
+          <div class="form-group"><label class="form-label">Roll Number</label><input class="form-input" id="regRoll" placeholder="e.g. 43"></div>
+          <div class="form-group"><label class="form-label">Admission Number</label><input class="form-input" id="regAdm" placeholder="e.g. 6016"></div>
+        </div>
+        <div class="form-group"><label class="form-label">Parent Mobile (WhatsApp)</label><input class="form-input" id="regParentMobile" placeholder="e.g. 9876543210" type="tel" maxlength="15"></div>
+        <div class="form-group"><label class="form-label">Create Password</label><div style="position:relative;"><input class="form-input" type="password" id="regPass" placeholder="Min 6 characters" style="padding-right:40px;"><button type="button" onclick="togglePassVis('regPass','eyeReg1')" style="position:absolute;right:10px;top:50%;transform:translateY(-50%);background:none;border:none;cursor:pointer;font-size:16px;color:var(--muted);padding:4px;" id="eyeReg1">👁️</button></div></div>
+        <div class="form-group"><label class="form-label">Confirm Password</label><div style="position:relative;"><input class="form-input" type="password" id="regPass2" placeholder="Re-enter password" style="padding-right:40px;"><button type="button" onclick="togglePassVis('regPass2','eyeReg2')" style="position:absolute;right:10px;top:50%;transform:translateY(-50%);background:none;border:none;cursor:pointer;font-size:16px;color:var(--muted);padding:4px;" id="eyeReg2">👁️</button></div></div>
+        <button class="auth-btn" onclick="doRegister()">Create Account →</button>
+        <div class="auth-switch">Already have an account? <span onclick="switchAuthTab('login',null)">Sign in</span></div>
+      </div>
     </div>
   </div>
 </div>
@@ -1897,12 +1905,19 @@ button:active, .btn:active, .nav-btn:active, .auth-btn:active, .role-card:active
 
 <!-- ══ DATA BACKUP / EXPORT MODAL (Class Teacher) ══ -->
 <div class="modal-overlay" id="backupModal">
-  <div class="modal-box" style="max-width:440px;">
-    <div style="font-family:'Cormorant Garamond',serif;font-size:22px;color:var(--gold);margin-bottom:4px;">💾 Backup Class Data</div>
-    <div style="font-size:12px;color:var(--muted);margin-bottom:18px;line-height:1.5;">Download a full copy of every record — students, results, attendance, notices, files, homework, leaves and more — straight to your device. A safety net that works independently of Firebase.</div>
+  <div class="modal-box" style="max-width:460px;">
+    <div style="font-family:'Cormorant Garamond',serif;font-size:22px;color:var(--gold);margin-bottom:4px;">💾 Backup & Reports</div>
+    <div style="font-size:12px;color:var(--muted);margin-bottom:18px;line-height:1.5;">Download class data straight to your device — works independently of Firebase.</div>
+
+    <div style="font-size:12px;font-weight:600;color:var(--gold);margin-bottom:6px;">📊 Results Report</div>
+    <div style="font-size:11px;color:var(--muted);margin-bottom:10px;line-height:1.5;">One row per student — Name, Roll No., Admission No., and their marks for every test recorded so far, like a class mark-sheet.</div>
+    <button class="btn btn-gold" style="width:100%;margin-bottom:20px;" onclick="exportResultsExcel()">📄 Download Results (.xlsx)</button>
+
+    <div style="font-size:12px;font-weight:600;color:var(--gold);margin-bottom:6px;">🗄️ Full Class Backup</div>
+    <div style="font-size:11px;color:var(--muted);margin-bottom:10px;line-height:1.5;">Every record — students, results, attendance, notices, files, homework, leaves and more — as it is.</div>
     <div id="backupSummary" style="font-size:11px;color:var(--muted);background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.08);border-radius:8px;padding:10px 12px;margin-bottom:16px;max-height:140px;overflow-y:auto;"></div>
     <div style="display:flex;flex-direction:column;gap:10px;">
-      <button class="btn btn-gold" onclick="exportBackupJSON()">⬇️ Download as JSON</button>
+      <button class="btn btn-outline" onclick="exportBackupJSON()">⬇️ Download as JSON</button>
       <button class="btn btn-outline" onclick="exportBackupExcel()">📊 Download as Excel (.xlsx)</button>
     </div>
     <div style="font-size:10px;color:var(--muted);margin-top:14px;text-align:center;">JSON is best for a full, exact restore. Excel is best for viewing / sharing the data.</div>
@@ -1918,6 +1933,7 @@ window.addEventListener("DOMContentLoaded",()=>{
   initFirebase();
   setTimeout(setupFirebaseListeners,2000);
   requestNotifPermission();
+  renderRegistrationLockState();
   // Set default weekly report date to Monday of this week
   const wr=document.getElementById("weeklyReportDate");
   if(wr){ const d=new Date(); d.setDate(d.getDate()-d.getDay()+1); wr.value=d.toISOString().split("T")[0]; updateWeekLabel(); }
@@ -2340,6 +2356,48 @@ function exportBackupJSON(){
   }catch(e){ console.error(e); showToast("❌ Backup failed: "+e.message); }
 }
 
+// One row per student — name, roll no., admission no., and marks for every test recorded
+// so far (mirrors what a report card shows, but as a single class-wide mark-sheet).
+function exportResultsExcel(){
+  if(!currentUser||currentUser.role!=="classteacher"){ showToast("❌ Only the Class Teacher can access this"); return; }
+  if(typeof XLSX==="undefined"){ showToast("❌ Excel library unavailable — try JSON backup instead"); return; }
+  const students=(DB.get("students")||[]).slice().sort((a,b)=>parseInt(a.roll)-parseInt(b.roll));
+  if(!students.length){ showToast("❌ No students registered yet"); return; }
+  const allResults=DB.get("results")||[];
+  if(!allResults.length){ showToast("❌ No test results recorded yet"); return; }
+  try{
+    // One column per subject (plain name, no emoji) — every test conducted for that subject
+    // is combined into a single "marks/max" value in that cell. One row per student.
+    const subjIds=[]; allResults.forEach(r=>{ if(!subjIds.includes(r.subject)) subjIds.push(r.subject); });
+    subjIds.sort((a,b)=>SUBJECTS.findIndex(x=>x.id===a)-SUBJECTS.findIndex(x=>x.id===b));
+
+    const rows=students.map(s=>{
+      const rep=buildStudentReport(s.id);
+      const subjectResults=rep?rep.subjectResults:{};
+      const row={"Roll No.":s.roll,"Name":s.name,"Admission No.":s.admNo||"—"};
+      let totalMarks=0,totalMax=0;
+      subjIds.forEach(subId=>{
+        const sub=SUBJECTS.find(x=>x.id===subId);
+        const colName=sub?sub.name:subId;
+        const sr=subjectResults[subId];
+        if(!sr){ row[colName]="—"; return; }
+        const attempted=sr.tests.filter(t=>!t.absent&&t.marks!==null);
+        const tMarks=attempted.reduce((a,t)=>a+t.marks,0);
+        const tMax=attempted.reduce((a,t)=>a+t.max,0);
+        row[colName]=tMax?`${tMarks}/${tMax}`:"—";
+        totalMarks+=tMarks; totalMax+=tMax;
+      });
+      row["Overall %"]=totalMax?Math.round(totalMarks/totalMax*100)+"%":"—";
+      return row;
+    });
+    const wbk=XLSX.utils.book_new();
+    const sheet=XLSX.utils.json_to_sheet(rows);
+    XLSX.utils.book_append_sheet(wbk,sheet,"Results");
+    XLSX.writeFile(wbk,`ClassX-SBS-Results-${_backupTimestamp()}.xlsx`);
+    showToast("✅ Results report downloaded");
+  }catch(e){ console.error(e); showToast("❌ Export failed: "+e.message); }
+}
+
 function exportBackupExcel(){
   if(!currentUser||currentUser.role!=="classteacher"){ showToast("❌ Only the Class Teacher can access backups"); return; }
   if(typeof XLSX==="undefined"){ showToast("❌ Excel library unavailable — try JSON export instead"); return; }
@@ -2408,6 +2466,37 @@ const SUBJECTS=[
   {id:"library",name:"Library",emoji:"📚",teacher:"Anil Kumar Singh"}
 ];
 const SUBJ_COLORS={maths:"#4a9eff",physics:"#ffd700",chemistry:"#3dba7e",biology:"#ff7eb6",english:"#e8a020",history:"#c060ff",geography:"#60d0ff",civics:"#ff9060",economics:"#60ff90",hindi:"#ff6060",computer:"#a0a0ff",atl:"#00e5cc",games:"#ff8c42",library:"#9b59b6"};
+// School house system — assigned per student on the Students / Student Info pages only
+// (deliberately left out of the report card).
+const HOUSES=[
+  {id:"shardhanand",name:"Shardhanand",color:"#4a9eff"}, // blue
+  {id:"virjanand",name:"Virjanand",color:"#e05555"},     // red
+  {id:"dayanand",name:"Dayanand",color:"#f1c40f"},       // yellow
+  {id:"hansraj",name:"Hansraj",color:"#3dba7e"}          // green
+];
+// One-time initial house assignment by roll number, provided by the Class Teacher.
+// Only used by _seedHouseAssignments() below to fill in students who don't have a house
+// set yet — it never overwrites a house that's already been assigned (manually or by a
+// previous run), so it's safe to leave this call in place permanently. Any roll number
+// not listed here defaults to Hansraj.
+const HOUSE_ROLL_SEED={
+  shardhanand:[2,5,7,13,25,26,28,42,43,46,47,49,52],
+  virjanand:[3,9,11,17,23,29,35,53,55],
+  dayanand:[6,8,10,15,16,18,19,22,32,33,37,39,44,48,51]
+};
+function _seedHouseAssignments(){
+  const students=DB.get("students")||[]; if(!students.length) return;
+  let changed=false;
+  const updated=students.map(s=>{
+    if(s.house) return s;
+    const roll=parseInt(s.roll);
+    let house="hansraj";
+    for(const hid in HOUSE_ROLL_SEED){ if(HOUSE_ROLL_SEED[hid].includes(roll)){ house=hid; break; } }
+    changed=true;
+    return {...s,house};
+  });
+  if(changed) DB.set("students",updated);
+}
 const FIXED=
 {classteacher:{pass:"classpass2026",name:"Class Teacher",role:"classteacher",avatar:"CT"},
 teacher:{pass:"teach@dav18",name:"Subject Teacher",role:"teacher",avatar:"ST"},
@@ -2820,7 +2909,28 @@ function populateComplainSelects(){
 // AUTH
 // ═══════════════════════════════════════════
 let loginRole="student";
-function switchAuthTab(tab,btn){ document.querySelectorAll(".auth-tab").forEach(b=>b.classList.remove("active")); document.querySelectorAll(".auth-panel").forEach(p=>p.classList.remove("active")); document.getElementById("panel-"+tab).classList.add("active"); if(btn) btn.classList.add("active"); else document.querySelectorAll(".auth-tab")[tab==="login"?0:1].classList.add("active"); }
+function switchAuthTab(tab,btn){ document.querySelectorAll(".auth-tab").forEach(b=>b.classList.remove("active")); document.querySelectorAll(".auth-panel").forEach(p=>p.classList.remove("active")); document.getElementById("panel-"+tab).classList.add("active"); if(btn) btn.classList.add("active"); else document.querySelectorAll(".auth-tab")[tab==="login"?0:1].classList.add("active"); if(tab==="register") renderRegistrationLockState(); }
+
+// Registration is open by default (undefined/true) so existing setups aren't affected;
+// the Class Teacher can close it once every student has registered. Default-open also means
+// a snapshot that hasn't loaded yet (still null) never accidentally locks new students out.
+function isRegistrationOpen(){ return DB.get("registrationOpen")!==false; }
+function renderRegistrationLockState(){
+  const open=isRegistrationOpen();
+  const closedMsg=document.getElementById("regClosedMsg"),formFields=document.getElementById("regFormFields");
+  if(closedMsg) closedMsg.style.display=open?"none":"";
+  if(formFields) formFields.style.display=open?"":"none";
+}
+async function toggleRegistration(){
+  const open=isRegistrationOpen();
+  const verb=open?"close":"reopen";
+  if(!await customConfirm(open?"New students will no longer be able to create accounts. You can reopen this anytime.":"Students will be able to create new accounts again.",open?"Close Registration":"Reopen Registration","🔒",open?"Close":"Reopen")) return;
+  if(!await requireStepUp(`${verb} student registration`)) return;
+  DB.set("registrationOpen",!open);
+  logAudit("Registration",open?"delete":"record",open?"Closed":"Reopened",null,open?"New student sign-ups disabled":"New student sign-ups re-enabled");
+  renderStudentsList();
+  showToast(open?"🔒 Registration closed":"🔓 Registration reopened");
+}
 function selectRole(card){ document.querySelectorAll(".role-card").forEach(c=>c.classList.remove("selected")); card.classList.add("selected"); loginRole=card.dataset.role; }
 
 // ── Session persistence ──
@@ -2887,8 +2997,9 @@ function attemptLogin(user,pass){
 document.addEventListener("keydown",e=>{ if(e.key==="Enter"&&document.getElementById("authScreen").classList.contains("active")) doLogin(); });
 
 function doRegister(){
-  const name=document.getElementById("regName").value.trim(),roll=document.getElementById("regRoll").value.trim(),admNo=document.getElementById("regAdm").value.trim(),parentMobile=document.getElementById("regParentMobile").value.trim(),pass=document.getElementById("regPass").value,pass2=document.getElementById("regPass2").value;
   const err=document.getElementById("regErr"),ok=document.getElementById("regOk"); err.classList.remove("show"); ok.classList.remove("show");
+  if(!isRegistrationOpen()){ err.textContent="❌ Registration is currently closed. Please contact your Class Teacher."; err.classList.add("show"); renderRegistrationLockState(); return; }
+  const name=document.getElementById("regName").value.trim(),roll=document.getElementById("regRoll").value.trim(),admNo=document.getElementById("regAdm").value.trim(),parentMobile=document.getElementById("regParentMobile").value.trim(),pass=document.getElementById("regPass").value,pass2=document.getElementById("regPass2").value;
   if(!name||!roll||!admNo||!pass){ err.textContent="❌ All fields except parent mobile are required."; err.classList.add("show"); return; }
   if(pass.length<6){ err.textContent="❌ Password must be at least 6 characters."; err.classList.add("show"); return; }
   if(pass!==pass2){ err.textContent="❌ Passwords do not match."; err.classList.add("show"); return; }
@@ -2954,6 +3065,7 @@ function initApp(){
   show("perm-upload",canUpload); show("perm-notice",canNotice); show("perm-ct",isCT); show("perm-results",canResults); show("perm-monitor",canMonitor); show("perm-hw",canHW); show("perm-complain",canComplain); show("perm-student",u.role==="student"); if(u.role==="student") updateLeaveStatusBadge(); if(u.role==="classteacher") updateLeaveCTBadge();
   populateAllSubjectSelects();
   buildTTEditor(); renderTTPreview(); setAttDate(); populateAttHistFilter();
+  if(isCT) _seedHouseAssignments();
   renderDashboard(); renderTTDisplay(); renderAttView(); renderResults(); populateLeaderboardTestSelect(); renderGallery(); renderMyUploads(); renderStudentsList(); renderEnteredResults(); renderCopySessionsList(); updateCTNotifBadge(); updateHWBadge(); renderPolls(); updatePollBadge(); updateExamBadge(); if(currentUser&&currentUser.role==="student"){ renderMyDuties(); updateLeaveStatusBadge(); renderMyFees(); } if(currentUser&&currentUser.role==="classteacher") updateLeaveCTBadge();
   if(canHW){ renderAllHW(); }
   if(canComplain) populateComplainSelects();
@@ -4433,7 +4545,24 @@ function renderStudentsList(){
   if(notifs.length) notifsHTML=`<div style="margin-bottom:16px;"><div style="font-size:12px;font-weight:600;color:var(--gold);margin-bottom:8px;">🔔 Recent Activity ${unread.length?`<span style="background:var(--gold);color:var(--navy);font-size:10px;padding:1px 7px;border-radius:10px;">${unread.length} new</span>`:""}</div>`+notifs.slice(0,5).map(n=>`<div style="padding:9px 12px;border-radius:8px;margin-bottom:6px;background:${n.read?"rgba(255,255,255,0.03)":"rgba(232,160,32,0.08)"};border:1px solid ${n.read?"rgba(255,255,255,0.06)":"rgba(232,160,32,0.2)"}"><div style="font-size:12px;color:${n.read?"var(--muted)":"var(--white)"};">${n.msg}</div><div style="font-size:10px;color:var(--muted);margin-top:3px;">⏰ ${n.time}</div></div>`).join("")+`<button class="btn btn-outline btn-sm" onclick="markNotifsRead()">✓ Mark all read</button></div>`;
   if(!students.length){ el.innerHTML=notifsHTML+`<div class="empty-state"><div class="empty-icon">👥</div><div class="empty-text">No students registered yet</div><div class="empty-sub">Students can self-register from the login page</div></div>`; return; }
   const sorted=[...students].sort((a,b)=>parseInt(a.roll)-parseInt(b.roll));
-  el.innerHTML=notifsHTML+`<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;"><div style="font-size:13px;color:var(--muted);">${students.length} student${students.length!==1?"s":""} registered</div><button class="btn btn-danger btn-sm" onclick="removeAllStudents()">🗑️ Remove All</button></div><table class="students-table"><thead><tr><th>#</th><th>Name</th><th>Roll No</th><th>Adm. No</th><th>Parent Mobile</th><th>Registered On</th><th>Last Login</th><th>Action</th></tr></thead><tbody>`+sorted.map((s,i)=>`<tr><td style="color:var(--muted);">${i+1}</td><td style="font-weight:600;">${s.name}</td><td><span style="background:rgba(232,160,32,.15);color:var(--gold);padding:2px 8px;border-radius:6px;font-size:12px;">${s.roll}</span></td><td style="font-size:12px;color:var(--muted);">${s.admNo}</td><td style="font-size:12px;">${s.parentMobile?`<span class="wa-chip">📱 ${s.parentMobile}</span>`:`<button class="btn btn-outline btn-sm" onclick="openEditParentMobile('${s.id}')">+ Add</button>`}</td><td style="font-size:11px;color:var(--muted);">${s.joinedOn}</td><td style="font-size:11px;color:var(--muted);">${s.lastLogin||"Never"}</td><td style="display:flex;gap:4px;">${s.parentMobile?`<button class="btn btn-outline btn-sm" onclick="openEditParentMobile('${s.id}')">✏️</button>`:""}<button class="btn btn-danger btn-sm" onclick="deleteStudent('${s.id}')">🗑️</button></td></tr>`).join("")+`</tbody></table>`;
+  const regOpen=isRegistrationOpen();
+  const regToggleHTML=`<button class="btn btn-sm" style="${regOpen?"background:rgba(61,186,126,0.12);color:#3dba7e;border:1px solid rgba(61,186,126,0.3);":"background:rgba(224,85,85,0.12);color:#e05555;border:1px solid rgba(224,85,85,0.3);"}" onclick="toggleRegistration()">${regOpen?"🔓 Registration Open":"🔒 Registration Closed"}</button>`;
+  const houseSelect=s=>`<select class="form-input" style="padding:3px 6px;font-size:11px;min-width:110px;" onchange="setStudentHouse('${s.id}',this.value)">`+
+    `<option value="" ${!s.house?"selected":""}>— Not Set</option>`+
+    HOUSES.map(h=>`<option value="${h.id}" ${s.house===h.id?"selected":""} style="color:${h.color};">${h.name}</option>`).join("")+
+    `</select>`;
+  el.innerHTML=notifsHTML+`<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;flex-wrap:wrap;gap:8px;"><div style="font-size:13px;color:var(--muted);">${students.length} student${students.length!==1?"s":""} registered</div><div style="display:flex;gap:8px;flex-wrap:wrap;">${regToggleHTML}<button class="btn btn-danger btn-sm" onclick="removeAllStudents()">🗑️ Remove All</button></div></div><table class="students-table"><thead><tr><th>#</th><th>Name</th><th>Roll No</th><th>Adm. No</th><th>House</th><th>Parent Mobile</th><th>Registered On</th><th>Last Login</th><th>Action</th></tr></thead><tbody>`+sorted.map((s,i)=>`<tr><td style="color:var(--muted);">${i+1}</td><td style="font-weight:600;">${s.name}</td><td><span style="background:rgba(232,160,32,.15);color:var(--gold);padding:2px 8px;border-radius:6px;font-size:12px;">${s.roll}</span></td><td style="font-size:12px;color:var(--muted);">${s.admNo}</td><td>${houseSelect(s)}</td><td style="font-size:12px;">${s.parentMobile?`<span class="wa-chip">📱 ${s.parentMobile}</span>`:`<button class="btn btn-outline btn-sm" onclick="openEditParentMobile('${s.id}')">+ Add</button>`}</td><td style="font-size:11px;color:var(--muted);">${s.joinedOn}</td><td style="font-size:11px;color:var(--muted);">${s.lastLogin||"Never"}</td><td style="display:flex;gap:4px;">${s.parentMobile?`<button class="btn btn-outline btn-sm" onclick="openEditParentMobile('${s.id}')">✏️</button>`:""}<button class="btn btn-danger btn-sm" onclick="deleteStudent('${s.id}')">🗑️</button></td></tr>`).join("")+`</tbody></table>`;
+}
+function setStudentHouse(studentId,houseId){
+  const students=DB.get("students")||[],idx=students.findIndex(s=>s.id===studentId); if(idx<0) return;
+  const before=students[idx].house||"";
+  if(before===houseId) return;
+  students[idx].house=houseId||"";
+  const beforeName=HOUSES.find(h=>h.id===before)?.name||"— Not Set";
+  const afterName=HOUSES.find(h=>h.id===houseId)?.name||"— Not Set";
+  logAudit("Student","edit",students[idx].name,[{field:"House",from:beforeName,to:afterName}]);
+  DB.set("students",students);
+  renderStudentInfoTable();
 }
 async function deleteStudent(id){ const students=DB.get("students")||[],s=students.find(x=>x.id===id); if(!s) return; if(!await customConfirm(`Remove "${s.name}" (Roll: ${s.roll})?`,"Remove Student","👤","Remove")) return; if(!await requireStepUp("remove this student")) return; DB.del("students",id); const recs=(DB.get("feeRecords")||[]).filter(r=>r.id!==id); DB.set("feeRecords",recs); logAudit("Student","delete",s.name,null,`Roll No: ${s.roll} · Adm. No: ${s.admNo}`); renderStudentsList(); try{updateFeeBadge();}catch(e){} showToast("🗑️ Student removed"); }
 async function removeAllStudents(){ const students=DB.get("students")||[]; if(!students.length){ showToast("No students to remove"); return; } if(!await customConfirm(`Remove ALL ${students.length} students?`,"Remove All","⚠️","Remove All")) return; if(!await requireStepUp("remove ALL students")) return; DB.set("students",[]); DB.set("ct_notifications",[]); DB.set("feeRecords",[]); logAudit("Student","delete",`ALL ${students.length} students`,null,"Bulk removal — entire class roster cleared"); renderStudentsList(); try{updateFeeBadge();}catch(e){} showToast("🗑️ All students removed"); }
@@ -4757,6 +4886,7 @@ function renderStudentInfoTable(){
         <div>
           <div style="font-size:14px;font-weight:700;color:var(--white);">${s.name}</div>
           <div style="font-size:10px;color:var(--muted);margin-top:2px;">Roll <span style="color:var(--gold);">${s.roll}</span> · Adm <span style="color:var(--off);">${s.admNo}</span></div>
+          ${(()=>{ const h=HOUSES.find(x=>x.id===s.house); return h?`<div style="margin-top:4px;"><span style="font-size:9px;font-weight:700;letter-spacing:.4px;text-transform:uppercase;padding:2px 8px;border-radius:6px;background:${h.color}22;color:${h.color};border:1px solid ${h.color}44;">🏠 ${h.name}</span></div>`:""; })()}
         </div>
       </div>
       <!-- Stats row -->
@@ -7317,7 +7447,7 @@ window.addEventListener('load', () => {
   <!-- Messages -->
   <div class="ai-messages" id="aiMessages">
     <div class="ai-bubble bot">
-      👋 Hello! I'm your <strong>PRE-GOL AI</strong> for Class X.<br><br>
+      👋 Hello! I'm your <strong>PRE-GOL AI </strong> for Class X.<br><br>
       Ask me anything — doubts, homework help, topic explanations, or practice questions. I'm here to help! 🎓
     </div>
   </div>
