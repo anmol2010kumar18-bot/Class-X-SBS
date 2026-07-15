@@ -380,6 +380,16 @@ button:active, .btn:active, .nav-btn:active, .auth-btn:active, .role-card:active
 .audit-change-from{color:#e05555;text-decoration:line-through;opacity:.75;}
 .audit-change-to{color:#3dba7e;}
 
+/* Dashboard notice ticker — vertical, endless, dashboard-only (Notice Board page is untouched) */
+.notice-ticker-viewport{height:200px;overflow:hidden;position:relative;mask-image:linear-gradient(to bottom,transparent 0,#000 16px,#000 calc(100% - 16px),transparent 100%);-webkit-mask-image:linear-gradient(to bottom,transparent 0,#000 16px,#000 calc(100% - 16px),transparent 100%);}
+.notice-ticker-track{display:flex;flex-direction:column;animation:noticeTickerScroll linear infinite;}
+.notice-ticker-viewport:hover .notice-ticker-track{animation-play-state:paused;}
+@keyframes noticeTickerScroll{ from{transform:translateY(0);} to{transform:translateY(-50%);} }
+.notice-ticker-item{border-left:3px solid var(--gold);background:rgba(255,255,255,0.03);border-radius:8px;padding:9px 12px;margin-bottom:8px;flex-shrink:0;}
+.notice-ticker-title{font-size:13px;font-weight:600;color:var(--white);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.notice-ticker-body{font-size:11px;color:var(--off);margin-top:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.notice-ticker-meta{font-size:10px;color:var(--muted);margin-top:3px;}
+
 .lb-mode-btn{padding:8px 16px;border-radius:8px;border:none;background:transparent;color:var(--muted);font-size:12px;font-weight:600;cursor:pointer;font-family:'DM Sans',sans-serif;transition:all .2s ease;}
 .lb-mode-btn.active{background:var(--gold);color:#1a1208;}
 .lb-row-me{background:rgba(232,160,32,0.1) !important;}
@@ -2296,7 +2306,7 @@ function forceSyncFromFirebase() {
 // DATA BACKUP / EXPORT (Class Teacher safety net — independent of Firebase)
 // ═══════════════════════════════════════════
 // All known data keys used across the app, kept in one place so exports never miss a table.
-const BACKUP_KEYS=["students","notices","files","results","homework","polls","examSchedules","leaveApplications","complaints","copySessions","duties","gallery","timetable","studentAttendance","roleSignatures","ct_notifications","studentNotifications","feeRecords","auditLog"];
+const BACKUP_KEYS=["students","notices","files","results","homework","polls","examSchedules","leaveApplications","complaints","copySessions","duties","gallery","timetable","studentAttendance","roleSignatures","ct_notifications","studentNotifications","feeRecords","auditLog","registrationOpen"];
 
 function _backupTimestamp(){
   const d=new Date(),p=n=>String(n).padStart(2,"0");
@@ -3177,6 +3187,28 @@ function liveSearch(q){
 // ═══════════════════════════════════════════
 // DASHBOARD
 // ═══════════════════════════════════════════
+// Dashboard-only endless vertical notice ticker. Notices scroll upward one after another,
+// looping forever. Built by rendering the list twice back-to-back and animating the track
+// exactly halfway (-50%) — since the second half is an identical copy of the first, the
+// loop point is invisible and it reads as one continuous, endless scroll.
+// Deliberately separate from noticeHTML()/renderNotices() so the actual Notice Board page
+// is completely untouched — this only ever touches the dashboard's #dashNotices card.
+function renderDashNoticeTicker(notices){
+  const el=document.getElementById("dashNotices"); if(!el) return;
+  if(!notices.length){ el.innerHTML=`<div class="empty-state" style="padding:14px"><div class="empty-icon">📭</div><div class="empty-text">No notices</div></div>`; return; }
+  const colors={normal:"var(--gold)",urgent:"#e05555",exam:"#4a9eff"};
+  const shown=notices.slice(0,15); // cap so the loop and DOM stay light even with a long history
+  const itemHTML=n=>`<div class="notice-ticker-item" style="border-left-color:${colors[n.priority]||"var(--gold)"}">
+      <div class="notice-ticker-title">${n.priority==="urgent"?"🚨 ":n.priority==="exam"?"📝 ":"📌 "}${n.title}</div>
+      <div class="notice-ticker-body">${n.body.replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;")}</div>
+      <div class="notice-ticker-meta">📅 ${n.date} · By ${n.by}</div>
+    </div>`;
+  const itemsHTML=shown.map(itemHTML).join("");
+  // Single item can't meaningfully scroll against itself — show it statically instead.
+  if(shown.length<2){ el.innerHTML=`<div class="notice-ticker-viewport" style="height:auto;">${itemsHTML}</div>`; return; }
+  const duration=Math.max(shown.length*4,10); // seconds — steady pace regardless of count
+  el.innerHTML=`<div class="notice-ticker-viewport"><div class="notice-ticker-track" style="animation-duration:${duration}s;">${itemsHTML}${itemsHTML}</div></div>`;
+}
 function renderDashboard(){
   const u=currentUser;
   const hr=new Date().getHours(); let greet,emoji;
@@ -3197,7 +3229,7 @@ function renderDashboard(){
   document.getElementById("dashSubjGrid").innerHTML=SUBJECTS.map(s=>{ const cnt=files.filter(f=>f.subject===s.id).length; return `<div class="subj-card" onclick="openFolder('${s.id}')"><span class="subj-emoji">${s.emoji}</span><div class="subj-num">${cnt}</div><div class="subj-name">${s.name}</div><div class="subj-count">${cnt} file${cnt!==1?"s":""}</div></div>`; }).join("");
   const recent=files.slice(0,5);
   document.getElementById("recentFiles").innerHTML=recent.length?`<div class="file-list">${recent.map(f=>fileItemHTML(f)).join("")}</div>`:`<div class="empty-state"><div class="empty-icon">📂</div><div class="empty-text">No files yet</div></div>`;
-  document.getElementById("dashNotices").innerHTML=notices.length?notices.slice(0,3).map(n=>noticeHTML(n,false)).join(""):`<div class="empty-state" style="padding:14px"><div class="empty-icon">📭</div><div class="empty-text">No notices</div></div>`;
+  renderDashNoticeTicker(notices);
   const tt=DB.get("timetable"),today=["Sunday","Monday","Tuesday","Wednesday","Thursday","Friday","Saturday"][new Date().getDay()],dtt=document.getElementById("dashTT");
   if(!tt||!tt.length){ dtt.innerHTML=`<div style="color:var(--muted);font-size:13px;padding:8px 0;">Timetable not set yet.</div>`; }
   else { const slots=tt.filter(r=>r.day===today); dtt.innerHTML=slots.length?slots.map(r=>{ const s=SUBJECTS.find(x=>x.id===r.subject),timeStr=r.startTime&&r.endTime?`${r.startTime}–${r.endTime}`:r.time||""; return `<div class="tt-row"><div class="tt-time">${timeStr}</div><div class="tt-subj"><div class="tt-sname">${s?s.name:r.subject}</div><div class="tt-teach">${s?s.teacher:""}</div></div><div class="tt-dot" style="background:${SUBJ_COLORS[r.subject]||"#888"}"></div></div>`; }).join(""):`<div style="color:var(--muted);font-size:13px;padding:8px 0;">No classes today (${today}).</div>`; }
@@ -3633,7 +3665,7 @@ function renderAttHistory(){
   }).join("")+`</div>`;
 }
 function toggleAttDay(id){ const el=document.getElementById(id); if(el) el.style.display=el.style.display==="none"?"":"none"; }
-async function delDayAtt(date){ if(!await customConfirm("Attendance for "+date+" will be removed.","Delete Attendance","✅","Delete")) return; if(!await requireStepUp("delete this attendance record")) return; const a=DB.get("studentAttendance")||{}; delete a[date]; DB.set("studentAttendance",a); renderAttHistory(); renderAttView(); showToast("🗑️ Attendance deleted"); }
+async function delDayAtt(date){ if(!await customConfirm("Attendance for "+date+" will be removed.","Delete Attendance","✅","Delete")) return; if(!await requireStepUp("delete this attendance record")) return; const a=DB.get("studentAttendance")||{}; const hadCount=a[date]?Object.keys(a[date]).length:0; delete a[date]; DB.set("studentAttendance",a); logAudit("Attendance","delete",date,null,hadCount?`${hadCount} student record(s) removed`:""); renderAttHistory(); renderAttView(); showToast("🗑️ Attendance deleted"); }
 
 function editDayAtt(date){
   const allAtt=DB.get("studentAttendance")||{},dayAtt=allAtt[date]||{};
@@ -4473,7 +4505,7 @@ function renderGallery(){
   }).join("");
 }
 
-async function delAlbum(id){ if(!await customConfirm("Delete this item?","Delete","🖼️","Delete")) return; if(!await requireStepUp("delete this gallery item")) return; DB.del("gallery",id); renderGallery(); showToast("🗑️ Deleted"); }
+async function delAlbum(id){ const g=(DB.get("gallery")||[]).find(x=>x.id===id); if(!await customConfirm("Delete this item?","Delete","🖼️","Delete")) return; if(!await requireStepUp("delete this gallery item")) return; DB.del("gallery",id); logAudit("Gallery Item","delete",g?g.title:id,null,g?`Type: ${g.type}`:""); renderGallery(); showToast("🗑️ Deleted"); }
 
 // ── LIGHTBOX ──
 let _lbAlbum=[],_lbIdx=0;
@@ -7429,7 +7461,7 @@ window.addEventListener('load', () => {
   <div class="ai-panel-header">
     <div class="ai-avatar">🤖</div>
     <div class="ai-panel-info">
-      <div class="ai-panel-name"> PRE-GOL AI </div>
+      <div class="ai-panel-name">AI Study Buddy</div>
       <div class="ai-panel-status">Online — Ready to help</div>
     </div>
     <button class="ai-close-btn" onclick="toggleAITutor()" title="Close">✕</button>
@@ -7447,7 +7479,7 @@ window.addEventListener('load', () => {
   <!-- Messages -->
   <div class="ai-messages" id="aiMessages">
     <div class="ai-bubble bot">
-      👋 Hello! I'm your <strong>PRE-GOL AI </strong> for Class X.<br><br>
+      👋 Hello! I'm your <strong>AI Study Buddy</strong> for Class X.<br><br>
       Ask me anything — doubts, homework help, topic explanations, or practice questions. I'm here to help! 🎓
     </div>
   </div>
