@@ -465,8 +465,53 @@ button:active, .btn:active, .nav-btn:active, .auth-btn:active, .role-card:active
   #rcPrintArea,#rcPrintArea *{visibility:visible !important;}
   #rcPrintArea{position:fixed;top:0;left:0;width:100%;z-index:99999;background:#fff;}
   .rc-wrap{box-shadow:none !important;border-radius:0 !important;}
+  #certPrintArea,#certPrintArea *{visibility:visible !important;}
+  #certPrintArea{position:fixed;top:0;left:0;width:100%;z-index:99999;background:#fff;}
+  @page{size:landscape;}
 }
+/* Certificate generator */
+.cert-wrap{background:#fdfaf3;padding:26px;}
+.cert-border{border:3px double #c9971f;border-radius:6px;padding:38px 46px;text-align:center;background:#fffdf7;position:relative;}
+.cert-border::before{content:"";position:absolute;inset:10px;border:1px solid #e8d9a8;border-radius:4px;pointer-events:none;}
+.cert-ornament{font-size:13px;letter-spacing:6px;color:#c9971f;margin-bottom:10px;}
+.cert-school{font-family:'Cormorant Garamond',serif;font-size:20px;font-weight:700;color:#1a1a2e;letter-spacing:1px;}
+.cert-type{font-family:'Cormorant Garamond',serif;font-size:32px;font-weight:700;color:#8a6a10;margin:10px 0 18px;letter-spacing:1px;}
+.cert-presented{font-size:13px;color:#777;letter-spacing:.5px;text-transform:uppercase;}
+.cert-name{font-family:'Cormorant Garamond',serif;font-size:42px;font-weight:700;color:#1a1a2e;margin:8px 0 16px;border-bottom:1px solid #e8d9a8;display:inline-block;padding-bottom:8px;min-width:340px;}
+.cert-desc{font-size:15px;color:#444;max-width:560px;margin:0 auto 6px;line-height:1.6;}
+.cert-meta{font-size:12px;color:#999;margin-bottom:26px;}
+.cert-sign-row{display:flex;align-items:flex-end;justify-content:space-between;margin-top:30px;padding:0 20px;}
+.cert-sign{width:170px;}
+.cert-sign-line{border-top:1px solid #999;margin-bottom:6px;}
+.cert-sign-label{font-size:11px;color:#888;text-transform:uppercase;letter-spacing:.5px;}
+.cert-sign-name{font-family:'Cormorant Garamond',serif;font-size:15px;color:#1a1a2e;margin-top:2px;}
+.cert-seal{font-size:38px;}
+.cert-date{font-size:11px;color:#aaa;margin-top:20px;}
 .spotlight-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:18px;}
+@keyframes confettiFall{ 0%{transform:translateY(0) rotate(0deg);opacity:1;} 100%{transform:translateY(105vh) rotate(720deg);opacity:0;} }
+.sotm-avatar{width:72px;height:72px;border-radius:50%;background:linear-gradient(135deg,var(--gold),#ffe27a);display:flex;align-items:center;justify-content:center;font-size:28px;font-weight:700;color:var(--navy);margin:0 auto 10px;font-family:'Cormorant Garamond',serif;box-shadow:0 0 0 4px rgba(232,160,32,0.15);}
+
+/* Student of the Month — reveal design */
+.sotm-reveal{position:relative;padding:8px 6px 4px;overflow:hidden;border-radius:14px;}
+.sotm-glow{position:absolute;top:-40%;left:50%;transform:translateX(-50%);width:280px;height:280px;background:radial-gradient(circle,rgba(232,160,32,0.35) 0%,rgba(232,160,32,0.08) 45%,transparent 70%);pointer-events:none;z-index:0;}
+.sotm-content{position:relative;z-index:1;}
+.sotm-ribbon{display:inline-block;background:linear-gradient(135deg,#ffe27a,var(--gold) 55%,#c9971f);color:#3a2600;font-size:10px;font-weight:800;letter-spacing:2.5px;text-transform:uppercase;padding:5px 16px;border-radius:20px;margin-bottom:14px;box-shadow:0 3px 12px rgba(232,160,32,0.45);}
+.sotm-avatar-ring{position:relative;width:92px;height:92px;margin:0 auto 14px;}
+.sotm-avatar-ring::before{content:"";position:absolute;inset:-5px;border-radius:50%;background:conic-gradient(from 0deg,var(--gold),#ffe27a,#fff6d0,#c9971f,var(--gold));animation:sotmSpin 5s linear infinite;}
+.sotm-avatar-inner{position:absolute;inset:5px;border-radius:50%;background:linear-gradient(150deg,#16233f,#0b1c36);display:flex;align-items:center;justify-content:center;font-size:36px;font-weight:800;color:var(--gold);font-family:'Cormorant Garamond',serif;}
+.sotm-name{font-family:'Cormorant Garamond',serif;font-size:29px;font-weight:800;letter-spacing:.3px;line-height:1.15;background:linear-gradient(100deg,#fff 0%,#ffe27a 35%,var(--gold) 50%,#ffe27a 65%,#fff 100%);background-size:250% auto;-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent;color:transparent;animation:sotmShine 3.5s linear infinite;}
+.sotm-divider{width:46px;height:2px;background:linear-gradient(90deg,transparent,var(--gold),transparent);margin:9px auto 11px;}
+.sotm-stat-pill{background:rgba(255,255,255,0.05);border:1px solid rgba(232,160,32,0.28);border-radius:12px;padding:8px 15px;min-width:72px;}
+.sotm-sparkle{position:absolute;color:#ffe27a;font-size:13px;opacity:0;animation:sotmTwinkle 2.6s ease-in-out infinite;z-index:0;pointer-events:none;}
+@keyframes sotmSpin{ to{transform:rotate(360deg);} }
+@keyframes sotmShine{ to{background-position:-250% center;} }
+@keyframes sotmTwinkle{ 0%,100%{opacity:0;transform:scale(.4) rotate(0deg);} 50%{opacity:1;transform:scale(1.15) rotate(20deg);} }
+@keyframes sotmPopIn{ 0%{opacity:0;transform:scale(.82) translateY(14px);} 55%{opacity:1;transform:scale(1.04) translateY(-3px);} 100%{opacity:1;transform:scale(1) translateY(0);} }
+.sotm-reveal-anim{animation:sotmPopIn .75s cubic-bezier(.22,.85,.3,1.2);}
+.sotm-mystery{width:72px;height:72px;border-radius:50%;background:rgba(255,255,255,0.04);border:2px dashed rgba(232,160,32,0.35);display:flex;align-items:center;justify-content:center;font-size:28px;color:var(--gold);margin:0 auto;animation:sotmMysteryPulse 2.4s ease-in-out infinite;}
+@keyframes sotmMysteryPulse{ 0%,100%{opacity:.55;transform:scale(1);} 50%{opacity:1;transform:scale(1.06);} }
+@keyframes sotmBtnPulse{ 0%,100%{box-shadow:0 0 0 0 rgba(232,160,32,.55);} 50%{box-shadow:0 0 0 9px rgba(232,160,32,0);} }
+.sotm-pulse{animation:sotmBtnPulse 1.8s ease-in-out infinite;}
 @media(max-width:900px){.spotlight-grid{grid-template-columns:repeat(2,1fr);}}
 @media(max-width:520px){.spotlight-grid{grid-template-columns:1fr;}}
 .spotlight-card{background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.08);border-radius:14px;padding:16px 14px;position:relative;overflow:hidden;transition:border-color .2s;}
@@ -713,6 +758,7 @@ button:active, .btn:active, .nav-btn:active, .auth-btn:active, .role-card:active
     <button class="nav-btn perm-ct" data-page="student_info" onclick="nav(this)" style="display:none;"><span class="nav-icon">👨‍👩‍👧</span><span class="nav-label sb-text">Student Info</span></button>
     <button class="nav-btn perm-ct" data-page="manage_fees" onclick="nav(this)" style="display:none;"><span class="nav-icon">💰</span><span class="nav-label sb-text">Fee Tracking</span><span class="nav-badge sb-text" id="feeBadge" style="display:none;background:#e05555;">0</span></button>
     <button class="nav-btn perm-ct" data-page="audit_log" onclick="nav(this)" style="display:none;"><span class="nav-icon">🕵️</span><span class="nav-label sb-text">Audit Log</span></button>
+    <button class="nav-btn perm-ct" data-page="certificates" onclick="nav(this)" style="display:none;"><span class="nav-icon">🏆</span><span class="nav-label sb-text">Certificates</span></button>
     <button class="nav-btn perm-hw" data-page="homework" onclick="nav(this)" style="display:none;"><span class="nav-icon">📓</span><span class="nav-label sb-text">Homework Mgr</span><span class="nav-badge sb-text" id="hwBadge" style="display:none;">0</span></button>
     <button class="nav-btn perm-complain" data-page="complain" onclick="nav(this)" style="display:none;"><span class="nav-icon">⚠️</span><span class="nav-label sb-text">Complaints</span></button>
     <button class="nav-btn perm-monitor" data-page="assign_duty" onclick="nav(this)" style="display:none;"><span class="nav-icon">📋</span><span class="nav-label sb-text">Assign Duty</span></button>
@@ -750,6 +796,9 @@ button:active, .btn:active, .nav-btn:active, .auth-btn:active, .role-card:active
         </div>
         <div class="stats-row" id="statsRow"></div>
         <div id="weeklySpotlight" style="margin-bottom:4px;"></div>
+        <div class="card" id="sotmCardWrap" style="margin-bottom:18px;background:linear-gradient(135deg,rgba(232,160,32,0.08),rgba(255,255,255,0.03));border-color:rgba(232,160,32,0.25);">
+          <div id="sotmCard"></div>
+        </div>
         <div class="two-col">
           <div>
             <div class="section-hd"><div class="section-title">Subjects</div></div>
@@ -1107,7 +1156,15 @@ button:active, .btn:active, .nav-btn:active, .auth-btn:active, .role-card:active
           <div class="card" id="multiSetupCard">
             <div class="card-title">📚 Step 1 — Exam Details</div>
             <div class="form-row-2">
-              <div class="form-group"><label class="form-label">Exam Name</label><input class="form-input" id="multiExamName" placeholder="e.g. Half Yearly, Pre-Board, Unit Test"></div>
+              <div class="form-group"><label class="form-label">Exam Type</label>
+                <select class="form-input" id="multiExamName">
+                  <option value="">Select exam type</option>
+                  <option value="Periodic Test">📋 Periodic Test</option>
+                  <option value="Half Yearly">📖 Half Yearly</option>
+                  <option value="Pre-Boards">🎯 Pre-Boards</option>
+                  <option value="Annual Exam">🏆 Annual Exam</option>
+                </select>
+              </div>
               <div class="form-group"><label class="form-label">Exam Date</label><input class="form-input" type="date" id="multiExamDate"></div>
             </div>
             <div class="form-group"><label class="form-label">Remarks (optional)</label><input class="form-input" id="multiExamRemarks" placeholder="e.g. Full syllabus"></div>
@@ -1250,6 +1307,47 @@ button:active, .btn:active, .nav-btn:active, .auth-btn:active, .role-card:active
         <div class="card">
           <div class="card-title">🕵️ Activity History</div>
           <div id="auditLogList"></div>
+        </div>
+      </div>
+
+      <!-- CERTIFICATES -->
+      <div class="page" id="page-certificates">
+        <div class="hero" style="padding:20px 26px;margin-bottom:18px;">
+          <div class="hero-label">Class Teacher</div>
+          <div class="hero-h" style="font-size:22px;">Certificate <span>Generator</span></div>
+          <div class="hero-sub">Create a printable certificate for top rank, perfect attendance, sports wins, or any other achievement — download it as a PDF via your browser's print dialog.</div>
+        </div>
+
+        <div class="card" style="margin-bottom:16px;">
+          <div class="card-title">🏆 Certificate Details</div>
+          <div class="form-row-2">
+            <div class="form-group"><label class="form-label">Student</label>
+              <select class="form-input" id="certStudentSelect" onchange="onCertFieldsChange()"></select>
+            </div>
+            <div class="form-group"><label class="form-label">Achievement Type</label>
+              <select class="form-input" id="certType" onchange="onCertTypeChange()">
+                <option value="rank">🏆 Top Rank</option>
+                <option value="attendance">✅ Perfect Attendance</option>
+                <option value="sports">⚽ Sports Achievement</option>
+                <option value="custom">✏️ Custom / Other</option>
+              </select>
+            </div>
+          </div>
+          <div class="form-group"><label class="form-label">Certificate Title</label><input class="form-input" id="certTitle" placeholder="e.g. Certificate of Excellence"></div>
+          <div class="form-group"><label class="form-label">Achievement Description</label><textarea class="form-input" id="certDesc" rows="2" placeholder="e.g. for securing Rank #1 in Class X — SBS"></textarea></div>
+          <div class="form-row-2">
+            <div class="form-group"><label class="form-label">Date</label><input class="form-input" type="date" id="certDate"></div>
+            <div class="form-group"><label class="form-label">Principal's Name (optional)</label><input class="form-input" id="certPrincipal" placeholder="e.g. Dr. S. K. Sharma"></div>
+          </div>
+          <button class="btn btn-gold" style="width:100%;margin-top:6px;" onclick="generateCertificate()">🏆 Generate Certificate</button>
+        </div>
+
+        <div class="card" id="certPreviewWrap" style="display:none;">
+          <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;flex-wrap:wrap;gap:10px;">
+            <div class="card-title" style="margin:0;">👁️ Preview</div>
+            <button class="btn btn-gold btn-sm" onclick="printCertificate()">🖨️ Print / Save as PDF</button>
+          </div>
+          <div style="overflow-x:auto;"><div id="certPreview"></div></div>
         </div>
       </div>
 
@@ -1885,6 +1983,15 @@ button:active, .btn:active, .nav-btn:active, .auth-btn:active, .role-card:active
 </div>
 
 <!-- ══ FEE DETAIL MODAL ══ -->
+<!-- ══ PAST STUDENT OF THE MONTH MODAL ══ -->
+<div class="modal-overlay" id="pastSOTMModal">
+  <div class="modal-box" style="max-width:420px;">
+    <div style="font-family:'Cormorant Garamond',serif;font-size:22px;color:var(--gold);margin-bottom:14px;">🏅 Past Students of the Month</div>
+    <div id="pastSOTMList" style="max-height:420px;overflow-y:auto;"></div>
+    <button class="btn btn-outline" style="width:100%;margin-top:14px;" onclick="closeModal('pastSOTMModal')">Close</button>
+  </div>
+</div>
+
 <div class="modal-overlay" id="feeDetailModal">
   <div class="modal-box" style="max-width:460px;">
     <div style="font-family:'Cormorant Garamond',serif;font-size:22px;color:var(--gold);margin-bottom:4px;">💰 Fee Details</div>
@@ -2207,6 +2314,7 @@ function _processDavxSnapshot(snap){
       if(wb.duties){ try{renderMyDuties();}catch(e){} try{renderDutyLog();}catch(e){} }
       if(wb.complaints){ try{renderComplaintLog();}catch(e){} }
       if(wb.timetable||wb.studentAttendance||wb.results||wb.copySessions){ try{renderWeeklySpotlight();}catch(e){} try{_origRenderRC();}catch(e){} }
+      if(wb.studentOfMonth){ try{renderSOTM();}catch(e){} }
     }
 }
 
@@ -2306,7 +2414,7 @@ function forceSyncFromFirebase() {
 // DATA BACKUP / EXPORT (Class Teacher safety net — independent of Firebase)
 // ═══════════════════════════════════════════
 // All known data keys used across the app, kept in one place so exports never miss a table.
-const BACKUP_KEYS=["students","notices","files","results","homework","polls","examSchedules","leaveApplications","complaints","copySessions","duties","gallery","timetable","studentAttendance","roleSignatures","ct_notifications","studentNotifications","feeRecords","auditLog","registrationOpen"];
+const BACKUP_KEYS=["students","notices","files","results","homework","polls","examSchedules","leaveApplications","complaints","copySessions","duties","gallery","timetable","studentAttendance","roleSignatures","ct_notifications","studentNotifications","feeRecords","auditLog","registrationOpen","studentOfMonth"];
 
 function _backupTimestamp(){
   const d=new Date(),p=n=>String(n).padStart(2,"0");
@@ -3130,7 +3238,7 @@ function toggleMobSidebar(){ const sb=document.getElementById("sidebar"),ov=docu
 function closeMobSidebar(){ document.getElementById("sidebar").classList.remove("mob-open"); document.getElementById("mobOverlay").classList.remove("open"); document.getElementById("mobToggle").textContent="☰"; }
 function goHome(){ nav(document.querySelector("[data-page=dashboard]")); closeFolder(); }
 
-const PAGE_TITLES={dashboard:"Dashboard",subjects:"Subjects",notices:"Notice Board",polls:"Polls",gallery:"Gallery",timetable:"Timetable",exam_schedule:"Exam Schedule",attendance:"Attendance Record",results:"Results & Marks",leaderboard:"Class Leaderboard",report_card:"Report Card",hw_view:"Homework Board",upload:"Upload Files",post_notice:"Post Notice",manage_timetable:"Set Timetable",manage_results:"Enter Results",manage_attendance:"Mark Attendance",manage_students:"Students",copy_checking:"Copy Checking",homework:"Homework Manager",complain:"Complaints & Reports",student_info:"Student Information",assign_duty:"Assign Duty",my_duties:"My Duties",apply_leave:"Apply for Leave",manage_leaves:"Leave Requests",my_copy:"My Copy Records",manage_fees:"Fee Tracking",my_fees:"My Fees",audit_log:"Audit Log"};
+const PAGE_TITLES={dashboard:"Dashboard",subjects:"Subjects",notices:"Notice Board",polls:"Polls",gallery:"Gallery",timetable:"Timetable",exam_schedule:"Exam Schedule",attendance:"Attendance Record",results:"Results & Marks",leaderboard:"Class Leaderboard",report_card:"Report Card",hw_view:"Homework Board",upload:"Upload Files",post_notice:"Post Notice",manage_timetable:"Set Timetable",manage_results:"Enter Results",manage_attendance:"Mark Attendance",manage_students:"Students",copy_checking:"Copy Checking",homework:"Homework Manager",complain:"Complaints & Reports",student_info:"Student Information",assign_duty:"Assign Duty",my_duties:"My Duties",apply_leave:"Apply for Leave",manage_leaves:"Leave Requests",my_copy:"My Copy Records",manage_fees:"Fee Tracking",my_fees:"My Fees",audit_log:"Audit Log",certificates:"Certificates"};
 
 function nav(btn){
   if(!btn) return;
@@ -3139,7 +3247,7 @@ function nav(btn){
   document.querySelectorAll(".page").forEach(p=>p.classList.remove("active")); document.getElementById("page-"+pid).classList.add("active");
   document.getElementById("pageTitle").textContent=PAGE_TITLES[pid]||pid;
   const backBtn=document.getElementById("backBtn");
-  backBtn.classList.toggle("show",["upload","post_notice","manage_timetable","manage_results","manage_attendance","manage_students","results","leaderboard","report_card","exam_schedule","copy_checking","homework","complain","student_info","assign_duty","my_duties","apply_leave","manage_leaves","my_copy","manage_fees","my_fees","audit_log"].includes(pid));
+  backBtn.classList.toggle("show",["upload","post_notice","manage_timetable","manage_results","manage_attendance","manage_students","results","leaderboard","report_card","exam_schedule","copy_checking","homework","complain","student_info","assign_duty","my_duties","apply_leave","manage_leaves","my_copy","manage_fees","my_fees","audit_log","certificates"].includes(pid));
   closeFolder();
   if(window.innerWidth<=820) closeMobSidebar();
   if(pid==="notices"||pid==="post_notice") renderNotices();
@@ -3171,6 +3279,7 @@ function nav(btn){
   if(pid==="manage_fees"){ renderFeesPage(); updateFeeBadge(); }
   if(pid==="my_fees") renderMyFees();
   if(pid==="audit_log") renderAuditLog();
+  if(pid==="certificates") renderCertificatesPage();
   _refreshNotifDot();
 }
 function handleBack(){ nav(document.querySelector("[data-page=dashboard]")); }
@@ -3237,6 +3346,7 @@ function renderDashboard(){
   const tb=document.getElementById("totalBadge"); if(tb) tb.textContent=files.length;
   _refreshNotifDot();
   renderWeeklySpotlight();
+  renderSOTM();
 }
 
 // ═══════════════════════════════════════════
@@ -3453,6 +3563,239 @@ function renderWeeklySpotlight(){
     </div>`;
 }
 
+// ═══════════════════════════════════════════
+// STUDENT OF THE MONTH
+// A monthly, reveal-gated highlight — separate from the always-visible Weekly Spotlight
+// above. The Class Teacher can only reveal it on the last calendar day of the month (once
+// that month's data is complete), and once revealed it's permanent and stored alongside a
+// running history of past winners.
+// ═══════════════════════════════════════════
+function _somMonthKey(d){ return d.getFullYear()+"-"+String(d.getMonth()+1).padStart(2,"0"); }
+function _somMonthLabel(monthKey){ const [y,m]=monthKey.split("-").map(Number); return new Date(y,m-1,1).toLocaleString("en-US",{month:"long",year:"numeric"}); }
+function _somIsLastDayOfMonth(d){ return d.getDate()===new Date(d.getFullYear(),d.getMonth()+1,0).getDate(); }
+function _somNextLastDayLabel(d){ return new Date(d.getFullYear(),d.getMonth()+1,0).toLocaleDateString("en-IN",{day:"2-digit",month:"long"}); }
+function _somToISO(dateStr){
+  if(!dateStr) return null;
+  if(dateStr.includes("/")){ const p=dateStr.split("/"); return p.length===3?`${p[2]}-${p[1].padStart(2,"0")}-${p[0].padStart(2,"0")}`:null; }
+  return dateStr;
+}
+// Same 35% attendance / 40% marks / 25% copy-submission weighting used by the "Overall
+// Best" card in Weekly Spotlight above — kept identical so both features agree on what
+// "best student" means, just scoped to a single calendar month here. A student must have
+// attempted at least one test that month to be eligible (attendance/copy alone isn't enough).
+function computeMonthWinner(monthKey){
+  const students=DB.get("students")||[];
+  const allAtt=DB.get("studentAttendance")||{};
+  const results=DB.get("results")||[];
+  const copySessions=DB.get("copySessions")||[];
+  const inMonth=dateStr=>{ const iso=_somToISO(dateStr); return iso&&iso.slice(0,7)===monthKey; };
+
+  const attScore={}; students.forEach(s=>attScore[s.id]={present:0,total:0});
+  Object.keys(allAtt).filter(inMonth).forEach(date=>{
+    const dayAtt=allAtt[date];
+    students.forEach(s=>{ const v=dayAtt[s.id]; if(v==="present"||v==="absent"){ attScore[s.id].total++; if(v==="present") attScore[s.id].present++; } });
+  });
+
+  const marksScore={}; students.forEach(s=>marksScore[s.id]={totalPct:0,count:0});
+  results.filter(r=>inMonth(r.date)).forEach(r=>{
+    (r.studentMarks||[]).forEach(m=>{
+      if(!m.absent&&m.marks!==null&&m.marks!==undefined){
+        marksScore[m.studentId]=marksScore[m.studentId]||{totalPct:0,count:0};
+        marksScore[m.studentId].totalPct+=m.marks/r.max*100;
+        marksScore[m.studentId].count++;
+      }
+    });
+  });
+
+  const copyScore={}; students.forEach(s=>copyScore[s.id]={submitted:0,total:0});
+  copySessions.filter(cs=>inMonth(cs.date)).forEach(cs=>{
+    students.forEach(s=>{ const v=(cs.status||{})[s.id]; if(v==="submitted"||v==="not_submitted"||v==="absent"){ copyScore[s.id].total++; if(v==="submitted") copyScore[s.id].submitted++; } });
+  });
+
+  const rows=students.map(s=>{
+    const att=attScore[s.id],mks=marksScore[s.id],cop=copyScore[s.id];
+    const attPct=att.total?att.present/att.total*100:null;
+    const mksPct=mks.count?mks.totalPct/mks.count:null;
+    const copPct=cop.total?cop.submitted/cop.total*100:null;
+    if(mksPct===null) return null; // must have attempted a test this month to be eligible
+    const attW=attPct!==null?attPct:50,copW=copPct!==null?copPct:50;
+    const score=Math.round(attW*0.35+mksPct*0.40+copW*0.25);
+    return {studentId:s.id,name:s.name,roll:s.roll,admNo:s.admNo,house:s.house,marksAvgPct:Math.round(mksPct),attendancePct:attPct!==null?Math.round(attPct):null,copyPct:copPct!==null?Math.round(copPct):null,score};
+  }).filter(Boolean);
+
+  if(!rows.length) return null;
+  rows.sort((a,b)=>b.score-a.score||b.marksAvgPct-a.marksAvgPct);
+  return rows[0];
+}
+function _somFireConfetti(){
+  const colors=["#e8a020","#4a9eff","#3dba7e","#e05555","#ffd700","#ff7eb6"];
+  const container=document.createElement("div");
+  container.style.cssText="position:fixed;inset:0;pointer-events:none;z-index:100000;overflow:hidden;";
+  for(let i=0;i<90;i++){
+    const piece=document.createElement("div");
+    const color=colors[Math.floor(Math.random()*colors.length)];
+    const left=Math.random()*100,delay=Math.random()*0.6,duration=2.2+Math.random()*1.8,size=6+Math.random()*7,rotate=Math.random()*360;
+    piece.style.cssText=`position:absolute;top:-20px;left:${left}%;width:${size}px;height:${size*0.4}px;background:${color};opacity:.9;transform:rotate(${rotate}deg);animation:confettiFall ${duration}s ease-in ${delay}s forwards;border-radius:2px;`;
+    container.appendChild(piece);
+  }
+  document.body.appendChild(container);
+  setTimeout(()=>container.remove(),4200);
+}
+async function revealStudentOfMonth(){
+  const now=new Date();
+  if(!_somIsLastDayOfMonth(now)){ showToast("🔒 Reveal unlocks on the last day of the month"); return; }
+  const monthKey=_somMonthKey(now);
+  if((DB.get("studentOfMonth")||[]).some(r=>r.monthKey===monthKey)){ showToast("Already revealed for this month"); return; }
+  const winner=computeMonthWinner(monthKey);
+  if(!winner){ showToast("❌ Not enough test data this month to pick a winner"); return; }
+  if(!await customConfirm(`Reveal ${winner.name} as Student of the Month for ${_somMonthLabel(monthKey)}?`,"Reveal Student of the Month","🌟","Reveal")) return;
+  if(!await requireStepUp("reveal the student of the month")) return;
+  const rec={id:"som_"+monthKey,monthKey,monthLabel:_somMonthLabel(monthKey),...winner,revealedBy:currentUser.name,revealedOn:new Date().toLocaleString("en-IN")};
+  const list=DB.get("studentOfMonth")||[];
+  list.unshift(rec);
+  DB.set("studentOfMonth",list);
+  logAudit("Student of the Month","record",rec.name,null,`${rec.monthLabel} · Score ${rec.score}`);
+  renderSOTM();
+  showToast(`🎉 ${winner.name} revealed as Student of the Month!`);
+}
+function getPastRevealableMonths(){
+  const curKey=_somMonthKey(new Date());
+  const revealed=new Set((DB.get("studentOfMonth")||[]).map(r=>r.monthKey));
+  return getFeeSessionMonths().filter(k=>k<curKey&&!revealed.has(k));
+}
+async function revealPastMonth(){
+  const sel=document.getElementById("somPastMonthSelect");
+  const monthKey=sel?sel.value:"";
+  if(!monthKey){ showToast("❌ Select a month"); return; }
+  const winner=computeMonthWinner(monthKey);
+  if(!winner){ showToast(`❌ No test data recorded for ${_somMonthLabel(monthKey)}`); return; }
+  if(!await customConfirm(`Reveal ${winner.name} as Student of the Month for ${_somMonthLabel(monthKey)}?`,"Reveal Student of the Month","🌟","Reveal")) return;
+  if(!await requireStepUp("reveal the student of the month")) return;
+  const rec={id:"som_"+monthKey,monthKey,monthLabel:_somMonthLabel(monthKey),...winner,revealedBy:currentUser.name,revealedOn:new Date().toLocaleString("en-IN")};
+  const list=DB.get("studentOfMonth")||[];
+  list.unshift(rec);
+  DB.set("studentOfMonth",list);
+  logAudit("Student of the Month","record",rec.name,null,`${rec.monthLabel} (revealed retroactively) · Score ${rec.score}`);
+  renderSOTM();
+  _somFireConfetti();
+  showToast(`🎉 ${winner.name} revealed as Student of the Month for ${_somMonthLabel(monthKey)}!`);
+}
+function renderSOTM(){
+  const el=document.getElementById("sotmCard"); if(!el) return;
+  const now=new Date(),monthKey=_somMonthKey(now);
+  const list=DB.get("studentOfMonth")||[];
+  const current=list.find(r=>r.monthKey===monthKey);
+  const isCT=currentUser&&currentUser.role==="classteacher";
+  const pastCount=list.filter(r=>r.monthKey!==monthKey).length;
+  const pastBtn=pastCount?`<div style="text-align:center;margin-top:12px;"><button class="btn btn-outline btn-sm" onclick="openPastSOTM()">🏅 View Past Winners (${pastCount})</button></div>`:"";
+  // Lets the CT catch up on any month that's already ended but was never revealed — covers
+  // months from before this feature existed, or one accidentally skipped past its last day.
+  const missable=isCT?getPastRevealableMonths():[];
+  const missedHTML=missable.length?`<div style="margin-top:14px;border-top:1px solid rgba(255,255,255,0.08);padding-top:12px;text-align:center;">
+      <div style="font-size:11px;color:var(--muted);margin-bottom:8px;">🗓️ Catch up on a past month that hasn't been revealed:</div>
+      <div style="display:flex;gap:8px;justify-content:center;flex-wrap:wrap;">
+        <select class="form-input" id="somPastMonthSelect" style="max-width:180px;">${missable.map(k=>`<option value="${k}">${_somMonthLabel(k)}</option>`).join("")}</select>
+        <button class="btn btn-outline btn-sm" onclick="revealPastMonth()">🎉 Reveal</button>
+      </div>
+    </div>`:"";
+
+  if(current){
+    const h=HOUSES.find(x=>x.id===current.house);
+    // The pop-in entrance animation only plays the first time this browser sees this
+    // month's winner (same "seen" check that gates confetti) — so it feels like a real
+    // reveal moment, not something that replays every time the dashboard is opened.
+    let freshReveal=false;
+    try{ freshReveal=!localStorage.getItem("davx_sotm_seen_"+current.monthKey); }catch(e){}
+    const sparkles=[
+      {top:"6%",left:"10%",delay:"0s"},{top:"14%",left:"85%",delay:".5s"},{top:"70%",left:"6%",delay:"1.1s"},
+      {top:"78%",left:"90%",delay:"1.6s"},{top:"4%",left:"48%",delay:"2s"},{top:"85%",left:"46%",delay:"0.8s"}
+    ].map(p=>`<span class="sotm-sparkle" style="top:${p.top};left:${p.left};animation-delay:${p.delay};">✦</span>`).join("");
+    el.innerHTML=`<div class="sotm-reveal${freshReveal?" sotm-reveal-anim":""}">
+      <div class="sotm-glow"></div>
+      ${sparkles}
+      <div class="sotm-content" style="text-align:center;padding:6px 0;">
+        <div class="sotm-ribbon">🏆 Student of the Month — ${current.monthLabel}</div>
+        <div class="sotm-avatar-ring"><div class="sotm-avatar-inner">${current.name.trim()[0].toUpperCase()}</div></div>
+        <div class="sotm-name">${current.name}</div>
+        <div style="font-size:12px;color:var(--muted);margin-top:6px;">Roll ${current.roll} · Adm ${current.admNo}${h?` · <span style="color:${h.color};">🏠 ${h.name}</span>`:""}</div>
+        <div class="sotm-divider"></div>
+        <div style="display:flex;justify-content:center;gap:12px;flex-wrap:wrap;">
+          <div class="sotm-stat-pill"><div style="font-size:17px;font-weight:700;color:#3dba7e;">${current.marksAvgPct}%</div><div style="font-size:10px;color:var(--muted);text-transform:uppercase;">Avg Marks</div></div>
+          <div class="sotm-stat-pill"><div style="font-size:17px;font-weight:700;color:#4a9eff;">${current.attendancePct!==null?current.attendancePct+"%":"—"}</div><div style="font-size:10px;color:var(--muted);text-transform:uppercase;">Attendance</div></div>
+          <div class="sotm-stat-pill"><div style="font-size:17px;font-weight:700;color:var(--gold);">${current.score}</div><div style="font-size:10px;color:var(--muted);text-transform:uppercase;">Score</div></div>
+        </div>
+      </div>
+    </div>${pastBtn}${missedHTML}`;
+    // Celebrate once per browser per month — covers both the CT revealing it live and
+    // anyone else discovering the news the first time they load the dashboard afterward.
+    try{
+      const seenKey="davx_sotm_seen_"+current.monthKey;
+      if(!localStorage.getItem(seenKey)){ localStorage.setItem(seenKey,"1"); _somFireConfetti(); }
+    }catch(e){}
+  } else if(isCT){
+    const lastDay=_somIsLastDayOfMonth(now);
+    el.innerHTML=`<div style="text-align:center;padding:8px 0;">
+      <div class="sotm-mystery">❓</div>
+      <div style="font-size:15px;font-weight:600;color:var(--white);margin:12px 0 4px;">Student of the Month</div>
+      <div style="font-size:12px;color:var(--muted);margin-bottom:14px;">${lastDay?"Today's the last day of the month — ready to reveal!":`Reveal unlocks on ${_somNextLastDayLabel(now)}`}</div>
+      <button class="btn btn-gold${lastDay?" sotm-pulse":""}" ${lastDay?"":'disabled style="opacity:.4;cursor:not-allowed;"'} onclick="revealStudentOfMonth()">🎉 Reveal Student of the Month</button>
+    </div>${pastBtn}${missedHTML}`;
+  } else {
+    el.innerHTML=`<div style="text-align:center;padding:14px 0;">
+      <div class="sotm-mystery" style="width:60px;height:60px;font-size:24px;">❓</div>
+      <div style="font-size:12px;color:var(--muted);margin-top:12px;">Student of the Month hasn't been revealed yet</div>
+    </div>${pastBtn}`;
+  }
+}
+function openPastSOTM(){
+  const monthKey=_somMonthKey(new Date());
+  const list=(DB.get("studentOfMonth")||[]).filter(r=>r.monthKey!==monthKey);
+  renderPastSOTMList(list);
+  openModal("pastSOTMModal");
+}
+function renderPastSOTMList(list){
+  const el=document.getElementById("pastSOTMList");
+  el.innerHTML=list.length?list.map(r=>{
+    const h=HOUSES.find(x=>x.id===r.house);
+    return `<div style="display:flex;align-items:center;gap:12px;padding:10px 12px;background:rgba(255,255,255,0.03);border-radius:10px;margin-bottom:8px;cursor:pointer;" onclick="viewPastSOTMDetail('${r.id}')">
+      <div style="width:40px;height:40px;border-radius:50%;background:linear-gradient(135deg,var(--gold),#ffe27a);display:flex;align-items:center;justify-content:center;font-weight:700;color:var(--navy);font-family:'Cormorant Garamond',serif;flex-shrink:0;">${r.name.trim()[0].toUpperCase()}</div>
+      <div style="flex:1;">
+        <div style="font-weight:600;color:var(--white);font-size:13px;">${r.name} <span style="color:var(--muted);font-weight:400;">· Roll ${r.roll}</span></div>
+        <div style="font-size:11px;color:var(--muted);">${r.monthLabel}${h?` · <span style="color:${h.color};">${h.name}</span>`:""} · ${r.marksAvgPct}% avg${r.attendancePct!==null?` · ${r.attendancePct}% attendance`:""}</div>
+      </div>
+      <div style="color:var(--gold);font-size:18px;">›</div>
+    </div>`;
+  }).join(""):`<div class="empty-state" style="padding:20px;"><div class="empty-icon">🏅</div><div class="empty-text">No past winners yet</div></div>`;
+}
+// Reuses the exact same ribbon/glow/spinning-ring/shimmer card a fresh reveal uses — so
+// every past winner gets the full "beautiful" treatment on demand, not just whoever
+// happens to be the current month's winner. No confetti/pop-in here since it's a lookback,
+// not a live reveal moment.
+function viewPastSOTMDetail(recId){
+  const rec=(DB.get("studentOfMonth")||[]).find(r=>r.id===recId); if(!rec) return;
+  const h=HOUSES.find(x=>x.id===rec.house);
+  const el=document.getElementById("pastSOTMList");
+  el.innerHTML=`<button class="btn btn-outline btn-sm" style="margin-bottom:14px;" onclick="openPastSOTM()">← Back to list</button>
+    <div class="sotm-reveal">
+      <div class="sotm-glow"></div>
+      <span class="sotm-sparkle" style="top:6%;left:10%;animation-delay:0s;">✦</span>
+      <span class="sotm-sparkle" style="top:14%;left:85%;animation-delay:.5s;">✦</span>
+      <span class="sotm-sparkle" style="top:70%;left:6%;animation-delay:1.1s;">✦</span>
+      <span class="sotm-sparkle" style="top:78%;left:90%;animation-delay:1.6s;">✦</span>
+      <div class="sotm-content" style="text-align:center;padding:6px 0;">
+        <div class="sotm-ribbon">🏆 Student of the Month — ${rec.monthLabel}</div>
+        <div class="sotm-avatar-ring"><div class="sotm-avatar-inner">${rec.name.trim()[0].toUpperCase()}</div></div>
+        <div class="sotm-name">${rec.name}</div>
+        <div style="font-size:12px;color:var(--muted);margin-top:6px;">Roll ${rec.roll} · Adm ${rec.admNo}${h?` · <span style="color:${h.color};">🏠 ${h.name}</span>`:""}</div>
+        <div class="sotm-divider"></div>
+        <div style="display:flex;justify-content:center;gap:12px;flex-wrap:wrap;">
+          <div class="sotm-stat-pill"><div style="font-size:17px;font-weight:700;color:#3dba7e;">${rec.marksAvgPct}%</div><div style="font-size:10px;color:var(--muted);text-transform:uppercase;">Avg Marks</div></div>
+          <div class="sotm-stat-pill"><div style="font-size:17px;font-weight:700;color:#4a9eff;">${rec.attendancePct!==null?rec.attendancePct+"%":"—"}</div><div style="font-size:10px;color:var(--muted);text-transform:uppercase;">Attendance</div></div>
+          <div class="sotm-stat-pill"><div style="font-size:17px;font-weight:700;color:var(--gold);">${rec.score}</div><div style="font-size:10px;color:var(--muted);text-transform:uppercase;">Score</div></div>
+        </div>
+      </div>
+    </div>`;
+}
 
 // ═══════════════════════════════════════════
 // FILES
@@ -3782,6 +4125,11 @@ async function submitResults(){
 let multiExamState=null;
 
 // Fixed subjects for big exams — always these 6, no selection needed
+// The 4 fixed multi-subject exam types (matches the options in the "Exam Type" dropdown
+// on the Multi-Subject results entry page). Used by the Report Card's exam-type filter to
+// tell multi-subject exams apart from single-subject "Class Test" entries, which use
+// free-text test names instead.
+const MULTI_EXAM_TYPES=["Periodic Test","Half Yearly","Pre-Boards","Annual Exam"];
 const MULTI_SUBJECTS=[
   {id:"maths",   name:"Maths",   emoji:"📐"},
   {id:"science", name:"Science", emoji:"🔬"},
@@ -3813,7 +4161,7 @@ function setupMultiResultSheet(){
   const name=document.getElementById("multiExamName").value.trim();
   const date=document.getElementById("multiExamDate").value;
   const remarks=document.getElementById("multiExamRemarks").value.trim();
-  if(!name){ showToast("❌ Enter exam name"); return; }
+  if(!name){ showToast("❌ Select an exam type"); return; }
   const subjects=[];
   for(const s of MULTI_SUBJECTS){
     const max=parseInt(document.getElementById("multiMax_"+s.id).value);
@@ -6196,10 +6544,15 @@ function initReportCardPage(){
   renderReportCard();
 }
 
-function buildStudentReport(studentId){
+// examTypeFilter: undefined/"all" = every result (unchanged, original behavior).
+// One of MULTI_EXAM_TYPES = only that multi-subject exam's results.
+// "Class Test" = only single-subject results (anything not tagged as one of the 4 fixed
+// multi-subject exam types) — covers the free-text "Class Test" flow as it's always worked.
+function buildStudentReport(studentId,examTypeFilter){
   const students=DB.get("students")||[];
   const allAtt=DB.get("studentAttendance")||{};
-  const results=DB.get("results")||[];
+  const allResults=DB.get("results")||[];
+  const results=(!examTypeFilter||examTypeFilter==="all")?allResults:allResults.filter(r=>examTypeFilter==="Class Test"?!MULTI_EXAM_TYPES.includes(r.test):r.test===examTypeFilter);
   const copySessions=DB.get("copySessions")||[];
 
   const s=students.find(x=>x.id===studentId);
@@ -6259,6 +6612,88 @@ function rcGradeInfo(pct){
   return {grade:"F",col:"#c01a1a",bg:"#fae6e6"};
 }
 
+// ── Marks trend line chart (one line per subject, % over time) ──
+// Uses the same subjectResults the report card already computed, so it automatically
+// respects whatever exam-type filter is active. Colors reuse SUBJ_COLORS for consistency
+// with the rest of the app. All colors are literal hex (not CSS vars) since this renders
+// inside the printable, light-themed report card, not the app's dark theme.
+function buildMarksTrendChart(subjectResults){
+  const series=Object.keys(subjectResults).map(subjId=>{
+    const sub=SUBJECTS.find(x=>x.id===subjId);
+    const pts=subjectResults[subjId].tests
+      .filter(t=>!t.absent&&t.marks!==null&&t.max)
+      .slice().sort((a,b)=>(a.date||"").localeCompare(b.date||""))
+      .map(t=>({date:t.date,pct:Math.round(t.marks/t.max*100),label:t.testName}));
+    return {subjId,name:sub?sub.name:subjId,emoji:sub?sub.emoji:"📘",color:SUBJ_COLORS[subjId]||"#888",pts};
+  }).filter(s=>s.pts.length);
+  if(!series.length) return null;
+
+  const allDates=[...new Set(series.flatMap(s=>s.pts.map(p=>p.date)))].sort();
+  const W=680,H=210,padL=32,padR=10,padT=10,padB=10;
+  const plotW=W-padL-padR,plotH=H-padT-padB;
+  const xFor=date=>allDates.length>1?padL+(allDates.indexOf(date)/(allDates.length-1))*plotW:padL+plotW/2;
+  const yFor=pct=>padT+(1-pct/100)*plotH;
+
+  let gridSVG="";
+  [0,25,50,75,100].forEach(g=>{
+    const y=yFor(g);
+    gridSVG+=`<line x1="${padL}" y1="${y}" x2="${W-padR}" y2="${y}" stroke="#eee" stroke-width="1"/><text x="${padL-6}" y="${y+3}" text-anchor="end" font-size="9" fill="#999">${g}</text>`;
+  });
+
+  let linesSVG="";
+  series.forEach(s=>{
+    if(s.pts.length>1){
+      const pts=s.pts.map(p=>`${xFor(p.date).toFixed(1)},${yFor(p.pct).toFixed(1)}`).join(" ");
+      linesSVG+=`<polyline points="${pts}" fill="none" stroke="${s.color}" stroke-width="2.5" stroke-linejoin="round" stroke-linecap="round"/>`;
+    }
+    s.pts.forEach(p=>{
+      linesSVG+=`<circle cx="${xFor(p.date).toFixed(1)}" cy="${yFor(p.pct).toFixed(1)}" r="3.5" fill="${s.color}" stroke="#fff" stroke-width="1"><title>${s.name} — ${p.label}: ${p.pct}%</title></circle>`;
+    });
+  });
+
+  const legendHTML=series.map(s=>`<span style="display:inline-flex;align-items:center;gap:5px;margin-right:14px;margin-bottom:6px;font-size:11px;color:#666;"><span style="width:9px;height:9px;border-radius:50%;background:${s.color};display:inline-block;"></span>${s.emoji} ${s.name}</span>`).join("");
+
+  return `<svg viewBox="0 0 ${W} ${H}" style="width:100%;height:auto;display:block;">${gridSVG}${linesSVG}</svg><div style="margin-top:8px;">${legendHTML}</div>`;
+}
+
+// ── Attendance calendar heatmap (month blocks of colored day-cells) ──
+// Deliberately independent of the exam-type filter — attendance isn't tied to any exam,
+// same as the rest of the Attendance section always being unfiltered.
+function buildAttendanceHeatmap(studentId){
+  const allAtt=DB.get("studentAttendance")||{};
+  const dates=Object.keys(allAtt).filter(d=>allAtt[d]&&allAtt[d][studentId]).sort();
+  if(!dates.length) return null;
+  const statusColor={present:"#3dba7e",absent:"#e05555",holiday:"#e8a020"};
+  const byMonth={};
+  dates.forEach(d=>{ const ym=d.slice(0,7); (byMonth[ym]=byMonth[ym]||[]).push(d); });
+
+  const monthBlocks=Object.keys(byMonth).sort().map(ym=>{
+    const [y,m]=ym.split("-").map(Number);
+    const daysInMonth=new Date(y,m,0).getDate();
+    const startDow=new Date(y,m-1,1).getDay();
+    const monthLabel=new Date(y,m-1,1).toLocaleString("en-US",{month:"short",year:"numeric"});
+    let cells="";
+    for(let i=0;i<startDow;i++) cells+=`<div></div>`;
+    for(let day=1;day<=daysInMonth;day++){
+      const dateStr=`${y}-${String(m).padStart(2,"0")}-${String(day).padStart(2,"0")}`;
+      const status=(allAtt[dateStr]||{})[studentId];
+      const bg=status?statusColor[status]:"#f0f0f0";
+      const title=status?`${dateStr}: ${status.charAt(0).toUpperCase()+status.slice(1)}`:dateStr;
+      cells+=`<div title="${title}" style="width:13px;height:13px;border-radius:3px;background:${bg};"></div>`;
+    }
+    return `<div style="margin-bottom:6px;"><div style="font-size:10px;color:#888;margin-bottom:4px;font-weight:600;">${monthLabel}</div><div style="display:grid;grid-template-columns:repeat(7,13px);gap:3px;">${cells}</div></div>`;
+  }).join("");
+
+  return `<div style="display:flex;flex-wrap:wrap;gap:16px;">${monthBlocks}</div>
+    <div style="display:flex;gap:14px;margin-top:10px;flex-wrap:wrap;font-size:10px;color:#888;">
+      <span><span style="display:inline-block;width:10px;height:10px;border-radius:2px;background:#3dba7e;margin-right:4px;vertical-align:-1px;"></span>Present</span>
+      <span><span style="display:inline-block;width:10px;height:10px;border-radius:2px;background:#e05555;margin-right:4px;vertical-align:-1px;"></span>Absent</span>
+      <span><span style="display:inline-block;width:10px;height:10px;border-radius:2px;background:#e8a020;margin-right:4px;vertical-align:-1px;"></span>Holiday</span>
+      <span><span style="display:inline-block;width:10px;height:10px;border-radius:2px;background:#f0f0f0;border:1px solid #ddd;margin-right:4px;vertical-align:-1px;"></span>No data</span>
+    </div>`;
+}
+let _rcExamFilter="all";
+function setRcExamFilter(val){ _rcExamFilter=val; renderReportCard(); }
 function renderReportCard(){
   const u=currentUser;
   const el=document.getElementById("reportCardContent"); if(!el) return;
@@ -6271,13 +6706,17 @@ function renderReportCard(){
   }
   if(!studentId){ el.innerHTML=`<div class="card"><div class="empty-state"><div class="empty-icon">📄</div><div class="empty-text">Select a student to generate report</div></div></div>`; return; }
 
-  const d=buildStudentReport(studentId);
+  const d=buildStudentReport(studentId,_rcExamFilter);
   if(!d){ el.innerHTML=`<div class="card"><div class="empty-state"><div class="empty-icon">❌</div><div class="empty-text">Student data not found</div></div></div>`; return; }
 
   const {student:s,attPresent,attTotal,attPct,subjectResults,copSubmitted,copTotal,copPct,rank,totalRanked,avgPct}=d;
   const attGr=rcGradeInfo(attPct);
   const marksGr=rcGradeInfo(avgPct);
   const copGr=rcGradeInfo(copPct);
+
+  // ── Exam type filter (kept outside #rcPrintArea, so it's never part of the printed card) ──
+  const examFilterOptions=[["all","All Exams (as it is)"],["Class Test","📝 Class Test"],["Periodic Test","📋 Periodic Test"],["Half Yearly","📖 Half Yearly"],["Pre-Boards","🎯 Pre-Boards"],["Annual Exam","🏆 Annual Exam"]];
+  const examFilterHTML=`<div class="card" style="margin-bottom:16px;"><div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap;"><label class="form-label" style="margin:0;">Show:</label><select class="form-input" style="max-width:220px;" onchange="setRcExamFilter(this.value)">${examFilterOptions.map(([v,l])=>`<option value="${v}" ${_rcExamFilter===v?"selected":""}>${l}</option>`).join("")}</select></div></div>`;
 
   // ── Subject rows ──
   const subjKeys=Object.keys(subjectResults);
@@ -6299,9 +6738,10 @@ function renderReportCard(){
   }).join(""):`<tr><td colspan="5" style="text-align:center;color:#aaa;padding:16px;">No results recorded yet</td></tr>`;
 
   // ── Test-wise rows ──
-  const allTests=results=>{
+  const allTests=()=>{
     const rows=[];
-    (DB.get("results")||[]).forEach(r=>{
+    const src=(DB.get("results")||[]).filter(r=>(!_rcExamFilter||_rcExamFilter==="all")?true:(_rcExamFilter==="Class Test"?!MULTI_EXAM_TYPES.includes(r.test):r.test===_rcExamFilter));
+    src.forEach(r=>{
       const m=(r.studentMarks||[]).find(x=>x.studentId===studentId);
       if(!m) return;
       const sub=SUBJECTS.find(x=>x.id===r.subject);
@@ -6323,12 +6763,12 @@ function renderReportCard(){
   const rankStr=rank?`#${rank} of ${totalRanked}`:"—";
   const now=new Date().toLocaleDateString("en-IN",{day:"2-digit",month:"long",year:"numeric"});
 
-  el.innerHTML=`<div id="rcPrintArea"><div class="rc-wrap">
+  el.innerHTML=examFilterHTML+`<div id="rcPrintArea"><div class="rc-wrap">
     <!-- Header -->
     <div class="rc-header">
       <div class="rc-school">🏫 USCD DAV Public School</div>
       <div class="rc-title">Student Progress Report Card</div>
-      <div class="rc-sub">Class X — SBS &nbsp;·&nbsp; Generated on ${now}</div>
+      <div class="rc-sub">Class X — SBS &nbsp;·&nbsp; Generated on ${now}${_rcExamFilter&&_rcExamFilter!=="all"?` &nbsp;·&nbsp; <strong>${_rcExamFilter}</strong> only`:""}</div>
     </div>
     <!-- Student Info -->
     <div class="rc-info-grid" style="background:#fff;">
@@ -6371,8 +6811,13 @@ function renderReportCard(){
         <tbody>${subjRows}</tbody>
       </table>
     </div>
+    <!-- Marks trend -->
+    ${(()=>{ const chart=buildMarksTrendChart(subjectResults); return chart?`<div class="rc-section" style="background:#fff;border-top:1px solid #eee;">
+      <div class="rc-section-title">📈 Marks Trend</div>
+      ${chart}
+    </div>`:""; })()}
     <!-- Test-wise detail -->
-    <div class="rc-section" style="background:#fff;border-top:1px solid #eee;">
+    <div class="rc-section" style="background:#fafafa;border-top:1px solid #eee;">
       <div class="rc-section-title">📝 Test-wise Detail</div>
       <div style="overflow-x:auto;">
         <table class="rc-table">
@@ -6381,17 +6826,15 @@ function renderReportCard(){
         </table>
       </div>
     </div>
-    <!-- Attendance bar -->
-    <div class="rc-section" style="background:#fafafa;border-top:1px solid #eee;">
+    <!-- Attendance heatmap -->
+    <div class="rc-section" style="background:#fff;border-top:1px solid #eee;">
       <div class="rc-section-title">✅ Attendance Overview</div>
-      <div style="display:flex;align-items:center;gap:12px;flex-wrap:wrap;">
-        <div style="flex:1;min-width:160px;height:12px;background:#eee;border-radius:6px;overflow:hidden;">
-          <div style="height:100%;width:${attPct||0}%;background:${attGr.col};border-radius:6px;transition:width .5s;"></div>
-        </div>
-        <span style="font-size:13px;font-weight:700;color:${attGr.col};">${attPct!==null?attPct+"%":"No data"}</span>
+      <div style="display:flex;align-items:center;gap:12px;flex-wrap:wrap;margin-bottom:12px;">
+        <span style="font-size:18px;font-weight:700;color:${attGr.col};">${attPct!==null?attPct+"%":"No data"}</span>
         <span style="font-size:12px;color:#888;">${attPresent} present · ${attTotal-attPresent} absent · ${attTotal} total days</span>
       </div>
-      ${attPct!==null&&attPct<75?`<div style="margin-top:8px;padding:8px 12px;background:#fae6e6;border-radius:8px;font-size:12px;color:#c01a1a;">⚠️ Attendance below 75% — may affect eligibility</div>`:""}
+      ${(()=>{ const hm=buildAttendanceHeatmap(s.id); return hm||`<div style="font-size:12px;color:#aaa;">No attendance records yet</div>`; })()}
+      ${attPct!==null&&attPct<75?`<div style="margin-top:12px;padding:8px 12px;background:#fae6e6;border-radius:8px;font-size:12px;color:#c01a1a;">⚠️ Attendance below 75% — may affect eligibility</div>`:""}
     </div>
     <!-- Footer -->
     <div class="rc-footer">
@@ -6402,8 +6845,86 @@ function renderReportCard(){
 }
 
 function printReportCard(){
-  // Trigger browser print dialog — user can Save as PDF from there
+  // If a certificate was generated earlier this session, its print area is still in the
+  // DOM — hide it so only the report card shows up in the print/PDF output.
+  const cert=document.getElementById("certPrintArea"); if(cert) cert.style.display="none";
   window.print();
+  if(cert) cert.style.display="";
+}
+
+// ═══════════════════════════════════════════
+// CERTIFICATE GENERATOR
+// Simple printable certificates (top rank, perfect attendance, sports, or custom
+// achievements) — built the same way the report card produces a PDF: a styled printable
+// area plus the browser's own print dialog (Save as PDF), no extra library needed.
+// ═══════════════════════════════════════════
+function renderCertificatesPage(){
+  const sel=document.getElementById("certStudentSelect"); if(!sel) return;
+  const students=(DB.get("students")||[]).sort((a,b)=>parseInt(a.roll)-parseInt(b.roll));
+  const previewWrap=document.getElementById("certPreviewWrap");
+  if(!students.length){ sel.innerHTML=`<option value="">No students registered</option>`; if(previewWrap) previewWrap.style.display="none"; return; }
+  const prev=sel.value;
+  sel.innerHTML=students.map(s=>`<option value="${s.id}">Roll ${s.roll} — ${s.name}</option>`).join("");
+  if(prev&&students.find(s=>s.id===prev)) sel.value=prev;
+  const dateEl=document.getElementById("certDate"); if(dateEl&&!dateEl.value) dateEl.value=new Date().toISOString().split("T")[0];
+  onCertTypeChange();
+}
+function onCertFieldsChange(){ onCertTypeChange(); }
+function onCertTypeChange(){
+  const type=document.getElementById("certType").value;
+  const studentId=document.getElementById("certStudentSelect").value;
+  const titleEl=document.getElementById("certTitle"),descEl=document.getElementById("certDesc");
+  if(!titleEl||!descEl) return;
+  if(type==="rank"){
+    const {rows}=computeOverallLeaderboard();
+    const row=rows.find(r=>r.studentId===studentId);
+    titleEl.value="Certificate of Excellence";
+    descEl.value=row?`for securing Rank #${row.rank} in Class X — SBS with an overall average of ${Math.round(row.avgPct)}%`:`for outstanding academic performance in Class X — SBS`;
+  } else if(type==="attendance"){
+    const d=studentId?buildStudentReport(studentId):null;
+    const pct=d?d.attPct:null;
+    titleEl.value=pct===100?"Certificate of Perfect Attendance":"Certificate of Excellent Attendance";
+    descEl.value=pct!==null?`for maintaining ${pct}% attendance during the academic session`:`for excellent attendance during the academic session`;
+  } else if(type==="sports"){
+    titleEl.value="Certificate of Achievement";
+    descEl.value="for outstanding performance in [event name] — [position/achievement]";
+  } else {
+    titleEl.value="Certificate of Achievement";
+    descEl.value="";
+  }
+}
+function generateCertificate(){
+  const studentId=document.getElementById("certStudentSelect").value;
+  const s=(DB.get("students")||[]).find(x=>x.id===studentId);
+  if(!s){ showToast("❌ Select a student"); return; }
+  const title=document.getElementById("certTitle").value.trim()||"Certificate of Achievement";
+  const desc=document.getElementById("certDesc").value.trim();
+  const date=document.getElementById("certDate").value||new Date().toISOString().split("T")[0];
+  const principal=document.getElementById("certPrincipal").value.trim();
+  const dateLabel=new Date(date).toLocaleDateString("en-IN",{day:"2-digit",month:"long",year:"numeric"});
+  document.getElementById("certPreview").innerHTML=`<div id="certPrintArea"><div class="cert-wrap"><div class="cert-border">
+      <div class="cert-ornament">✦ ✦ ✦</div>
+      <div class="cert-school">🏫 USCD DAV PUBLIC SCHOOL</div>
+      <div class="cert-type">${title}</div>
+      <div class="cert-presented">This certificate is proudly presented to</div>
+      <div class="cert-name">${s.name}</div>
+      ${desc?`<div class="cert-desc">${desc}</div>`:""}
+      <div class="cert-meta">Roll No. ${s.roll} · Class X — SBS</div>
+      <div class="cert-sign-row">
+        <div class="cert-sign"><div class="cert-sign-line"></div><div class="cert-sign-label">Class Teacher</div><div class="cert-sign-name">${currentUser.name}</div></div>
+        <div class="cert-seal">🏅</div>
+        <div class="cert-sign"><div class="cert-sign-line"></div><div class="cert-sign-label">Principal</div><div class="cert-sign-name">${principal||"&nbsp;"}</div></div>
+      </div>
+      <div class="cert-date">Issued on ${dateLabel}</div>
+    </div></div></div>`;
+  document.getElementById("certPreviewWrap").style.display="";
+  logAudit("Certificate","record",s.name,null,`${title}${desc?" — "+desc:""}`);
+  document.getElementById("certPreviewWrap").scrollIntoView({behavior:"smooth",block:"start"});
+}
+function printCertificate(){
+  const rc=document.getElementById("rcPrintArea"); if(rc) rc.style.display="none";
+  window.print();
+  if(rc) rc.style.display="";
 }
 
 // Refresh report card when results/attendance/copy data changes remotely
