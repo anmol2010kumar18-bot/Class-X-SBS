@@ -498,7 +498,7 @@ button:active, .btn:active, .nav-btn:active, .auth-btn:active, .role-card:active
 .sotm-ribbon{display:inline-block;background:linear-gradient(135deg,#ffe27a,var(--gold) 55%,#c9971f);color:#3a2600;font-size:10px;font-weight:800;letter-spacing:2.5px;text-transform:uppercase;padding:5px 16px;border-radius:20px;margin-bottom:14px;box-shadow:0 3px 12px rgba(232,160,32,0.45);}
 .sotm-avatar-ring{position:relative;width:92px;height:92px;margin:0 auto 14px;}
 .sotm-avatar-ring::before{content:"";position:absolute;inset:-5px;border-radius:50%;background:conic-gradient(from 0deg,var(--gold),#ffe27a,#fff6d0,#c9971f,var(--gold));animation:sotmSpin 5s linear infinite;}
-.sotm-avatar-inner{position:absolute;inset:5px;border-radius:50%;background:linear-gradient(150deg,#16233f,#0b1c36);display:flex;align-items:center;justify-content:center;font-size:36px;font-weight:800;color:var(--gold);font-family:'Cormorant Garamond',serif;}
+.sotm-avatar-inner{position:absolute;inset:5px;border-radius:50%;overflow:hidden;background:linear-gradient(150deg,#16233f,#0b1c36);display:flex;align-items:center;justify-content:center;font-size:36px;font-weight:800;color:var(--gold);font-family:'Cormorant Garamond',serif;}
 .sotm-name{font-family:'Cormorant Garamond',serif;font-size:29px;font-weight:800;letter-spacing:.3px;line-height:1.15;background:linear-gradient(100deg,#fff 0%,#ffe27a 35%,var(--gold) 50%,#ffe27a 65%,#fff 100%);background-size:250% auto;-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent;color:transparent;animation:sotmShine 3.5s linear infinite;}
 .sotm-divider{width:46px;height:2px;background:linear-gradient(90deg,transparent,var(--gold),transparent);margin:9px auto 11px;}
 .sotm-stat-pill{background:rgba(255,255,255,0.05);border:1px solid rgba(232,160,32,0.28);border-radius:12px;padding:8px 15px;min-width:72px;}
@@ -512,6 +512,9 @@ button:active, .btn:active, .nav-btn:active, .auth-btn:active, .role-card:active
 @keyframes sotmMysteryPulse{ 0%,100%{opacity:.55;transform:scale(1);} 50%{opacity:1;transform:scale(1.06);} }
 @keyframes sotmBtnPulse{ 0%,100%{box-shadow:0 0 0 0 rgba(232,160,32,.55);} 50%{box-shadow:0 0 0 9px rgba(232,160,32,0);} }
 .sotm-pulse{animation:sotmBtnPulse 1.8s ease-in-out infinite;}
+.avatar-preset-tile{width:100%;aspect-ratio:1;border-radius:50%;cursor:pointer;border:3px solid transparent;transition:all .15s;overflow:hidden;}
+.avatar-preset-tile:hover{transform:scale(1.06);}
+.avatar-preset-tile.selected{border-color:var(--gold);box-shadow:0 0 0 3px rgba(232,160,32,0.2);}
 @media(max-width:900px){.spotlight-grid{grid-template-columns:repeat(2,1fr);}}
 @media(max-width:520px){.spotlight-grid{grid-template-columns:1fr;}}
 .spotlight-card{background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.08);border-radius:14px;padding:16px 14px;position:relative;overflow:hidden;transition:border-color .2s;}
@@ -746,6 +749,7 @@ button:active, .btn:active, .nav-btn:active, .auth-btn:active, .role-card:active
     <button class="nav-btn perm-student" data-page="my_duties" onclick="nav(this)" style="display:none;"><span class="nav-icon">📋</span><span class="nav-label sb-text">My Duties</span><span class="nav-badge sb-text" id="myDutyBadge" style="display:none;background:#e05555;">!</span></button>
     <button class="nav-btn perm-student" data-page="my_copy" onclick="nav(this)" style="display:none;"><span class="nav-icon">📔</span><span class="nav-label sb-text">My Copy Records</span></button>
     <button class="nav-btn perm-student" data-page="my_fees" onclick="nav(this)" style="display:none;"><span class="nav-icon">💰</span><span class="nav-label sb-text">My Fees</span></button>
+    <button class="nav-btn perm-student" data-page="my_avatar" onclick="nav(this)" style="display:none;"><span class="nav-icon">🖼️</span><span class="nav-label sb-text">Profile Picture</span></button>
     <div class="sb-section perm-upload" style="display:none;">Manage</div>
     <button class="nav-btn perm-upload" data-page="upload" onclick="nav(this)" style="display:none;"><span class="nav-icon">⬆️</span><span class="nav-label sb-text">Upload Files</span></button>
     <button class="nav-btn perm-monitor" data-page="copy_checking" onclick="nav(this)" style="display:none;"><span class="nav-icon">📋</span><span class="nav-label sb-text">Copy Checking</span></button>
@@ -1348,6 +1352,33 @@ button:active, .btn:active, .nav-btn:active, .auth-btn:active, .role-card:active
             <button class="btn btn-gold btn-sm" onclick="printCertificate()">🖨️ Print / Save as PDF</button>
           </div>
           <div style="overflow-x:auto;"><div id="certPreview"></div></div>
+        </div>
+      </div>
+
+      <!-- MY PROFILE PICTURE (student self-service) -->
+      <div class="page" id="page-my_avatar">
+        <div class="hero" style="padding:20px 26px;margin-bottom:18px;">
+          <div class="hero-label">My Account</div>
+          <div class="hero-h" style="font-size:22px;">Profile <span>Picture</span></div>
+          <div class="hero-sub">Pick one of the avatars below, or upload your own photo.</div>
+        </div>
+
+        <div class="card" style="margin-bottom:16px;text-align:center;">
+          <div class="card-title" style="text-align:left;">👁️ Current</div>
+          <div id="myAvatarPreview" style="width:96px;height:96px;margin:6px auto 4px;border-radius:50%;overflow:hidden;box-shadow:0 0 0 4px rgba(232,160,32,0.15);"></div>
+          <button class="btn btn-outline btn-sm" style="margin-top:10px;" onclick="removeMyPhoto()">🗑️ Remove Photo</button>
+        </div>
+
+        <div class="card" style="margin-bottom:16px;">
+          <div class="card-title">🎨 Choose an Avatar</div>
+          <div id="myAvatarPresetGrid" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(70px,1fr));gap:12px;"></div>
+        </div>
+
+        <div class="card">
+          <div class="card-title">📤 Upload from Gallery</div>
+          <div style="font-size:11px;color:var(--muted);margin-bottom:10px;">Your photo is resized automatically — any image works.</div>
+          <input type="file" accept="image/*" id="myAvatarFileInput" style="display:none;" onchange="onMyAvatarFileChosen(event)">
+          <button class="btn btn-gold" style="width:100%;" onclick="document.getElementById('myAvatarFileInput').click()">📤 Choose Photo</button>
         </div>
       </div>
 
@@ -1984,11 +2015,38 @@ button:active, .btn:active, .nav-btn:active, .auth-btn:active, .role-card:active
 
 <!-- ══ FEE DETAIL MODAL ══ -->
 <!-- ══ PAST STUDENT OF THE MONTH MODAL ══ -->
+<!-- ══ AVATAR PICKER MODAL (Class Teacher moderation) ══ -->
+<div class="modal-overlay" id="avatarPickerModal">
+  <div class="modal-box" style="max-width:400px;">
+    <div style="font-family:'Cormorant Garamond',serif;font-size:22px;color:var(--gold);margin-bottom:4px;">🖼️ Profile Picture</div>
+    <div style="font-size:12px;color:var(--muted);margin-bottom:14px;" id="avatarPickerName"></div>
+    <div style="text-align:center;">
+      <div id="avatarPickerPreview" style="width:80px;height:80px;margin:0 auto 14px;border-radius:50%;overflow:hidden;box-shadow:0 0 0 4px rgba(232,160,32,0.15);"></div>
+    </div>
+    <div style="font-size:12px;font-weight:600;color:var(--muted);margin-bottom:8px;">Choose an Avatar</div>
+    <div id="avatarPickerGrid" style="display:grid;grid-template-columns:repeat(6,1fr);gap:8px;margin-bottom:16px;"></div>
+    <input type="file" accept="image/*" id="avatarPickerFileInput" style="display:none;" onchange="onAvatarPickerFileChosen(event)">
+    <button class="btn btn-gold btn-sm" style="width:100%;margin-bottom:8px;" onclick="document.getElementById('avatarPickerFileInput').click()">📤 Upload from Gallery</button>
+    <button class="btn btn-outline btn-sm" style="width:100%;margin-bottom:8px;" onclick="removeAvatarForStudent()">🗑️ Remove Photo</button>
+    <button class="btn btn-outline" style="width:100%;" onclick="closeModal('avatarPickerModal')">Close</button>
+  </div>
+</div>
+
 <div class="modal-overlay" id="pastSOTMModal">
   <div class="modal-box" style="max-width:420px;">
     <div style="font-family:'Cormorant Garamond',serif;font-size:22px;color:var(--gold);margin-bottom:14px;">🏅 Past Students of the Month</div>
     <div id="pastSOTMList" style="max-height:420px;overflow-y:auto;"></div>
     <button class="btn btn-outline" style="width:100%;margin-top:14px;" onclick="closeModal('pastSOTMModal')">Close</button>
+  </div>
+</div>
+
+<div class="modal-overlay" id="somDisciplineModal">
+  <div class="modal-box" style="max-width:460px;">
+    <div style="font-family:'Cormorant Garamond',serif;font-size:22px;color:var(--gold);margin-bottom:4px;">📋 Grade Top 5 — Discipline</div>
+    <div style="font-size:12px;color:var(--muted);margin-bottom:14px;">Assign a disciplinary grade to each shortlisted candidate for <span id="somDisciplineMonthLabel"></span> before the winner is revealed.</div>
+    <div id="somDisciplineList" style="max-height:420px;overflow-y:auto;"></div>
+    <button class="btn btn-gold" style="width:100%;margin-top:10px;" onclick="submitSOMDisciplineGrades()">🌟 Continue to Reveal</button>
+    <button class="btn btn-outline" style="width:100%;margin-top:8px;" onclick="closeModal('somDisciplineModal');_somPendingReveal=null;">Cancel</button>
   </div>
 </div>
 
@@ -2150,7 +2208,7 @@ function _clearWriteLock(){
 // collection being rewritten as one array on every single add/delete — otherwise every new
 // upload has to re-transmit every file ever uploaded, which is what made uploads slow (and,
 // once the combined payload got big enough, made the write fail outright).
-const PER_ITEM_KEYS=new Set(["files","gallery"]);
+const PER_ITEM_KEYS=new Set(["files","gallery","studentPhotos"]);
 function _asArray(v){ if(Array.isArray(v)) return v; if(v&&typeof v==="object") return Object.values(v); return []; }
 function _fbWriteFailToast(){ try{ showToast("⚠️ Cloud sync failed — saved on this device only"); }catch(e2){} }
 function _fbDeleteFailToast(){ try{ showToast("⚠️ Removed here, but cloud sync failed — it may reappear on other devices until this reconnects"); }catch(e2){} }
@@ -2160,6 +2218,22 @@ const DB={
   push(k,item){
     const a=DB.get(k)||[]; a.unshift(item); DB.set(k,a);
     if(PER_ITEM_KEYS.has(k)&&_firebaseReady&&_db){ _writeLock=true; _db.ref("davx/"+k+"/"+item.id).set(item).then(()=>{ setTimeout(_clearWriteLock,800); }).catch(e=>{ _clearWriteLock(); _fbWriteFailToast(); }); }
+    return a;
+  },
+  // Replace an existing per-item record (same id) in place. Unlike del()+push() with the
+  // same id, this never creates a tombstone for that id — tombstones are permanent "this id
+  // is deleted" markers, so deleting-then-recreating a record under the same id (e.g. a
+  // student's photo, keyed by student id) meant the record could never survive a sync again:
+  // every merge would see the old tombstone and strip the "new" record right back out. If a
+  // stale tombstone already exists for this id from before this fix, clear it too, since
+  // upserting the item is a deliberate signal that it should exist again.
+  upsert(k,item){
+    const a=(DB.get(k)||[]).filter(i=>!i||i.id!==item.id); a.unshift(item); DB.set(k,a);
+    const t=DB._getTombs(); if(t[k]&&t[k][item.id]){ delete t[k][item.id]; DB._saveTombs(t); }
+    if(_firebaseReady&&_db){
+      if(PER_ITEM_KEYS.has(k)){ _writeLock=true; _db.ref("davx/"+k+"/"+item.id).set(item).then(()=>{ setTimeout(_clearWriteLock,800); }).catch(e=>{ _clearWriteLock(); _fbWriteFailToast(); }); }
+      _db.ref("davx_tombs/"+k+"/"+item.id).remove().catch(e=>{});
+    }
     return a;
   },
   del(k,id){
@@ -2241,9 +2315,15 @@ function setupFirebaseListeners(){
       try{renderResults();}catch(e){}
       try{renderEnteredResults();}catch(e){}
       try{renderStudentsList();}catch(e){}
+      try{renderStudentInfoTable();}catch(e){}
       try{renderComplaintLog();}catch(e){}
       try{renderCopySessionsList();}catch(e){}
       try{renderPolls();}catch(e){}
+      try{renderLeaderboard();}catch(e){}
+      try{renderFeesPage();}catch(e){}
+      try{renderMyFees();}catch(e){}
+      try{renderWeeklySpotlight();}catch(e){}
+      try{renderSOTM();}catch(e){}
       if(currentFolder) try{renderFolder(currentFolder);}catch(e){}
     }
   });
@@ -2251,8 +2331,12 @@ function setupFirebaseListeners(){
 
 function _processDavxSnapshot(snap){
     const remote=snap.val(),wb={};
-    // Keys that are set atomically (not item-merged) — always take remote as truth
-    const ATOMIC_KEYS=new Set(["timetable","studentAttendance"]);
+    // Keys that are set atomically (not item-merged) — always take remote as truth.
+    // registrationOpen and roleSignatures are plain values (a boolean, a role->signature
+    // map) rather than id-keyed arrays, so they belong here too: without this, a device
+    // would only ever pick up their very first value and silently stop syncing further
+    // changes made from another device for the rest of its life (a real bug, now fixed).
+    const ATOMIC_KEYS=new Set(["timetable","studentAttendance","registrationOpen","roleSignatures"]);
     Object.keys(remote).forEach(k=>{
       const local=_memCache[k];
       if(ATOMIC_KEYS.has(k)){
@@ -2313,8 +2397,12 @@ function _processDavxSnapshot(snap){
       if(wb.leaveApplications){ try{updateLeaveCTBadge();}catch(e){} try{updateLeaveStatusBadge();}catch(e){} try{renderMyLeaves();}catch(e){} try{renderManageLeaves();}catch(e){} }
       if(wb.duties){ try{renderMyDuties();}catch(e){} try{renderDutyLog();}catch(e){} }
       if(wb.complaints){ try{renderComplaintLog();}catch(e){} }
+      if(wb.feeRecords){ try{renderFeesPage();}catch(e){} try{renderMyFees();}catch(e){} try{updateFeeBadge();}catch(e){} }
+      if(wb.studentPhotos){ try{renderWeeklySpotlight();}catch(e){} try{renderSOTM();}catch(e){} try{renderStudentsList();}catch(e){} try{renderStudentInfoTable();}catch(e){} try{renderLeaderboard();}catch(e){} }
+      if(wb.auditLog){ try{renderAuditLog();}catch(e){} }
       if(wb.timetable||wb.studentAttendance||wb.results||wb.copySessions){ try{renderWeeklySpotlight();}catch(e){} try{_origRenderRC();}catch(e){} }
       if(wb.studentOfMonth){ try{renderSOTM();}catch(e){} }
+      if(wb.registrationOpen){ try{renderRegistrationLockState();}catch(e){} }
     }
 }
 
@@ -2324,6 +2412,14 @@ function _processDavxSnapshot(snap){
 function forceSyncFromFirebase() {
   if (!_firebaseReady || !_db) {
     showToast("📴 Offline — using local data only");
+    return;
+  }
+  // A save (e.g. picking an avatar/preset) may still be in flight to the cloud. Pulling from
+  // the server right now would fetch the not-yet-updated copy and overwrite the fresh local
+  // change with it — that's what was making avatars/photos "revert" right after syncing.
+  // Wait for the in-flight save to finish, then run the sync for real.
+  if (_writeLock) {
+    setTimeout(forceSyncFromFirebase, 300);
     return;
   }
   const btn = document.getElementById("appSyncBtn");
@@ -2340,8 +2436,8 @@ function forceSyncFromFirebase() {
     const remote = snap.val();
     if (remote) {
       // ✅ Replace each array key with remote version, filtered through tombstones
-      const arrayKeys = ["files", "students", "notices", "results", "gallery", "copySessions", "studentNotifications", "ct_notifications", "homework", "complaints", "duties", "leaveApplications", "polls", "examSchedules", "feeRecords"];
-      const atomicKeys = ["timetable", "studentAttendance"];
+      const arrayKeys = ["files", "students", "notices", "results", "gallery", "copySessions", "studentNotifications", "ct_notifications", "homework", "complaints", "duties", "leaveApplications", "polls", "examSchedules", "feeRecords", "auditLog", "studentOfMonth", "studentPhotos"];
+      const atomicKeys = ["timetable", "studentAttendance", "registrationOpen", "roleSignatures"];
 
       arrayKeys.forEach(key => {
         if (remote[key] !== undefined) {
@@ -2414,7 +2510,7 @@ function forceSyncFromFirebase() {
 // DATA BACKUP / EXPORT (Class Teacher safety net — independent of Firebase)
 // ═══════════════════════════════════════════
 // All known data keys used across the app, kept in one place so exports never miss a table.
-const BACKUP_KEYS=["students","notices","files","results","homework","polls","examSchedules","leaveApplications","complaints","copySessions","duties","gallery","timetable","studentAttendance","roleSignatures","ct_notifications","studentNotifications","feeRecords","auditLog","registrationOpen","studentOfMonth"];
+const BACKUP_KEYS=["students","notices","files","results","homework","polls","examSchedules","leaveApplications","complaints","copySessions","duties","gallery","timetable","studentAttendance","roleSignatures","ct_notifications","studentNotifications","feeRecords","auditLog","registrationOpen","studentOfMonth","studentPhotos"];
 
 function _backupTimestamp(){
   const d=new Date(),p=n=>String(n).padStart(2,"0");
@@ -2567,7 +2663,7 @@ function exportBackupExcel(){
 // SUBJECTS & CONSTANTS
 // ═══════════════════════════════════════════
 const SUBJECTS=[
-  {id:"maths",name:"Mathematics",emoji:"📐",teacher:"Ashwini Kumar Singh"},
+  {id:"maths",name:"Mathematics",emoji:"📐",teacher:"Abhishek Pandey"},
   {id:"physics",name:"Physics",emoji:"⚡",teacher:"Samrat Ashok"},
   {id:"chemistry",name:"Chemistry",emoji:"⚗️",teacher:"Ajit Kumar Singh"},
   {id:"biology",name:"Biology",emoji:"🧬",teacher:"Murshid Alam"},
@@ -2614,6 +2710,152 @@ function _seedHouseAssignments(){
     return {...s,house};
   });
   if(changed) DB.set("students",updated);
+}
+
+// ═══════════════════════════════════════════
+// PROFILE PICTURES
+// Students can pick one of a few fixed illustrated avatars, or upload their own photo.
+// Fixed avatars are drawn as inline SVG (no image files needed) so the app stays a single
+// file — no "gender" field is ever stored on the student record, the presets are simply
+// offered as a boy-style set and a girl-style set to choose from freely.
+// Custom photos are resized/compressed client-side before saving (a raw phone photo can be
+// several MB — nobody needs that for a small circular avatar), and stored in their own
+// per-item collection (studentPhotos) rather than inside the main students array, so
+// uploading a photo never bloats every single write to the whole student roster.
+// ═══════════════════════════════════════════
+const AVATAR_PRESETS=[
+  {id:"a1",label:"Avatar 1",bg:"#4a9eff",hair:"#2b2b2b",style:"boy"},
+  {id:"a2",label:"Avatar 2",bg:"#3dba7e",hair:"#4a2c17",style:"boy"},
+  {id:"a3",label:"Avatar 3",bg:"#e8a020",hair:"#1a1a1a",style:"boy"},
+  {id:"a4",label:"Avatar 4",bg:"#ff7eb6",hair:"#2b2b2b",style:"girl"},
+  {id:"a5",label:"Avatar 5",bg:"#c060ff",hair:"#4a2c17",style:"girl"},
+  {id:"a6",label:"Avatar 6",bg:"#00c2c2",hair:"#1a1a1a",style:"girl"}
+];
+function buildPresetAvatarSVG(preset){
+  const hairHTML=preset.style==="girl"
+    ? `<path d="M16 26 Q16 11 32 11 Q48 11 48 26 Q48 19 32 18 Q16 19 16 26 Z" fill="${preset.hair}"/><path d="M15 24 Q11 42 16 55 L21 55 Q18 40 20 25 Z" fill="${preset.hair}"/><path d="M49 24 Q53 42 48 55 L43 55 Q46 40 44 25 Z" fill="${preset.hair}"/>`
+    : `<path d="M18 25 Q18 12 32 12 Q46 12 46 25 Q46 19 32 18 Q18 19 18 25 Z" fill="${preset.hair}"/>`;
+  return `<svg viewBox="0 0 64 64" style="width:100%;height:100%;display:block;"><circle cx="32" cy="32" r="32" fill="${preset.bg}"/><ellipse cx="32" cy="74" rx="24" ry="22" fill="#fff" opacity=".95"/><circle cx="32" cy="28" r="13" fill="#f7d9b6"/>${hairHTML}</svg>`;
+}
+function getStudentPhoto(studentId){ return (DB.get("studentPhotos")||[]).find(p=>p.id===studentId); }
+// Universal avatar — resolves custom photo > preset avatar > initial-letter fallback.
+// Only needs a student id + name, so it can be dropped in anywhere a student is listed.
+function avatarHTML(studentId,name,sizePx,fontPx){
+  fontPx=fontPx||Math.round(sizePx*0.42);
+  const baseStyle=`width:${sizePx}px;height:${sizePx}px;border-radius:50%;overflow:hidden;flex-shrink:0;display:flex;align-items:center;justify-content:center;`;
+  const custom=getStudentPhoto(studentId);
+  if(custom&&custom.dataUrl) return `<div style="${baseStyle}"><img src="${custom.dataUrl}" style="width:100%;height:100%;object-fit:cover;" alt=""></div>`;
+  const student=(DB.get("students")||[]).find(s=>s.id===studentId);
+  const preset=student&&student.avatarPreset?AVATAR_PRESETS.find(p=>p.id===student.avatarPreset):null;
+  if(preset) return `<div style="${baseStyle}">${buildPresetAvatarSVG(preset)}</div>`;
+  return `<div style="${baseStyle}background:linear-gradient(135deg,var(--gold),#ffe27a);color:var(--navy);font-weight:700;font-family:'Cormorant Garamond',serif;font-size:${fontPx}px;">${(name||"?").trim()[0].toUpperCase()}</div>`;
+}
+function _resizeImageFile(file,maxDim,quality){
+  return new Promise((resolve,reject)=>{
+    if(!file.type||!file.type.startsWith("image/")){ reject(new Error("Not an image file")); return; }
+    const reader=new FileReader();
+    reader.onload=e=>{
+      const img=new Image();
+      img.onload=()=>{
+        let w=img.width,h=img.height;
+        if(w>h){ if(w>maxDim){ h=Math.round(h*maxDim/w); w=maxDim; } }
+        else { if(h>maxDim){ w=Math.round(w*maxDim/h); h=maxDim; } }
+        const canvas=document.createElement("canvas"); canvas.width=w; canvas.height=h;
+        canvas.getContext("2d").drawImage(img,0,0,w,h);
+        resolve(canvas.toDataURL("image/jpeg",quality||0.82));
+      };
+      img.onerror=()=>reject(new Error("Could not read image"));
+      img.src=e.target.result;
+    };
+    reader.onerror=()=>reject(new Error("Could not read file"));
+    reader.readAsDataURL(file);
+  });
+}
+async function saveCustomPhoto(studentId,dataUrl){
+  DB.upsert("studentPhotos",{id:studentId,dataUrl});
+}
+async function saveAvatarPreset(studentId,presetId){
+  const students=DB.get("students")||[],idx=students.findIndex(s=>s.id===studentId); if(idx<0) return;
+  students[idx].avatarPreset=presetId;
+  DB.set("students",students);
+}
+async function removeStudentPhoto(studentId){
+  if(getStudentPhoto(studentId)) DB.del("studentPhotos",studentId);
+}
+// ── Student self-service: My Profile Picture page ──
+function renderMyAvatarPage(){
+  if(!currentUser||currentUser.role!=="student") return;
+  const preview=document.getElementById("myAvatarPreview");
+  if(preview) preview.innerHTML=avatarHTML(currentUser.id,currentUser.name,96,38);
+  const grid=document.getElementById("myAvatarPresetGrid"); if(!grid) return;
+  const student=(DB.get("students")||[]).find(s=>s.id===currentUser.id);
+  const selected=student?student.avatarPreset:null;
+  grid.innerHTML=AVATAR_PRESETS.map(p=>`<div class="avatar-preset-tile${selected===p.id?" selected":""}" onclick="pickMyAvatarPreset('${p.id}')" title="${p.label}">${buildPresetAvatarSVG(p)}</div>`).join("");
+}
+async function pickMyAvatarPreset(presetId){
+  await saveAvatarPreset(currentUser.id,presetId);
+  if(getStudentPhoto(currentUser.id)) await removeStudentPhoto(currentUser.id); // a preset pick should visibly take effect, so clear any custom photo that would otherwise still take priority
+  renderMyAvatarPage();
+  showToast("✅ Avatar updated");
+}
+async function onMyAvatarFileChosen(e){
+  const file=e.target.files&&e.target.files[0]; if(!file) return;
+  showToast("⏳ Uploading photo...");
+  try{
+    const dataUrl=await _resizeImageFile(file,240,0.82);
+    await saveCustomPhoto(currentUser.id,dataUrl);
+    renderMyAvatarPage();
+    showToast("✅ Photo updated");
+  }catch(err){ showToast("❌ Couldn't use that image — try a different photo"); }
+  e.target.value="";
+}
+async function removeMyPhoto(){
+  await removeStudentPhoto(currentUser.id);
+  renderMyAvatarPage();
+  showToast("🗑️ Photo removed");
+}
+// ── Class Teacher moderation: change any student's avatar from Manage Students ──
+let _avatarPickerStudentId=null;
+function openAvatarPickerModal(studentId){
+  _avatarPickerStudentId=studentId;
+  const s=(DB.get("students")||[]).find(x=>x.id===studentId); if(!s) return;
+  document.getElementById("avatarPickerName").textContent=`${s.name} — Roll ${s.roll}`;
+  document.getElementById("avatarPickerPreview").innerHTML=avatarHTML(studentId,s.name,80,32);
+  document.getElementById("avatarPickerGrid").innerHTML=AVATAR_PRESETS.map(p=>`<div class="avatar-preset-tile${s.avatarPreset===p.id?" selected":""}" onclick="pickAvatarForStudent('${p.id}')" title="${p.label}">${buildPresetAvatarSVG(p)}</div>`).join("");
+  openModal("avatarPickerModal");
+}
+async function pickAvatarForStudent(presetId){
+  if(!_avatarPickerStudentId) return;
+  await saveAvatarPreset(_avatarPickerStudentId,presetId);
+  if(getStudentPhoto(_avatarPickerStudentId)) await removeStudentPhoto(_avatarPickerStudentId);
+  const s=(DB.get("students")||[]).find(x=>x.id===_avatarPickerStudentId);
+  logAudit("Student","edit",s?s.name:_avatarPickerStudentId,[{field:"Avatar",from:"—",to:"Preset "+presetId}]);
+  openAvatarPickerModal(_avatarPickerStudentId);
+  renderStudentsList();
+  showToast("✅ Avatar updated");
+}
+async function onAvatarPickerFileChosen(e){
+  const file=e.target.files&&e.target.files[0]; if(!file||!_avatarPickerStudentId) return;
+  showToast("⏳ Uploading photo...");
+  try{
+    const dataUrl=await _resizeImageFile(file,240,0.82);
+    await saveCustomPhoto(_avatarPickerStudentId,dataUrl);
+    const s=(DB.get("students")||[]).find(x=>x.id===_avatarPickerStudentId);
+    logAudit("Student","edit",s?s.name:_avatarPickerStudentId,null,"Profile photo updated");
+    openAvatarPickerModal(_avatarPickerStudentId);
+    renderStudentsList();
+    showToast("✅ Photo updated");
+  }catch(err){ showToast("❌ Couldn't use that image"); }
+  e.target.value="";
+}
+async function removeAvatarForStudent(){
+  if(!_avatarPickerStudentId) return;
+  await removeStudentPhoto(_avatarPickerStudentId);
+  const s=(DB.get("students")||[]).find(x=>x.id===_avatarPickerStudentId);
+  logAudit("Student","edit",s?s.name:_avatarPickerStudentId,null,"Profile photo removed");
+  openAvatarPickerModal(_avatarPickerStudentId);
+  renderStudentsList();
+  showToast("🗑️ Photo removed");
 }
 const FIXED=
 {classteacher:{pass:"classpass2026",name:"Class Teacher",role:"classteacher",avatar:"CT"},
@@ -3238,7 +3480,7 @@ function toggleMobSidebar(){ const sb=document.getElementById("sidebar"),ov=docu
 function closeMobSidebar(){ document.getElementById("sidebar").classList.remove("mob-open"); document.getElementById("mobOverlay").classList.remove("open"); document.getElementById("mobToggle").textContent="☰"; }
 function goHome(){ nav(document.querySelector("[data-page=dashboard]")); closeFolder(); }
 
-const PAGE_TITLES={dashboard:"Dashboard",subjects:"Subjects",notices:"Notice Board",polls:"Polls",gallery:"Gallery",timetable:"Timetable",exam_schedule:"Exam Schedule",attendance:"Attendance Record",results:"Results & Marks",leaderboard:"Class Leaderboard",report_card:"Report Card",hw_view:"Homework Board",upload:"Upload Files",post_notice:"Post Notice",manage_timetable:"Set Timetable",manage_results:"Enter Results",manage_attendance:"Mark Attendance",manage_students:"Students",copy_checking:"Copy Checking",homework:"Homework Manager",complain:"Complaints & Reports",student_info:"Student Information",assign_duty:"Assign Duty",my_duties:"My Duties",apply_leave:"Apply for Leave",manage_leaves:"Leave Requests",my_copy:"My Copy Records",manage_fees:"Fee Tracking",my_fees:"My Fees",audit_log:"Audit Log",certificates:"Certificates"};
+const PAGE_TITLES={dashboard:"Dashboard",subjects:"Subjects",notices:"Notice Board",polls:"Polls",gallery:"Gallery",timetable:"Timetable",exam_schedule:"Exam Schedule",attendance:"Attendance Record",results:"Results & Marks",leaderboard:"Class Leaderboard",report_card:"Report Card",hw_view:"Homework Board",upload:"Upload Files",post_notice:"Post Notice",manage_timetable:"Set Timetable",manage_results:"Enter Results",manage_attendance:"Mark Attendance",manage_students:"Students",copy_checking:"Copy Checking",homework:"Homework Manager",complain:"Complaints & Reports",student_info:"Student Information",assign_duty:"Assign Duty",my_duties:"My Duties",apply_leave:"Apply for Leave",manage_leaves:"Leave Requests",my_copy:"My Copy Records",manage_fees:"Fee Tracking",my_fees:"My Fees",audit_log:"Audit Log",certificates:"Certificates",my_avatar:"Profile Picture"};
 
 function nav(btn){
   if(!btn) return;
@@ -3247,7 +3489,7 @@ function nav(btn){
   document.querySelectorAll(".page").forEach(p=>p.classList.remove("active")); document.getElementById("page-"+pid).classList.add("active");
   document.getElementById("pageTitle").textContent=PAGE_TITLES[pid]||pid;
   const backBtn=document.getElementById("backBtn");
-  backBtn.classList.toggle("show",["upload","post_notice","manage_timetable","manage_results","manage_attendance","manage_students","results","leaderboard","report_card","exam_schedule","copy_checking","homework","complain","student_info","assign_duty","my_duties","apply_leave","manage_leaves","my_copy","manage_fees","my_fees","audit_log","certificates"].includes(pid));
+  backBtn.classList.toggle("show",["upload","post_notice","manage_timetable","manage_results","manage_attendance","manage_students","results","leaderboard","report_card","exam_schedule","copy_checking","homework","complain","student_info","assign_duty","my_duties","apply_leave","manage_leaves","my_copy","manage_fees","my_fees","audit_log","certificates","my_avatar"].includes(pid));
   closeFolder();
   if(window.innerWidth<=820) closeMobSidebar();
   if(pid==="notices"||pid==="post_notice") renderNotices();
@@ -3280,6 +3522,7 @@ function nav(btn){
   if(pid==="my_fees") renderMyFees();
   if(pid==="audit_log") renderAuditLog();
   if(pid==="certificates") renderCertificatesPage();
+  if(pid==="my_avatar") renderMyAvatarPage();
   _refreshNotifDot();
 }
 function handleBack(){ nav(document.querySelector("[data-page=dashboard]")); }
@@ -3481,7 +3724,12 @@ function computeWeeklySpotlight(){
   return {topOverall,topAtt,topMarks,topCopy,firstDate,todayISO};
 }
 
-function spAvatarHTML(name,bg,color){
+function spAvatarHTML(studentId,name,bg,color){
+  const custom=getStudentPhoto(studentId);
+  if(custom&&custom.dataUrl) return `<div class="sp-avatar" style="overflow:hidden;"><img src="${custom.dataUrl}" style="width:100%;height:100%;object-fit:cover;" alt=""></div>`;
+  const student=(DB.get("students")||[]).find(s=>s.id===studentId);
+  const preset=student&&student.avatarPreset?AVATAR_PRESETS.find(p=>p.id===student.avatarPreset):null;
+  if(preset) return `<div class="sp-avatar" style="overflow:hidden;">${buildPresetAvatarSVG(preset)}</div>`;
   const init=name?name.trim()[0].toUpperCase():"?";
   return `<div class="sp-avatar" style="background:${bg};color:${color};">${init}</div>`;
 }
@@ -3503,7 +3751,7 @@ function renderWeeklySpotlight(){
     <div class="sp-podium-row" style="flex-direction:column;align-items:flex-start;gap:4px;padding:6px 0;">
       <div style="display:flex;align-items:center;gap:8px;width:100%;">
         <span class="sp-pos ${posCls[i]}">${posIco[i]}</span>
-        ${spAvatarHTML(s.name,"linear-gradient(135deg,#e8a020,#f5c842)","#1a1208")}
+        ${spAvatarHTML(s.id,s.name,"linear-gradient(135deg,#e8a020,#f5c842)","#1a1208")}
         <span style="flex:1;font-weight:600;font-size:13px;">${s.name}</span>
         <span style="font-size:11px;color:var(--gold);font-weight:700;">${Math.round(s.overallScore)}%</span>
       </div>
@@ -3517,7 +3765,7 @@ function renderWeeklySpotlight(){
   const card2=topAtt.length?`<div class="sp-podium">${topAtt.map((s,i)=>`
     <div class="sp-podium-row">
       <span class="sp-pos ${posCls[i]}">${posIco[i]}</span>
-      ${spAvatarHTML(s.name,"rgba(74,158,255,0.2)","#4a9eff")}
+      ${spAvatarHTML(s.id,s.name,"rgba(74,158,255,0.2)","#4a9eff")}
       <span style="flex:1;font-weight:600;">${s.name}</span>
       <span style="font-size:11px;color:#4a9eff;font-weight:700;">${s.attPresent}/${s.attTotal}d</span>
     </div>`).join("")}</div>`:`<div class="sp-empty">No attendance recorded</div>`;
@@ -3525,7 +3773,7 @@ function renderWeeklySpotlight(){
   const card3=topMarks.length?`<div class="sp-podium">${topMarks.map((s,i)=>`
     <div class="sp-podium-row">
       <span class="sp-pos ${posCls[i]}">${posIco[i]}</span>
-      ${spAvatarHTML(s.name,"rgba(61,186,126,0.2)","#3dba7e")}
+      ${spAvatarHTML(s.id,s.name,"rgba(61,186,126,0.2)","#3dba7e")}
       <span style="flex:1;font-weight:600;">${s.name}</span>
       <span style="font-size:11px;color:#3dba7e;font-weight:700;">${Math.round(s.mksPct??0)}%</span>
     </div>`).join("")}</div>`:`<div class="sp-empty">No test results yet</div>`;
@@ -3533,7 +3781,7 @@ function renderWeeklySpotlight(){
   const card4=topCopy.length?`<div class="sp-podium">${topCopy.map((s,i)=>`
     <div class="sp-podium-row">
       <span class="sp-pos ${posCls[i]}">${posIco[i]}</span>
-      ${spAvatarHTML(s.name,"rgba(232,160,32,0.18)","var(--gold)")}
+      ${spAvatarHTML(s.id,s.name,"rgba(232,160,32,0.18)","var(--gold)")}
       <span style="flex:1;font-weight:600;">${s.name}</span>
       <span style="font-size:11px;color:var(--gold);font-weight:700;">${s.copSubmitted}/${s.copTotal}</span>
     </div>`).join("")}</div>`:`<div class="sp-empty">No copy records yet</div>`;
@@ -3583,7 +3831,7 @@ function _somToISO(dateStr){
 // Best" card in Weekly Spotlight above — kept identical so both features agree on what
 // "best student" means, just scoped to a single calendar month here. A student must have
 // attempted at least one test that month to be eligible (attendance/copy alone isn't enough).
-function computeMonthWinner(monthKey){
+function _somComputeRows(monthKey){
   const students=DB.get("students")||[];
   const allAtt=DB.get("studentAttendance")||{};
   const results=DB.get("results")||[];
@@ -3623,10 +3871,34 @@ function computeMonthWinner(monthKey){
     return {studentId:s.id,name:s.name,roll:s.roll,admNo:s.admNo,house:s.house,marksAvgPct:Math.round(mksPct),attendancePct:attPct!==null?Math.round(attPct):null,copyPct:copPct!==null?Math.round(copPct):null,score};
   }).filter(Boolean);
 
-  if(!rows.length) return null;
   rows.sort((a,b)=>b.score-a.score||b.marksAvgPct-a.marksAvgPct);
-  return rows[0];
+  return rows;
 }
+function computeMonthWinner(monthKey){
+  const rows=_somComputeRows(monthKey);
+  return rows.length?rows[0]:null;
+}
+// Shortlist of academic top-5 candidates the Class Teacher then grades for discipline
+// before the final winner is locked in — see revealStudentOfMonth().
+function computeMonthTopCandidates(monthKey,n=5){
+  return _somComputeRows(monthKey).slice(0,n);
+}
+// Discipline grade options the Class Teacher picks from for each shortlisted candidate.
+// Points are added to the academic score to produce the final combined score used to
+// pick the winner among the top 5 — a candidate with disciplinary issues can be
+// overtaken by a lower-scoring but better-behaved peer.
+const SOM_DISCIPLINE_GRADES=[
+  {id:"excellent",label:"Excellent",points:10},
+  {id:"good",label:"Good",points:5},
+  {id:"satisfactory",label:"Satisfactory",points:0},
+  {id:"needsImprovement",label:"Needs Improvement",points:-10},
+  {id:"poor",label:"Poor / Serious Issues",points:-25}
+];
+function _somGradeLabel(id){ const g=SOM_DISCIPLINE_GRADES.find(x=>x.id===id); return g?g.label:"Satisfactory"; }
+function _somGradePoints(id){ const g=SOM_DISCIPLINE_GRADES.find(x=>x.id===id); return g?g.points:0; }
+// Holds the in-progress shortlist + grading state while the disciplinary grading modal
+// is open, keyed to the monthKey being revealed (live or retroactive).
+let _somPendingReveal=null;
 function _somFireConfetti(){
   const colors=["#e8a020","#4a9eff","#3dba7e","#e05555","#ffd700","#ff7eb6"];
   const container=document.createElement("div");
@@ -3646,17 +3918,49 @@ async function revealStudentOfMonth(){
   if(!_somIsLastDayOfMonth(now)){ showToast("🔒 Reveal unlocks on the last day of the month"); return; }
   const monthKey=_somMonthKey(now);
   if((DB.get("studentOfMonth")||[]).some(r=>r.monthKey===monthKey)){ showToast("Already revealed for this month"); return; }
-  const winner=computeMonthWinner(monthKey);
-  if(!winner){ showToast("❌ Not enough test data this month to pick a winner"); return; }
-  if(!await customConfirm(`Reveal ${winner.name} as Student of the Month for ${_somMonthLabel(monthKey)}?`,"Reveal Student of the Month","🌟","Reveal")) return;
-  if(!await requireStepUp("reveal the student of the month")) return;
-  const rec={id:"som_"+monthKey,monthKey,monthLabel:_somMonthLabel(monthKey),...winner,revealedBy:currentUser.name,revealedOn:new Date().toLocaleString("en-IN")};
-  const list=DB.get("studentOfMonth")||[];
-  list.unshift(rec);
-  DB.set("studentOfMonth",list);
-  logAudit("Student of the Month","record",rec.name,null,`${rec.monthLabel} · Score ${rec.score}`);
-  renderSOTM();
-  showToast(`🎉 ${winner.name} revealed as Student of the Month!`);
+  const top5=computeMonthTopCandidates(monthKey,5);
+  if(!top5.length){ showToast("❌ Not enough test data this month to pick a winner"); return; }
+  openSOMDisciplineModal(monthKey,top5,false);
+}
+// Opens the modal where the Class Teacher assigns a disciplinary grade to each of the
+// top-5 academic candidates before the final Student of the Month winner is locked in.
+function openSOMDisciplineModal(monthKey,top5,isRetroactive){
+  _somPendingReveal={monthKey,isRetroactive,candidates:top5.map(c=>({...c,disciplineGrade:"satisfactory",disciplineRemark:""}))};
+  renderSOMDisciplineModal();
+  openModal("somDisciplineModal");
+}
+function renderSOMDisciplineModal(){
+  const el=document.getElementById("somDisciplineList"); if(!el||!_somPendingReveal) return;
+  const {monthKey,candidates}=_somPendingReveal;
+  document.getElementById("somDisciplineMonthLabel").textContent=_somMonthLabel(monthKey);
+  el.innerHTML=candidates.map((c,i)=>`
+    <div style="background:rgba(255,255,255,0.03);border-radius:10px;padding:10px 12px;margin-bottom:10px;">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px;">
+        <div style="font-weight:600;color:var(--white);font-size:13px;">${i+1}. ${c.name} <span style="color:var(--muted);font-weight:400;">· Roll ${c.roll}</span></div>
+        <div style="font-size:11px;color:var(--muted);">Score ${c.score}</div>
+      </div>
+      <select class="form-select" style="margin-bottom:6px;" onchange="setSOMGrade(${i},this.value)">
+        ${SOM_DISCIPLINE_GRADES.map(g=>`<option value="${g.id}"${c.disciplineGrade===g.id?" selected":""}>${g.label}</option>`).join("")}
+      </select>
+      <input type="text" class="form-input" placeholder="Remark (optional)" value="${(c.disciplineRemark||"").replace(/"/g,"&quot;")}" oninput="setSOMRemark(${i},this.value)">
+    </div>`).join("");
+}
+function setSOMGrade(idx,gradeId){ if(!_somPendingReveal) return; _somPendingReveal.candidates[idx].disciplineGrade=gradeId; }
+function setSOMRemark(idx,val){ if(!_somPendingReveal) return; _somPendingReveal.candidates[idx].disciplineRemark=val; }
+async function submitSOMDisciplineGrades(){
+  if(!_somPendingReveal) return;
+  const {monthKey,candidates,isRetroactive}=_somPendingReveal;
+  closeModal("somDisciplineModal");
+  await finalizeSOMReveal(monthKey,candidates,isRetroactive);
+  _somPendingReveal=null;
+}
+function sotmAvatarInnerHTML(studentId,name){
+  const custom=getStudentPhoto(studentId);
+  if(custom&&custom.dataUrl) return `<img src="${custom.dataUrl}" style="width:100%;height:100%;object-fit:cover;border-radius:50%;" alt="">`;
+  const student=(DB.get("students")||[]).find(s=>s.id===studentId);
+  const preset=student&&student.avatarPreset?AVATAR_PRESETS.find(p=>p.id===student.avatarPreset):null;
+  if(preset) return buildPresetAvatarSVG(preset);
+  return (name||"?").trim()[0].toUpperCase();
 }
 function getPastRevealableMonths(){
   const curKey=_somMonthKey(new Date());
@@ -3667,17 +3971,33 @@ async function revealPastMonth(){
   const sel=document.getElementById("somPastMonthSelect");
   const monthKey=sel?sel.value:"";
   if(!monthKey){ showToast("❌ Select a month"); return; }
-  const winner=computeMonthWinner(monthKey);
-  if(!winner){ showToast(`❌ No test data recorded for ${_somMonthLabel(monthKey)}`); return; }
+  const top5=computeMonthTopCandidates(monthKey,5);
+  if(!top5.length){ showToast(`❌ No test data recorded for ${_somMonthLabel(monthKey)}`); return; }
+  openSOMDisciplineModal(monthKey,top5,true);
+}
+// Called after the CT grades all top-5 candidates in the disciplinary modal. Combines each
+// candidate's academic score with their discipline grade to pick the final winner, then
+// proceeds through the same confirm + step-up + save flow the original single-winner reveal used.
+async function finalizeSOMReveal(monthKey,gradedCandidates,isRetroactive){
+  const ranked=gradedCandidates.map(c=>({...c,disciplineGrade:c.disciplineGrade||"satisfactory",combinedScore:c.score+_somGradePoints(c.disciplineGrade||"satisfactory")}))
+    .sort((a,b)=>b.combinedScore-a.combinedScore||b.score-a.score);
+  const winner=ranked[0];
   if(!await customConfirm(`Reveal ${winner.name} as Student of the Month for ${_somMonthLabel(monthKey)}?`,"Reveal Student of the Month","🌟","Reveal")) return;
   if(!await requireStepUp("reveal the student of the month")) return;
-  const rec={id:"som_"+monthKey,monthKey,monthLabel:_somMonthLabel(monthKey),...winner,revealedBy:currentUser.name,revealedOn:new Date().toLocaleString("en-IN")};
+  const rec={
+    id:"som_"+monthKey,monthKey,monthLabel:_somMonthLabel(monthKey),
+    studentId:winner.studentId,name:winner.name,roll:winner.roll,admNo:winner.admNo,house:winner.house,
+    marksAvgPct:winner.marksAvgPct,attendancePct:winner.attendancePct,copyPct:winner.copyPct,score:winner.score,
+    disciplineGrade:winner.disciplineGrade,disciplineRemark:winner.disciplineRemark||"",combinedScore:winner.combinedScore,
+    shortlist:ranked.map(c=>({studentId:c.studentId,name:c.name,roll:c.roll,score:c.score,disciplineGrade:c.disciplineGrade,disciplineRemark:c.disciplineRemark||"",combinedScore:c.combinedScore})),
+    revealedBy:currentUser.name,revealedOn:new Date().toLocaleString("en-IN")
+  };
   const list=DB.get("studentOfMonth")||[];
   list.unshift(rec);
   DB.set("studentOfMonth",list);
-  logAudit("Student of the Month","record",rec.name,null,`${rec.monthLabel} (revealed retroactively) · Score ${rec.score}`);
+  logAudit("Student of the Month","record",rec.name,null,`${rec.monthLabel}${isRetroactive?" (revealed retroactively)":""} · Score ${rec.score} · Discipline ${_somGradeLabel(rec.disciplineGrade)}`);
   renderSOTM();
-  _somFireConfetti();
+  if(isRetroactive) _somFireConfetti();
   showToast(`🎉 ${winner.name} revealed as Student of the Month for ${_somMonthLabel(monthKey)}!`);
 }
 function renderSOTM(){
@@ -3715,7 +4035,7 @@ function renderSOTM(){
       ${sparkles}
       <div class="sotm-content" style="text-align:center;padding:6px 0;">
         <div class="sotm-ribbon">🏆 Student of the Month — ${current.monthLabel}</div>
-        <div class="sotm-avatar-ring"><div class="sotm-avatar-inner">${current.name.trim()[0].toUpperCase()}</div></div>
+        <div class="sotm-avatar-ring"><div class="sotm-avatar-inner">${sotmAvatarInnerHTML(current.studentId,current.name)}</div></div>
         <div class="sotm-name">${current.name}</div>
         <div style="font-size:12px;color:var(--muted);margin-top:6px;">Roll ${current.roll} · Adm ${current.admNo}${h?` · <span style="color:${h.color};">🏠 ${h.name}</span>`:""}</div>
         <div class="sotm-divider"></div>
@@ -3723,7 +4043,9 @@ function renderSOTM(){
           <div class="sotm-stat-pill"><div style="font-size:17px;font-weight:700;color:#3dba7e;">${current.marksAvgPct}%</div><div style="font-size:10px;color:var(--muted);text-transform:uppercase;">Avg Marks</div></div>
           <div class="sotm-stat-pill"><div style="font-size:17px;font-weight:700;color:#4a9eff;">${current.attendancePct!==null?current.attendancePct+"%":"—"}</div><div style="font-size:10px;color:var(--muted);text-transform:uppercase;">Attendance</div></div>
           <div class="sotm-stat-pill"><div style="font-size:17px;font-weight:700;color:var(--gold);">${current.score}</div><div style="font-size:10px;color:var(--muted);text-transform:uppercase;">Score</div></div>
+          ${current.disciplineGrade?`<div class="sotm-stat-pill"><div style="font-size:14px;font-weight:700;color:#e05555;">${_somGradeLabel(current.disciplineGrade)}</div><div style="font-size:10px;color:var(--muted);text-transform:uppercase;">Discipline</div></div>`:""}
         </div>
+        ${current.disciplineRemark?`<div style="font-size:11px;color:var(--muted);margin-top:8px;font-style:italic;">"${current.disciplineRemark}"</div>`:""}
       </div>
     </div>${pastBtn}${missedHTML}`;
     // Celebrate once per browser per month — covers both the CT revealing it live and
@@ -3758,7 +4080,7 @@ function renderPastSOTMList(list){
   el.innerHTML=list.length?list.map(r=>{
     const h=HOUSES.find(x=>x.id===r.house);
     return `<div style="display:flex;align-items:center;gap:12px;padding:10px 12px;background:rgba(255,255,255,0.03);border-radius:10px;margin-bottom:8px;cursor:pointer;" onclick="viewPastSOTMDetail('${r.id}')">
-      <div style="width:40px;height:40px;border-radius:50%;background:linear-gradient(135deg,var(--gold),#ffe27a);display:flex;align-items:center;justify-content:center;font-weight:700;color:var(--navy);font-family:'Cormorant Garamond',serif;flex-shrink:0;">${r.name.trim()[0].toUpperCase()}</div>
+      <div style="width:40px;height:40px;border-radius:50%;overflow:hidden;flex-shrink:0;display:flex;align-items:center;justify-content:center;background:linear-gradient(135deg,var(--gold),#ffe27a);font-weight:700;color:var(--navy);font-family:'Cormorant Garamond',serif;">${sotmAvatarInnerHTML(r.studentId,r.name)}</div>
       <div style="flex:1;">
         <div style="font-weight:600;color:var(--white);font-size:13px;">${r.name} <span style="color:var(--muted);font-weight:400;">· Roll ${r.roll}</span></div>
         <div style="font-size:11px;color:var(--muted);">${r.monthLabel}${h?` · <span style="color:${h.color};">${h.name}</span>`:""} · ${r.marksAvgPct}% avg${r.attendancePct!==null?` · ${r.attendancePct}% attendance`:""}</div>
@@ -3784,7 +4106,7 @@ function viewPastSOTMDetail(recId){
       <span class="sotm-sparkle" style="top:78%;left:90%;animation-delay:1.6s;">✦</span>
       <div class="sotm-content" style="text-align:center;padding:6px 0;">
         <div class="sotm-ribbon">🏆 Student of the Month — ${rec.monthLabel}</div>
-        <div class="sotm-avatar-ring"><div class="sotm-avatar-inner">${rec.name.trim()[0].toUpperCase()}</div></div>
+        <div class="sotm-avatar-ring"><div class="sotm-avatar-inner">${sotmAvatarInnerHTML(rec.studentId,rec.name)}</div></div>
         <div class="sotm-name">${rec.name}</div>
         <div style="font-size:12px;color:var(--muted);margin-top:6px;">Roll ${rec.roll} · Adm ${rec.admNo}${h?` · <span style="color:${h.color};">🏠 ${h.name}</span>`:""}</div>
         <div class="sotm-divider"></div>
@@ -3792,7 +4114,9 @@ function viewPastSOTMDetail(recId){
           <div class="sotm-stat-pill"><div style="font-size:17px;font-weight:700;color:#3dba7e;">${rec.marksAvgPct}%</div><div style="font-size:10px;color:var(--muted);text-transform:uppercase;">Avg Marks</div></div>
           <div class="sotm-stat-pill"><div style="font-size:17px;font-weight:700;color:#4a9eff;">${rec.attendancePct!==null?rec.attendancePct+"%":"—"}</div><div style="font-size:10px;color:var(--muted);text-transform:uppercase;">Attendance</div></div>
           <div class="sotm-stat-pill"><div style="font-size:17px;font-weight:700;color:var(--gold);">${rec.score}</div><div style="font-size:10px;color:var(--muted);text-transform:uppercase;">Score</div></div>
+          ${rec.disciplineGrade?`<div class="sotm-stat-pill"><div style="font-size:14px;font-weight:700;color:#e05555;">${_somGradeLabel(rec.disciplineGrade)}</div><div style="font-size:10px;color:var(--muted);text-transform:uppercase;">Discipline</div></div>`:""}
         </div>
+        ${rec.disciplineRemark?`<div style="font-size:11px;color:var(--muted);margin-top:8px;font-style:italic;">"${rec.disciplineRemark}"</div>`:""}
       </div>
     </div>`;
 }
@@ -4645,7 +4969,7 @@ function renderLeaderboard(){
           return `<tr class="${isMe?"lb-row-me":""}">
             <td>${lbRankBadge(row.rank)}</td>
             <td><span style="font-family:'Cormorant Garamond',serif;font-size:16px;color:var(--gold);">${row.roll}</span></td>
-            <td style="font-weight:600;">${row.name}${isMe?` <span style="font-size:10px;color:var(--gold);">(You)</span>`:""}</td>
+            <td style="font-weight:600;"><div style="display:flex;align-items:center;gap:8px;">${avatarHTML(row.studentId,row.name,26,11)}<span>${row.name}${isMe?` <span style="font-size:10px;color:var(--gold);">(You)</span>`:""}</span></div></td>
             <td style="font-weight:700;color:${col};">${row.marks}/${row.max}</td>
             <td style="color:${col};">${row.pct}%</td>
             <td><span style="font-weight:700;color:${col};">${gradeFor(row.pct)}</span></td>
@@ -4669,7 +4993,7 @@ function renderLeaderboard(){
           return `<tr class="${isMe?"lb-row-me":""}">
             <td>${lbRankBadge(row.rank)}</td>
             <td><span style="font-family:'Cormorant Garamond',serif;font-size:16px;color:var(--gold);">${row.roll}</span></td>
-            <td style="font-weight:600;">${row.name}${isMe?` <span style="font-size:10px;color:var(--gold);">(You)</span>`:""}</td>
+            <td style="font-weight:600;"><div style="display:flex;align-items:center;gap:8px;">${avatarHTML(row.studentId,row.name,26,11)}<span>${row.name}${isMe?` <span style="font-size:10px;color:var(--gold);">(You)</span>`:""}</span></div></td>
             <td>${attBadge}</td>
             <td style="font-weight:700;color:${col};">${pct}%</td>
             <td><span style="font-weight:700;color:${col};">${gradeFor(pct)}</span></td>
@@ -4931,7 +5255,7 @@ function renderStudentsList(){
     `<option value="" ${!s.house?"selected":""}>— Not Set</option>`+
     HOUSES.map(h=>`<option value="${h.id}" ${s.house===h.id?"selected":""} style="color:${h.color};">${h.name}</option>`).join("")+
     `</select>`;
-  el.innerHTML=notifsHTML+`<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;flex-wrap:wrap;gap:8px;"><div style="font-size:13px;color:var(--muted);">${students.length} student${students.length!==1?"s":""} registered</div><div style="display:flex;gap:8px;flex-wrap:wrap;">${regToggleHTML}<button class="btn btn-danger btn-sm" onclick="removeAllStudents()">🗑️ Remove All</button></div></div><table class="students-table"><thead><tr><th>#</th><th>Name</th><th>Roll No</th><th>Adm. No</th><th>House</th><th>Parent Mobile</th><th>Registered On</th><th>Last Login</th><th>Action</th></tr></thead><tbody>`+sorted.map((s,i)=>`<tr><td style="color:var(--muted);">${i+1}</td><td style="font-weight:600;">${s.name}</td><td><span style="background:rgba(232,160,32,.15);color:var(--gold);padding:2px 8px;border-radius:6px;font-size:12px;">${s.roll}</span></td><td style="font-size:12px;color:var(--muted);">${s.admNo}</td><td>${houseSelect(s)}</td><td style="font-size:12px;">${s.parentMobile?`<span class="wa-chip">📱 ${s.parentMobile}</span>`:`<button class="btn btn-outline btn-sm" onclick="openEditParentMobile('${s.id}')">+ Add</button>`}</td><td style="font-size:11px;color:var(--muted);">${s.joinedOn}</td><td style="font-size:11px;color:var(--muted);">${s.lastLogin||"Never"}</td><td style="display:flex;gap:4px;">${s.parentMobile?`<button class="btn btn-outline btn-sm" onclick="openEditParentMobile('${s.id}')">✏️</button>`:""}<button class="btn btn-danger btn-sm" onclick="deleteStudent('${s.id}')">🗑️</button></td></tr>`).join("")+`</tbody></table>`;
+  el.innerHTML=notifsHTML+`<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;flex-wrap:wrap;gap:8px;"><div style="font-size:13px;color:var(--muted);">${students.length} student${students.length!==1?"s":""} registered</div><div style="display:flex;gap:8px;flex-wrap:wrap;">${regToggleHTML}<button class="btn btn-danger btn-sm" onclick="removeAllStudents()">🗑️ Remove All</button></div></div><table class="students-table"><thead><tr><th>#</th><th>Photo</th><th>Name</th><th>Roll No</th><th>Adm. No</th><th>House</th><th>Parent Mobile</th><th>Registered On</th><th>Last Login</th><th>Action</th></tr></thead><tbody>`+sorted.map((s,i)=>`<tr><td style="color:var(--muted);">${i+1}</td><td><div style="width:34px;height:34px;border-radius:50%;overflow:hidden;cursor:pointer;border:2px solid rgba(232,160,32,0.25);" onclick="openAvatarPickerModal('${s.id}')" title="Change photo">${avatarHTML(s.id,s.name,34,13)}</div></td><td style="font-weight:600;">${s.name}</td><td><span style="background:rgba(232,160,32,.15);color:var(--gold);padding:2px 8px;border-radius:6px;font-size:12px;">${s.roll}</span></td><td style="font-size:12px;color:var(--muted);">${s.admNo}</td><td>${houseSelect(s)}</td><td style="font-size:12px;">${s.parentMobile?`<span class="wa-chip">📱 ${s.parentMobile}</span>`:`<button class="btn btn-outline btn-sm" onclick="openEditParentMobile('${s.id}')">+ Add</button>`}</td><td style="font-size:11px;color:var(--muted);">${s.joinedOn}</td><td style="font-size:11px;color:var(--muted);">${s.lastLogin||"Never"}</td><td style="display:flex;gap:4px;">${s.parentMobile?`<button class="btn btn-outline btn-sm" onclick="openEditParentMobile('${s.id}')">✏️</button>`:""}<button class="btn btn-danger btn-sm" onclick="deleteStudent('${s.id}')">🗑️</button></td></tr>`).join("")+`</tbody></table>`;
 }
 function setStudentHouse(studentId,houseId){
   const students=DB.get("students")||[],idx=students.findIndex(s=>s.id===studentId); if(idx<0) return;
@@ -5254,7 +5578,6 @@ function renderStudentInfoTable(){
     const myScores=myTests.map(r=>{ const m=r.studentMarks.find(x=>x.studentId===s.id); return m?Math.round(m.marks/r.max*100):null; }).filter(v=>v!==null);
     const avgScore=myScores.length?Math.round(myScores.reduce((a,b)=>a+b,0)/myScores.length):null;
     const scoreCol=avgScore===null?"var(--muted)":avgScore>=75?"#3dba7e":avgScore>=50?"var(--gold)":"#e05555";
-    const initials=s.name.split(" ").map(w=>w[0]).join("").slice(0,2).toUpperCase();
     const avatarColors=["#4a9eff","#e8a020","#3dba7e","#9b59b6","#e05555","#1abc9c"];
     const avatarColor=avatarColors[parseInt(s.roll)%avatarColors.length];
     return `<div style="background:linear-gradient(135deg,rgba(255,255,255,0.04),rgba(255,255,255,0.02));border:1px solid rgba(255,255,255,0.09);border-radius:14px;padding:16px;transition:all .2s;position:relative;overflow:hidden;" onmouseover="this.style.borderColor='rgba(232,160,32,0.3)';this.style.transform='translateY(-2px)'" onmouseout="this.style.borderColor='rgba(255,255,255,0.09)';this.style.transform=''">
@@ -5262,7 +5585,7 @@ function renderStudentInfoTable(){
       <div style="position:absolute;top:12px;right:12px;font-family:'Cormorant Garamond',serif;font-size:22px;color:rgba(232,160,32,0.25);font-weight:700;">${s.roll}</div>
       <!-- Avatar + Name -->
       <div style="display:flex;align-items:center;gap:12px;margin-bottom:14px;">
-        <div style="width:46px;height:46px;border-radius:50%;background:linear-gradient(135deg,${avatarColor}33,${avatarColor}22);border:2px solid ${avatarColor}55;display:flex;align-items:center;justify-content:center;font-size:16px;font-weight:700;color:${avatarColor};font-family:'Cormorant Garamond',serif;flex-shrink:0;">${initials}</div>
+        <div style="width:46px;height:46px;border-radius:50%;border:2px solid ${avatarColor}55;overflow:hidden;flex-shrink:0;">${avatarHTML(s.id,s.name,46,16)}</div>
         <div>
           <div style="font-size:14px;font-weight:700;color:var(--white);">${s.name}</div>
           <div style="font-size:10px;color:var(--muted);margin-top:2px;">Roll <span style="color:var(--gold);">${s.roll}</span> · Adm <span style="color:var(--off);">${s.admNo}</span></div>
@@ -7982,7 +8305,7 @@ window.addEventListener('load', () => {
   <div class="ai-panel-header">
     <div class="ai-avatar">🤖</div>
     <div class="ai-panel-info">
-      <div class="ai-panel-name">PRE-GOL AI</div>
+      <div class="ai-panel-name">AI Study Buddy</div>
       <div class="ai-panel-status">Online — Ready to help</div>
     </div>
     <button class="ai-close-btn" onclick="toggleAITutor()" title="Close">✕</button>
@@ -8000,7 +8323,7 @@ window.addEventListener('load', () => {
   <!-- Messages -->
   <div class="ai-messages" id="aiMessages">
     <div class="ai-bubble bot">
-      👋 Hello! I'm your <strong>PRE-GOL AI</strong> for Class X.<br><br>
+      👋 Hello! I'm your <strong>AI Study Buddy</strong> for Class X.<br><br>
       Ask me anything — doubts, homework help, topic explanations, or practice questions. I'm here to help! 🎓
     </div>
   </div>
