@@ -512,6 +512,17 @@ button:active, .btn:active, .nav-btn:active, .auth-btn:active, .role-card:active
 @keyframes sotmMysteryPulse{ 0%,100%{opacity:.55;transform:scale(1);} 50%{opacity:1;transform:scale(1.06);} }
 @keyframes sotmBtnPulse{ 0%,100%{box-shadow:0 0 0 0 rgba(232,160,32,.55);} 50%{box-shadow:0 0 0 9px rgba(232,160,32,0);} }
 .sotm-pulse{animation:sotmBtnPulse 1.8s ease-in-out infinite;}
+.sotm-suspense{padding:34px 0 26px;text-align:center;}
+.sotm-suspense-ring{width:64px;height:64px;margin:0 auto 16px;border-radius:50%;border:3px solid rgba(232,160,32,0.15);border-top-color:var(--gold);animation:sotmSpin .85s linear infinite;}
+.sotm-suspense-text{font-size:13px;color:var(--muted);letter-spacing:.4px;}
+.sotm-suspense-dots span{animation:sotmDotBlink 1.2s infinite;opacity:0;}
+.sotm-suspense-dots span:nth-child(2){animation-delay:.2s;}
+.sotm-suspense-dots span:nth-child(3){animation-delay:.4s;}
+@keyframes sotmDotBlink{ 0%,100%{opacity:0;} 50%{opacity:1;} }
+.sotm-crown{position:absolute;top:-30px;left:50%;transform:translateX(-50%);font-size:30px;z-index:2;animation:sotmCrownDrop 1s cubic-bezier(.22,.85,.3,1.3);filter:drop-shadow(0 3px 7px rgba(232,160,32,.6));}
+@keyframes sotmCrownDrop{ 0%{opacity:0;transform:translate(-50%,-42px) rotate(-18deg);} 60%{opacity:1;transform:translate(-50%,5px) rotate(10deg);} 80%{transform:translate(-50%,-2px) rotate(-4deg);} 100%{opacity:1;transform:translate(-50%,0) rotate(0deg);} }
+.sotm-glow-burst{animation:sotmGlowBurst 1s ease-out;}
+@keyframes sotmGlowBurst{ 0%{transform:translateX(-50%) scale(.35);opacity:0;} 45%{opacity:1;} 100%{transform:translateX(-50%) scale(1);opacity:1;} }
 .avatar-preset-tile{width:100%;aspect-ratio:1;border-radius:50%;cursor:pointer;border:3px solid transparent;transition:all .15s;overflow:hidden;}
 .avatar-preset-tile:hover{transform:scale(1.06);}
 .avatar-preset-tile.selected{border-color:var(--gold);box-shadow:0 0 0 3px rgba(232,160,32,0.2);}
@@ -2663,7 +2674,7 @@ function exportBackupExcel(){
 // SUBJECTS & CONSTANTS
 // ═══════════════════════════════════════════
 const SUBJECTS=[
-  {id:"maths",name:"Mathematics",emoji:"📐",teacher:"Abhishek Pandey"},
+  {id:"maths",name:"Mathematics",emoji:"📐",teacher:"Ashwini Kumar Singh"},
   {id:"physics",name:"Physics",emoji:"⚡",teacher:"Samrat Ashok"},
   {id:"chemistry",name:"Chemistry",emoji:"⚗️",teacher:"Ajit Kumar Singh"},
   {id:"biology",name:"Biology",emoji:"🧬",teacher:"Murshid Alam"},
@@ -3887,6 +3898,10 @@ function computeMonthTopCandidates(monthKey,n=5){
 // Points are added to the academic score to produce the final combined score used to
 // pick the winner among the top 5 — a candidate with disciplinary issues can be
 // overtaken by a lower-scoring but better-behaved peer.
+// Discipline is graded as marks out of 10 by the Class Teacher for each of the top-5
+// shortlisted candidates, then blended with the academic score (which is out of ~100) to
+// produce the final combined score used to pick the winner: 80% academic, 20% discipline
+// (scaled ×10 so both sides sit on the same 0–100 scale before weighting).
 const SOM_DISCIPLINE_GRADES=[
   {id:"excellent",label:"Excellent",points:10},
   {id:"good",label:"Good",points:5},
@@ -3899,11 +3914,12 @@ function _somGradePoints(id){ const g=SOM_DISCIPLINE_GRADES.find(x=>x.id===id); 
 // Holds the in-progress shortlist + grading state while the disciplinary grading modal
 // is open, keyed to the monthKey being revealed (live or retroactive).
 let _somPendingReveal=null;
-function _somFireConfetti(){
+function _somFireConfetti(pieceCount){
   const colors=["#e8a020","#4a9eff","#3dba7e","#e05555","#ffd700","#ff7eb6"];
   const container=document.createElement("div");
   container.style.cssText="position:fixed;inset:0;pointer-events:none;z-index:100000;overflow:hidden;";
-  for(let i=0;i<90;i++){
+  const count=pieceCount||90;
+  for(let i=0;i<count;i++){
     const piece=document.createElement("div");
     const color=colors[Math.floor(Math.random()*colors.length)];
     const left=Math.random()*100,delay=Math.random()*0.6,duration=2.2+Math.random()*1.8,size=6+Math.random()*7,rotate=Math.random()*360;
@@ -3967,6 +3983,30 @@ function getPastRevealableMonths(){
   const revealed=new Set((DB.get("studentOfMonth")||[]).map(r=>r.monthKey));
   return getFeeSessionMonths().filter(k=>k<curKey&&!revealed.has(k));
 }
+// ── Testing utility ──────────────────────────────────────────────────────
+// Lets the Class Teacher un-reveal the last N months (default 3) so those months drop back
+// into "Catch up on a past month" and can be walked through again — handy for trying out the
+// discipline-grading + reveal flow without waiting for a real month-end. Purely a testing
+// convenience; it only ever touches already-revealed studentOfMonth records, never live data
+// like attendance/marks/copy submissions.
+function _somLastNMonthKeys(n){
+  const keys=[],now=new Date();
+  for(let i=1;i<=n;i++){ keys.push(_somMonthKey(new Date(now.getFullYear(),now.getMonth()-i,1))); }
+  return keys;
+}
+async function somUnrevealLastNMonths(n){
+  n=n||3;
+  if(!await customConfirm(`Un-reveal the last ${n} months of Student of the Month so you can walk through the reveal again? This only removes the saved winner records — attendance/marks/copy data is untouched.`,"Reset Past Months (Testing)","🧪","Reset")) return;
+  const keys=new Set(_somLastNMonthKeys(n));
+  const list=DB.get("studentOfMonth")||[];
+  const kept=list.filter(r=>!keys.has(r.monthKey));
+  const removedCount=list.length-kept.length;
+  DB.set("studentOfMonth",kept);
+  keys.forEach(k=>{ try{ localStorage.removeItem("davx_sotm_seen_"+k); }catch(e){} });
+  logAudit("Student of the Month","record",`Last ${n} months`,null,`Un-revealed for testing (${removedCount} record(s) removed)`);
+  renderSOTM();
+  showToast(removedCount?`🧪 Un-revealed ${removedCount} month(s) — pick them from "Catch up on a past month" below`:`No revealed winners found in the last ${n} months`);
+}
 async function revealPastMonth(){
   const sel=document.getElementById("somPastMonthSelect");
   const monthKey=sel?sel.value:"";
@@ -3979,7 +4019,7 @@ async function revealPastMonth(){
 // candidate's academic score with their discipline grade to pick the final winner, then
 // proceeds through the same confirm + step-up + save flow the original single-winner reveal used.
 async function finalizeSOMReveal(monthKey,gradedCandidates,isRetroactive){
-  const ranked=gradedCandidates.map(c=>({...c,disciplineGrade:c.disciplineGrade||"satisfactory",combinedScore:c.score+_somGradePoints(c.disciplineGrade||"satisfactory")}))
+  const ranked=gradedCandidates.map(c=>({...c,disciplineGrade:c.disciplineGrade||"satisfactory",combinedScore:Math.max(0,Math.min(100,c.score+_somGradePoints(c.disciplineGrade||"satisfactory")))}))
     .sort((a,b)=>b.combinedScore-a.combinedScore||b.score-a.score);
   const winner=ranked[0];
   if(!await customConfirm(`Reveal ${winner.name} as Student of the Month for ${_somMonthLabel(monthKey)}?`,"Reveal Student of the Month","🌟","Reveal")) return;
@@ -3995,10 +4035,26 @@ async function finalizeSOMReveal(monthKey,gradedCandidates,isRetroactive){
   const list=DB.get("studentOfMonth")||[];
   list.unshift(rec);
   DB.set("studentOfMonth",list);
-  logAudit("Student of the Month","record",rec.name,null,`${rec.monthLabel}${isRetroactive?" (revealed retroactively)":""} · Score ${rec.score} · Discipline ${_somGradeLabel(rec.disciplineGrade)}`);
-  renderSOTM();
-  if(isRetroactive) _somFireConfetti();
+  logAudit("Student of the Month","record",rec.name,null,`${rec.monthLabel}${isRetroactive?" (revealed retroactively)":""} · Score ${rec.combinedScore}/100 · Discipline ${_somGradeLabel(rec.disciplineGrade)}`);
+  await _somPlaySuspenseAndReveal(isRetroactive);
   showToast(`🎉 ${winner.name} revealed as Student of the Month for ${_somMonthLabel(monthKey)}!`);
+}
+// A short "drumroll" beat shown in the dashboard card itself before the winner's card
+// pops in — builds a bit of suspense instead of the result appearing instantly, then hands
+// off to renderSOTM() (and its confetti) for the actual reveal moment. Purely cosmetic;
+// skipped gracefully if the card isn't on screen (e.g. reveal triggered from elsewhere).
+async function _somPlaySuspenseAndReveal(isRetroactive){
+  const el=document.getElementById("sotmCard");
+  if(el){
+    el.innerHTML=`<div class="sotm-suspense">
+      <div class="sotm-suspense-ring"></div>
+      <div class="sotm-mystery" style="animation:sotmMysteryPulse .6s ease-in-out infinite;">🏆</div>
+      <div class="sotm-suspense-text">Revealing the Student of the Month<span class="sotm-suspense-dots"><span>.</span><span>.</span><span>.</span></span></div>
+    </div>`;
+    await new Promise(r=>setTimeout(r,1400));
+  }
+  renderSOTM();
+  if(isRetroactive) _somFireConfetti(150);
 }
 function renderSOTM(){
   const el=document.getElementById("sotmCard"); if(!el) return;
@@ -4031,18 +4087,18 @@ function renderSOTM(){
       {top:"78%",left:"90%",delay:"1.6s"},{top:"4%",left:"48%",delay:"2s"},{top:"85%",left:"46%",delay:"0.8s"}
     ].map(p=>`<span class="sotm-sparkle" style="top:${p.top};left:${p.left};animation-delay:${p.delay};">✦</span>`).join("");
     el.innerHTML=`<div class="sotm-reveal${freshReveal?" sotm-reveal-anim":""}">
-      <div class="sotm-glow"></div>
+      <div class="sotm-glow${freshReveal?" sotm-glow-burst":""}"></div>
       ${sparkles}
       <div class="sotm-content" style="text-align:center;padding:6px 0;">
         <div class="sotm-ribbon">🏆 Student of the Month — ${current.monthLabel}</div>
-        <div class="sotm-avatar-ring"><div class="sotm-avatar-inner">${sotmAvatarInnerHTML(current.studentId,current.name)}</div></div>
+        <div class="sotm-avatar-ring">${freshReveal?'<div class="sotm-crown">👑</div>':''}<div class="sotm-avatar-inner">${sotmAvatarInnerHTML(current.studentId,current.name)}</div></div>
         <div class="sotm-name">${current.name}</div>
         <div style="font-size:12px;color:var(--muted);margin-top:6px;">Roll ${current.roll} · Adm ${current.admNo}${h?` · <span style="color:${h.color};">🏠 ${h.name}</span>`:""}</div>
         <div class="sotm-divider"></div>
         <div style="display:flex;justify-content:center;gap:12px;flex-wrap:wrap;">
           <div class="sotm-stat-pill"><div style="font-size:17px;font-weight:700;color:#3dba7e;">${current.marksAvgPct}%</div><div style="font-size:10px;color:var(--muted);text-transform:uppercase;">Avg Marks</div></div>
           <div class="sotm-stat-pill"><div style="font-size:17px;font-weight:700;color:#4a9eff;">${current.attendancePct!==null?current.attendancePct+"%":"—"}</div><div style="font-size:10px;color:var(--muted);text-transform:uppercase;">Attendance</div></div>
-          <div class="sotm-stat-pill"><div style="font-size:17px;font-weight:700;color:var(--gold);">${current.score}</div><div style="font-size:10px;color:var(--muted);text-transform:uppercase;">Score</div></div>
+          <div class="sotm-stat-pill"><div style="font-size:17px;font-weight:700;color:var(--gold);">${current.combinedScore!==undefined?current.combinedScore:current.score}/100</div><div style="font-size:10px;color:var(--muted);text-transform:uppercase;">Score</div></div>
           ${current.disciplineGrade?`<div class="sotm-stat-pill"><div style="font-size:14px;font-weight:700;color:#e05555;">${_somGradeLabel(current.disciplineGrade)}</div><div style="font-size:10px;color:var(--muted);text-transform:uppercase;">Discipline</div></div>`:""}
         </div>
         ${current.disciplineRemark?`<div style="font-size:11px;color:var(--muted);margin-top:8px;font-style:italic;">"${current.disciplineRemark}"</div>`:""}
@@ -4052,7 +4108,7 @@ function renderSOTM(){
     // anyone else discovering the news the first time they load the dashboard afterward.
     try{
       const seenKey="davx_sotm_seen_"+current.monthKey;
-      if(!localStorage.getItem(seenKey)){ localStorage.setItem(seenKey,"1"); _somFireConfetti(); }
+      if(!localStorage.getItem(seenKey)){ localStorage.setItem(seenKey,"1"); _somFireConfetti(150); }
     }catch(e){}
   } else if(isCT){
     const lastDay=_somIsLastDayOfMonth(now);
@@ -4113,7 +4169,7 @@ function viewPastSOTMDetail(recId){
         <div style="display:flex;justify-content:center;gap:12px;flex-wrap:wrap;">
           <div class="sotm-stat-pill"><div style="font-size:17px;font-weight:700;color:#3dba7e;">${rec.marksAvgPct}%</div><div style="font-size:10px;color:var(--muted);text-transform:uppercase;">Avg Marks</div></div>
           <div class="sotm-stat-pill"><div style="font-size:17px;font-weight:700;color:#4a9eff;">${rec.attendancePct!==null?rec.attendancePct+"%":"—"}</div><div style="font-size:10px;color:var(--muted);text-transform:uppercase;">Attendance</div></div>
-          <div class="sotm-stat-pill"><div style="font-size:17px;font-weight:700;color:var(--gold);">${rec.score}</div><div style="font-size:10px;color:var(--muted);text-transform:uppercase;">Score</div></div>
+          <div class="sotm-stat-pill"><div style="font-size:17px;font-weight:700;color:var(--gold);">${rec.combinedScore!==undefined?rec.combinedScore:rec.score}/100</div><div style="font-size:10px;color:var(--muted);text-transform:uppercase;">Score</div></div>
           ${rec.disciplineGrade?`<div class="sotm-stat-pill"><div style="font-size:14px;font-weight:700;color:#e05555;">${_somGradeLabel(rec.disciplineGrade)}</div><div style="font-size:10px;color:var(--muted);text-transform:uppercase;">Discipline</div></div>`:""}
         </div>
         ${rec.disciplineRemark?`<div style="font-size:11px;color:var(--muted);margin-top:8px;font-style:italic;">"${rec.disciplineRemark}"</div>`:""}
