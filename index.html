@@ -31,11 +31,26 @@
 
   body{
     display:flex;
+    flex-direction:column;
     align-items:center;
     justify-content:center;
     padding:6vh 5vw;
     position:relative;
     overflow-x:hidden;
+  }
+
+  .notice-marquee{
+    width:100%;
+    max-width:640px;
+    margin-bottom:18px;
+    background:var(--ink-2);
+    border:1px solid var(--line);
+    color:var(--stamp);
+    font-family:'JetBrains Mono', monospace;
+    font-size:12px;
+    letter-spacing:0.08em;
+    text-transform:uppercase;
+    padding:9px 0;
   }
 
   /* blueprint / infrastructure grid backdrop */
@@ -92,6 +107,12 @@
     align-items:center;
     gap:10px;
     margin-bottom:28px;
+  }
+
+  .eyebrow .ref{
+    color:var(--paper-dim);
+    font-weight:500;
+    letter-spacing:0.14em;
   }
 
   .eyebrow::after{
@@ -178,7 +199,7 @@
 
   .fields{
     display:grid;
-    grid-template-columns: 1fr 1fr;
+    grid-template-columns: 1fr 1fr 1fr;
     gap: 1px;
     background:var(--line);
     border:1px solid var(--line);
@@ -245,11 +266,88 @@
     outline-offset:3px;
   }
 
+  .stamp--suspend{
+    position:static;
+    width:190px;
+    height:190px;
+    margin:8px auto 0;
+    right:auto;
+    bottom:auto;
+    transform: rotate(-8deg);
+    border-width:4px;
+    z-index:auto;
+    pointer-events:auto;
+    box-shadow:none;
+  }
+
+  .stamp--suspend .stamp-text{
+    font-size:19px;
+  }
+
+  .stamp--suspend .stamp-text small{
+    font-size:9px;
+  }
+
+  .ornament{
+    display:flex;
+    align-items:center;
+    gap:14px;
+    margin-top:26px;
+    color:var(--brass);
+    font-size:11px;
+  }
+
+  .ornament span{
+    flex:1;
+    height:1px;
+    background:var(--line);
+  }
+
+  .signature{
+    text-align:center;
+    margin:14px 0 0;
+    font-family:'Fraunces', serif;
+    font-style:italic;
+    font-size:15px;
+    color:var(--paper-dim);
+  }
+
+  .signature a{
+    color:var(--paper);
+    text-decoration:none;
+    border-bottom:1px solid var(--brass);
+    padding-bottom:1px;
+    transition:color 0.2s ease, border-color 0.2s ease;
+  }
+
+  .signature a:hover,
+  .signature a:focus-visible{
+    color:var(--brass);
+  }
+
+  .signature .sep{
+    margin:0 8px;
+    color:var(--paper-dim);
+    font-style:normal;
+  }
+
+  .signature .mail-link{
+    font-family:'JetBrains Mono', monospace;
+    font-style:normal;
+    font-size:12px;
+    letter-spacing:0.04em;
+  }
+
   @media (max-width:560px){
     .plaque{ padding:44px 24px 30px; }
     .stamp{ width:104px; height:104px; top:24px; right:8px; }
     .stamp-text{ font-size:13px; }
-    .fields{ grid-template-columns:1fr; }
+    .stamp--suspend{ width:190px; height:190px; border-width:3px; }
+    .stamp--suspend .stamp-text{ font-size:17px; }
+    .stamp--suspend .stamp-text small{ font-size:8px; }
+    .fields{ grid-template-columns:1fr 1fr; }
+    .eyebrow{ flex-wrap:wrap; row-gap:6px; }
+    .eyebrow::after{ display:none; }
   }
 
   @media (prefers-reduced-motion: reduce){
@@ -262,12 +360,14 @@
   <div class="grid-bg" aria-hidden="true"></div>
   <div class="noise" aria-hidden="true"></div>
 
+  <marquee class="notice-marquee" behavior="scroll" direction="left" scrollamount="5">This site has been removed by Anmol Kumar &nbsp;•&nbsp; All data has been permanently taken down &nbsp;•&nbsp; No further updates will be made to this page &nbsp;•&nbsp; Thank you for visiting</marquee>
+
   <main class="plaque">
     <div class="stamp" aria-hidden="true">
       <div class="stamp-text">RETIRED<small>ARCHIVE CLOSED</small></div>
     </div>
 
-    <div class="eyebrow">Decommission notice</div>
+    <div class="eyebrow">Decommission notice <span class="ref">FILE / CX-SBS-01</span></div>
 
     <h1>The archive has been <em>taken down</em></h1>
 
@@ -289,6 +389,14 @@
         <div class="v">X — SBS</div>
       </div>
       <div class="field">
+        <div class="k">Originally hosted on</div>
+        <div class="v">GitHub Pages</div>
+      </div>
+      <div class="field">
+        <div class="k">Removed by</div>
+        <div class="v">Anmol Kumar</div>
+      </div>
+      <div class="field">
         <div class="k">Restoration</div>
         <div class="v">Not planned</div>
       </div>
@@ -298,6 +406,13 @@
       <p>If you're looking for the class workspace you used to visit here, it's been shut down for good — no data has carried over.</p>
       <p class="thanks">Thank you for trusting and visiting this site — have a nice day.</p>
     </div>
+
+    <div class="stamp stamp--suspend" aria-hidden="true">
+      <div class="stamp-text">SUSPENDED<small>BY ANMOL KUMAR</small></div>
+    </div>
+
+    <div class="ornament" aria-hidden="true"><span></span>✦<span></span></div>
+    <p class="signature"><a href="https://anmol2010kumar18-bot.github.io/Portfolio/">— Anmol Kumar</a><span class="sep">·</span><a class="mail-link" href="mailto:anmol2010kumar18@gmail.com">Email</a></p>
   </main>
 
 </body>
