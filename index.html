@@ -4803,6 +4803,15 @@ function editResult(id){
   const r=(DB.get("results")||[]).find(x=>x.id===id); if(!r) return;
   document.getElementById("editResultId").value=id;
   document.getElementById("editResTest").value=r.test;
+  // Multi-subject exams (Periodic Test, Half Yearly, Pre-Boards, Annual Exam) draw from their
+  // own subject pool (MULTI_SUBJECTS), which has a few ids — Science, SST, IT — that don't exist
+  // in the regular SUBJECTS list this dropdown is normally built from. Without this, the select
+  // can't show/save those subjects correctly, so editing those multi-subject rows silently broke.
+  const subSel=document.getElementById("editResSubject");
+  if(subSel && !subSel.querySelector(`option[value="${r.subject}"]`)){
+    const ms=MULTI_SUBJECTS.find(x=>x.id===r.subject);
+    if(ms) subSel.insertAdjacentHTML("beforeend",`<option value="${ms.id}">${ms.emoji} ${ms.name}</option>`);
+  }
   document.getElementById("editResSubject").value=r.subject;
   document.getElementById("editResMax").value=r.max;
   document.getElementById("editResDate").value=r.date||"";
@@ -8551,7 +8560,9 @@ window.addEventListener('load', () => {
    ═══════════════════════════════════════════ */
 
 // ── Config ──
-const AI_MODEL = 'llama-3.1-8b-instant';
+// Groq deprecated & shut down llama-3.1-8b-instant on 08/16/2026 — every request to it now
+// errors out. Their recommended replacement (same request format, still on Groq) is gpt-oss-20b.
+const AI_MODEL = 'openai/gpt-oss-20b';
 
 // Key is read lazily so config.js has time to load before first use
 function aiGetKey() {
