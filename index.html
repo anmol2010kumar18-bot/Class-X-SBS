@@ -461,13 +461,27 @@ button:active, .btn:active, .nav-btn:active, .auth-btn:active, .role-card:active
 .rc-grade-badge{display:inline-block;padding:3px 10px;border-radius:6px;font-weight:800;font-size:13px;}
 .rc-footer{background:#f8f8f8;padding:14px 20px;display:flex;justify-content:space-between;align-items:center;border-top:1px solid #e5e5e5;font-size:11px;color:#888;}
 @media print{
+  /* The app is a fixed-height single-screen SPA (html/body overflow:hidden, #appScreen
+     position:fixed + height:100%, .pages overflow-y:auto) — all of that clips content to one
+     viewport's worth even for an absolutely-positioned print area, since overflow clipping from
+     any ancestor still applies regardless of the printed element's own position. Neutralize all
+     of it here so the report card can grow to its full height and paginate across as many pages
+     as it needs, instead of being cut off after the first screenful. */
+  html,body{height:auto !important;overflow:visible !important;}
+  #appScreen{position:static !important;height:auto !important;overflow:visible !important;}
+  .pages{overflow:visible !important;height:auto !important;padding:0 !important;}
   body *{visibility:hidden !important;}
   #rcPrintArea,#rcPrintArea *{visibility:visible !important;}
-  #rcPrintArea{position:fixed;top:0;left:0;width:100%;z-index:99999;background:#fff;}
+  /* position:absolute (not fixed) lets the print area flow across multiple pages instead of
+     being clipped to just the first page/viewport — fixed-position elements don't reflow. */
+  #rcPrintArea{position:absolute;top:0;left:0;width:100%;z-index:99999;background:#fff;}
   .rc-wrap{box-shadow:none !important;border-radius:0 !important;}
   #certPrintArea,#certPrintArea *{visibility:visible !important;}
-  #certPrintArea{position:fixed;top:0;left:0;width:100%;z-index:99999;background:#fff;}
+  #certPrintArea{position:absolute;top:0;left:0;width:100%;z-index:99999;background:#fff;}
   @page{size:landscape;}
+  /* Force background colours (grade/attendance/marks badges etc.) to actually print — browsers
+     strip them by default, which is why coloured text on a coloured badge looked blank/washed out. */
+  #rcPrintArea *,#certPrintArea *{-webkit-print-color-adjust:exact !important;print-color-adjust:exact !important;color-adjust:exact !important;}
 }
 /* Certificate generator */
 .cert-wrap{background:#fdfaf3;padding:26px;}
@@ -7338,8 +7352,12 @@ function renderReportCard(){
       <div class="rc-section-title">📈 Marks Trend</div>
       ${chart}
     </div>`:""; })()}
-    <!-- Test-wise detail -->
-    <div class="rc-section" style="background:#fafafa;border-top:1px solid #eee;">
+    <!-- Test-wise detail — skipped for multi-subject exams (Periodic Test, Half Yearly,
+         Pre-Boards, Annual Exam): Subject-wise Performance + the Total section below already
+         cover it, and each of those exams only has one test per subject anyway so a
+         test-by-test breakdown just repeats the same rows. Still shown for "All Exams" and
+         "Class Test", where it's the only place to see individual test history. -->
+    ${(_rcExamFilter&&MULTI_EXAM_TYPES.includes(_rcExamFilter))?"":`<div class="rc-section" style="background:#fafafa;border-top:1px solid #eee;">
       <div class="rc-section-title">📝 Test-wise Detail</div>
       <div style="overflow-x:auto;">
         <table class="rc-table">
@@ -7347,7 +7365,7 @@ function renderReportCard(){
           <tbody>${allTests()}</tbody>
         </table>
       </div>
-    </div>
+    </div>`}
     <!-- Exam total (only shown when a specific exam type is selected, not "All Exams") -->
     ${_rcExamFilter&&_rcExamFilter!=="all"?`<div class="rc-section" style="background:#fafafa;border-top:1px solid #eee;">
       <div class="rc-section-title">🧮 ${_rcExamFilter} — Total</div>
