@@ -1184,7 +1184,7 @@ button:active, .btn:active, .nav-btn:active, .auth-btn:active, .role-card:active
             </div>
             <div class="form-group"><label class="form-label">Remarks (optional)</label><input class="form-input" id="multiExamRemarks" placeholder="e.g. Full syllabus"></div>
             <div class="form-group" style="margin-top:4px;">
-              <label class="form-label">Maximum Marks per Subject</label>
+              <label class="form-label">Subjects for this Exam (untick to exclude, then set max marks)</label>
               <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(160px,1fr));gap:10px;margin-top:8px;" id="multiMaxGrid"></div>
             </div>
             <button class="btn btn-gold" style="margin-top:10px;" onclick="setupMultiResultSheet()">➡️ Next: Enter Student Marks</button>
@@ -4504,7 +4504,7 @@ async function submitResults(){
 // ═══════════════════════════════════════════
 let multiExamState=null;
 
-// Fixed subjects for big exams — always these 6, no selection needed
+// Subject pool for big exams — teacher can tick/untick which of these to include per exam
 // The 4 fixed multi-subject exam types (matches the options in the "Exam Type" dropdown
 // on the Multi-Subject results entry page). Used by the Report Card's exam-type filter to
 // tell multi-subject exams apart from single-subject "Class Test" entries, which use
@@ -4531,10 +4531,23 @@ function renderMultiMaxGrid(){
   const el=document.getElementById("multiMaxGrid"); if(!el) return;
   el.innerHTML=MULTI_SUBJECTS.map(s=>`
     <div style="background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.08);border-radius:9px;padding:10px 12px;">
-      <div style="font-size:12px;font-weight:600;margin-bottom:6px;">${s.emoji} ${s.name}</div>
+      <label style="display:flex;align-items:center;gap:6px;font-size:12px;font-weight:600;margin-bottom:6px;cursor:pointer;">
+        <input type="checkbox" id="multiInc_${s.id}" checked onchange="toggleMultiSubjInclude('${s.id}')" style="width:15px;height:15px;accent-color:var(--gold);cursor:pointer;">
+        ${s.emoji} ${s.name}
+      </label>
       <input type="number" id="multiMax_${s.id}" min="1" placeholder="Max marks"
         style="width:100%;padding:7px 10px;background:rgba(255,255,255,0.07);border:1.5px solid rgba(255,255,255,0.12);border-radius:7px;color:var(--white);font-size:14px;font-weight:600;outline:none;">
     </div>`).join("");
+}
+
+// Enable/disable the max-marks input for a subject depending on whether its checkbox is ticked
+function toggleMultiSubjInclude(sid){
+  const chk=document.getElementById("multiInc_"+sid);
+  const inp=document.getElementById("multiMax_"+sid);
+  if(!chk||!inp) return;
+  inp.disabled=!chk.checked;
+  inp.style.opacity=chk.checked?"1":"0.35";
+  if(!chk.checked) inp.value="";
 }
 
 function setupMultiResultSheet(){
@@ -4544,10 +4557,13 @@ function setupMultiResultSheet(){
   if(!name){ showToast("❌ Select an exam type"); return; }
   const subjects=[];
   for(const s of MULTI_SUBJECTS){
+    const inc=document.getElementById("multiInc_"+s.id);
+    if(inc&&!inc.checked) continue; // subject not selected for this exam — skip it
     const max=parseInt(document.getElementById("multiMax_"+s.id).value);
     if(!max||max<1){ showToast(`❌ Enter max marks for ${s.name}`); return; }
     subjects.push({...s, max});
   }
+  if(!subjects.length){ showToast("❌ Select at least one subject"); return; }
   const students=(DB.get("students")||[]).sort((a,b)=>parseInt(a.roll)-parseInt(b.roll));
   multiExamState={name, date:date||new Date().toLocaleDateString("en-IN"), remarks, subjects, students};
   document.getElementById("multiSetupCard").style.display="none";
@@ -6970,14 +6986,29 @@ function buildStudentReport(studentId,examTypeFilter){
   });
   const copPct=copTotal?Math.round(copSubmitted/copTotal*100):null;
 
-  // ── Overall rank from leaderboard ──
+  // ── Overall rank from leaderboard (always the full leaderboard — rank stays "Overall" regardless of exam filter) ──
   const {rows,totalTests}=computeOverallLeaderboard();
   const rankRow=rows.find(r=>r.studentId===studentId);
   const rank=rankRow?rankRow.rank:null;
   const totalRanked=rows.length;
-  const avgPct=rankRow?Math.round(rankRow.avgPct):null;
 
-  return {student:s, attPresent, attTotal, attPct, subjectResults, copSubmitted, copTotal, copPct, rank, totalRanked, totalTests, avgPct};
+  // ── Avg marks + grand total, scoped to whichever exam type is currently selected ──
+  // (results above is already filtered by examTypeFilter, so this naturally respects it —
+  // "all" gives the old overall average, a specific exam type gives that exam's average only)
+  let filAttempted=0,filTotalPct=0,filTotalMarks=0,filTotalMax=0;
+  results.forEach(r=>{
+    const m=(r.studentMarks||[]).find(x=>x.studentId===studentId);
+    if(m&&!m.absent&&m.marks!==null&&m.marks!==undefined){
+      filAttempted++;
+      filTotalPct+=(m.marks/r.max*100);
+      filTotalMarks+=m.marks;
+      filTotalMax+=r.max;
+    }
+  });
+  const avgPct=filAttempted?Math.round(filTotalPct/filAttempted):null;
+
+  return {student:s, attPresent, attTotal, attPct, subjectResults, copSubmitted, copTotal, copPct, rank, totalRanked, totalTests, avgPct,
+    totalMarksSum:filTotalMarks, totalMaxSum:filTotalMax, testsCounted:filAttempted};
 }
 
 function rcGradeInfo(pct){
@@ -7088,7 +7119,7 @@ function renderReportCard(){
   const d=buildStudentReport(studentId,_rcExamFilter);
   if(!d){ el.innerHTML=`<div class="card"><div class="empty-state"><div class="empty-icon">❌</div><div class="empty-text">Student data not found</div></div></div>`; return; }
 
-  const {student:s,attPresent,attTotal,attPct,subjectResults,copSubmitted,copTotal,copPct,rank,totalRanked,avgPct}=d;
+  const {student:s,attPresent,attTotal,attPct,subjectResults,copSubmitted,copTotal,copPct,rank,totalRanked,avgPct,totalMarksSum,totalMaxSum,testsCounted}=d;
   const attGr=rcGradeInfo(attPct);
   const marksGr=rcGradeInfo(avgPct);
   const copGr=rcGradeInfo(copPct);
@@ -7205,6 +7236,15 @@ function renderReportCard(){
         </table>
       </div>
     </div>
+    <!-- Exam total (only shown when a specific exam type is selected, not "All Exams") -->
+    ${_rcExamFilter&&_rcExamFilter!=="all"?`<div class="rc-section" style="background:#fafafa;border-top:1px solid #eee;">
+      <div class="rc-section-title">🧮 ${_rcExamFilter} — Total</div>
+      <div style="display:flex;align-items:baseline;gap:10px;flex-wrap:wrap;">
+        <span style="font-size:24px;font-weight:700;color:${marksGr.col};">${totalMaxSum?totalMarksSum+" / "+totalMaxSum:"—"}</span>
+        ${avgPct!==null?`<span class="rc-grade-badge" style="color:${marksGr.col};background:${marksGr.bg};">${avgPct}% avg</span>`:""}
+      </div>
+      <div style="font-size:11px;color:#888;margin-top:4px;">${testsCounted} subject${testsCounted===1?"":"s"} counted for ${_rcExamFilter}</div>
+    </div>`:""}
     <!-- Attendance heatmap -->
     <div class="rc-section" style="background:#fff;border-top:1px solid #eee;">
       <div class="rc-section-title">✅ Attendance Overview</div>
