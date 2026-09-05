@@ -540,6 +540,26 @@ button:active, .btn:active, .nav-btn:active, .auth-btn:active, .role-card:active
 .avatar-preset-tile{width:100%;aspect-ratio:1;border-radius:50%;cursor:pointer;border:3px solid transparent;transition:all .15s;overflow:hidden;}
 .avatar-preset-tile:hover{transform:scale(1.06);}
 .avatar-preset-tile.selected{border-color:var(--gold);box-shadow:0 0 0 3px rgba(232,160,32,0.2);}
+
+/* Achievements */
+.ach-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;}
+@media(max-width:900px){.ach-grid{grid-template-columns:repeat(2,1fr);}}
+@media(max-width:560px){.ach-grid{grid-template-columns:1fr;}}
+.ach-card{background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.08);border-radius:14px;padding:16px 14px;transition:border-color .2s;}
+.ach-card:hover{border-color:rgba(232,160,32,0.3);}
+.ach-icon{font-size:30px;line-height:1;margin-bottom:8px;}
+.ach-title{font-weight:700;font-size:14px;margin-bottom:4px;}
+.ach-desc{font-size:12px;color:var(--muted);line-height:1.5;margin-bottom:10px;}
+.ach-meta{display:flex;align-items:center;justify-content:space-between;gap:6px;font-size:10.5px;color:var(--muted);flex-wrap:wrap;}
+.ach-type-tag{font-size:10px;font-weight:700;padding:2px 8px;border-radius:20px;letter-spacing:.3px;white-space:nowrap;}
+.ach-icon-pick{width:36px;height:36px;border-radius:9px;background:rgba(255,255,255,0.04);border:1.5px solid rgba(255,255,255,0.1);font-size:17px;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all .15s;}
+.ach-icon-pick:hover{border-color:rgba(232,160,32,0.4);}
+.ach-icon-pick.selected{border-color:var(--gold);background:rgba(232,160,32,0.12);}
+
+/* Spotlight History — current-holder cards for ranks 1–5 */
+.sph-rank-grid{display:grid;grid-template-columns:repeat(5,1fr);gap:10px;}
+@media(max-width:900px){.sph-rank-grid{grid-template-columns:repeat(3,1fr);}}
+@media(max-width:560px){.sph-rank-grid{grid-template-columns:repeat(2,1fr);}}
 @media(max-width:900px){.spotlight-grid{grid-template-columns:repeat(2,1fr);}}
 @media(max-width:520px){.spotlight-grid{grid-template-columns:1fr;}}
 .spotlight-card{background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.08);border-radius:14px;padding:16px 14px;position:relative;overflow:hidden;transition:border-color .2s;}
@@ -768,11 +788,13 @@ button:active, .btn:active, .nav-btn:active, .auth-btn:active, .role-card:active
     <button class="nav-btn" data-page="attendance" onclick="nav(this)"><span class="nav-icon">✅</span><span class="nav-label sb-text">Attendance</span></button>
     <button class="nav-btn" data-page="results" onclick="nav(this)"><span class="nav-icon">📊</span><span class="nav-label sb-text">Results</span></button>
     <button class="nav-btn" data-page="leaderboard" onclick="nav(this)"><span class="nav-icon">🏆</span><span class="nav-label sb-text">Leaderboard</span></button>
+    <button class="nav-btn" data-page="spotlight_history" onclick="nav(this)"><span class="nav-icon">📜</span><span class="nav-label sb-text">Spotlight History</span></button>
     <button class="nav-btn" data-page="report_card" onclick="nav(this)"><span class="nav-icon">📄</span><span class="nav-label sb-text">Report Card</span></button>
     <button class="nav-btn" data-page="hw_view" onclick="nav(this)"><span class="nav-icon">📓</span><span class="nav-label sb-text">Homework</span><span class="nav-badge sb-text" id="hwViewBadge" style="display:none;background:#e8a020;">!</span></button>
     <button class="nav-btn perm-student" data-page="apply_leave" onclick="nav(this)" style="display:none;"><span class="nav-icon">🏖️</span><span class="nav-label sb-text">Apply Leave</span><span class="nav-badge sb-text" id="leaveStatusBadge" style="display:none;background:#4a9eff;">!</span></button>
     <button class="nav-btn perm-student" data-page="my_duties" onclick="nav(this)" style="display:none;"><span class="nav-icon">📋</span><span class="nav-label sb-text">My Duties</span><span class="nav-badge sb-text" id="myDutyBadge" style="display:none;background:#e05555;">!</span></button>
     <button class="nav-btn perm-student" data-page="my_copy" onclick="nav(this)" style="display:none;"><span class="nav-icon">📔</span><span class="nav-label sb-text">My Copy Records</span></button>
+    <button class="nav-btn perm-student" data-page="my_achievements" onclick="nav(this)" style="display:none;"><span class="nav-icon">🏅</span><span class="nav-label sb-text">My Achievements</span></button>
     <button class="nav-btn perm-student" data-page="my_fees" onclick="nav(this)" style="display:none;"><span class="nav-icon">💰</span><span class="nav-label sb-text">My Fees</span></button>
     <button class="nav-btn perm-student" data-page="my_avatar" onclick="nav(this)" style="display:none;"><span class="nav-icon">🖼️</span><span class="nav-label sb-text">Profile Picture</span></button>
     <div class="sb-section perm-upload" style="display:none;">Manage</div>
@@ -788,6 +810,7 @@ button:active, .btn:active, .nav-btn:active, .auth-btn:active, .role-card:active
     <button class="nav-btn perm-ct" data-page="manage_fees" onclick="nav(this)" style="display:none;"><span class="nav-icon">💰</span><span class="nav-label sb-text">Fee Tracking</span><span class="nav-badge sb-text" id="feeBadge" style="display:none;background:#e05555;">0</span></button>
     <button class="nav-btn perm-ct" data-page="audit_log" onclick="nav(this)" style="display:none;"><span class="nav-icon">🕵️</span><span class="nav-label sb-text">Audit Log</span></button>
     <button class="nav-btn perm-ct" data-page="certificates" onclick="nav(this)" style="display:none;"><span class="nav-icon">🏆</span><span class="nav-label sb-text">Certificates</span></button>
+    <button class="nav-btn perm-ct" data-page="manage_achievements" onclick="nav(this)" style="display:none;"><span class="nav-icon">🏅</span><span class="nav-label sb-text">Achievements</span></button>
     <button class="nav-btn perm-hw" data-page="homework" onclick="nav(this)" style="display:none;"><span class="nav-icon">📓</span><span class="nav-label sb-text">Homework Mgr</span><span class="nav-badge sb-text" id="hwBadge" style="display:none;">0</span></button>
     <button class="nav-btn perm-complain" data-page="complain" onclick="nav(this)" style="display:none;"><span class="nav-icon">⚠️</span><span class="nav-label sb-text">Complaints</span></button>
     <button class="nav-btn perm-monitor" data-page="assign_duty" onclick="nav(this)" style="display:none;"><span class="nav-icon">📋</span><span class="nav-label sb-text">Assign Duty</span></button>
@@ -1048,6 +1071,7 @@ button:active, .btn:active, .nav-btn:active, .auth-btn:active, .role-card:active
               <button class="lb-mode-btn active" id="lbModeOverallBtn" onclick="setLeaderboardMode('overall')">🏆 Overall</button>
               <button class="lb-mode-btn" id="lbModeTestBtn" onclick="setLeaderboardMode('test')">📝 Specific Test</button>
               <button class="lb-mode-btn" id="lbModeExamTypeBtn" onclick="setLeaderboardMode('examtype')">🎯 Multi-Subject Exam</button>
+              <button class="lb-mode-btn" id="lbModeOverallPerfBtn" onclick="setLeaderboardMode('overallperf')">🌟 Overall Performance</button>
             </div>
             <div class="form-group" id="lbTestSelectWrap" style="margin:0;display:none;min-width:200px;">
               <select class="form-select" id="lbTestSelect" onchange="renderLeaderboard()"></select>
@@ -1059,6 +1083,25 @@ button:active, .btn:active, .nav-btn:active, .auth-btn:active, .role-card:active
           <div id="lbOverallHint" style="font-size:11px;color:var(--muted);margin-top:10px;line-height:1.5;">🏆 Overall ranking rewards students who have attempted <strong style="color:var(--gold);">all declared tests</strong> — they are ranked above anyone who has missed a test, even if their score is lower. Among students with the same number of tests attempted, higher total score ranks first.</div>
         </div>
         <div id="leaderboardContent"></div>
+      </div>
+
+      <!-- SPOTLIGHT HISTORY -->
+      <div class="page" id="page-spotlight_history">
+        <div class="hero" style="padding:20px 26px;margin-bottom:18px;">
+          <div class="hero-label">Academic</div>
+          <div class="hero-h" style="font-size:22px;">Spotlight <span>History</span></div>
+          <div class="hero-sub">Who's held ranks 1–5 in each Student Spotlight criteria over time, and for how long — each rank's streak closes out the moment someone else takes it over.</div>
+        </div>
+        <div class="card" style="margin-bottom:14px;">
+          <div style="display:flex;gap:8px;background:rgba(255,255,255,0.04);padding:4px;border-radius:10px;flex-wrap:wrap;">
+            <button class="lb-mode-btn active" id="sphTabOverall" onclick="setSpotlightHistoryCriteria('overall')">🏅 Overall</button>
+            <button class="lb-mode-btn" id="sphTabAttendance" onclick="setSpotlightHistoryCriteria('attendance')">✅ Attendance</button>
+            <button class="lb-mode-btn" id="sphTabMarks" onclick="setSpotlightHistoryCriteria('marks')">📊 Marks</button>
+            <button class="lb-mode-btn" id="sphTabCopy" onclick="setSpotlightHistoryCriteria('copy')">📋 Copy Submission</button>
+            <button class="lb-mode-btn" id="sphTabSOTM" onclick="setSpotlightHistoryCriteria('sotm')">🌟 Student of the Month</button>
+          </div>
+        </div>
+        <div id="spotlightHistoryContent"></div>
       </div>
 
       <!-- HOMEWORK VIEW (students) -->
@@ -1384,6 +1427,34 @@ button:active, .btn:active, .nav-btn:active, .auth-btn:active, .role-card:active
         </div>
       </div>
 
+      <!-- ACHIEVEMENTS (Class Teacher) -->
+      <div class="page" id="page-manage_achievements">
+        <div class="hero" style="padding:20px 26px;margin-bottom:18px;">
+          <div class="hero-label">Class Teacher</div>
+          <div class="hero-h" style="font-size:22px;">Student <span>Achievements</span></div>
+          <div class="hero-sub">Badges are awarded two ways: automatically from results, attendance and copy submission data, and personally by you for anything else worth recognizing — effort, behaviour, sports, creativity, whatever fits.</div>
+        </div>
+
+        <div class="card" style="margin-bottom:16px;">
+          <div class="card-title">➕ Award a Custom Achievement</div>
+          <div class="form-group"><label class="form-label">Student</label>
+            <select class="form-input" id="achStudentSelect" onchange="renderAchievementsForSelectedStudent()"></select>
+          </div>
+          <div class="form-group"><label class="form-label">Icon</label>
+            <div id="achIconPicker" style="display:flex;gap:7px;flex-wrap:wrap;margin-bottom:6px;"></div>
+            <input class="form-input" id="achIcon" maxlength="4" placeholder="Or type any emoji" style="max-width:120px;">
+          </div>
+          <div class="form-group"><label class="form-label">Title</label><input class="form-input" id="achTitle" placeholder="e.g. Best Debater, Science Fair Winner"></div>
+          <div class="form-group"><label class="form-label">Description</label><textarea class="form-input" id="achDesc" rows="2" placeholder="e.g. For representing the class at the inter-school debate competition"></textarea></div>
+          <button class="btn btn-gold" style="width:100%;margin-top:6px;" onclick="awardCustomAchievement()">🏅 Award Achievement</button>
+        </div>
+
+        <div class="card">
+          <div class="card-title">🎖️ This Student's Achievements</div>
+          <div id="achStudentList"></div>
+        </div>
+      </div>
+
       <!-- MY PROFILE PICTURE (student self-service) -->
       <div class="page" id="page-my_avatar">
         <div class="hero" style="padding:20px 26px;margin-bottom:18px;">
@@ -1461,6 +1532,18 @@ button:active, .btn:active, .nav-btn:active, .auth-btn:active, .role-card:active
         <div class="card" style="margin-top:14px;">
           <div class="card-title">🗂️ All Collection Rounds</div>
           <div id="myCopyHistory"></div>
+        </div>
+      </div>
+
+      <!-- MY ACHIEVEMENTS (student) -->
+      <div class="page" id="page-my_achievements">
+        <div class="hero" style="padding:20px 26px;margin-bottom:18px;">
+          <div class="hero-label">Student</div>
+          <div class="hero-h" style="font-size:22px;">My <span>Achievements</span></div>
+          <div class="hero-sub">Badges you've earned automatically from your results, attendance and copy submission — plus any your Class Teacher has awarded you personally.</div>
+        </div>
+        <div class="card">
+          <div id="myAchievementsWrap"></div>
         </div>
       </div>
 
@@ -2440,8 +2523,10 @@ function _processDavxSnapshot(snap){
       if(wb.feeRecords){ try{renderFeesPage();}catch(e){} try{renderMyFees();}catch(e){} try{updateFeeBadge();}catch(e){} }
       if(wb.studentPhotos){ try{renderWeeklySpotlight();}catch(e){} try{renderSOTM();}catch(e){} try{renderStudentsList();}catch(e){} try{renderStudentInfoTable();}catch(e){} try{renderLeaderboard();}catch(e){} }
       if(wb.auditLog){ try{renderAuditLog();}catch(e){} }
-      if(wb.timetable||wb.studentAttendance||wb.results||wb.copySessions){ try{renderWeeklySpotlight();}catch(e){} try{_origRenderRC();}catch(e){} }
-      if(wb.studentOfMonth){ try{renderSOTM();}catch(e){} }
+      if(wb.timetable||wb.studentAttendance||wb.results||wb.copySessions){ try{renderWeeklySpotlight();}catch(e){} try{_origRenderRC();}catch(e){} try{computeAndAwardAutoAchievements();}catch(e){} try{trackSpotlightHistory();}catch(e){} }
+      if(wb.studentOfMonth){ try{renderSOTM();}catch(e){} try{renderSpotlightHistory();}catch(e){} }
+      if(wb.spotlightHistory){ try{renderSpotlightHistory();}catch(e){} }
+      if(wb.achievements){ try{renderMyAchievements();}catch(e){} try{renderAchievementsForSelectedStudent();}catch(e){} }
       if(wb.registrationOpen){ try{renderRegistrationLockState();}catch(e){} }
     }
 }
@@ -3528,7 +3613,7 @@ function toggleMobSidebar(){ const sb=document.getElementById("sidebar"),ov=docu
 function closeMobSidebar(){ document.getElementById("sidebar").classList.remove("mob-open"); document.getElementById("mobOverlay").classList.remove("open"); document.getElementById("mobToggle").textContent="☰"; }
 function goHome(){ nav(document.querySelector("[data-page=dashboard]")); closeFolder(); }
 
-const PAGE_TITLES={dashboard:"Dashboard",subjects:"Subjects",notices:"Notice Board",polls:"Polls",gallery:"Gallery",timetable:"Timetable",exam_schedule:"Exam Schedule",attendance:"Attendance Record",results:"Results & Marks",leaderboard:"Class Leaderboard",report_card:"Report Card",hw_view:"Homework Board",upload:"Upload Files",post_notice:"Post Notice",manage_timetable:"Set Timetable",manage_results:"Enter Results",manage_attendance:"Mark Attendance",manage_students:"Students",copy_checking:"Copy Checking",homework:"Homework Manager",complain:"Complaints & Reports",student_info:"Student Information",assign_duty:"Assign Duty",my_duties:"My Duties",apply_leave:"Apply for Leave",manage_leaves:"Leave Requests",my_copy:"My Copy Records",manage_fees:"Fee Tracking",my_fees:"My Fees",audit_log:"Audit Log",certificates:"Certificates",my_avatar:"Profile Picture"};
+const PAGE_TITLES={dashboard:"Dashboard",subjects:"Subjects",notices:"Notice Board",polls:"Polls",gallery:"Gallery",timetable:"Timetable",exam_schedule:"Exam Schedule",attendance:"Attendance Record",results:"Results & Marks",leaderboard:"Class Leaderboard",report_card:"Report Card",hw_view:"Homework Board",upload:"Upload Files",post_notice:"Post Notice",manage_timetable:"Set Timetable",manage_results:"Enter Results",manage_attendance:"Mark Attendance",manage_students:"Students",copy_checking:"Copy Checking",homework:"Homework Manager",complain:"Complaints & Reports",student_info:"Student Information",assign_duty:"Assign Duty",my_duties:"My Duties",apply_leave:"Apply for Leave",manage_leaves:"Leave Requests",my_copy:"My Copy Records",manage_fees:"Fee Tracking",my_fees:"My Fees",audit_log:"Audit Log",certificates:"Certificates",my_avatar:"Profile Picture",my_achievements:"My Achievements",manage_achievements:"Achievements",spotlight_history:"Spotlight History"};
 
 function nav(btn){
   if(!btn) return;
@@ -3537,7 +3622,7 @@ function nav(btn){
   document.querySelectorAll(".page").forEach(p=>p.classList.remove("active")); document.getElementById("page-"+pid).classList.add("active");
   document.getElementById("pageTitle").textContent=PAGE_TITLES[pid]||pid;
   const backBtn=document.getElementById("backBtn");
-  backBtn.classList.toggle("show",["upload","post_notice","manage_timetable","manage_results","manage_attendance","manage_students","results","leaderboard","report_card","exam_schedule","copy_checking","homework","complain","student_info","assign_duty","my_duties","apply_leave","manage_leaves","my_copy","manage_fees","my_fees","audit_log","certificates","my_avatar"].includes(pid));
+  backBtn.classList.toggle("show",["upload","post_notice","manage_timetable","manage_results","manage_attendance","manage_students","results","leaderboard","report_card","exam_schedule","copy_checking","homework","complain","student_info","assign_duty","my_duties","apply_leave","manage_leaves","my_copy","manage_fees","my_fees","audit_log","certificates","my_avatar","my_achievements","manage_achievements","spotlight_history"].includes(pid));
   closeFolder();
   if(window.innerWidth<=820) closeMobSidebar();
   if(pid==="notices"||pid==="post_notice") renderNotices();
@@ -3571,6 +3656,9 @@ function nav(btn){
   if(pid==="audit_log") renderAuditLog();
   if(pid==="certificates") renderCertificatesPage();
   if(pid==="my_avatar") renderMyAvatarPage();
+  if(pid==="my_achievements") renderMyAchievements();
+  if(pid==="manage_achievements") renderManageAchievements();
+  if(pid==="spotlight_history") renderSpotlightHistory();
   _refreshNotifDot();
 }
 function handleBack(){ nav(document.querySelector("[data-page=dashboard]")); }
@@ -3638,6 +3726,8 @@ function renderDashboard(){
   _refreshNotifDot();
   renderWeeklySpotlight();
   renderSOTM();
+  try{computeAndAwardAutoAchievements();}catch(e){}
+  try{trackSpotlightHistory();}catch(e){}
 }
 
 // ═══════════════════════════════════════════
@@ -3659,12 +3749,25 @@ function getWeekDatesFrom(isoMonday){
   return dates;
 }
 
-function computeWeeklySpotlight(){
+// Converts a "DD/MM/YYYY" date string (the format results/attendance/copy dates are stored in)
+// to "YYYY-MM-DD" for chronological string comparison/sorting. Returns the input unchanged if
+// it's already ISO-shaped (no "/"), or null if it can't be parsed.
+function dmyToISO(d){
+  if(!d) return null;
+  if(!d.includes("/")) return d;
+  const p=d.split("/");
+  return p.length===3?`${p[2]}-${p[1].padStart(2,"0")}-${p[0].padStart(2,"0")}`:null;
+}
+
+function computeWeeklySpotlight(asOfDateISO){
   const students=DB.get("students")||[];
   const allAtt=DB.get("studentAttendance")||{};
   const results=DB.get("results")||[];
   const copySessions=DB.get("copySessions")||[];
-  const todayISO=new Date().toISOString().split("T")[0];
+  // "todayISO" here means "the cutoff date this snapshot is as of" — defaults to today, but
+  // trackSpotlightHistory() passes earlier dates to reconstruct what the rankings looked like
+  // on that day, using only the data that existed up to and including it.
+  const todayISO=asOfDateISO||new Date().toISOString().split("T")[0];
 
   // ── Attendance: all recorded days up to today ──
   const attScore={};
@@ -3759,17 +3862,19 @@ function computeWeeklySpotlight(){
   // Top Marks is sourced from the same ranking used on the Leaderboard page
   // (computeOverallLeaderboard: attempted-all-tests priority, then avg %, with
   // proper competition-style rank/tie handling) so the two stay consistent.
-  const {rows:lbRows}=computeOverallLeaderboard();
+  const {rows:lbRows}=computeOverallLeaderboard(asOfDateISO);
   const topMarks=lbRows.slice(0,5).map(r=>({
     id:r.studentId,name:r.name,roll:r.roll,
     mksPct:r.avgPct,rank:r.rank,attempted:r.attempted,hasAllTests:r.hasAllTests
   }));
-  const topOverall=[...rows].sort((a,b)=>b.overallScore-a.overallScore).slice(0,3);
+  // Kept at 5 (not just 3) so Spotlight History can track ranks 1–5, not only the podium
+  // shown live on the dashboard card below (which still only displays the top 3).
+  const topOverall=[...rows].sort((a,b)=>b.overallScore-a.overallScore).slice(0,5);
   const topCopy=[...rows].filter(r=>r.copTotal>0).sort((a,b)=>{
     const d=(b.copPct??-1)-(a.copPct??-1); return d!==0?d:b.copSubmitted-a.copSubmitted;
   }).slice(0,5);
 
-  return {topOverall,topAtt,topMarks,topCopy,firstDate,todayISO};
+  return {topOverall,topAtt,topMarks,topCopy,firstDate,todayISO,allRows:rows};
 }
 
 function spAvatarHTML(studentId,name,bg,color){
@@ -3795,7 +3900,8 @@ function renderWeeklySpotlight(){
   const posCls=["sp-pos-1","sp-pos-2","sp-pos-3","",""];
 
   const ov=topOverall[0];
-  const card1=topOverall.length?`<div class="sp-podium">${topOverall.map((s,i)=>`
+  const top3Overall=topOverall.slice(0,3); // live dashboard card still shows only the podium (top 3)
+  const card1=top3Overall.length?`<div class="sp-podium">${top3Overall.map((s,i)=>`
     <div class="sp-podium-row" style="flex-direction:column;align-items:flex-start;gap:4px;padding:6px 0;">
       <div style="display:flex;align-items:center;gap:8px;width:100%;">
         <span class="sp-pos ${posCls[i]}">${posIco[i]}</span>
@@ -3857,6 +3963,172 @@ function renderWeeklySpotlight(){
         ${card4}
       </div>
     </div>`;
+}
+
+// ═══════════════════════════════════════════
+// SPOTLIGHT HISTORY
+// Tracks who has held ranks 1–5 in each Student Spotlight criteria (Overall, Attendance,
+// Marks, Copy Submission) and for how long — a "reign" log, closed out the moment someone
+// else takes over a rank. Stored in DB "spotlightHistory": one array of
+// {id, criteria, rank, studentId, studentName, startDate, endDate} records — endDate:null
+// means that student currently holds that rank right now (an "open"/ongoing streak).
+//
+// This is fully reconstructed from the dated records already in the data (attendance days,
+// result dates, copy-session dates) rather than only tracked forward from whenever the app
+// happens to be opened: every distinct date something was recorded is "replayed" in order,
+// computing that day's top-5 in each criteria (via computeWeeklySpotlight's asOfDateISO) and
+// diffing it against the previous checkpoint. So the very first streak for each rank starts
+// on the actual first day data exists (not "today"), and anyone later bumped out of a rank
+// shows up with the real date they were bumped, not the day someone next opened the app.
+// ═══════════════════════════════════════════
+function _sphDaysBetween(a,b){ // a,b = "YYYY-MM-DD"; inclusive day count
+  const d1=new Date(a+"T00:00:00"), d2=new Date(b+"T00:00:00");
+  return Math.max(1,Math.round((d2-d1)/86400000)+1);
+}
+function trackSpotlightHistory(){
+  const students=DB.get("students")||[];
+  if(!students.length) return;
+  const allAtt=DB.get("studentAttendance")||{};
+  const results=DB.get("results")||[];
+  const copySessions=DB.get("copySessions")||[];
+  const todayISO=new Date().toISOString().split("T")[0];
+
+  // Every distinct date something was recorded — a ranking can only change on one of these
+  // days, so replaying just these checkpoints (instead of every calendar day) is enough to
+  // reconstruct the full timeline.
+  const dateSet=new Set();
+  Object.keys(allAtt).forEach(d=>{ if(d<=todayISO) dateSet.add(d); });
+  results.forEach(r=>{ const d=dmyToISO(r.date); if(d&&d<=todayISO) dateSet.add(d); });
+  copySessions.forEach(cs=>{ const d=dmyToISO(cs.date); if(d&&d<=todayISO) dateSet.add(d); });
+  if(!dateSet.size) return; // no dated data recorded yet — nothing to reconstruct
+  const checkpoints=[...dateSet].sort();
+  if(checkpoints[checkpoints.length-1]!==todayISO) checkpoints.push(todayISO); // always end "as of today" so the last streak reflects who's on top right now
+
+  const openByKey={}; // "criteria|rank" -> {studentId,studentName,startDate}
+  const history=[];
+  checkpoints.forEach(dateISO=>{
+    const {topOverall,topAtt,topMarks,topCopy}=computeWeeklySpotlight(dateISO);
+    const current={overall:topOverall.slice(0,5),attendance:topAtt.slice(0,5),marks:topMarks.slice(0,5),copy:topCopy.slice(0,5)};
+    ["overall","attendance","marks","copy"].forEach(criteria=>{
+      const list=current[criteria];
+      for(let rank=1;rank<=5;rank++){
+        const key=criteria+"|"+rank;
+        const holder=list[rank-1]||null;
+        const open=openByKey[key];
+        if(open&&holder&&open.studentId===holder.id) continue; // same student still at this rank as of this checkpoint — nothing changed
+        if(open){ history.push({id:"sph_"+open.studentId+"_"+key+"_"+open.startDate,criteria,rank,studentId:open.studentId,studentName:open.studentName,startDate:open.startDate,endDate:dateISO}); delete openByKey[key]; } // bumped from this rank as of this date — close their streak
+        if(holder){ openByKey[key]={studentId:holder.id,studentName:holder.name,startDate:dateISO}; } // new holder at this rank from this date — open a fresh streak
+      }
+    });
+  });
+  // Whatever's still open after the last checkpoint (today) is the current, ongoing holder
+  Object.keys(openByKey).forEach(key=>{
+    const [criteria,rankStr]=key.split("|"); const rank=parseInt(rankStr);
+    const open=openByKey[key];
+    history.push({id:"sph_"+open.studentId+"_"+key+"_"+open.startDate,criteria,rank,studentId:open.studentId,studentName:open.studentName,startDate:open.startDate,endDate:null});
+  });
+
+  DB.set("spotlightHistory",history);
+}
+
+let _sphCriteria="overall";
+const SPH_CRITERIA_META={
+  overall:{label:"Overall Best",icon:"🏅",color:"var(--gold)",bg:"rgba(232,160,32,0.15)"},
+  attendance:{label:"Top Attendance",icon:"✅",color:"#4a9eff",bg:"rgba(74,158,255,0.15)"},
+  marks:{label:"Top Marks",icon:"📊",color:"#3dba7e",bg:"rgba(61,186,126,0.15)"},
+  copy:{label:"Copy Submission",icon:"📋",color:"var(--gold)",bg:"rgba(232,160,32,0.15)"}
+};
+const SPH_RANK_ICO=["🥇","🥈","🥉","4️⃣","5️⃣"];
+function setSpotlightHistoryCriteria(c){
+  _sphCriteria=c;
+  document.getElementById("sphTabOverall").classList.toggle("active",c==="overall");
+  document.getElementById("sphTabAttendance").classList.toggle("active",c==="attendance");
+  document.getElementById("sphTabMarks").classList.toggle("active",c==="marks");
+  document.getElementById("sphTabCopy").classList.toggle("active",c==="copy");
+  document.getElementById("sphTabSOTM").classList.toggle("active",c==="sotm");
+  renderSpotlightHistory();
+}
+// Student of the Month doesn't fit the "days on top" streak model the other 4 criteria use —
+// it's a once-a-month event, not a continuous daily ranking. So instead of streaks, this counts
+// how many times each student has landed at each of the 5 shortlisted ranks, and lists which
+// months, using the shortlist already saved on each revealed studentOfMonth record.
+const SOTM_RANK_LABELS=["🥇 Winner (Rank 1)","🥈 Rank 2","🥉 Rank 3","4️⃣ Rank 4","5️⃣ Rank 5"];
+function renderSOTMHistory(el){
+  const records=(DB.get("studentOfMonth")||[]).slice().sort((a,b)=>a.monthKey<b.monthKey?-1:a.monthKey>b.monthKey?1:0);
+  if(!records.length){ el.innerHTML=`<div class="card"><div class="empty-state"><div class="empty-icon">🌟</div><div class="empty-text">No Student of the Month history yet</div><div class="empty-sub">Once a month is revealed, each of the top-5 shortlisted students will be tracked here — how many times they've placed at each rank, and in which months.</div></div></div>`; return; }
+
+  const byRank=[{},{},{},{},{}]; // byRank[i] = { studentId: {name, months:[monthLabel,...]} }
+  records.forEach(rec=>{
+    (rec.shortlist||[]).slice(0,5).forEach((c,idx)=>{
+      const bucket=byRank[idx];
+      if(!bucket[c.studentId]) bucket[c.studentId]={name:c.name,months:[]};
+      bucket[c.studentId].months.push(rec.monthLabel);
+    });
+  });
+
+  const sectionsHTML=byRank.map((bucket,idx)=>{
+    const entries=Object.entries(bucket).map(([sid,v])=>({name:v.name,count:v.months.length,months:v.months}));
+    if(!entries.length) return "";
+    entries.sort((a,b)=>b.count-a.count);
+    const rowsHTML=entries.map(e=>`<tr>
+        <td style="font-weight:600;">${e.name}</td>
+        <td style="text-align:center;font-weight:700;color:var(--gold);">${e.count}×</td>
+        <td style="font-size:12px;color:var(--muted);">${e.months.join(", ")}</td>
+      </tr>`).join("");
+    return `<div class="card" style="margin-bottom:14px;">
+      <div class="card-title">${SOTM_RANK_LABELS[idx]}</div>
+      <div style="overflow-x:auto;"><table class="students-table"><thead><tr><th>Student</th><th style="text-align:center;">Times</th><th>Months</th></tr></thead><tbody>${rowsHTML}</tbody></table></div>
+    </div>`;
+  }).join("");
+
+  el.innerHTML=sectionsHTML||`<div class="card"><div class="empty-state"><div class="empty-icon">🌟</div><div class="empty-text">No Student of the Month history yet</div></div></div>`;
+}
+function renderSpotlightHistory(){
+  const el=document.getElementById("spotlightHistoryContent"); if(!el) return;
+  if(_sphCriteria==="sotm"){ renderSOTMHistory(el); return; }
+  trackSpotlightHistory();
+  const meta=SPH_CRITERIA_META[_sphCriteria];
+  const todayISO=new Date().toISOString().split("T")[0];
+  const fmt=d=>{ const p=d.split("-"); return p[2]+"/"+p[1]+"/"+p[0]; };
+  const all=(DB.get("spotlightHistory")||[]).filter(h=>h.criteria===_sphCriteria).map(h=>Object.assign({},h,{rank:h.rank||1}));
+  if(!all.length){ el.innerHTML=`<div class="card"><div class="empty-state"><div class="empty-icon">📜</div><div class="empty-text">No history yet for ${meta.label}</div><div class="empty-sub">Once a student reaches the Top 5 here, their run at that rank gets tracked from that day on.</div></div></div>`; return; }
+
+  const openByRank={}; all.forEach(h=>{ if(h.endDate===null) openByRank[h.rank]=h; });
+  const currentCardsHTML=[1,2,3,4,5].map(rank=>{
+    const open=openByRank[rank]; if(!open) return "";
+    const days=_sphDaysBetween(open.startDate,todayISO);
+    return `<div class="spotlight-card" style="border-color:${meta.color}40;">
+      <div class="sp-label">${SPH_RANK_ICO[rank-1]} <span>Rank ${rank}</span></div>
+      <div style="display:flex;align-items:center;gap:9px;">
+        ${spAvatarHTML(open.studentId,open.studentName,meta.bg,meta.color)}
+        <div style="flex:1;min-width:0;">
+          <div style="font-weight:700;font-size:12.5px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${open.studentName}</div>
+          <div style="font-size:10px;color:var(--muted);">Since ${fmt(open.startDate)}</div>
+        </div>
+      </div>
+      <div style="text-align:center;margin-top:8px;">
+        <span style="font-weight:800;color:${meta.color};font-size:15px;">${days}</span>
+        <span style="font-size:10px;color:var(--muted);"> day${days!==1?"s":""}</span>
+      </div>
+    </div>`;
+  }).join("");
+
+  const rowsHTML=all.slice().sort((a,b)=>a.rank!==b.rank?a.rank-b.rank:(b.startDate<a.startDate?1:b.startDate>a.startDate?-1:0)).map(h=>{
+    const days=_sphDaysBetween(h.startDate,h.endDate||todayISO);
+    const ongoing=h.endDate===null;
+    return `<tr>
+      <td style="text-align:center;">${SPH_RANK_ICO[h.rank-1]||h.rank}</td>
+      <td style="font-weight:600;">${h.studentName}</td>
+      <td>${fmt(h.startDate)}</td>
+      <td>${ongoing?`<span style="color:${meta.color};font-weight:700;">Present</span>`:fmt(h.endDate)}</td>
+      <td style="text-align:center;font-weight:700;">${days} day${days!==1?"s":""}</td>
+    </tr>`;
+  }).join("");
+
+  el.innerHTML=`${currentCardsHTML?`<div class="sph-rank-grid" style="margin-bottom:14px;">${currentCardsHTML}</div>`:""}<div class="card">
+    <div class="card-title">📜 ${meta.icon} ${meta.label} — Full History (Ranks 1–5)</div>
+    <div style="overflow-x:auto;"><table class="students-table"><thead><tr><th>Rank</th><th>Student</th><th>From</th><th>To</th><th style="text-align:center;">Days on Top</th></tr></thead><tbody>${rowsHTML}</tbody></table></div>
+  </div>`;
 }
 
 // ═══════════════════════════════════════════
@@ -4978,6 +5250,7 @@ function setLeaderboardMode(mode){
   document.getElementById("lbModeOverallBtn").classList.toggle("active",mode==="overall");
   document.getElementById("lbModeTestBtn").classList.toggle("active",mode==="test");
   document.getElementById("lbModeExamTypeBtn").classList.toggle("active",mode==="examtype");
+  document.getElementById("lbModeOverallPerfBtn").classList.toggle("active",mode==="overallperf");
   document.getElementById("lbTestSelectWrap").style.display=mode==="test"?"":"none";
   document.getElementById("lbExamTypeSelectWrap").style.display=mode==="examtype"?"":"none";
   document.getElementById("lbOverallHint").style.display=mode==="overall"?"":"none";
@@ -5021,12 +5294,27 @@ function assignCompetitionRanks(rows,compareFn){
   return rows;
 }
 
+// Builds the "Overall Performance" leaderboard — every student, ranked by the same weighted
+// score already used for the Weekly Spotlight's "Overall Best" card (35% attendance + 40%
+// marks + 25% copy submission), except this shows the FULL class instead of only the top 3.
+function computeOverallPerformanceLeaderboard(){
+  const {allRows}=computeWeeklySpotlight();
+  const rows=allRows.map(r=>({studentId:r.id,name:r.name,roll:r.roll,attPct:r.attPct,mksPct:r.mksPct,copPct:r.copPct,overallScore:r.overallScore}));
+  rows.sort((a,b)=>b.overallScore-a.overallScore);
+  assignCompetitionRanks(rows,(a,b)=>Math.round(b.overallScore*10)-Math.round(a.overallScore*10));
+  return {rows};
+}
+
 // Builds the overall leaderboard.
 // Ranking rule: students who attempted EVERY declared test always rank above
 // students who missed one or more tests — regardless of total/average score.
 // Within the same "tests attempted" bracket, higher total score (sum of % across attempted tests) wins.
-function computeOverallLeaderboard(){
-  const results=DB.get("results")||[];
+// asOfDateISO (optional): when given, only counts results declared on or before that date —
+// used by Spotlight History to reconstruct what the marks ranking looked like on past dates.
+// Leaves normal (undated) calls, like the live Leaderboard page, completely unaffected.
+function computeOverallLeaderboard(asOfDateISO){
+  let results=DB.get("results")||[];
+  if(asOfDateISO) results=results.filter(r=>{ const d=dmyToISO(r.date); return d&&d<=asOfDateISO; });
   const students=(DB.get("students")||[]).sort((a,b)=>parseInt(a.roll)-parseInt(b.roll));
   const totalTests=results.length;
   if(!students.length||!totalTests) return {rows:[],totalTests};
@@ -5171,6 +5459,29 @@ function renderLeaderboard(){
             <td>${attBadge}</td>
             <td style="font-weight:700;color:${col};">${pct}%</td>
             <td><span style="font-weight:700;color:${col};">${gradeFor(pct)}</span></td>
+            <td><span class="lb-pct-bar"><span class="lb-pct-fill" style="width:${row.percentile}%;"></span></span><span style="font-size:11px;color:var(--muted);">${row.percentile}th</span></td>
+          </tr>`;
+        }).join("")}
+      </tbody></table></div>
+    </div>`;
+  } else if(lbMode==="overallperf"){
+    const {rows}=computeOverallPerformanceLeaderboard();
+    if(!rows.length){ el.innerHTML=`<div class="card"><div class="empty-state"><div class="empty-icon">🌟</div><div class="empty-text">No data recorded yet</div></div></div>`; return; }
+    el.innerHTML=`<div class="card">
+      <div class="card-title">🌟 Overall Performance — Class Ranking <span style="font-size:11px;color:var(--muted);font-weight:400;margin-left:6px;">(35% attendance + 40% marks + 25% copy submission)</span></div>
+      <div style="overflow-x:auto;"><table class="students-table"><thead><tr><th>Rank</th><th>Roll</th><th>Name</th><th>Attendance</th><th>Marks</th><th>Copy</th><th>Score</th><th>Percentile</th></tr></thead><tbody>
+        ${rows.map(row=>{
+          const isMe=u.role==="student"&&row.studentId===u.id;
+          const score=Math.round(row.overallScore*10)/10;
+          const col=gradeColor(score);
+          return `<tr class="${isMe?"lb-row-me":""}">
+            <td>${lbRankBadge(row.rank)}</td>
+            <td><span style="font-family:'Cormorant Garamond',serif;font-size:16px;color:var(--gold);">${row.roll}</span></td>
+            <td style="font-weight:600;"><div style="display:flex;align-items:center;gap:8px;">${avatarHTML(row.studentId,row.name,26,11)}<span>${row.name}${isMe?` <span style="font-size:10px;color:var(--gold);">(You)</span>`:""}</span></div></td>
+            <td style="color:#4a9eff;">${row.attPct!==null?Math.round(row.attPct)+"%":"—"}</td>
+            <td style="color:#3dba7e;">${row.mksPct!==null?Math.round(row.mksPct)+"%":"—"}</td>
+            <td style="color:var(--gold);">${row.copPct!==null?Math.round(row.copPct)+"%":"—"}</td>
+            <td style="font-weight:700;color:${col};">${score}%</td>
             <td><span class="lb-pct-bar"><span class="lb-pct-fill" style="width:${row.percentile}%;"></span></span><span style="font-size:11px;color:var(--muted);">${row.percentile}th</span></td>
           </tr>`;
         }).join("")}
@@ -7402,6 +7713,148 @@ function printReportCard(){
 }
 
 // ═══════════════════════════════════════════
+// ACHIEVEMENTS
+// Two kinds of achievement, stored together in DB "achievements" (one array, each record
+// {id,studentId,icon,title,desc,type:"auto"|"custom",key,awardedBy,awardedOn}):
+//  - "auto": awarded automatically by computeAndAwardAutoAchievements() based on live results,
+//    attendance and copy-submission data. Each rule has a stable "key" (e.g. "rank1-overall")
+//    so a student is only ever awarded that specific badge once, even though the function is
+//    safe to re-run any time (on page load, after a sync, etc.) — it only ever adds records
+//    for (student, key) pairs that don't already exist, never removes or duplicates one.
+//  - "custom": awarded personally by the Class Teacher via the Achievements page, for anything
+//    that isn't (and shouldn't be) auto-detected — effort, behaviour, sports, creativity, etc.
+// ═══════════════════════════════════════════
+const ACHIEVEMENT_ICON_CHOICES=["🏆","🥇","🥈","🥉","🌟","💯","📚","🎨","🤝","💪","🎤","🔬","🎯","📖","✨","👏","🚀","🎖️"];
+
+function computeAndAwardAutoAchievements(){
+  const students=DB.get("students")||[];
+  if(!students.length) return [];
+  const achievements=DB.get("achievements")||[];
+  const haveKey={}; // studentId -> Set of auto achievement keys already awarded
+  achievements.forEach(a=>{ if(a.type==="auto"){ if(!haveKey[a.studentId]) haveKey[a.studentId]=new Set(); haveKey[a.studentId].add(a.key); } });
+  const already=(studentId,key)=>haveKey[studentId]&&haveKey[studentId].has(key);
+  const toAdd=[];
+  const add=(studentId,key,icon,title,desc)=>{
+    if(already(studentId,key)) return;
+    if(!haveKey[studentId]) haveKey[studentId]=new Set();
+    haveKey[studentId].add(key); // prevents a duplicate within this same run too
+    toAdd.push({id:Date.now().toString()+"-"+Math.random().toString(36).slice(2,7),studentId,icon,title,desc,type:"auto",key,awardedBy:"System",awardedOn:new Date().toLocaleDateString("en-IN")});
+  };
+
+  // Overall leaderboard — Class Topper (rank 1) and Top 3 Performer
+  const {rows:overallRows}=computeOverallLeaderboard();
+  overallRows.forEach(row=>{
+    if(row.rank===1) add(row.studentId,"rank1-overall","🥇","Class Topper",`Ranked #1 on the Overall Leaderboard with a ${Math.round(row.avgPct*10)/10}% average.`);
+    if(row.rank>=1&&row.rank<=3) add(row.studentId,"top3-overall","🏆","Top 3 Performer",`Finished in the Top 3 of the Overall Leaderboard (Rank #${row.rank}).`);
+  });
+
+  // Multi-subject exam toppers (Periodic Test, Half Yearly, Pre-Boards, Annual Exam)
+  MULTI_EXAM_TYPES.forEach(examType=>{
+    const {rows}=computeExamTypeLeaderboard(examType);
+    rows.forEach(row=>{
+      if(row.rank===1) add(row.studentId,"examtopper-"+examType,"🎯",examType+" Topper",`Ranked #1 in ${examType} with a ${Math.round(row.avgPct*10)/10}% average.`);
+    });
+  });
+
+  // Per-student stats: attendance, copy submission, overall academic average
+  students.forEach(s=>{
+    const rep=buildStudentReport(s.id);
+    if(!rep) return;
+    if(rep.attPct===100&&rep.attTotal>=10) add(s.id,"perfect-attendance","💯","Perfect Attendance",`100% attendance across ${rep.attTotal} recorded days.`);
+    if(rep.copPct===100&&rep.copTotal>=5) add(s.id,"copy-champion","📔","Copy Submission Champion",`Submitted every copy check across ${rep.copTotal} sessions.`);
+    if(rep.avgPct!==null&&rep.avgPct>=90&&rep.testsCounted>=3) add(s.id,"excellence-overall","🌟","Academic Excellence",`Maintaining a ${rep.avgPct}% average across ${rep.testsCounted} recorded tests.`);
+  });
+
+  if(toAdd.length) DB.set("achievements",toAdd.concat(achievements));
+  return toAdd;
+}
+
+// ── Student view ──
+function renderMyAchievements(){
+  const el=document.getElementById("myAchievementsWrap"); if(!el||!currentUser) return;
+  computeAndAwardAutoAchievements();
+  const mine=(DB.get("achievements")||[]).filter(a=>a.studentId===currentUser.id).sort((a,b)=>(b.id>a.id?1:-1));
+  if(!mine.length){ el.innerHTML=`<div class="empty-state"><div class="empty-icon">🏅</div><div class="empty-text">No achievements yet</div><div class="empty-sub">Keep up your results, attendance and copy submission — badges are awarded automatically. Your Class Teacher can also award you one personally.</div></div>`; return; }
+  el.innerHTML=`<div style="font-size:13px;color:var(--muted);margin-bottom:14px;">${mine.length} achievement${mine.length!==1?"s":""} earned</div><div class="ach-grid">`+
+    mine.map(a=>achievementCardHTML(a)).join("")+`</div>`;
+}
+
+function achievementCardHTML(a,withDelete){
+  const isAuto=a.type==="auto";
+  return `<div class="ach-card">
+    <div class="ach-icon">${a.icon||"🏅"}</div>
+    <div class="ach-title">${a.title}</div>
+    <div class="ach-desc">${a.desc||""}</div>
+    <div class="ach-meta">
+      <span class="ach-type-tag" style="${isAuto?"background:rgba(74,158,255,0.15);color:#4a9eff;":"background:rgba(232,160,32,0.15);color:var(--gold);"}">${isAuto?"🤖 Automatic":"🎖️ "+a.awardedBy}</span>
+      <span>${a.awardedOn}</span>
+    </div>
+    ${withDelete?`<button class="btn btn-danger btn-sm" style="width:100%;margin-top:10px;" onclick="deleteAchievement('${a.id}')">🗑️ Remove</button>`:""}
+  </div>`;
+}
+
+// ── Class Teacher view ──
+function renderManageAchievements(){
+  const sel=document.getElementById("achStudentSelect"); if(!sel) return;
+  computeAndAwardAutoAchievements();
+  const students=(DB.get("students")||[]).sort((a,b)=>parseInt(a.roll)-parseInt(b.roll));
+  if(!students.length){ sel.innerHTML=`<option value="">No students registered</option>`; const list=document.getElementById("achStudentList"); if(list) list.innerHTML=""; return; }
+  const prev=sel.value;
+  sel.innerHTML=students.map(s=>`<option value="${s.id}">Roll ${s.roll} — ${s.name}</option>`).join("");
+  if(prev&&students.find(s=>s.id===prev)) sel.value=prev;
+
+  const picker=document.getElementById("achIconPicker");
+  if(picker&&!picker.dataset.built){
+    picker.innerHTML=ACHIEVEMENT_ICON_CHOICES.map(ic=>`<div class="ach-icon-pick" onclick="pickAchIcon('${ic}',this)">${ic}</div>`).join("");
+    picker.dataset.built="1";
+  }
+  renderAchievementsForSelectedStudent();
+}
+
+function pickAchIcon(icon,el){
+  document.querySelectorAll(".ach-icon-pick").forEach(p=>p.classList.remove("selected"));
+  if(el) el.classList.add("selected");
+  document.getElementById("achIcon").value=icon;
+}
+
+function renderAchievementsForSelectedStudent(){
+  const studentId=document.getElementById("achStudentSelect")?.value;
+  const list=document.getElementById("achStudentList"); if(!list) return;
+  if(!studentId){ list.innerHTML=`<div class="empty-state"><div class="empty-icon">🏅</div><div class="empty-text">Select a student</div></div>`; return; }
+  const mine=(DB.get("achievements")||[]).filter(a=>a.studentId===studentId).sort((a,b)=>(b.id>a.id?1:-1));
+  if(!mine.length){ list.innerHTML=`<div class="empty-state"><div class="empty-icon">🏅</div><div class="empty-text">No achievements yet for this student</div></div>`; return; }
+  list.innerHTML=`<div class="ach-grid">`+mine.map(a=>achievementCardHTML(a,a.type==="custom")).join("")+`</div>`;
+}
+
+function awardCustomAchievement(){
+  const studentId=document.getElementById("achStudentSelect").value;
+  const icon=document.getElementById("achIcon").value.trim()||"🏅";
+  const title=document.getElementById("achTitle").value.trim();
+  const desc=document.getElementById("achDesc").value.trim();
+  if(!studentId){ showToast("❌ Select a student"); return; }
+  if(!title){ showToast("❌ Enter a title for the achievement"); return; }
+  const students=DB.get("students")||[], s=students.find(x=>x.id===studentId);
+  const record={id:Date.now().toString(),studentId,icon,title,desc,type:"custom",awardedBy:currentUser.name,awardedOn:new Date().toLocaleDateString("en-IN")};
+  DB.push("achievements",record);
+  logAudit("Achievement","create",s?s.name:studentId,null,`Awarded "${title}"`);
+  ["achTitle","achDesc"].forEach(id=>{ const e=document.getElementById(id); if(e) e.value=""; });
+  document.getElementById("achIcon").value="";
+  document.querySelectorAll(".ach-icon-pick").forEach(p=>p.classList.remove("selected"));
+  showToast(`🏅 Achievement awarded to ${s?s.name:"student"}!`);
+  renderAchievementsForSelectedStudent();
+}
+
+async function deleteAchievement(id){
+  const achievements=DB.get("achievements")||[], a=achievements.find(x=>x.id===id); if(!a) return;
+  if(!await customConfirm(`Remove "${a.title}"?`,"Remove Achievement","🗑️","Remove")) return;
+  const students=DB.get("students")||[], s=students.find(x=>x.id===a.studentId);
+  DB.del("achievements",id);
+  logAudit("Achievement","delete",s?s.name:a.studentId,null,`Removed "${a.title}"`);
+  showToast("🗑️ Achievement removed");
+  renderAchievementsForSelectedStudent();
+}
+
+// ═══════════════════════════════════════════
 // CERTIFICATE GENERATOR
 // Simple printable certificates (top rank, perfect attendance, sports, or custom
 // achievements) — built the same way the report card produces a PDF: a styled printable
@@ -9017,3 +9470,11 @@ function escapeHtml(text) {
 
 </body>
 </html>
+
+
+
+
+
+
+
+
