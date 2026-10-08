@@ -1878,6 +1878,20 @@ button:active, .btn:active, .nav-btn:active, .auth-btn:active, .role-card:active
   </div>
 </div>
 
+<!-- REPORT CARD PRINT MODE MODAL (Normal / Top 5 Best Subjects) -->
+<div id="rcPrintModeOverlay" style="position:fixed;inset:0;background:rgba(11,28,54,0.85);backdrop-filter:blur(8px);z-index:700;display:none;align-items:center;justify-content:center;" onclick="if(event.target===this) resolveRcPrintMode(null)">
+  <div style="background:#122547;border:1px solid rgba(232,160,32,0.3);border-radius:16px;padding:26px 28px;width:380px;max-width:92vw;box-shadow:0 24px 60px rgba(0,0,0,0.5);">
+    <div style="font-size:28px;margin-bottom:8px;">🖨️</div>
+    <div style="font-family:'Cormorant Garamond',serif;font-size:20px;color:#f8f4ee;margin-bottom:6px;">Save Report Card as PDF</div>
+    <div style="font-size:13px;color:rgba(200,191,175,0.7);margin-bottom:18px;line-height:1.5;">Choose which version to save. <b style="color:#e8a020;">Top 5 Best Subjects</b>: if IT scored higher than your lowest of Maths, Science or SST, IT is counted and that subject becomes additional (Hindi and English are never replaced).</div>
+    <div style="display:flex;flex-direction:column;gap:10px;">
+      <button onclick="resolveRcPrintMode('normal')" style="padding:11px;background:linear-gradient(135deg,#e8a020,#c98510);color:#0b1c36;border:none;border-radius:9px;cursor:pointer;font-size:13px;font-weight:700;font-family:'DM Sans',sans-serif;">📄 Normal</button>
+      <button onclick="resolveRcPrintMode('top5')" style="padding:11px;background:rgba(232,160,32,0.12);border:1px solid rgba(232,160,32,0.5);color:#e8a020;border-radius:9px;cursor:pointer;font-size:13px;font-weight:700;font-family:'DM Sans',sans-serif;">⭐ Top 5 Best Subjects</button>
+      <button onclick="resolveRcPrintMode(null)" style="padding:10px;background:transparent;border:1px solid rgba(255,255,255,0.15);color:rgba(200,191,175,0.7);border-radius:9px;cursor:pointer;font-size:13px;font-family:'DM Sans',sans-serif;">Cancel</button>
+    </div>
+  </div>
+</div>
+
 <!-- STEP-UP RE-VERIFICATION MODAL (password or signature re-check before high-risk edits) -->
 <div id="stepUpOverlay" style="position:fixed;inset:0;background:rgba(11,28,54,0.9);backdrop-filter:blur(8px);z-index:900;display:none;align-items:center;justify-content:center;">
   <div style="background:#122547;border:1px solid rgba(232,160,32,0.35);border-radius:16px;padding:26px 28px;width:380px;max-width:92vw;box-shadow:0 24px 60px rgba(0,0,0,0.5);">
@@ -2722,14 +2736,15 @@ function exportResultsExcel(){
       const row={"Roll No.":s.roll,"Name":s.name,"Admission No.":s.admNo||"—"};
       let totalMarks=0,totalMax=0;
       subjIds.forEach(subId=>{
-        const sub=SUBJECTS.find(x=>x.id===subId);
-        const colName=sub?sub.name:subId;
+        const sub=subjLookup(subId);
+        const colName=(sub?sub.name:subId)+(ADDITIONAL_SUBJECT_IDS.includes(subId)?" (Additional)":"");
         const sr=subjectResults[subId];
         if(!sr){ row[colName]="—"; return; }
         const attempted=sr.tests.filter(t=>!t.absent&&t.marks!==null);
         const tMarks=attempted.reduce((a,t)=>a+t.marks,0);
         const tMax=attempted.reduce((a,t)=>a+t.max,0);
         row[colName]=tMax?`${tMarks}/${tMax}`:"—";
+        if(sr.additional) return; // additional subject (IT): shown, but not added to the overall %
         totalMarks+=tMarks; totalMax+=tMax;
       });
       row["Overall %"]=totalMax?Math.round(totalMarks/totalMax*100)+"%":"—";
@@ -2812,7 +2827,7 @@ const SUBJECTS=[
   {id:"games",name:"Games",emoji:"⚽",teacher:"Shyam Singh"},
   {id:"library",name:"Library",emoji:"📚",teacher:"Anil Kumar Singh"}
 ];
-const SUBJ_COLORS={maths:"#4a9eff",physics:"#ffd700",chemistry:"#3dba7e",biology:"#ff7eb6",english:"#e8a020",history:"#c060ff",geography:"#60d0ff",civics:"#ff9060",economics:"#60ff90",hindi:"#ff6060",computer:"#a0a0ff",atl:"#00e5cc",games:"#ff8c42",library:"#9b59b6"};
+const SUBJ_COLORS={maths:"#4a9eff",physics:"#ffd700",chemistry:"#3dba7e",biology:"#ff7eb6",english:"#e8a020",history:"#c060ff",geography:"#60d0ff",civics:"#ff9060",economics:"#60ff90",hindi:"#ff6060",science:"#3dba7e",sst:"#c060ff",it:"#a0a0ff",computer:"#a0a0ff",atl:"#00e5cc",games:"#ff8c42",library:"#9b59b6"};
 // School house system — assigned per student on the Students / Student Info pages only
 // (deliberately left out of the report card).
 const HOUSES=[
@@ -3791,6 +3806,7 @@ function computeWeeklySpotlight(asOfDateISO){
       if(p.length===3) rDateISO=`${p[2]}-${p[1].padStart(2,"0")}-${p[0].padStart(2,"0")}`;
     }
     if(rDateISO>todayISO) return;
+    if(isAdditionalResult(r)) return;
     (r.studentMarks||[]).forEach(m=>{
       if(!m.absent&&m.marks!==null&&m.marks!==undefined){
         marksScore[m.studentId]=marksScore[m.studentId]||{totalPct:0,count:0};
@@ -4165,7 +4181,7 @@ function _somComputeRows(monthKey){
   });
 
   const marksScore={}; students.forEach(s=>marksScore[s.id]={totalPct:0,count:0});
-  results.filter(r=>inMonth(r.date)).forEach(r=>{
+  results.filter(r=>inMonth(r.date)&&!isAdditionalResult(r)).forEach(r=>{
     (r.studentMarks||[]).forEach(m=>{
       if(!m.absent&&m.marks!==null&&m.marks!==undefined){
         marksScore[m.studentId]=marksScore[m.studentId]||{totalPct:0,count:0};
@@ -4825,8 +4841,34 @@ const MULTI_SUBJECTS=[
   {id:"sst",     name:"SST",     emoji:"🗺️"},
   {id:"hindi",   name:"Hindi",   emoji:"🇮🇳"},
   {id:"english", name:"English", emoji:"📖"},
-  {id:"it",      name:"IT",      emoji:"💻"},
+  {id:"it",      name:"IT",      emoji:"💻", additional:true},
 ];
+// Core subjects (Maths, Science, SST, Hindi, English) are fixed for every multi-subject exam and
+// are the only ones whose marks count toward totals / percentages / rank. Additional subjects
+// (currently IT) are optional per exam: marks are saved and shown, but never added to the total.
+const ADDITIONAL_SUBJECT_IDS=MULTI_SUBJECTS.filter(s=>s.additional).map(s=>s.id);
+function isAdditionalResult(r){ return !!r&&(r.additional===true||(r.multiExam===true&&ADDITIONAL_SUBJECT_IDS.includes(r.subject))); }
+// Top-5-best-subjects view: Hindi and English can never be replaced. Within one multi-subject exam,
+// if IT scored higher than the student's lowest-scoring replaceable subject (Maths / Science / SST),
+// IT is counted and that lowest subject becomes the additional one (marks shown, not added).
+const TOP5_REPLACEABLE_IDS=["maths","science","sst"];
+let _rcMarksMode="normal";
+function rcTop5Overrides(studentId,results){
+  const ov={}, swaps=[];
+  const pctOf=r=>{ const m=(r.studentMarks||[]).find(x=>x.studentId===studentId); return (m&&!m.absent&&m.marks!==null&&m.marks!==undefined&&r.max)?m.marks/r.max*100:null; };
+  const exams=[...new Set(results.filter(r=>r.multiExam||MULTI_EXAM_TYPES.includes(r.test)).map(r=>r.test))];
+  exams.forEach(ex=>{
+    const rs=results.filter(r=>r.test===ex);
+    const it=rs.find(r=>ADDITIONAL_SUBJECT_IDS.includes(r.subject));
+    if(!it) return;
+    const itPct=pctOf(it); if(itPct===null) return;
+    let worst=null,worstPct=null;
+    rs.filter(r=>TOP5_REPLACEABLE_IDS.includes(r.subject)).forEach(r=>{ const p=pctOf(r); if(p!==null&&(worstPct===null||p<worstPct)){ worst=r; worstPct=p; } });
+    if(worst&&itPct>worstPct){ ov[it.id]=false; ov[worst.id]=true; swaps.push({exam:ex,out:worst.subject,into:it.subject}); }
+  });
+  return {ov,swaps};
+}
+function subjLookup(id){ return SUBJECTS.find(x=>x.id===id)||MULTI_SUBJECTS.find(x=>x.id===id); }
 
 function setResMode(mode){
   document.getElementById("resSingleWrap").style.display=mode==="single"?"":"none";
@@ -4840,8 +4882,8 @@ function renderMultiMaxGrid(){
   const el=document.getElementById("multiMaxGrid"); if(!el) return;
   el.innerHTML=MULTI_SUBJECTS.map(s=>`
     <div style="background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.08);border-radius:9px;padding:10px 12px;">
-      <label style="display:flex;align-items:center;gap:6px;font-size:12px;font-weight:600;margin-bottom:6px;cursor:pointer;">
-        <input type="checkbox" id="multiInc_${s.id}" checked onchange="toggleMultiSubjInclude('${s.id}')" style="width:15px;height:15px;accent-color:var(--gold);cursor:pointer;">
+      <label style="display:flex;align-items:center;gap:6px;font-size:12px;font-weight:600;margin-bottom:6px;cursor:${s.additional?"pointer":"default"};">
+        <input type="checkbox" id="multiInc_${s.id}" checked ${s.additional?"":"disabled"} onchange="toggleMultiSubjInclude('${s.id}')" style="width:15px;height:15px;accent-color:var(--gold);cursor:${s.additional?"pointer":"not-allowed"};">
         ${s.emoji} ${s.name}
       </label>
       <input type="number" id="multiMax_${s.id}" min="1" placeholder="Max marks"
@@ -4867,12 +4909,14 @@ function setupMultiResultSheet(){
   const subjects=[];
   for(const s of MULTI_SUBJECTS){
     const inc=document.getElementById("multiInc_"+s.id);
-    if(inc&&!inc.checked) continue; // subject not selected for this exam — skip it
+    if(s.additional&&inc&&!inc.checked) continue; // optional additional subject not selected — skip it (core subjects are always included)
     const max=parseInt(document.getElementById("multiMax_"+s.id).value);
     if(!max||max<1){ showToast(`❌ Enter max marks for ${s.name}`); return; }
     subjects.push({...s, max});
   }
   if(!subjects.length){ showToast("❌ Select at least one subject"); return; }
+  // Core subjects first, additional ones after (so the total column sits between them)
+  subjects.sort((a,b)=>(a.additional?1:0)-(b.additional?1:0));
   const students=(DB.get("students")||[]).sort((a,b)=>parseInt(a.roll)-parseInt(b.roll));
   multiExamState={name, date:date||new Date().toLocaleDateString("en-IN"), remarks, subjects, students};
   document.getElementById("multiSetupCard").style.display="none";
@@ -4880,7 +4924,7 @@ function setupMultiResultSheet(){
   document.getElementById("multiExamSummaryBar").innerHTML=`<div style="display:flex;gap:16px;flex-wrap:wrap;">
     <div><div style="color:var(--muted);font-size:11px;">EXAM</div><div style="font-weight:600;">${name}</div></div>
     <div><div style="color:var(--muted);font-size:11px;">DATE</div><div style="font-weight:600;">${date||"—"}</div></div>
-    <div><div style="color:var(--muted);font-size:11px;">SUBJECTS</div><div style="font-weight:600;color:var(--gold);">${subjects.map(s=>s.emoji+" "+s.name).join("  ·  ")}</div></div>
+    <div><div style="color:var(--muted);font-size:11px;">SUBJECTS</div><div style="font-weight:600;color:var(--gold);">${subjects.map(s=>s.emoji+" "+s.name+(s.additional?" (additional)":"")).join("  ·  ")}</div></div>
     ${remarks?`<div><div style="color:var(--muted);font-size:11px;">REMARKS</div><div style="font-size:12px;">${remarks}</div></div>`:""}
   </div>`;
   renderMultiMarksGrid();
@@ -4900,11 +4944,8 @@ function renderMultiMarksGrid(){
   const thL=`padding:9px 10px;text-align:left;color:var(--gold);font-size:11px;font-weight:700;letter-spacing:.4px;text-transform:uppercase;border-bottom:1px solid rgba(232,160,32,0.2);`;
   const inpS=`width:58px;padding:5px 3px;text-align:center;background:rgba(255,255,255,0.07);border:1.5px solid rgba(255,255,255,0.1);border-radius:7px;color:var(--white);font-size:13px;font-weight:700;outline:none;`;
 
-  const rows=students.map(s=>`
-    <tr id="mmrow_${s.id}" style="border-bottom:1px solid rgba(255,255,255,0.04);">
-      <td style="padding:6px 10px;"><span style="font-family:'Cormorant Garamond',serif;font-size:18px;color:var(--gold);">${s.roll}</span></td>
-      <td style="padding:6px 10px;font-size:13px;font-weight:600;white-space:nowrap;">${s.name}</td>
-      ${subjects.map(sub=>`
+  const coreSubs=subjects.filter(x=>!x.additional), addSubs=subjects.filter(x=>x.additional);
+  const cellHTML=(s,sub)=>`
       <td style="padding:5px 4px;text-align:center;" id="mmcell_${s.id}_${sub.id}">
         <div style="display:flex;flex-direction:column;align-items:center;gap:3px;">
           <input type="number" id="mmk_${s.id}_${sub.id}" min="0" max="${sub.max}"
@@ -4917,18 +4958,25 @@ function renderMultiMarksGrid(){
             AB
           </button>
         </div>
-      </td>`).join("")}
+      </td>`;
+  const rows=students.map(s=>`
+    <tr id="mmrow_${s.id}" style="border-bottom:1px solid rgba(255,255,255,0.04);">
+      <td style="padding:6px 10px;"><span style="font-family:'Cormorant Garamond',serif;font-size:18px;color:var(--gold);">${s.roll}</span></td>
+      <td style="padding:6px 10px;font-size:13px;font-weight:600;white-space:nowrap;">${s.name}</td>
+      ${coreSubs.map(sub=>cellHTML(s,sub)).join("")}
       <td style="padding:6px 10px;text-align:center;" id="mmtotal_${s.id}">
         <span style="font-size:12px;color:var(--muted);">—</span>
       </td>
+      ${addSubs.map(sub=>cellHTML(s,sub)).join("")}
     </tr>`).join("");
 
   el.innerHTML=`<table style="width:100%;border-collapse:collapse;font-size:13px;min-width:600px;">
     <thead><tr style="background:rgba(255,255,255,0.02);">
       <th style="${thL}">Roll</th>
       <th style="${thL}">Name</th>
-      ${subjects.map(sub=>`<th style="${thS}">${sub.emoji}<br><span style="font-size:10px;">${sub.name}</span><br><span style="color:var(--muted);font-size:10px;font-weight:400;">/${sub.max}</span></th>`).join("")}
-      <th style="${thS}">Total</th>
+      ${coreSubs.map(sub=>`<th style="${thS}">${sub.emoji}<br><span style="font-size:10px;">${sub.name}</span><br><span style="color:var(--muted);font-size:10px;font-weight:400;">/${sub.max}</span></th>`).join("")}
+      <th style="${thS}">Total<br><span style="color:var(--muted);font-size:9px;font-weight:400;text-transform:none;">(core subjects)</span></th>
+      ${addSubs.map(sub=>`<th style="${thS}color:#4a9eff;">${sub.emoji}<br><span style="font-size:10px;">${sub.name}</span><br><span style="font-size:9px;font-weight:400;text-transform:none;">additional · /${sub.max}</span></th>`).join("")}
     </tr></thead>
     <tbody>${rows}</tbody>
   </table>`;
@@ -4976,7 +5024,7 @@ function toggleMultiSubjAbsent(sid,subjId){
 
 function updateStudentTotal(sid){
   if(!multiExamState) return;
-  const {subjects}=multiExamState;
+  const subjects=multiExamState.subjects.filter(x=>!x.additional); // additional subjects (IT) never count toward the total
   const totalEl=document.getElementById("mmtotal_"+sid); if(!totalEl) return;
 
   let total=0,maxTotal=0,filledCount=0,absentCount=0;
@@ -5067,7 +5115,8 @@ async function submitMultiResults(){
       lowest:allM.length?Math.min(...allM):null,
       studentMarks:marks,
       declaredOn:new Date().toLocaleDateString("en-IN"),
-      multiExam:true
+      multiExam:true,
+      additional:!!sub.additional
     };
     DB.push("results",result);
     notifs.unshift({id:(Date.now()+savedCount+1000).toString(),msg:`Results declared: ${name} — ${sub.name} (Max: ${sub.max})`,time:new Date().toLocaleString("en-IN"),read:false,resultId:result.id});
@@ -5313,7 +5362,7 @@ function computeOverallPerformanceLeaderboard(){
 // used by Spotlight History to reconstruct what the marks ranking looked like on past dates.
 // Leaves normal (undated) calls, like the live Leaderboard page, completely unaffected.
 function computeOverallLeaderboard(asOfDateISO){
-  let results=DB.get("results")||[];
+  let results=(DB.get("results")||[]).filter(r=>!isAdditionalResult(r));
   if(asOfDateISO) results=results.filter(r=>{ const d=dmyToISO(r.date); return d&&d<=asOfDateISO; });
   const students=(DB.get("students")||[]).sort((a,b)=>parseInt(a.roll)-parseInt(b.roll));
   const totalTests=results.length;
@@ -5356,7 +5405,7 @@ function computeOverallLeaderboard(asOfDateISO){
 // the overall board, but counting only that exam type's subject-wise results instead of every
 // declared test.
 function computeExamTypeLeaderboard(examType){
-  const results=(DB.get("results")||[]).filter(r=>r.test===examType);
+  const results=(DB.get("results")||[]).filter(r=>r.test===examType&&!isAdditionalResult(r));
   const students=(DB.get("students")||[]).sort((a,b)=>parseInt(a.roll)-parseInt(b.roll));
   const totalTests=results.length;
   if(!students.length||!totalTests) return {rows:[],totalTests};
@@ -7380,7 +7429,7 @@ function initReportCardPage(){
 // One of MULTI_EXAM_TYPES = only that multi-subject exam's results.
 // "Class Test" = only single-subject results (anything not tagged as one of the 4 fixed
 // multi-subject exam types) — covers the free-text "Class Test" flow as it's always worked.
-function buildStudentReport(studentId,examTypeFilter){
+function buildStudentReport(studentId,examTypeFilter,marksMode){
   const students=DB.get("students")||[];
   const allAtt=DB.get("studentAttendance")||{};
   const allResults=DB.get("results")||[];
@@ -7389,6 +7438,9 @@ function buildStudentReport(studentId,examTypeFilter){
 
   const s=students.find(x=>x.id===studentId);
   if(!s) return null;
+  // Normal view: only IT is additional. Top-5 view: lowest of Maths/Science/SST may swap with IT.
+  const top5=marksMode==="top5"?rcTop5Overrides(studentId,results):{ov:{},swaps:[]};
+  const addOf=r=>(r.id in top5.ov)?top5.ov[r.id]:isAdditionalResult(r);
 
   // ── Attendance ──
   let attPresent=0,attTotal=0;
@@ -7403,14 +7455,16 @@ function buildStudentReport(studentId,examTypeFilter){
   results.forEach(r=>{
     const m=(r.studentMarks||[]).find(x=>x.studentId===studentId);
     if(!m) return;
-    if(!subjectResults[r.subject]) subjectResults[r.subject]={tests:[],subjectId:r.subject};
+    if(!subjectResults[r.subject]) subjectResults[r.subject]={tests:[],subjectId:r.subject,additional:false};
     subjectResults[r.subject].tests.push({
-      testName:r.test, max:r.max,
+      testName:r.test, max:r.max, additional:addOf(r),
       marks:m.absent?null:m.marks,
       absent:m.absent||false,
       date:r.date
     });
   });
+
+  Object.keys(subjectResults).forEach(k=>{ subjectResults[k].additional=subjectResults[k].tests.every(x=>x.additional); });
 
   // ── Copy submission ──
   let copSubmitted=0,copTotal=0;
@@ -7434,6 +7488,7 @@ function buildStudentReport(studentId,examTypeFilter){
   // "all" gives the old overall average, a specific exam type gives that exam's average only)
   let filAttempted=0,filTotalPct=0,filTotalMarks=0,filTotalMax=0;
   results.forEach(r=>{
+    if(addOf(r)) return; // additional subjects are shown but never added to totals / averages
     const m=(r.studentMarks||[]).find(x=>x.studentId===studentId);
     if(m&&!m.absent&&m.marks!==null&&m.marks!==undefined){
       filAttempted++;
@@ -7445,7 +7500,8 @@ function buildStudentReport(studentId,examTypeFilter){
   const avgPct=filAttempted?Math.round(filTotalPct/filAttempted):null;
 
   return {student:s, attPresent, attTotal, attPct, subjectResults, copSubmitted, copTotal, copPct, rank, totalRanked, totalTests, avgPct,
-    totalMarksSum:filTotalMarks, totalMaxSum:filTotalMax, testsCounted:filAttempted};
+    totalMarksSum:filTotalMarks, totalMaxSum:filTotalMax, testsCounted:filAttempted,
+    marksMode:marksMode==="top5"?"top5":"normal", overrides:top5.ov, swaps:top5.swaps};
 }
 
 function rcGradeInfo(pct){
@@ -7459,48 +7515,38 @@ function rcGradeInfo(pct){
   return {grade:"F",col:"#c01a1a",bg:"#fae6e6"};
 }
 
-// ── Marks trend line chart (one line per subject, % over time) ──
-// Uses the same subjectResults the report card already computed, so it automatically
-// respects whatever exam-type filter is active. Colors reuse SUBJ_COLORS for consistency
-// with the rest of the app. All colors are literal hex (not CSS vars) since this renders
-// inside the printable, light-themed report card, not the app's dark theme.
-function buildMarksTrendChart(subjectResults){
-  const series=Object.keys(subjectResults).map(subjId=>{
-    const sub=SUBJECTS.find(x=>x.id===subjId);
-    const pts=subjectResults[subjId].tests
-      .filter(t=>!t.absent&&t.marks!==null&&t.max)
-      .slice().sort((a,b)=>(a.date||"").localeCompare(b.date||""))
-      .map(t=>({date:t.date,pct:Math.round(t.marks/t.max*100),label:t.testName}));
-    return {subjId,name:sub?sub.name:subjId,emoji:sub?sub.emoji:"📘",color:SUBJ_COLORS[subjId]||"#888",pts};
-  }).filter(s=>s.pts.length);
-  if(!series.length) return null;
-
-  const allDates=[...new Set(series.flatMap(s=>s.pts.map(p=>p.date)))].sort();
-  const W=680,H=210,padL=32,padR=10,padT=10,padB=10;
-  const plotW=W-padL-padR,plotH=H-padT-padB;
-  const xFor=date=>allDates.length>1?padL+(allDates.indexOf(date)/(allDates.length-1))*plotW:padL+plotW/2;
-  const yFor=pct=>padT+(1-pct/100)*plotH;
-
-  let gridSVG="";
-  [0,25,50,75,100].forEach(g=>{
-    const y=yFor(g);
-    gridSVG+=`<line x1="${padL}" y1="${y}" x2="${W-padR}" y2="${y}" stroke="#eee" stroke-width="1"/><text x="${padL-6}" y="${y+3}" text-anchor="end" font-size="9" fill="#999">${g}</text>`;
-  });
-
-  let linesSVG="";
-  series.forEach(s=>{
-    if(s.pts.length>1){
-      const pts=s.pts.map(p=>`${xFor(p.date).toFixed(1)},${yFor(p.pct).toFixed(1)}`).join(" ");
-      linesSVG+=`<polyline points="${pts}" fill="none" stroke="${s.color}" stroke-width="2.5" stroke-linejoin="round" stroke-linecap="round"/>`;
-    }
-    s.pts.forEach(p=>{
-      linesSVG+=`<circle cx="${xFor(p.date).toFixed(1)}" cy="${yFor(p.pct).toFixed(1)}" r="3.5" fill="${s.color}" stroke="#fff" stroke-width="1"><title>${s.name} — ${p.label}: ${p.pct}%</title></circle>`;
-    });
-  });
-
-  const legendHTML=series.map(s=>`<span style="display:inline-flex;align-items:center;gap:5px;margin-right:14px;margin-bottom:6px;font-size:11px;color:#666;"><span style="width:9px;height:9px;border-radius:50%;background:${s.color};display:inline-block;"></span>${s.emoji} ${s.name}</span>`).join("");
-
-  return `<svg viewBox="0 0 ${W} ${H}" style="width:100%;height:auto;display:block;">${gridSVG}${linesSVG}</svg><div style="margin-top:8px;">${legendHTML}</div>`;
+// ── Auto remark — written from the student's exam performance (core subjects only; additional
+// subjects like IT are excluded, same as the totals). Uses the average %, the weakest/strongest
+// core subject and any failed subjects, so the line reads differently for each student.
+function buildReportRemark(d){
+  const {student:s,avgPct,subjectResults}=d;
+  const first=(s.name||"The student").trim().split(/\s+/)[0];
+  if(avgPct===null||avgPct===undefined) return null;
+  const subs=Object.keys(subjectResults).filter(id=>!subjectResults[id].additional).map(id=>{
+    const att=subjectResults[id].tests.filter(t=>!t.absent&&t.marks!==null&&t.max);
+    const mk=att.reduce((a,t)=>a+t.marks,0), mx=att.reduce((a,t)=>a+t.max,0);
+    const sub=subjLookup(id);
+    return mx?{name:sub?sub.name:id,pct:Math.round(mk/mx*100)}:null;
+  }).filter(Boolean).sort((a,b)=>b.pct-a.pct);
+  let tone,lead;
+  if(avgPct>=90){ tone="Outstanding"; lead=`${first} has delivered an outstanding performance with ${avgPct}%. Excellent work — keep up this consistency.`; }
+  else if(avgPct>=80){ tone="Excellent"; lead=`${first} has performed excellently with ${avgPct}%. A little more polish can push this into the top bracket.`; }
+  else if(avgPct>=70){ tone="Very Good"; lead=`${first} has shown very good results with ${avgPct}%. Steady practice will lift this further.`; }
+  else if(avgPct>=60){ tone="Good"; lead=`${first} has performed well with ${avgPct}%, but there is clear room to improve with regular revision.`; }
+  else if(avgPct>=50){ tone="Satisfactory"; lead=`${first}'s performance is satisfactory at ${avgPct}%. More focused study and regular practice are needed.`; }
+  else if(avgPct>=33){ tone="Needs Improvement"; lead=`${first} has scored ${avgPct}%, which is just above the pass mark. Serious effort and extra practice are needed.`; }
+  else { tone="Needs Urgent Attention"; lead=`${first} has scored ${avgPct}%, which is below the pass mark. Immediate attention, extra guidance and daily practice are strongly advised.`; }
+  let detail="";
+  if(subs.length>=2){
+    const best=subs[0], worst=subs[subs.length-1];
+    const failed=subs.filter(x=>x.pct<33).map(x=>x.name);
+    if(failed.length) detail+=` Special attention is required in ${failed.join(", ")}.`;
+    else if(best.pct-worst.pct>=5&&worst.pct<60) detail+=` Strongest in ${best.name}; ${worst.name} needs more work.`;
+    else if(best.pct-worst.pct>=5) detail+=` Strongest subject: ${best.name}.`;
+  }
+  const att=d.attPct;
+  if(att!==null&&att!==undefined&&att<75) detail+=` Attendance (${att}%) is below 75% — regular attendance will help improve results.`;
+  return {tone,text:lead+detail};
 }
 
 // ── Attendance calendar heatmap (month blocks of colored day-cells) ──
@@ -7541,6 +7587,14 @@ function buildAttendanceHeatmap(studentId){
 }
 let _rcExamFilter="all";
 function setRcExamFilter(val){ _rcExamFilter=val; renderReportCard(); }
+// Top 5 Best Subjects is offered only for a single multi-subject exam (Periodic Test, Half Yearly,
+// Pre-Boards, Annual Exam) in which ALL subjects, including IT, have been conducted.
+function rcTop5Available(examFilter){
+  if(!examFilter||!MULTI_EXAM_TYPES.includes(examFilter)) return false;
+  const rs=(DB.get("results")||[]).filter(r=>r.test===examFilter);
+  return MULTI_SUBJECTS.every(ms=>rs.some(r=>r.subject===ms.id));
+}
+function setRcMarksMode(val){ _rcMarksMode=val==="top5"?"top5":"normal"; renderReportCard(); }
 function renderReportCard(){
   const u=currentUser;
   const el=document.getElementById("reportCardContent"); if(!el) return;
@@ -7553,7 +7607,9 @@ function renderReportCard(){
   }
   if(!studentId){ el.innerHTML=`<div class="card"><div class="empty-state"><div class="empty-icon">📄</div><div class="empty-text">Select a student to generate report</div></div></div>`; return; }
 
-  const d=buildStudentReport(studentId,_rcExamFilter);
+  const top5Ok=rcTop5Available(_rcExamFilter);
+  if(!top5Ok) _rcMarksMode="normal"; // option not available for this selection — fall back to normal
+  const d=buildStudentReport(studentId,_rcExamFilter,_rcMarksMode);
   if(!d){ el.innerHTML=`<div class="card"><div class="empty-state"><div class="empty-icon">❌</div><div class="empty-text">Student data not found</div></div></div>`; return; }
 
   const {student:s,attPresent,attTotal,attPct,subjectResults,copSubmitted,copTotal,copPct,rank,totalRanked,avgPct,totalMarksSum,totalMaxSum,testsCounted}=d;
@@ -7563,20 +7619,22 @@ function renderReportCard(){
 
   // ── Exam type filter (kept outside #rcPrintArea, so it's never part of the printed card) ──
   const examFilterOptions=[["all","All Exams (as it is)"],["Class Test","📝 Class Test"],["Periodic Test","📋 Periodic Test"],["Half Yearly","📖 Half Yearly"],["Pre-Boards","🎯 Pre-Boards"],["Annual Exam","🏆 Annual Exam"]];
-  const examFilterHTML=`<div class="card" style="margin-bottom:16px;"><div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap;"><label class="form-label" style="margin:0;">Show:</label><select class="form-input" style="max-width:220px;" onchange="setRcExamFilter(this.value)">${examFilterOptions.map(([v,l])=>`<option value="${v}" ${_rcExamFilter===v?"selected":""}>${l}</option>`).join("")}</select></div></div>`;
+  const examFilterHTML=`<div class="card" style="margin-bottom:16px;"><div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap;"><label class="form-label" style="margin:0;">Show:</label><select class="form-input" style="max-width:220px;" onchange="setRcExamFilter(this.value)">${examFilterOptions.map(([v,l])=>`<option value="${v}" ${_rcExamFilter===v?"selected":""}>${l}</option>`).join("")}</select>
+    ${top5Ok?`<label class="form-label" style="margin:0 0 0 8px;">Marks:</label><select class="form-input" style="max-width:220px;" onchange="setRcMarksMode(this.value)"><option value="normal" ${_rcMarksMode!=="top5"?"selected":""}>Normal</option><option value="top5" ${_rcMarksMode==="top5"?"selected":""}>⭐ Top 5 Best Subjects</option></select>`:""}</div></div>`;
 
   // ── Subject rows ──
-  const subjKeys=Object.keys(subjectResults);
+  const subjKeys=Object.keys(subjectResults).sort((a,b)=>(subjectResults[a].additional?1:0)-(subjectResults[b].additional?1:0)); // core first, additional last
   const subjRows=subjKeys.length?subjKeys.map(subjId=>{
-    const sub=SUBJECTS.find(x=>x.id===subjId);
+    const sub=subjLookup(subjId);
+    const isAdd=!!subjectResults[subjId].additional;
     const tests=subjectResults[subjId].tests;
     const attempted=tests.filter(t=>!t.absent&&t.marks!==null);
     const totalMarks=attempted.reduce((a,t)=>a+t.marks,0);
     const totalMax=attempted.reduce((a,t)=>a+t.max,0);
     const subPct=totalMax?Math.round(totalMarks/totalMax*100):null;
     const gr=rcGradeInfo(subPct);
-    return `<tr>
-      <td>${sub?sub.emoji+" "+sub.name:subjId}</td>
+    return `<tr${isAdd?` style="background:#f4f8ff;"`:""}>
+      <td>${sub?sub.emoji+" "+sub.name:subjId}${isAdd?` <span style="font-size:9px;font-weight:700;color:#1a5fa0;background:#e6f0fa;padding:1px 6px;border-radius:8px;">ADDITIONAL</span>`:""}</td>
       <td style="text-align:center;">${attempted.length}/${tests.length}</td>
       <td style="text-align:center;font-weight:700;">${totalMax?totalMarks+"/"+totalMax:"—"}</td>
       <td style="text-align:center;font-weight:700;color:${gr.col};">${subPct!==null?subPct+"%":"—"}</td>
@@ -7591,13 +7649,13 @@ function renderReportCard(){
     src.forEach(r=>{
       const m=(r.studentMarks||[]).find(x=>x.studentId===studentId);
       if(!m) return;
-      const sub=SUBJECTS.find(x=>x.id===r.subject);
+      const sub=subjLookup(r.subject);
       const pct=(!m.absent&&m.marks!==null)?Math.round(m.marks/r.max*100):null;
       const gr=rcGradeInfo(pct);
       rows.push(`<tr>
         <td>${r.date||"—"}</td>
         <td>${r.test}</td>
-        <td>${sub?sub.emoji+" "+sub.name:r.subject}</td>
+        <td>${sub?sub.emoji+" "+sub.name:r.subject}${((r.id in d.overrides)?d.overrides[r.id]:isAdditionalResult(r))?` <span style="font-size:9px;color:#1a5fa0;">(additional)</span>`:""}</td>
         <td style="text-align:center;">${r.max}</td>
         <td style="text-align:center;font-weight:700;color:${m.absent?"#c01a1a":gr.col};">${m.absent?"Absent":(m.marks!==null?m.marks:"—")}</td>
         <td style="text-align:center;font-weight:700;color:${gr.col};">${pct!==null?pct+"%":"—"}</td>
@@ -7615,7 +7673,7 @@ function renderReportCard(){
     <div class="rc-header">
       <div class="rc-school">🏫 USCD DAV Public School</div>
       <div class="rc-title">Student Progress Report Card</div>
-      <div class="rc-sub">Class X — SBS &nbsp;·&nbsp; Generated on ${now}${_rcExamFilter&&_rcExamFilter!=="all"?` &nbsp;·&nbsp; <strong>${_rcExamFilter}</strong> only`:""}</div>
+      <div class="rc-sub">Class X — SBS &nbsp;·&nbsp; Generated on ${now}${_rcExamFilter&&_rcExamFilter!=="all"?` &nbsp;·&nbsp; <strong>${_rcExamFilter}</strong> only`:""}${d.marksMode==="top5"?` &nbsp;·&nbsp; <strong>Top 5 Best Subjects</strong>`:""}</div>
     </div>
     <!-- Student Info -->
     <div class="rc-info-grid" style="background:#fff;">
@@ -7657,12 +7715,9 @@ function renderReportCard(){
         <thead><tr><th>Subject</th><th style="text-align:center;">Tests</th><th style="text-align:center;">Marks</th><th style="text-align:center;">%</th><th style="text-align:center;">Grade</th></tr></thead>
         <tbody>${subjRows}</tbody>
       </table>
+      ${subjKeys.some(k=>subjectResults[k].additional)?`<div style="font-size:11px;color:#888;margin-top:8px;">ℹ️ Additional subjects (e.g. IT) are shown for reference only — their marks are not included in the total or average.</div>`:""}
+      ${d.marksMode==="top5"?(d.swaps.length?`<div style="font-size:11px;color:#1a5fa0;margin-top:6px;">⭐ Top 5 Best Subjects: ${d.swaps.map(w=>`in ${w.exam}, ${(subjLookup(w.out)||{}).name||w.out} is shown as additional and ${(subjLookup(w.into)||{}).name||w.into} is counted instead`).join("; ")}.</div>`:`<div style="font-size:11px;color:#1a5fa0;margin-top:6px;">⭐ Top 5 Best Subjects: no change — the best five subjects are already the counted ones.</div>`):""}
     </div>
-    <!-- Marks trend -->
-    ${(()=>{ const chart=buildMarksTrendChart(subjectResults); return chart?`<div class="rc-section" style="background:#fff;border-top:1px solid #eee;">
-      <div class="rc-section-title">📈 Marks Trend</div>
-      ${chart}
-    </div>`:""; })()}
     <!-- Test-wise detail — skipped for multi-subject exams (Periodic Test, Half Yearly,
          Pre-Boards, Annual Exam): Subject-wise Performance + the Total section below already
          cover it, and each of those exams only has one test per subject anyway so a
@@ -7679,13 +7734,21 @@ function renderReportCard(){
     </div>`}
     <!-- Exam total (only shown when a specific exam type is selected, not "All Exams") -->
     ${_rcExamFilter&&_rcExamFilter!=="all"?`<div class="rc-section" style="background:#fafafa;border-top:1px solid #eee;">
-      <div class="rc-section-title">🧮 ${_rcExamFilter} — Total</div>
+      <div class="rc-section-title">🧮 ${_rcExamFilter} — Total${d.marksMode==="top5"?" (Top 5 Best Subjects)":""}</div>
       <div style="display:flex;align-items:baseline;gap:10px;flex-wrap:wrap;">
         <span style="font-size:24px;font-weight:700;color:${marksGr.col};">${totalMaxSum?totalMarksSum+" / "+totalMaxSum:"—"}</span>
         ${avgPct!==null?`<span class="rc-grade-badge" style="color:${marksGr.col};background:${marksGr.bg};">${avgPct}% avg</span>`:""}
       </div>
       <div style="font-size:11px;color:#888;margin-top:4px;">${testsCounted} subject${testsCounted===1?"":"s"} counted for ${_rcExamFilter}</div>
     </div>`:""}
+    <!-- Auto remark (generated from exam performance) -->
+    ${(()=>{ const rk=buildReportRemark(d); return rk?`<div class="rc-section" style="background:#fff;border-top:1px solid #eee;page-break-inside:avoid;break-inside:avoid;">
+      <div class="rc-section-title">📝 Remarks</div>
+      <div style="border-left:4px solid ${marksGr.col};background:${marksGr.bg};border-radius:6px;padding:10px 14px;">
+        <div style="font-size:12px;font-weight:700;color:${marksGr.col};text-transform:uppercase;letter-spacing:.5px;margin-bottom:4px;">${rk.tone}</div>
+        <div style="font-size:13px;color:#333;line-height:1.55;">${rk.text}</div>
+      </div>
+    </div>`:""; })()}
     <!-- Attendance heatmap -->
     <div class="rc-section" style="background:#fff;border-top:1px solid #eee;">
       <div class="rc-section-title">✅ Attendance Overview</div>
@@ -7704,7 +7767,15 @@ function renderReportCard(){
   </div></div>`;
 }
 
-function printReportCard(){
+// Asks which version to save: Normal or Top 5 Best Subjects. Resolves "normal" | "top5" | null (cancelled).
+let _rcPrintModeResolve=null;
+function askRcPrintMode(){ return new Promise(resolve=>{ _rcPrintModeResolve=resolve; document.getElementById("rcPrintModeOverlay").style.display="flex"; }); }
+function resolveRcPrintMode(v){ document.getElementById("rcPrintModeOverlay").style.display="none"; if(_rcPrintModeResolve){ _rcPrintModeResolve(v); _rcPrintModeResolve=null; } }
+async function printReportCard(){
+  // Only ask Normal vs Top 5 when the selected exam offers it; otherwise print normally.
+  const mode=rcTop5Available(_rcExamFilter)?await askRcPrintMode():"normal";
+  if(!mode) return;
+  if(mode!==_rcMarksMode){ _rcMarksMode=mode; renderReportCard(); }
   // If a certificate was generated earlier this session, its print area is still in the
   // DOM — hide it so only the report card shows up in the print/PDF output.
   const cert=document.getElementById("certPrintArea"); if(cert) cert.style.display="none";
@@ -9470,11 +9541,3 @@ function escapeHtml(text) {
 
 </body>
 </html>
-
-
-
-
-
-
-
-
