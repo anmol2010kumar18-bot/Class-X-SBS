@@ -2758,7 +2758,7 @@ function _processDavxSnapshot(snap){
     // map) rather than id-keyed arrays, so they belong here too: without this, a device
     // would only ever pick up their very first value and silently stop syncing further
     // changes made from another device for the rest of its life (a real bug, now fixed).
-    const ATOMIC_KEYS=new Set(["timetable","studentAttendance","registrationOpen","roleSignatures"]);
+    const ATOMIC_KEYS=new Set(["timetable","studentAttendance","registrationOpen","roleSignatures","adminAccount"]);
     Object.keys(remote).forEach(k=>{
       const local=_memCache[k];
       if(ATOMIC_KEYS.has(k)){
@@ -3291,7 +3291,7 @@ async function removeAvatarForStudent(){
   showToast("🗑️ Photo removed");
 }
 const FIXED=
-{classteacher:{pass:"classpass@2026",name:"Class Teacher",role:"classteacher",avatar:"CT"},
+{classteacher:{pass:"classpass2026",name:"Class Teacher",role:"classteacher",avatar:"CT"},
 teacher:{pass:"teach@dav18",name:"Subject Teacher",role:"teacher",avatar:"ST"}};
 // ═══════════════════════════════════════════
 // STEP-UP RE-VERIFICATION (password re-check before high-risk edits)
@@ -3784,7 +3784,7 @@ function doLogin(){
 }
 
 function attemptLogin(user,pass){
-  if(loginRole==="admin"){ const sts=DB.get("students")||[]; if(!sts.some(x=>x.isAdmin)) return{success:false,error:"❌ No admin has been assigned yet. Ask the Class Teacher to assign one."}; const s=sts.find(x=>x.isAdmin&&(x.roll===user||x.admNo===user)); if(!s||s.pass!==pass) return{success:false,error:"❌ Invalid admin credentials."}; return{success:true,user:{id:s.id,name:s.name,role:"classteacher",isAdmin:true,avatar:s.name.slice(0,2).toUpperCase(),roll:s.roll,admNo:s.admNo,class:"X - SBS",school:"USCD DAV Public School",joinedOn:s.joinedOn}}; }
+  if(loginRole==="admin"){ try{ _admMigrate(); }catch(e){} const s=_admStudent(); if(!s) return{success:false,error:"❌ No admin has been assigned yet. Ask the Class Teacher to assign one."}; if(!(s.roll===user||s.admNo===user)||s.pass!==pass) return{success:false,error:"❌ Invalid admin credentials."}; return{success:true,user:{id:s.id,name:s.name,role:"classteacher",isAdmin:true,avatar:s.name.slice(0,2).toUpperCase(),roll:s.roll,admNo:s.admNo,class:"X - SBS",school:"USCD DAV Public School",joinedOn:s.joinedOn}}; }
   if(loginRole==="student"){ const sts=DB.get("students")||[],s=sts.find(x=>x.roll===user||x.admNo===user); if(!s||s.pass!==pass) return{success:false,error:"❌ Roll No / Admission No or password is incorrect."}; return{success:true,user:{id:s.id,name:s.name,role:"student",avatar:s.name.slice(0,2).toUpperCase(),roll:s.roll,admNo:s.admNo,class:"X - SBS",school:"USCD DAV Public School",joinedOn:s.joinedOn}}; }
   const cred=FIXED[loginRole]; if(!cred||user!==loginRole||pass!==cred.pass) return{success:false,error:"❌ Invalid credentials."}; return{success:true,user:{...cred}};
 }
@@ -6115,8 +6115,8 @@ function setStudentHouse(studentId,houseId){
   DB.set("students",students);
   renderStudentInfoTable();
 }
-async function deleteStudent(id){ const students=DB.get("students")||[],s=students.find(x=>x.id===id); if(!s) return; if(!await customConfirm(`Remove "${s.name}" (Roll: ${s.roll})?`,"Remove Student","👤","Remove")) return; if(!await requireStepUp("remove this student")) return; DB.del("students",id); const recs=(DB.get("feeRecords")||[]).filter(r=>r.id!==id); DB.set("feeRecords",recs); logAudit("Student","delete",s.name,null,`Roll No: ${s.roll} · Adm. No: ${s.admNo}`); renderStudentsList(); try{updateFeeBadge();}catch(e){} showToast("🗑️ Student removed"); }
-async function removeAllStudents(){ const students=DB.get("students")||[]; if(!students.length){ showToast("No students to remove"); return; } if(!await customConfirm(`Remove ALL ${students.length} students?`,"Remove All","⚠️","Remove All")) return; if(!await requireStepUp("remove ALL students")) return; DB.set("students",[]); DB.set("ct_notifications",[]); DB.set("feeRecords",[]); logAudit("Student","delete",`ALL ${students.length} students`,null,"Bulk removal — entire class roster cleared"); renderStudentsList(); try{updateFeeBadge();}catch(e){} showToast("🗑️ All students removed"); }
+async function deleteStudent(id){ const students=DB.get("students")||[],s=students.find(x=>x.id===id); if(!s) return; if(_admStudent()&&_admStudent().id===id){ showToast("🔒 This student is the admin and cannot be removed. The admin must resign first."); return; } if(!await customConfirm(`Remove "${s.name}" (Roll: ${s.roll})?`,"Remove Student","👤","Remove")) return; if(!await requireStepUp("remove this student")) return; DB.del("students",id); const recs=(DB.get("feeRecords")||[]).filter(r=>r.id!==id); DB.set("feeRecords",recs); logAudit("Student","delete",s.name,null,`Roll No: ${s.roll} · Adm. No: ${s.admNo}`); renderStudentsList(); try{updateFeeBadge();}catch(e){} showToast("🗑️ Student removed"); }
+async function removeAllStudents(){ const students=DB.get("students")||[]; if(!students.length){ showToast("No students to remove"); return; } if(_admStudent()){ showToast("🔒 An admin is assigned, so all students cannot be removed at once. The admin must resign first."); return; } if(!await customConfirm(`Remove ALL ${students.length} students?`,"Remove All","⚠️","Remove All")) return; if(!await requireStepUp("remove ALL students")) return; DB.set("students",[]); DB.set("ct_notifications",[]); DB.set("feeRecords",[]); logAudit("Student","delete",`ALL ${students.length} students`,null,"Bulk removal — entire class roster cleared"); renderStudentsList(); try{updateFeeBadge();}catch(e){} showToast("🗑️ All students removed"); }
 function markNotifsRead(){ const notifs=DB.get("ct_notifications")||[]; notifs.forEach(n=>n.read=true); DB.set("ct_notifications",notifs); updateCTNotifBadge(); renderStudentsList(); showToast("✓ All read"); }
 
 // ═══════════════════════════════════════════
@@ -9837,51 +9837,77 @@ function escapeHtml(text) {
 let _admTab="pw", _admWeek="", _admMonth="", _admAllShown=false;
 function _admEsc(s){ return String(s==null?"":s).replace(/[&<>"]/g,function(c){ return {"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]; }); }
 function _admStudents(){ return (DB.get("students")||[]).slice().sort(function(a,b){ return parseInt(a.roll)-parseInt(b.roll); }); }
+/* The admin is stored in its OWN key ("adminAccount"), not inside the students list. The students list is rewritten
+   as a whole whenever any student logs in or edits their profile, so a flag kept there could be wiped by a device holding
+   an older copy of the list — that is why the admin used to disappear after a while. */
+function _admAccount(){ return DB.get("adminAccount")||null; }
+function _admStudent(){
+  const students=DB.get("students")||[], acc=_admAccount();
+  if(acc) return acc.studentId?(students.find(function(s){ return s.id===acc.studentId; })||null):null;
+  return students.find(function(s){ return s.isAdmin; })||null; // flag written by the previous version — used until moved to adminAccount
+}
+function _admMigrate(){
+  if(_admAccount()) return;
+  const s=(DB.get("students")||[]).find(function(x){ return x.isAdmin; });
+  if(s) DB.set("adminAccount",{studentId:s.id,since:Date.now(),by:"migrated"});
+}
 function _admValid(){
   const u=currentUser; if(!u||!u.isAdmin) return false;
-  const s=(DB.get("students")||[]).find(function(x){ return x.id===u.id; });
-  return !!(s&&s.isAdmin);
+  const a=_admStudent(); return !!(a&&a.id===u.id);
 }
+/* if the admin steps down (or is changed from another device) while signed in, end that session */
+setInterval(function(){
+  try{
+    const u=currentUser; if(!u||!u.isAdmin) return;
+    const acc=_admAccount();
+    if(acc&&acc.studentId!==u.id){ showToast("ℹ️ Your admin access has ended — please sign in again"); doLogout(); }
+  }catch(e){}
+},4000);
 function _admIso(d){ try{ const v=dmyToISO(d); return v?String(v).slice(0,10):""; }catch(e){ return ""; } }
 function _admIsAdd(r){ try{ return isAdditionalResult(r); }catch(e){ return false; } }
 
 /* ── Class Teacher / Admin: choose which student is the admin (Student Management page) ── */
 function renderAdminAssign(){
   const el=document.getElementById("adminAssignCard"); if(!el) return;
-  const list=_admStudents(), cur=list.find(function(s){ return s.isAdmin; });
+  try{ _admMigrate(); }catch(e){}
+  const list=_admStudents(), cur=_admStudent();
   el.innerHTML='<div class="card-title">🛡️ Admin Student</div>'+
     '<div style="font-size:12px;color:var(--muted);margin-bottom:10px;line-height:1.55;">One student is the admin. They sign in with the <b>Admin</b> role card using their own Roll / Admission No and their own password, and get full Class Teacher access plus the Admin Panel.</div>'+
-    '<div style="display:flex;gap:8px;flex-wrap:wrap;align-items:center;"><select class="form-select" id="adminStudentSelect" style="flex:1;min-width:200px;">'+
-    '<option value="">— No admin —</option>'+
-    list.map(function(s){ return '<option value="'+_admEsc(s.id)+'"'+(s.isAdmin?" selected":"")+'>Roll '+_admEsc(s.roll)+' — '+_admEsc(s.name)+'</option>'; }).join("")+
-    '</select><button class="btn btn-gold btn-sm" onclick="saveAdminStudent()">💾 Save admin</button></div>'+
-    '<div style="font-size:12px;margin-top:10px;color:'+(cur?"var(--gold)":"var(--muted)")+';">'+(cur?("Current admin: <b>"+_admEsc(cur.name)+"</b> (Roll "+_admEsc(cur.roll)+")"):"No admin assigned yet.")+'</div>';
+    (cur?
+      '<div style="font-size:13px;color:var(--gold);margin-bottom:8px;">Current admin: <b>'+_admEsc(cur.name)+'</b> (Roll '+_admEsc(cur.roll)+')</div>'+
+      '<div style="font-size:12px;color:var(--muted);line-height:1.55;">🔒 Once assigned, the admin cannot be changed or removed by the Class Teacher. Only the admin can resign, from the Admin Panel. After that, a new admin can be assigned here.</div>'
+    :
+      '<div style="display:flex;gap:8px;flex-wrap:wrap;align-items:center;"><select class="form-select" id="adminStudentSelect" style="flex:1;min-width:200px;"><option value="">— Choose a student —</option>'+
+      list.map(function(s){ return '<option value="'+_admEsc(s.id)+'">Roll '+_admEsc(s.roll)+' — '+_admEsc(s.name)+'</option>'; }).join("")+
+      '</select><button class="btn btn-gold btn-sm" onclick="saveAdminStudent()">💾 Assign admin</button></div>'+
+      '<div style="font-size:12px;margin-top:10px;color:var(--muted);">No admin assigned yet. Choose carefully — once assigned, only that student can resign.</div>');
 }
 async function saveAdminStudent(){
+  try{ _admMigrate(); }catch(e){}
+  if(_admStudent()){ showToast("🔒 An admin is already assigned. Only the admin can resign."); renderAdminAssign(); return; }
   const sel=document.getElementById("adminStudentSelect"); if(!sel) return;
   const id=sel.value;
-  if(!await requireStepUp("change the admin student")) return;
-  const students=DB.get("students")||[];
-  students.forEach(function(s){ if(s.isAdmin) delete s.isAdmin; });
-  const t=students.find(function(s){ return s.id===id; });
-  if(t) t.isAdmin=true;
-  DB.set("students",students);
-  try{ logAudit("Student","edit",t?t.name:"—",null,t?"Assigned as Admin":"Admin removed"); }catch(e){}
-  showToast(t?("🛡️ "+t.name+" is now the admin"):"🛡️ Admin removed");
+  if(!id){ showToast("✋ Choose a student first"); return; }
+  const t=(DB.get("students")||[]).find(function(s){ return s.id===id; }); if(!t) return;
+  if(!await customConfirm("Make "+t.name+" (Roll "+t.roll+") the admin? You will not be able to change or remove them later — only they can resign.","Assign admin","🛡️","Assign")) return;
+  if(!await requireStepUp("assign the admin student")) return;
+  DB.set("adminAccount",{studentId:t.id,since:Date.now(),by:currentUser?currentUser.name:""});
+  try{ logAudit("Student","edit",t.name,null,"Assigned as Admin"); }catch(e){}
+  showToast("🛡️ "+t.name+" is now the admin");
   renderAdminAssign();
-  if(currentUser&&currentUser.isAdmin&&(!t||t.id!==currentUser.id)){ showToast("ℹ️ You are no longer the admin — please sign in again"); setTimeout(function(){ doLogout(); },1200); }
 }
 
 /* ── Admin Panel ── */
 function renderAdminPanel(){
   const body=document.getElementById("adminPanelBody"); if(!body) return;
   if(!_admValid()){ body.innerHTML='<div class="card"><div class="empty-state"><div class="empty-icon">🔒</div><div class="empty-text">Admin access only</div></div></div>'; return; }
-  const adm=(DB.get("students")||[]).find(function(s){ return s.id===currentUser.id; });
+  try{ _admMigrate(); }catch(e){}
   body.innerHTML='<div class="adm-tabs">'+
     '<button class="adm-tab" data-t="pw" onclick="setAdminTab(\'pw\')">🔑 Passwords</button>'+
     '<button class="adm-tab" data-t="week" onclick="setAdminTab(\'week\')">🗓️ Weekly report</button>'+
     '<button class="adm-tab" data-t="month" onclick="setAdminTab(\'month\')">📅 Monthly report</button>'+
-    '<button class="adm-tab" data-t="sig" onclick="setAdminTab(\'sig\')">✍️ Signature</button></div>'+
+    '<button class="adm-tab" data-t="sig" onclick="setAdminTab(\'sig\')">✍️ Signature</button>'+
+    '<button class="adm-tab" data-t="resign" onclick="setAdminTab(\'resign\')">🚪 Resign</button></div>'+
     '<div id="adminTabBody"></div>';
   setAdminTab(_admTab);
 }
@@ -9893,6 +9919,7 @@ function setAdminTab(t,quiet){
   if(t==="pw"){ el.innerHTML=_admPwTab(); _admAllShown=false; if(!quiet){ try{ logAudit("Admin","view","Student passwords",null,"Opened the Passwords tab"); }catch(e){} } }
   else if(t==="week"){ if(!_admWeek){ try{ const d=new Date(); d.setDate(d.getDate()-d.getDay()+1); _admWeek=d.toISOString().split("T")[0]; }catch(e){ _admWeek=""; } } el.innerHTML=_admWeekTab(); }
   else if(t==="sig"){ el.innerHTML=_admSigTab(); }
+  else if(t==="resign"){ el.innerHTML=_admResignTab(); }
   else { if(!_admMonth) _admMonth=new Date().toISOString().slice(0,7); el.innerHTML=_admMonthTab(); }
 }
 
@@ -9900,7 +9927,7 @@ function setAdminTab(t,quiet){
 function _admPwTab(){
   const rows=_admStudents().map(function(s){
     const q=(s.name+" "+s.roll+" "+s.admNo).toLowerCase();
-    return '<tr data-q="'+_admEsc(q)+'"><td>'+_admEsc(s.roll)+'</td><td style="font-weight:600;">'+_admEsc(s.name)+(s.isAdmin?' 🛡️':'')+'</td><td>'+_admEsc(s.admNo)+'</td>'+
+    return '<tr data-q="'+_admEsc(q)+'"><td>'+_admEsc(s.roll)+'</td><td style="font-weight:600;">'+_admEsc(s.name)+((_admStudent()||{}).id===s.id?' 🛡️':'')+'</td><td>'+_admEsc(s.admNo)+'</td>'+
       '<td><span class="adm-pw" data-sid="'+_admEsc(s.id)+'" data-shown="0" style="font-family:monospace;letter-spacing:.5px;">••••••</span> <button class="btn btn-outline btn-sm" style="margin-left:6px;" onclick="adminPwToggle(this)">👁️</button></td>'+
       '<td style="font-size:11px;color:var(--muted);">'+_admEsc(s.lastLogin||"Never")+'</td></tr>';
   }).join("");
@@ -10022,9 +10049,9 @@ function _admSigTab(){
     '<canvas id="admSigCanvas" width="300" height="110" style="width:100%;height:110px;background:#fff;border-radius:9px;touch-action:none;cursor:crosshair;display:block;"></canvas>'+
     '<div style="display:flex;gap:8px;margin-top:10px;"><button class="btn btn-outline btn-sm" onclick="_sigClear(\'admSigCanvas\')">Clear</button><button class="btn btn-outline btn-sm" onclick="admSigCancel()">Cancel</button><button class="btn btn-gold btn-sm" style="flex:1;" onclick="admSigSave()">💾 Save signature</button></div></div></div>';
 }
-function _admSigPassOk(){
+function _admSigPassOk(fieldId){
   if(Date.now()<_admSigLock){ showToast("🔒 Too many wrong attempts. Try again in a minute or two."); return false; }
-  const el=document.getElementById("admSigPass"), v=el?el.value:"";
+  const el=document.getElementById(fieldId||"admSigPass"), v=el?el.value:"";
   if(!v){ showToast("✋ Enter your password first"); if(el) el.focus(); return false; }
   if(!_stepUpCredentialOk(v)){
     _admSigFails++; if(el){ el.value=""; el.focus(); }
@@ -10061,6 +10088,25 @@ async function admSigReset(role){
   try{ logAudit("Admin","edit",label+" signature",null,"Signature reset"); }catch(e){}
   showToast("♻️ "+label+" signature was reset");
   const el=document.getElementById("adminTabBody"); if(el) el.innerHTML=_admSigTab();
+}
+
+/* ── Resign: only the admin can step down; the Class Teacher cannot remove an admin ── */
+function _admResignTab(){
+  return '<div class="card"><div class="card-title">🚪 Resign as admin</div>'+
+    '<div style="font-size:12px;color:var(--muted);margin-bottom:14px;line-height:1.6;">Resigning ends your admin access and removes your admin signature. You stay a normal student. The Class Teacher can then assign a new admin. <b>Only you can do this</b> — the Class Teacher cannot remove an admin.</div>'+
+    '<div class="form-group" style="max-width:320px;"><label class="form-label">Your password (to confirm)</label><input class="form-input" type="password" id="admResignPass" autocomplete="off" placeholder="Enter your password"></div>'+
+    '<button class="btn btn-danger btn-sm" onclick="admResign()">🚪 Resign as admin</button></div>';
+}
+async function admResign(){
+  if(!_admValid()||!_admSigPassOk("admResignPass")) return;
+  if(!await customConfirm("Resign as admin? You will lose admin access and be signed out. Only the Class Teacher can then assign a new admin.","Resign as admin","🚪","Resign")) return;
+  const me=currentUser, sigs=DB.get("roleSignatures")||{};
+  delete sigs.admin; sigs.__changed=Object.assign({},sigs.__changed,{admin:Date.now()});
+  DB.set("roleSignatures",sigs);
+  DB.set("adminAccount",{studentId:null,resignedOn:Date.now(),previous:me.id});
+  try{ logAudit("Admin","edit",me.name,null,"Resigned as Admin"); }catch(e){}
+  showToast("🚪 You have resigned as admin");
+  setTimeout(function(){ doLogout(); },1200);
 }
 
 </script>
