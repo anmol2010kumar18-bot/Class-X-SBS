@@ -970,6 +970,74 @@ html,body{font-family:'Sora','DM Sans',sans-serif}
 .mi-cmp>b{width:56px;text-align:right}
 */
 
+/* ═══ smart layer: class health gauge, risk radar, assistant window, command palette ═══ */
+@keyframes miGauge{from{stroke-dashoffset:100}}
+.mi-g2r{grid-template-columns:1fr 1.5fr}
+@media(max-width:820px){.mi-g2r{grid-template-columns:1fr}}
+.mi-gauge{position:relative;width:230px;max-width:100%;margin:4px auto 0}
+.mi-gauge svg{width:100%;display:block}
+.mi-gauge .trk{fill:none;stroke:#1B2842;stroke-width:14;stroke-linecap:round}
+.mi-gauge .arc{fill:none;stroke-width:14;stroke-linecap:round;stroke-dasharray:100;animation:miGauge 1.6s .3s both cubic-bezier(.2,.8,.2,1)}
+.mi-gauge-c{position:absolute;left:0;right:0;bottom:0;text-align:center}
+.mi-gauge-num{font-size:40px;font-weight:700;line-height:1}
+.mi-gauge-lbl{font-size:11px;margin-top:3px;font-weight:600}
+.mi-delta{display:inline-block;padding:4px 12px;border-radius:99px;font-size:11px;font-weight:700;border:1px solid}
+.mi-risk-sum{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:10px;font-size:11px}
+.mi-risk-sum span{padding:4px 11px;border-radius:99px;border:1px solid;font-weight:600}
+.mi-risk-list{display:flex;flex-direction:column}
+.mi-risk-row{padding:10px 0;border-top:1px solid #243049;cursor:pointer;transition:padding-left .2s ease}
+.mi-risk-row:hover{padding-left:6px}
+.mi-risk-top{display:flex;justify-content:space-between;align-items:center;gap:10px;font-size:13px}
+.mi-lvl{font-size:11px;font-weight:700;padding:2px 10px;border-radius:99px;border:1px solid;white-space:nowrap}
+.mi-risk-bar{height:5px;border-radius:9px;background:#1B2842;overflow:hidden;margin:7px 0 5px}
+.mi-risk-bar>i{display:block;height:100%;transform-origin:left;animation:miGrow 1.1s .3s both cubic-bezier(.2,.8,.2,1)}
+.mi-risk-why{font-size:11px;color:var(--muted);line-height:1.5}
+.mi-risk.collapsed .mi-risk-row:nth-child(n+7){display:none}
+/* assistant window / command palette */
+.mi-ask{position:fixed;inset:0;background:rgba(5,9,18,.72);backdrop-filter:blur(4px);z-index:100000;display:none;justify-content:center;align-items:flex-start;padding:10vh 14px 14px}
+.mi-ask-box{width:min(660px,100%);max-height:80vh;display:flex;flex-direction:column;background:#121C32;border:1px solid #2A3957;border-radius:16px;box-shadow:0 24px 60px rgba(0,0,0,.5);overflow:hidden;animation:miUp .25s both}
+.mi-ask-in{display:flex;align-items:center;gap:10px;padding:14px 18px;border-bottom:1px solid #243049}
+.mi-ask-in input{flex:1;background:transparent;border:0;outline:0;color:var(--white);font:400 15px Sora,sans-serif;min-width:0}
+.mi-ask kbd,.mi-ask-btn kbd{font:600 10px Sora,sans-serif;padding:3px 8px;border:1px solid #2A3957;border-radius:6px;color:#9AA8C4;background:transparent}
+.mi-ask-btn{width:auto !important;padding:0 10px !important;gap:6px;font-size:12px;display:flex;align-items:center;cursor:pointer}
+.mi-ask-btn span{font-weight:600}
+@media(max-width:700px){.mi-ask-btn kbd{display:none}}
+.mi-ask-body{overflow:auto;padding:10px 12px 14px}
+.mi-ask-sec{font-size:10px;letter-spacing:.12em;color:#9AA8C4;padding:10px 8px 6px;text-transform:uppercase}
+.mi-ask-list{display:flex;flex-direction:column;gap:2px}
+.mi-ask-item{display:flex;justify-content:space-between;align-items:center;gap:10px;padding:10px 12px;border-radius:10px;font-size:13px;cursor:pointer;transition:background .15s ease}
+.mi-ask-item em{font-style:normal;font-size:11px;color:#9AA8C4}
+.mi-ask-item small{color:#9AA8C4}
+.mi-ask-item.sel,.mi-ask-item:hover{background:#17233D}
+.mi-ask-item.sel em{color:#3DDBB4}
+.mi-chipset{display:flex;flex-wrap:wrap;gap:8px;padding:2px 6px 6px}
+.mi-qchip{font:600 12px Sora,sans-serif;padding:7px 13px;border-radius:99px;border:1px solid #2A3957;background:transparent;color:#C7D2E8;cursor:pointer;transition:all .2s ease}
+.mi-qchip:hover{border-color:#3DDBB4;color:#3DDBB4;transform:translateY(-2px)}
+.mi-ans{background:#0F1A30;border:1px solid #243049;border-radius:12px;padding:14px 16px;margin:4px 0 8px;animation:miUp .3s both}
+.mi-ans-h{font-weight:700;font-size:14px;margin-bottom:10px}
+.mi-ans-sub{font-size:12px;color:#C7D2E8;line-height:1.7;margin-top:6px}
+.mi-ans-kpis{display:flex;gap:26px;flex-wrap:wrap}
+.mi-ans-kpis div{display:flex;flex-direction:column;gap:2px}
+.mi-ans-kpis span{font-size:10px;letter-spacing:.1em;color:#9AA8C4;text-transform:uppercase}
+.mi-ans-kpis b{font-size:22px;font-weight:700}
+.mi-ans-kpis b small{font-size:12px;color:#9AA8C4;font-weight:400}
+.mi-ans-ul{margin:10px 0 0;padding-left:18px;font-size:12px;color:#C7D2E8;line-height:1.7}
+.mi-ans-row{display:flex;justify-content:space-between;align-items:center;gap:10px;padding:9px 0;border-top:1px solid #243049;font-size:13px}
+.mi-ans-row:first-of-type{border-top:0;padding-top:0}
+.mi-ans-acts{display:flex;gap:8px;flex-wrap:wrap;margin-top:12px}
+
+.mi-rep-done{display:flex;gap:14px;align-items:flex-start}
+.mi-rep-done img{width:120px;border-radius:6px;background:#fff;flex-shrink:0;box-shadow:0 6px 20px rgba(0,0,0,.4)}
+
+/* three-card row on the dashboard: [gauge | subjects | list] */
+.mi-g3h{grid-template-columns:1fr 1.15fr 1fr}
+@media(max-width:1100px){.mi-g3h{grid-template-columns:1fr 1fr}}
+@media(max-width:820px){.mi-g3h{grid-template-columns:1fr}}
+/* ── student privacy: other students are blurred ── */
+.mi-priv{filter:blur(5px);user-select:none;pointer-events:none;display:inline-block}
+.mi-priv-row td:not(:first-child){filter:blur(5px);user-select:none;pointer-events:none}
+.mi-privnote{font-size:12px;color:var(--muted);margin:0 0 12px;padding:8px 12px;border:1px dashed #2A3957;border-radius:10px}
+
 }
 @media print{.site-footer{display:none !important}}
 </style>
@@ -10542,10 +10610,10 @@ function _ttSubjectOptions(row){
           stat("Class average",classAvg===null?"—":classAvg+"%","#8B7CFF",classAvg)+
           stat("Present today",marked?present:"—","#FFB84D",null,marked?("of "+n):"")+
           stat("Copies pending",pend===null?"—":pend,"#FF7A7A",null)+
-        '</div><div class="mi-grid mi-g2"><div class="mi-box"><div class="mi-h">Class average by subject</div>'+bars(subjAverages(db("results")||[],null))+
+        '</div><div class="mi-grid mi-g3h">'+(window.miSmartTop?window.miSmartTop():"")+'<div class="mi-box"><div class="mi-h">Class average by subject</div>'+bars(subjAverages(db("results")||[],null))+
         '</div><div class="mi-box"><div class="mi-h">Needs attention</div>'+att+'</div></div>'/* +heatmap()+compareExams() — disabled (ideas #6 and #10); see the DISABLED blocks above */);
       var ov=$("miOverview");
-      if(ov&&!ov._miBound){ ov._miBound=true; ov.addEventListener("click",function(ev){ var t=ev.target.closest&&ev.target.closest(".mi-att,.mi-hm-name"); if(t&&t.getAttribute("data-sid")) openReport(t.getAttribute("data-sid")); }); }
+      if(ov&&!ov._miBound){ ov._miBound=true; ov.addEventListener("click",function(ev){ var t=ev.target.closest&&ev.target.closest(".mi-att,.mi-hm-name,.mi-risk-row"); if(t&&t.getAttribute("data-sid")) openReport(t.getAttribute("data-sid")); }); }
     } else if(u.role==="student"){
       var S2=stats(), me=S2[u.id]||{att:null,avg:null};
       var rank=null,total=0;
@@ -10559,7 +10627,7 @@ function _ttSubjectOptions(row){
           stat("Overall",me.avg===null?"—":me.avg+"%","#3DDBB4",me.avg)+
           stat("Class rank",rank?("#"+rank):"—","#8B7CFF",rank&&total?Math.round((total-rank+1)/total*100):null,rank&&total?("of "+total):"")+
           stat("Attendance",me.att===null?"—":me.att+"%","#FFB84D",me.att)+
-        '</div><div class="mi-grid mi-g2"><div class="mi-box"><div class="mi-h">Subject performance</div>'+bars(subjAverages(db("results")||[],u.id))+
+        '</div><div class="mi-grid mi-g3h">'+(window.miSmartMine?window.miSmartMine():"")+'<div class="mi-box"><div class="mi-h">Subject performance</div>'+bars(subjAverages(db("results")||[],u.id))+
         '</div><div style="display:flex;flex-direction:column;gap:14px"><div class="mi-box"><div class="mi-k" style="margin-bottom:6px">Latest remark</div><div style="font-size:13px;line-height:1.55">'+(remark?esc(remark):'<span class="mi-empty">Your remark appears after your first result.</span>')+'</div></div>'+
         '<div class="mi-box"><div class="mi-k" style="margin-bottom:6px">Next up</div>'+(nextEx||'<span class="mi-empty">No upcoming exam scheduled.</span>')+'</div></div></div>');
     } else unmount("miOverview");
@@ -10726,6 +10794,1159 @@ function _ttSubjectOptions(row){
     var d=$("attDate"); if(d) d.addEventListener("change",function(){ setTimeout(attCounts,0); });
   }
   if(document.readyState==="loading") document.addEventListener("DOMContentLoaded",start); else start();
+})();
+
+</script>
+<script>
+/* ═══════════════════════════════════════════════════════════════════════
+   SMART LAYER — runs entirely on this device (no internet needed)
+   1) Risk radar: a 0–100 risk score per student, always with the reasons behind it
+   2) Class health: one 0–100 score for the class, compared with the previous 30 days
+   3) Assistant (Layer 1): understands the question locally, calculates the answer from the real data
+   4) Command palette (Ctrl+K), animated count-ups
+   Read-only: nothing here changes any data.
+   ═══════════════════════════════════════════════════════════════════════ */
+(function(){
+  "use strict";
+  function $(id){ return document.getElementById(id); }
+  function db(k){ try{ return DB.get(k)||null; }catch(e){ return null; } }
+  function user(){ try{ return currentUser; }catch(e){ return null; } }
+  function isStaff(){ var u=user(); return !!u&&(u.role==="teacher"||u.role==="classteacher"); }
+  function isStudent(){ var u=user(); return !!u&&u.role==="student"; }
+  function esc(s){ return String(s==null?"":s).replace(/[&<>"]/g,function(c){ return {"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]; }); }
+  function iso(d){ try{ return dmyToISO(d)||""; }catch(e){ return ""; } }
+  function isAdd(r){ try{ return isAdditionalResult(r); }catch(e){ return false; } }
+  function subjName(id){ try{ var s=subjLookup(id); return s?s.name:id; }catch(e){ return id; } }
+  function students(){ return (db("students")||[]).slice().sort(function(a,b){ return parseInt(a.roll)-parseInt(b.roll); }); }
+  function todayISO(){ return new Date().toISOString().slice(0,10); }
+  function daysAgo(n){ var d=new Date(); d.setDate(d.getDate()-n); return d.toISOString().slice(0,10); }
+  function clamp(v,a,b){ return Math.max(a,Math.min(b,v)); }
+  function mean(a){ return a.length?a.reduce(function(x,y){ return x+y; },0)/a.length:null; }
+  function rd(v){ return v===null||v===undefined?null:Math.round(v); }
+  var TEAL="#3DDBB4", AMBER="#FFB84D", CORAL="#FF7A7A", VIOLET="#8B7CFF";
+
+  /* ───────── per-student numbers + risk score ───────── */
+  var _c=null,_cs="",_ct=0;
+  function sig(){ var r=db("results")||[],a=db("studentAttendance")||{},c=db("copySessions")||[],s=db("students")||[],k=Object.keys(a); return [r.length,k.length,k[k.length-1]||"",c.length,s.length].join("|"); }
+  function all(){ var n=Date.now(),g=sig(); if(_c&&g===_cs&&n-_ct<2000) return _c; _c=compute(); _cs=g; _ct=n; return _c; }
+  function compute(){
+    var st=students(),res=db("results")||[],att=db("studentAttendance")||{},ses=db("copySessions")||[];
+    var dates=Object.keys(att).sort(), d30=daysAgo(30), d60=daysAgo(60), names={}, out={};
+    res.forEach(function(r){ var d=iso(r.date); if(d&&r.test&&!names[d]) names[d]=r.test; });
+    st.forEach(function(s){
+      var pcts=[],byDate={},bySubj={};
+      res.forEach(function(r){
+        if(isAdd(r)||!r.studentMarks||!r.max) return;
+        var m=r.studentMarks.find(function(x){ return x.studentId===s.id; });
+        if(!m||m.absent||m.marks==null) return;
+        var p=m.marks/r.max*100,d=iso(r.date); pcts.push(p);
+        if(d) (byDate[d]=byDate[d]||[]).push(p);
+        (bySubj[r.subject]=bySubj[r.subject]||[]).push({d:d,p:p});
+      });
+      var avg=mean(pcts), ds=Object.keys(byDate).sort(), drop=null, prevName="";
+      if(ds.length>=2){ drop=mean(byDate[ds[ds.length-2]])-mean(byDate[ds[ds.length-1]]); prevName=names[ds[ds.length-2]]||"the previous exam"; }
+      var subj=[],sd={name:"",drop:0};
+      Object.keys(bySubj).forEach(function(k){
+        var a=bySubj[k].slice().sort(function(x,y){ return x.d<y.d?-1:x.d>y.d?1:0; });
+        subj.push({id:k,name:subjName(k),pct:Math.round(mean(a.map(function(x){ return x.p; })))});
+        if(a.length>=2){ var dd=a[a.length-2].p-a[a.length-1].p; if(dd>sd.drop) sd={name:subjName(k),drop:dd}; }
+      });
+      subj.sort(function(x,y){ return y.pct-x.pct; });
+      var p=0,a=0,rp=0,ra=0,ep=0,ea=0;
+      dates.forEach(function(d){ var v=att[d]&&att[d][s.id]; if(v!=="present"&&v!=="absent") return; var pr=v==="present"; if(pr)p++; else a++; if(d>=d30){ if(pr)rp++; else ra++; } else if(d>=d60){ if(pr)ep++; else ea++; } });
+      var attPct=(p+a)>=3?p/(p+a)*100:null, rec=(rp+ra)>=3?rp/(rp+ra)*100:null, ear=(ep+ea)>=3?ep/(ep+ea)*100:null;
+      var sub=0,miss=0; ses.forEach(function(cs){ var v=cs.status&&cs.status[s.id]; if(v==="submitted") sub++; else if(v==="not_submitted") miss++; });
+      var comps=[];
+      if(avg!==null){ var rk=clamp((75-avg)/45*100,0,100); comps.push({n:"Marks level",w:40,risk:rk,why:rk>=25?(avg<40?"Average only "+rd(avg)+"% (below 40%)":"Average "+rd(avg)+"%"):""}); }
+      if(drop!==null){
+        var tr=Math.max(clamp(drop/15*100,0,100),clamp((sd.drop-4)/16*100,0,100)), why="";
+        if(sd.drop>=8) why=sd.name+" dropped "+rd(sd.drop)+" points since "+prevName; else if(drop>=6) why="Marks fell "+rd(drop)+" points since "+prevName;
+        comps.push({n:"Marks trend",w:20,risk:tr,why:why});
+      }
+      if(attPct!==null){
+        var ar=clamp((90-attPct)/30*100,0,100), fell=(rec!==null&&ear!==null)?ear-rec:0, aw="";
+        if(fell>=8){ ar=Math.max(ar,clamp(fell/25*100,0,100)); aw="Attendance fell to "+rd(rec)+"% (from "+rd(ear)+"%)"; }
+        else if(attPct<90) aw="Attendance "+rd(attPct)+"%"+(attPct<75?" (below 75%)":"");
+        comps.push({n:"Attendance",w:25,risk:ar,why:ar>=25?aw:""});
+      }
+      if(sub+miss>=2){ var cr=clamp(miss/(sub+miss)/0.5*100,0,100); comps.push({n:"Copy submission",w:15,risk:cr,why:cr>=25?miss+" of "+(sub+miss)+" copies not submitted":""}); }
+      var score=null,reasons=[];
+      if(comps.length){
+        var W=0,S=0; comps.forEach(function(c){ W+=c.w; S+=c.w*c.risk; }); score=Math.round(S/W);
+        reasons=comps.filter(function(c){ return c.why; }).sort(function(x,y){ return y.w*y.risk-x.w*x.risk; }).map(function(c){ return c.why; });
+      }
+      out[s.id]={id:s.id,name:s.name,roll:s.roll,avg:rd(avg),att:rd(attPct),miss:miss,copies:sub+miss,score:score,level:score===null?"":score>=55?"High":score>=30?"Watch":"Low",drop:drop,prevName:prevName,reasons:reasons,comps:comps.map(function(c){ return {n:c.n,risk:Math.round(c.risk)}; }),subj:subj,hasMarks:avg!==null};
+    });
+    return out;
+  }
+  function metrics(id){ return all()[id]||null; }
+  function riskList(){ var m=all(); return Object.keys(m).map(function(k){ return m[k]; }).filter(function(x){ return x.score!==null; }).sort(function(a,b){ return b.score-a.score; }); }
+  function lvlColor(l){ return l==="High"?CORAL:l==="Watch"?AMBER:TEAL; }
+
+  /* ───────── class health (last 30 days vs the 30 days before) ───────── */
+  function windowStats(from,to){
+    var res=db("results")||[],att=db("studentAttendance")||{},ses=db("copySessions")||[],st=students(),pcts=[],per={},p=0,a=0,cs1=0,cs0=0;
+    res.forEach(function(r){
+      var d=iso(r.date); if(!d||d<from||d>to||isAdd(r)||!r.studentMarks||!r.max) return;
+      r.studentMarks.forEach(function(m){ if(m.absent||m.marks==null) return; var v=m.marks/r.max*100; pcts.push(v); (per[m.studentId]=per[m.studentId]||[]).push(v); });
+    });
+    Object.keys(att).forEach(function(d){ if(d<from||d>to) return; st.forEach(function(s){ var v=att[d][s.id]; if(v==="present")p++; else if(v==="absent")a++; }); });
+    ses.forEach(function(cs){ if(!cs.date||cs.date<from||cs.date>to) return; st.forEach(function(s){ var v=cs.status&&cs.status[s.id]; if(v==="submitted")cs1++; else if(v==="not_submitted")cs0++; }); });
+    var ids=Object.keys(per), pass=ids.length?ids.filter(function(k){ return mean(per[k])>=40; }).length/ids.length*100:null;
+    var comps={marks:pcts.length?mean(pcts):null,att:(p+a)>=3?p/(p+a)*100:null,copies:(cs1+cs0)>=3?cs1/(cs1+cs0)*100:null,pass:pass};
+    var W={marks:40,att:30,copies:15,pass:15},sw=0,ss=0;
+    Object.keys(W).forEach(function(k){ if(comps[k]!==null){ sw+=W[k]; ss+=W[k]*comps[k]; } });
+    return {score:sw?Math.round(ss/sw):null,comps:comps};
+  }
+  function health(){
+    var cur=windowStats(daysAgo(30),todayISO()),prev=windowStats(daysAgo(60),daysAgo(31)),allTime=false;
+    if(cur.score===null){ cur=windowStats("0000-00-00","9999-99-99"); allTime=true; prev={score:null}; }
+    return {score:cur.score,comps:cur.comps,allTime:allTime,delta:(!allTime&&cur.score!==null&&prev.score!==null)?cur.score-prev.score:null};
+  }
+  function hLabel(s){ return s>=75?"Healthy":s>=55?"Fair":"Needs attention"; }
+  function hColor(s){ return s>=75?TEAL:s>=55?AMBER:CORAL; }
+
+  /* ───────── dashboard blocks (teacher / admin) ───────── */
+  function gaugeSVG(score,color,label){
+    return '<div class="mi-gauge"><svg viewBox="0 0 200 112" aria-hidden="true"><path class="trk" d="M20 100 A80 80 0 0 1 180 100" pathLength="100"/><path class="arc" d="M20 100 A80 80 0 0 1 180 100" pathLength="100" style="stroke:'+color+';stroke-dashoffset:'+(100-score)+'"/></svg>'+
+      '<div class="mi-gauge-c"><div class="mi-gauge-num" style="color:'+color+'" data-count="'+score+'">'+score+'</div><div class="mi-gauge-lbl" style="color:'+color+'">'+label+'</div></div></div>';
+  }
+  function miniRows(rows){ return rows.map(function(x,i){ return '<div class="mi-row"><span class="n">'+x[0]+'</span><div class="t"><i style="width:'+x[1]+'%;background:'+x[2]+';animation-delay:'+(0.5+i*0.1)+'s"></i></div><span class="p" style="color:'+x[2]+'">'+x[3]+'</span></div>'; }).join(""); }
+  function gaugeCard(h){
+    if(h.score===null) return '<div class="mi-box"><div class="mi-h">Class health</div><div class="mi-empty">Health appears once marks, attendance or copy records exist.</div></div>';
+    var c=hColor(h.score), dl=h.delta;
+    var chip=dl===null?'<span class="mi-delta" style="color:var(--muted);border-color:#2A3957;">'+(h.allTime?"all-time score":"no earlier month to compare")+'</span>':
+      '<span class="mi-delta" style="color:'+(dl>0?TEAL:dl<0?CORAL:"#9AA8C4")+';border-color:'+(dl>0?TEAL:dl<0?CORAL:"#2A3957")+';">'+(dl>0?"▲ +"+dl:dl<0?"▼ "+dl:"— no change")+' vs last month</span>';
+    var cp=h.comps, rows=miniRows([["Marks",cp.marks,TEAL],["Attendance",cp.att,AMBER],["Copies",cp.copies,VIOLET],["Passing",cp.pass,TEAL]].filter(function(x){ return x[1]!==null; }).map(function(x){ return [x[0],rd(x[1]),x[2],rd(x[1])+"%"]; }));
+    return '<div class="mi-box"><div class="mi-h">Class health</div>'+gaugeSVG(h.score,c,hLabel(h.score))+'<div style="text-align:center;margin:12px 0 14px;">'+chip+'</div>'+rows+
+      '<div class="mi-empty" style="margin-top:10px;">Marks 40% · Attendance 30% · Copies 15% · Passing 15%, last 30 days.</div></div>';
+  }
+  /* a student's OWN risk radar — same animated gauge as the class health card, but for risk (lower is better) */
+  function riskGauge(m){
+    if(!m||m.score===null) return '<div class="mi-box"><div class="mi-h">My risk radar</div><div class="mi-empty">Your risk radar appears once marks or attendance are recorded.</div></div>';
+    var c=lvlColor(m.level), lab=m.level==="Low"?"On track":m.level==="Watch"?"Needs a little attention":"Needs attention";
+    var rows=miniRows(m.comps.map(function(x){ var col=x.risk<30?TEAL:x.risk<55?AMBER:CORAL; return [x.n,x.risk,col,x.risk<30?"Low":x.risk<55?"Medium":"High"]; }));
+    var why=m.reasons.length?'<ul class="mi-ans-ul">'+m.reasons.slice(0,3).map(function(r){ return "<li>"+esc(r)+"</li>"; }).join("")+'</ul>':'<div class="mi-empty" style="margin-top:8px;">Everything looks healthy. Keep it up!</div>';
+    return '<div class="mi-box"><div class="mi-h">My risk radar</div>'+gaugeSVG(m.score,c,lab)+'<div style="text-align:center;margin:12px 0 14px;"><span class="mi-delta" style="color:'+c+';border-color:'+c+';">'+m.level+' risk · lower is better</span></div>'+rows+why+'</div>';
+  }
+  function riskCard(R){
+    if(!R.length) return '<div class="mi-box"><div class="mi-h">Risk radar</div><div class="mi-empty">Risk scores appear once marks, attendance or copy records exist.</div></div>';
+    var cnt={High:0,Watch:0,Low:0}; R.forEach(function(x){ cnt[x.level]++; });
+    var sum='<div class="mi-risk-sum"><span style="color:'+CORAL+';border-color:'+CORAL+'">'+cnt.High+' high</span><span style="color:'+AMBER+';border-color:'+AMBER+'">'+cnt.Watch+' watch</span><span style="color:'+TEAL+';border-color:'+TEAL+'">'+cnt.Low+' low</span></div>';
+    var rows=R.map(function(x,i){
+      var c=lvlColor(x.level), why=x.reasons.slice(0,3).join(" · ")||"All indicators look healthy";
+      return '<div class="mi-risk-row" data-sid="'+esc(x.id)+'" title="Open report card"><div class="mi-risk-top"><b>'+esc(x.name)+'</b><span class="mi-lvl" style="color:'+c+';border-color:'+c+'">'+x.level+' · '+x.score+'</span></div>'+
+        '<div class="mi-risk-bar"><i style="width:'+x.score+'%;background:'+c+';animation-delay:'+(0.3+Math.min(i,8)*0.06)+'s"></i></div><div class="mi-risk-why">'+esc(why)+'</div></div>';
+    }).join("");
+    return '<div class="mi-box mi-risk collapsed"><div style="display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:10px;"><div class="mi-h" style="margin:0;">Risk radar</div></div>'+sum+'<div class="mi-risk-list">'+rows+'</div>'+
+      (R.length>6?'<button class="btn btn-outline btn-sm" style="margin-top:12px;" onclick="miRiskToggle(this)">Show all ('+R.length+')</button>':'')+
+      '<div class="mi-empty" style="margin-top:12px;">Score = marks level (40%), marks trend (20%), attendance (25%) and copy submission (15%). Higher means more attention needed.</div></div>';
+  }
+  window.miSmartTop=function(){ return isStaff()?gaugeCard(health()):""; };
+  window.miSmartMine=function(){ var u=user(); return (isStudent()&&u)?riskGauge(metrics(u.id)):""; };
+  /* ── Risk radar on the Leaderboard page (teachers / admin) ── */
+  function mountRiskLb(){
+    var host=$("leaderboardContent"), el=$("miRiskLb");
+    if(!isStaff()||!host||!host.parentNode){ if(el&&el.parentNode) el.parentNode.removeChild(el); return; }
+    if(!el){
+      el=document.createElement("div"); el.id="miRiskLb"; el.setAttribute("data-mi",""); el.style.marginTop="14px";
+      el.addEventListener("click",function(ev){ var t=ev.target.closest&&ev.target.closest(".mi-risk-row"); if(t&&t.getAttribute("data-sid")) openReport(t.getAttribute("data-sid")); });
+      host.parentNode.insertBefore(el,host.nextSibling);
+    }
+    var h=riskCard(riskList()); if(el._h!==h){ el._h=h; el.innerHTML=h; }
+  }
+  window.miRiskToggle=function(btn){ var box=btn.closest(".mi-risk"); if(!box) return; var c=box.classList.toggle("collapsed"); btn.textContent=c?"Show all ("+box.querySelectorAll(".mi-risk-row").length+")":"Show fewer"; };
+
+  /* ───────── animated count-ups ───────── */
+  var _seen={}, REDUCE=false; try{ REDUCE=window.matchMedia("(prefers-reduced-motion: reduce)").matches; }catch(e){}
+  function countNode(node,to,from,dur){
+    var m=node.nodeValue.match(/^(\D*)(\d+(?:\.\d+)?)(.*)$/s); if(!m) return;
+    var pre=m[1],suf=m[3],dec=m[2].indexOf(".")>-1?1:0, t0=null;
+    if(REDUCE){ node.nodeValue=pre+to.toFixed(dec)+suf; return; }
+    function step(ts){ if(t0===null) t0=ts; var k=Math.min(1,(ts-t0)/(dur||900)), e=1-Math.pow(1-k,3); node.nodeValue=pre+(from+(to-from)*e).toFixed(dec)+suf; if(k<1) requestAnimationFrame(step); }
+    node.nodeValue=pre+from.toFixed(dec)+suf; requestAnimationFrame(step);
+  }
+  function autoCount(el,key){
+    if(el._miDone) return; var n=el.firstChild; if(!n||n.nodeType!==3) return;
+    var m=n.nodeValue.match(/^(\D*)(\d+(?:\.\d+)?)/); if(!m) return;
+    el._miDone=true; var to=parseFloat(m[2]), prev=_seen[key];
+    if(prev===to) return; _seen[key]=to; countNode(n,to,prev===undefined?0:prev,900);
+  }
+  function scanCounts(){
+    try{
+      Array.prototype.forEach.call(document.querySelectorAll("[data-count]"),function(el){
+        if(el._miDone) return; el._miDone=true; var n=el.firstChild; if(!n||n.nodeType!==3) return; countNode(n,parseFloat(el.getAttribute("data-count")),0,1100);
+      });
+      Array.prototype.forEach.call(document.querySelectorAll("#page-dashboard .stat-card"),function(c){ var v=c.querySelector(".stat-num"),l=c.querySelector(".stat-lbl"); if(v&&l) autoCount(v,"sc:"+l.textContent); });
+      Array.prototype.forEach.call(document.querySelectorAll("#miOverview .mi-box"),function(c){ var v=c.querySelector(".mi-v"),l=c.querySelector(".mi-k"); if(v&&l) autoCount(v,"mv:"+l.textContent); });
+    }catch(e){}
+  }
+
+  /* ───────── assistant: understanding the question (Layer 1) ───────── */
+  var STOP={};
+  ("a an the of is are was were am i me my we you your who whom what which when where how hows why do does did doing done has have had at in on for to from with and or but not no yes its this that these those please tell show give list find get open go take about class students student score scores marks mark result results percent percentage attendance absent present risk top best worst weak weakest strong strongest subject subjects exam exams test tests compare comparison between vs versus than more less much many today week month year last first second next latest recent overall average avg status progress performance report card reports health copies copy submit submitted pending missing low high rank ranking ranks leaderboard improve improvement plan study focus revise need needs attention help name roll number sir madam teacher can could would should will there their them any all some create make generate prepare build produce download export write print detailed detail analytic analytical analysis analytics report reports examination assessment").split(" ").forEach(function(w){ STOP[w]=1; });
+  function norm(q){ return String(q).toLowerCase().replace(/[^a-z0-9 ]+/g," ").replace(/\s+/g," ").trim(); }
+  function lev(a,b){ var m=a.length,n=b.length; if(Math.abs(m-n)>1) return 2; var d=[],i,j; for(i=0;i<=m;i++){ d[i]=[i]; } for(j=0;j<=n;j++) d[0][j]=j; for(i=1;i<=m;i++) for(j=1;j<=n;j++) d[i][j]=Math.min(d[i-1][j]+1,d[i][j-1]+1,d[i-1][j-1]+(a[i-1]===b[j-1]?0:1)); return d[m][n]; }
+  var SUBJ_EXTRA={maths:["math","maths","mathematics"],sst:["sst","social","history","geography"],it:["computer","computers"],science:["science","sci"],english:["english","eng"],hindi:["hindi"]};
+  function subjectWords(){
+    var map={}, list=[]; try{ list=SUBJECTS.concat(MULTI_SUBJECTS); }catch(e){}
+    list.forEach(function(s){ var ids=[s.id]; norm(s.name).split(" ").concat([s.id]).forEach(function(w){ if(w.length>=3&&w!=="and") (map[w]=map[w]||[]).push(s.id); }); });
+    Object.keys(SUBJ_EXTRA).forEach(function(id){ SUBJ_EXTRA[id].forEach(function(w){ (map[w]=map[w]||[]).push(id); }); });
+    return map;
+  }
+  function findSubjects(low,orig){
+    var map=subjectWords(),ids=[]; low.split(" ").forEach(function(t){ if(map[t]) map[t].forEach(function(id){ if(ids.indexOf(id)<0) ids.push(id); }); });
+    if(/\bIT\b/.test(orig||"")){ ["it","computer"].forEach(function(id){ if(ids.indexOf(id)<0) ids.push(id); }); }
+    return ids;
+  }
+  function examNames(){ var r=db("results")||[],f={}; r.forEach(function(x){ if(!x.test) return; var d=iso(x.date)||""; if(!(x.test in f)||d<f[x.test]) f[x.test]=d; }); return Object.keys(f).sort(function(a,b){ return f[a]<f[b]?-1:f[a]>f[b]?1:0; }); }
+  function findExams(low){
+    var found=[]; examNames().forEach(function(n){ var nl=norm(n),idx=low.indexOf(nl); if(idx<0){ nl.split(" ").forEach(function(w){ if(w.length>=5&&low.split(" ").indexOf(w)>-1&&idx<0) idx=low.indexOf(w); }); } if(idx>-1) found.push({n:n,i:idx}); });
+    return found.sort(function(a,b){ return a.i-b.i; }).map(function(x){ return x.n; });
+  }
+  function findStudents(low){
+    var sw=subjectWords(), toks=low.split(" ").filter(function(t){ return t.length>=3&&!STOP[t]&&!sw[t]&&!/^\d+$/.test(t); }), st=students(), mm;
+    if((mm=low.match(/\broll (?:no |number )?(\d{1,3})\b/))){ var byRoll=st.filter(function(s){ return String(parseInt(s.roll))===String(parseInt(mm[1])); }); if(byRoll.length) return byRoll; }
+    if(!toks.length) return [];
+    var sc=[]; st.forEach(function(s){ var nt=norm(s.name).split(" "),c=0; toks.forEach(function(t){ if(nt.some(function(n){ return n===t||n.indexOf(t)===0||(t.length>=4&&lev(n,t)<=1); })) c++; }); if(c) sc.push({s:s,c:c}); });
+    if(!sc.length) return []; var mx=Math.max.apply(null,sc.map(function(x){ return x.c; }));
+    return sc.filter(function(x){ return x.c===mx; }).map(function(x){ return x.s; });
+  }
+
+  /* ───────── assistant: answer builders ───────── */
+  var ACTS=[], CTX={student:null,exam:null};
+  function actBtn(label,fn){ ACTS.push(fn); return '<button class="btn btn-outline btn-sm mi-act" data-act="'+(ACTS.length-1)+'">'+label+'</button>'; }
+  function openReport(id){
+    CTX.student=id; var b=document.querySelector('[data-page="report_card"]'); if(!b||typeof nav!=="function") return; nav(b);
+    function pick(){ var sel=$("rcStudentSelect"); if(sel&&id){ sel.value=id; try{ renderReportCard(); }catch(e){} } } pick(); setTimeout(pick,80);
+  }
+  function go(page){ var b=document.querySelector('[data-page="'+page+'"]'); if(b&&typeof nav==="function") nav(b); }
+  function A(title,body,intent){ return {intent:intent||"",title:title,html:body}; }
+  function lvlPill(x){ var c=lvlColor(x.level); return '<span class="mi-lvl" style="color:'+c+';border-color:'+c+'">'+x.level+' · '+x.score+'</span>'; }
+  function barRows(rows,colorOf){ return rows.map(function(r,i){ var c=colorOf?colorOf(r):TEAL; return '<div class="mi-row"><span class="n" title="'+esc(r.name)+'">'+esc(r.name)+'</span><div class="t"><i style="width:'+r.pct+'%;background:'+c+';animation-delay:'+(0.2+i*0.07)+'s"></i></div><span class="p" style="color:'+c+'">'+r.pct+'%</span></div>'; }).join(""); }
+  function lb(){ try{ return computeOverallLeaderboard().rows||[]; }catch(e){ return []; } }
+  function rankOf(id){ var r=lb(),x=r.find(function(y){ return y.studentId===id; }); return x?{rank:x.rank,of:r.length}:null; }
+  function classSubj(examFilter){
+    var res=db("results")||[],map={};
+    res.forEach(function(r){ if(examFilter&&r.test!==examFilter) return; (r.studentMarks||[]).forEach(function(m){ if(m.absent||m.marks==null||!r.max) return; var o=map[r.subject]||(map[r.subject]={s:0,n:0,add:false}); o.s+=m.marks/r.max*100; o.n++; if(isAdd(r)) o.add=true; }); });
+    return Object.keys(map).map(function(k){ return {id:k,name:subjName(k),pct:Math.round(map[k].s/map[k].n),add:map[k].add}; }).sort(function(a,b){ return (a.add?1:0)-(b.add?1:0)||b.pct-a.pct; });
+  }
+  function selfTips(m){
+    var t=[]; if(m.subj.length){ var w=m.subj.slice().reverse().slice(0,2).filter(function(x){ return x.pct<75; }); if(w.length) t.push("Give extra time to "+w.map(function(x){ return x.name; }).join(" and ")+" — a little daily revision helps most there."); }
+    if(m.att!==null&&m.att<85) t.push("Try not to miss classes — your attendance is "+m.att+"%."); if(m.copies>=2&&m.miss>0) t.push("Submit your copies on time ("+m.miss+" pending so far).");
+    if(!t.length) t.push("You are on track. Keep up the routine!"); return t;
+  }
+  function profile(s,self){
+    CTX.student=s.id; var m=metrics(s.id); if(!m||!m.hasMarks&&m.att===null) return A(self?"Your progress":s.name,'<div class="mi-empty">No marks or attendance recorded yet.</div>',"student");
+    var rk=rankOf(s.id), st=m.subj, strong=st[0], weak=st[st.length-1];
+    var head='<div class="mi-ans-kpis"><div><span>Average</span><b data-count="'+(m.avg||0)+'">'+(m.avg===null?"—":m.avg+"%")+'</b></div><div><span>Attendance</span><b>'+(m.att===null?"—":m.att+"%")+'</b></div><div><span>Rank</span><b>'+(rk?"#"+rk.rank+'<small> of '+rk.of+'</small>':"—")+'</b></div>'+(m.score===null?"":'<div><span>Risk</span><b>'+lvlPill(m)+'</b></div>')+'</div>';
+    var body=head+(st.length?'<div class="mi-ans-sub">Strongest: <b style="color:'+TEAL+'">'+esc(strong.name)+' ('+strong.pct+'%)</b> · Needs work: <b style="color:'+(weak.pct<60?CORAL:AMBER)+'">'+esc(weak.name)+' ('+weak.pct+'%)</b></div>':"");
+    if(self) body+='<ul class="mi-ans-ul">'+selfTips(m).map(function(x){ return "<li>"+esc(x)+"</li>"; }).join("")+'</ul>';
+    else if(m.reasons.length) body+='<ul class="mi-ans-ul">'+m.reasons.map(function(x){ return "<li>"+esc(x)+"</li>"; }).join("")+'</ul>';
+    if(st.length) body+='<div style="margin-top:10px;">'+barRows(st.slice(0,6))+'</div>';
+    body+='<div class="mi-ans-acts">'+actBtn(self?"Open my report card":"Open report card",function(){ openReport(s.id); closeAsk(); })+'</div>';
+    return A(self?"How you are doing":s.name+" — summary",body,"student");
+  }
+  function ans_risk(){
+    var R=riskList().filter(function(x){ return x.level!=="Low"; }); if(!R.length) return A("Risk radar",'<div class="mi-empty">Nobody is at risk right now. All scores are low.</div>',"risk");
+    var rows=R.slice(0,6).map(function(x){ return '<div class="mi-ans-row"><div><b>'+esc(x.name)+'</b> '+lvlPill(x)+'<div class="mi-risk-why">'+esc(x.reasons.slice(0,3).join(" · "))+'</div></div>'+actBtn("Report",function(){ openReport(x.id); closeAsk(); })+'</div>'; }).join("");
+    return A(R.length+" student"+(R.length>1?"s":"")+" need attention",rows+(R.length>6?'<div class="mi-empty">…and '+(R.length-6)+' more on the dashboard.</div>':""),"risk");
+  }
+  function ans_health(){
+    var h=health(); if(h.score===null) return A("Class health",'<div class="mi-empty">Not enough data yet.</div>',"health");
+    var c=hColor(h.score), dl=h.delta, cp=h.comps, parts=[];
+    if(cp.marks!==null) parts.push("average marks "+rd(cp.marks)+"%"); if(cp.att!==null) parts.push("attendance "+rd(cp.att)+"%"); if(cp.copies!==null) parts.push("copy submission "+rd(cp.copies)+"%");
+    return A("Class health: "+hLabel(h.score),'<div class="mi-ans-kpis"><div><span>Score</span><b style="color:'+c+'" data-count="'+h.score+'">'+h.score+'</b></div>'+(dl===null?"":'<div><span>vs last month</span><b style="color:'+(dl>0?TEAL:dl<0?CORAL:"#9AA8C4")+'">'+(dl>0?"▲ +"+dl:dl<0?"▼ "+dl:"—")+'</b></div>')+'</div><div class="mi-ans-sub">Based on '+parts.join(", ")+(h.allTime?" (all time — no marks in the last 30 days)":" over the last 30 days")+'.</div>',"health");
+  }
+  function ans_top(n){
+    var rows=lb().slice(0,n||3); if(!rows.length) return A("Top students",'<div class="mi-empty">No ranking yet — declare some results first.</div>',"top");
+    return A("Top "+rows.length+" students",rows.map(function(r,i){ return '<div class="mi-ans-row"><div><b>#'+r.rank+' '+esc(r.name)+'</b><div class="mi-risk-why">Average '+Math.round(r.avgPct)+'%</div></div>'+(isStaff()?actBtn("Report",function(){ openReport(r.studentId); closeAsk(); }):"")+'</div>'; }).join(""),"top");
+  }
+  function ans_attendance(low){
+    var st=students(),att=db("studentAttendance")||{};
+    if(/\btoday\b/.test(low)){ var d=att[todayISO()]; if(!d) return A("Attendance today",'<div class="mi-empty">Attendance has not been marked today.</div>',"attendance"); var ab=st.filter(function(s){ return d[s.id]==="absent"; }), pr=st.filter(function(s){ return d[s.id]==="present"; }).length;
+      return A("Attendance today",'<div class="mi-ans-kpis"><div><span>Present</span><b style="color:'+TEAL+'">'+pr+'</b></div><div><span>Absent</span><b style="color:'+CORAL+'">'+ab.length+'</b></div></div>'+(ab.length?'<div class="mi-ans-sub">Absent: '+ab.map(function(s){ return esc(s.name); }).join(", ")+'</div>':""),"attendance"); }
+    var rows=Object.keys(all()).map(function(k){ return all()[k]; }).filter(function(x){ return x.att!==null; }).sort(function(a,b){ return a.att-b.att; }).slice(0,6);
+    if(!rows.length) return A("Attendance",'<div class="mi-empty">No attendance recorded yet.</div>',"attendance");
+    return A("Lowest attendance",barRows(rows.map(function(x){ return {name:x.name,pct:x.att}; }),function(r){ return r.pct<75?CORAL:r.pct<90?AMBER:TEAL; }),"attendance");
+  }
+  function ans_subject(ids,low){
+    var cs=classSubj(null); if(!cs.length) return A("Subjects",'<div class="mi-empty">No marks recorded yet.</div>',"subject");
+    var core=cs.filter(function(x){ return !x.add; });
+    if(ids.length){
+      var pick=cs.filter(function(x){ return ids.indexOf(x.id)>-1; })[0]; if(!pick) return A("Subject",'<div class="mi-empty">No marks recorded for that subject yet.</div>',"subject");
+      var res=db("results")||[],per=[]; students().forEach(function(s){ var a=[]; res.forEach(function(r){ if(ids.indexOf(r.subject)<0) return; var m=(r.studentMarks||[]).find(function(x){ return x.studentId===s.id; }); if(m&&!m.absent&&m.marks!=null&&r.max) a.push(m.marks/r.max*100); }); if(a.length) per.push({name:s.name,pct:Math.round(mean(a))}); }); per.sort(function(a,b){ return b.pct-a.pct; });
+      return A(pick.name+": class average "+pick.pct+"%",'<div class="mi-ans-sub">Best: '+per.slice(0,3).map(function(x){ return "<b>"+esc(x.name)+"</b> "+x.pct+"%"; }).join(" · ")+'</div><div class="mi-ans-sub">Lowest: '+per.slice(-3).reverse().map(function(x){ return "<b>"+esc(x.name)+"</b> "+x.pct+"%"; }).join(" · ")+'</div>',"subject");
+    }
+    var weakest=/\b(weak\w*|worst|hardest|toughest|lowest)\b/.test(low), strongest=/\b(strong\w*|best|easiest|highest)\b/.test(low), ref=weakest?core[core.length-1]:core[0];
+    return A(weakest?"Weakest subject: "+ref.name:strongest?"Strongest subject: "+ref.name:"Class average by subject",barRows(cs,function(r){ return r.add?AMBER:r.pct<50?CORAL:TEAL; })+(cs.some(function(x){ return x.add; })?'<div class="mi-empty">IT (extra) is shown but not counted in totals.</div>':""),"subject");
+  }
+  function ans_compare(low,exams){
+    var names=examNames(), a,b;
+    if(exams.length>=2){ var order=examNames(),two=exams.slice(0,2).sort(function(x,y){ return order.indexOf(x)-order.indexOf(y); }); a=two[0]; b=two[1]; } else if(names.length>=2){ a=names[names.length-2]; b=names[names.length-1]; } else return A("Compare exams",'<div class="mi-empty">At least two exams are needed to compare.</div>',"compare");
+    var A1=classSubj(a),B1=classSubj(b),rows=[]; B1.forEach(function(x){ var y=A1.find(function(z){ return z.id===x.id; }); if(y) rows.push({name:x.name,from:y.pct,to:x.pct,d:x.pct-y.pct,add:x.add}); });
+    if(!rows.length) return A("Compare exams",'<div class="mi-empty">The two exams have no subject in common.</div>',"compare");
+    var core=rows.filter(function(r){ return !r.add; }),up=core.slice().sort(function(p,q){ return q.d-p.d; })[0],dn=core.slice().sort(function(p,q){ return p.d-q.d; })[0];
+    var html=rows.map(function(r){ var c=r.d>0?TEAL:r.d<0?CORAL:"#9AA8C4"; return '<div class="mi-row"><span class="n">'+esc(r.name)+'</span><span style="width:70px;font-size:11px;color:var(--muted)">'+r.from+'% → '+r.to+'%</span><div class="t"><i style="width:'+r.to+'%;background:'+(r.add?AMBER:c)+'"></i></div><b style="width:46px;text-align:right;color:'+c+'">'+(r.d>0?"▲ "+r.d:r.d<0?"▼ "+(-r.d):"—")+'</b></div>'; }).join("");
+    return A(esc(a)+" → "+esc(b),html+'<div class="mi-ans-sub">'+(up&&up.d>0?'Biggest gain: <b style="color:'+TEAL+'">'+esc(up.name)+' (+'+up.d+')</b>':"")+(dn&&dn.d<0?' · Biggest drop: <b style="color:'+CORAL+'">'+esc(dn.name)+' ('+dn.d+')</b>':"")+'</div>',"compare");
+  }
+  function ans_copies(){
+    var ses=(db("copySessions")||[]).slice().sort(function(a,b){ return String(a.date||"").localeCompare(String(b.date||"")); }),last=ses[ses.length-1];
+    if(!last) return A("Copy submission",'<div class="mi-empty">No copy-checking sessions recorded yet.</div>',"copies");
+    var pend=students().filter(function(s){ var v=(last.status||{})[s.id]; return v!=="submitted"&&v!=="absent"; });
+    return A("Latest copy check"+(last.subject?" — "+esc(last.subject):""),pend.length?'<div class="mi-ans-sub"><b>'+pend.length+'</b> not submitted: '+pend.slice(0,12).map(function(s){ return esc(s.name); }).join(", ")+(pend.length>12?"…":"")+'</div>':'<div class="mi-empty">Everyone has submitted. 🎉</div>',"copies");
+  }
+  function ans_exam(){
+    var ex=(db("examSchedules")||[]).filter(function(e){ return e.date>=todayISO(); }).sort(function(a,b){ return a.date.localeCompare(b.date); })[0];
+    if(!ex) return A("Next exam",'<div class="mi-empty">No upcoming exam is scheduled.</div>',"exam");
+    var days=Math.round((new Date(ex.date)-new Date(todayISO()))/86400000);
+    return A("Next exam: "+esc(ex.name),'<div class="mi-ans-kpis"><div><span>Date</span><b>'+esc(ex.date)+'</b></div><div><span>In</span><b style="color:'+AMBER+'">'+days+' day'+(days===1?"":"s")+'</b></div></div>',"exam");
+  }
+  var HELP_STAFF=["Who is at risk?","How is the class doing?","Who was absent today?","Who improved the most?","Who failed in the last exam?","Today's timetable","Pending leave requests","Create class report for this month"];
+  var HELP_STU=["How am I doing?","What should I improve?","Make a study plan","What do I need to score to get 85%?","Today's timetable","Homework due","Compare my last two exams","Create my report for this month"];
+  var HELP_GROUPS_STAFF=[["Class",["Who is at risk?","How is the class doing?","Weakest subject","Compare the last two exams","Who improved the most?","Who dropped the most?"]],["Students",["Who was absent today?","Who is absent the most this month?","Who failed in the last exam?","Students with attendance below 75","Top 3 in maths","Compare two students: “Compare Riya and Aarav”"]],["Schedule & school",["Today's timetable","Who teaches maths?","Upcoming exams","Pending leave requests","Homework due this week","Latest notices"]],["Reports & pages",["Create class report for this month","Create a detailed analytic report of all subjects for this examination","Open marks entry","Go to attendance"]]];
+  var HELP_GROUPS_STU=[["About me",["How am I doing?","What should I improve?","My best subject","My weakest subject","My attendance","My rank","My pending copies","My marks in the last exam"]],["Plan & goals",["Make a study plan","What do I need to score to get 85%?","Compare my last two exams"]],["School",["Today's timetable","What is my next period?","Who teaches science?","Homework due","Upcoming exams","Latest notices","Next exam"]],["Reports",["Create my report for this month"]]];
+  function chips(list){ return '<div class="mi-chipset">'+list.map(function(x){ return '<button class="mi-qchip" data-q="'+esc(x)+'">'+esc(x)+'</button>'; }).join("")+'</div>'; }
+  function ans_help(){ var g=isStaff()?HELP_GROUPS_STAFF:HELP_GROUPS_STU; return A("What I can do",'<div class="mi-ans-sub">I answer from your class data, instantly and offline. Tap one to try it:</div>'+g.map(function(x){ return '<div class="mi-ask-sec" style="padding-left:0">'+x[0]+'</div>'+chips(x[1].filter(function(t){ return t.indexOf("“")<0; })); }).join("")+'<div class="mi-ans-sub" style="margin-top:10px;">You can also type a student name or a page name to jump straight there.</div>',"help"); }
+
+
+  /* ───────── more commands (all answered from the real data, offline) ───────── */
+  var DAYS=["Sunday","Monday","Tuesday","Wednesday","Thursday","Friday","Saturday"], PASSMARK=33;
+  var PAGE_ALIAS={manage_results:"marks entry enter marks enter results results entry declare results",manage_attendance:"mark attendance attendance entry roll call",student_info:"students list student list directory",manage_students:"manage students student management",report_card:"report card reportcard",copy_checking:"copy check copies notebooks",manage_timetable:"set timetable edit timetable",leaderboard:"rank ranking leaders toppers",spotlight_history:"spotlight",admin_panel:"admin passwords"};
+  function pad2(n){ return String(n).padStart(2,"0"); }
+  function fmtD(d){ return d?new Date(d+"T00:00:00Z").toLocaleDateString("en-IN",{day:"numeric",month:"short",year:"numeric",timeZone:"UTC"}):""; }
+  function addD(d,n){ var x=new Date(d+"T00:00:00Z"); x.setUTCDate(x.getUTCDate()+n); return x.toISOString().slice(0,10); }
+  function dateOfQuery(q,low){
+    if(/\byesterday\b/.test(low)) return daysAgo(1); if(/\btoday\b/.test(low)) return todayISO();
+    var m=q.match(/(\d{4})-(\d{1,2})-(\d{1,2})/); if(m) return m[1]+"-"+pad2(m[2])+"-"+pad2(m[3]);
+    m=q.match(/(\d{1,2})[\/-](\d{1,2})[\/-](\d{4})/); if(m) return m[3]+"-"+pad2(m[2])+"-"+pad2(m[1]);
+    return null;
+  }
+  function nameMap(){ var m={}; students().forEach(function(s){ m[s.id]=s; }); return m; }
+  function goLabel(rx){ var b=Array.prototype.filter.call(document.querySelectorAll(".nav-btn[data-page]"),function(el){ var l=el.querySelector(".nav-label"); return el.offsetParent!==null&&l&&rx.test(l.textContent); })[0]; if(b&&typeof nav==="function") nav(b); }
+  function pageMatch(text){
+    var toks=norm(text).split(" ").filter(Boolean); if(!toks.length) return null; var best=null;
+    pages().forEach(function(p){ var h=(p.label+" "+p.id.replace(/_/g," ")+" "+(PAGE_ALIAS[p.id]||"")).toLowerCase(); if(toks.every(function(t){ return h.indexOf(t)>-1; })&&(!best||p.label.length<best.label.length)) best=p; });
+    return best;
+  }
+  function kpi(label,val,color){ return '<div><span>'+label+'</span><b'+(color?' style="color:'+color+'"':'')+'>'+val+'</b></div>'; }
+  function item(title,sub,right){ return '<div class="mi-ans-row"><div><b>'+title+'</b>'+(sub?'<div class="mi-risk-why">'+sub+'</div>':'')+'</div>'+(right||"")+'</div>'; }
+
+  /* timetable & teachers */
+  function mins(t){ var m=String(t||"").match(/(\d{1,2})[:.](\d{2})/); return m?(+m[1])*60+(+m[2]):null; }
+  function ttRows(day){ return (db("timetable")||[]).filter(function(r){ return r.day===day; }).sort(function(a,b){ return mins(a.startTime)-mins(b.startTime); }); }
+  function slotTeacher(r){ if(r.teacher) return r.teacher; try{ var s=SUBJECTS.find(function(x){ return x.id===r.subject; }); return s?s.teacher:""; }catch(e){ return ""; } }
+  function ttRow(r){ var t=slotTeacher(r); return item(esc(subjName(r.subject)),esc(r.startTime)+" – "+esc(r.endTime)+(t?" · "+esc(t):"")); }
+  function dayOf(low){
+    var now=new Date(),d;
+    if(/\btomorrow\b/.test(low)){ d=new Date(now); d.setDate(d.getDate()+1); return {day:DAYS[d.getDay()],label:"Tomorrow"}; }
+    if(/\byesterday\b/.test(low)){ d=new Date(now); d.setDate(d.getDate()-1); return {day:DAYS[d.getDay()],label:"Yesterday"}; }
+    for(var i=0;i<7;i++){ if(low.indexOf(DAYS[i].toLowerCase())>-1) return {day:DAYS[i],label:DAYS[i]}; }
+    return {day:DAYS[now.getDay()],label:"Today"};
+  }
+  function ans_timetable(low){ var d=dayOf(low),rows=ttRows(d.day); return A(d.label+"'s timetable ("+d.day+")",rows.length?rows.map(ttRow).join(""):'<div class="mi-empty">No periods are set for '+d.day+'.</div>',"timetable"); }
+  function ans_nextperiod(){
+    var now=new Date(),cur=now.getHours()*60+now.getMinutes(),rows=ttRows(DAYS[now.getDay()]),nowRow=null,next=null;
+    rows.forEach(function(r){ var s=mins(r.startTime),e=mins(r.endTime); if(s!==null&&e!==null&&cur>=s&&cur<e) nowRow=r; else if(s!==null&&s>cur&&!next) next=r; });
+    if(!nowRow&&!next){ var t=new Date(now); t.setDate(t.getDate()+1); var tr=ttRows(DAYS[t.getDay()]); return A("No more periods today",tr.length?'<div class="mi-ans-sub">Tomorrow starts with:</div>'+ttRow(tr[0]):'<div class="mi-empty">Nothing is scheduled for today or tomorrow.</div>',"nextperiod"); }
+    return A("Your schedule right now",(nowRow?'<div class="mi-ans-sub" style="color:'+TEAL+'">Now</div>'+ttRow(nowRow):"")+(next?'<div class="mi-ans-sub">Next</div>'+ttRow(next):""),"nextperiod");
+  }
+  function ans_teacher(subs){
+    var list=[]; try{ list=SUBJECTS; }catch(e){} var rows=subs.length?list.filter(function(s){ return subs.indexOf(s.id)>-1; }):list;
+    return A(subs.length?"Who teaches it":"Subject teachers",rows.length?rows.map(function(s){ return item(esc(s.name),esc(s.teacher)); }).join(""):'<div class="mi-empty">No subject information found.</div>',"teacher");
+  }
+  function ans_examlist(){
+    var ex=(db("examSchedules")||[]).filter(function(e){ return e.date>=todayISO(); }).sort(function(a,b){ return a.date.localeCompare(b.date); });
+    return A("Upcoming exams"+(ex.length?" ("+ex.length+")":""),ex.length?ex.slice(0,8).map(function(e){ var d=Math.round((new Date(e.date)-new Date(todayISO()))/86400000); return item(esc(e.name)+(e.subject?" — "+esc(subjName(e.subject)):""),esc(fmtD(e.date)),'<span style="color:'+AMBER+';font-weight:700;font-size:12px;">in '+d+'d</span>'); }).join(""):'<div class="mi-empty">No upcoming exams are scheduled.</div>',"examlist");
+  }
+
+  /* homework, notices, leave */
+  function ans_homework(low){
+    var t=todayISO(),all=(db("homework")||[]).slice(),over=/\b(overdue|missed|late|past)\b/.test(low),rows;
+    if(over) rows=all.filter(function(h){ return h.due&&h.due<t; });
+    else if(/\btoday\b/.test(low)) rows=all.filter(function(h){ return h.due===t; });
+    else if(/\btomorrow\b/.test(low)) rows=all.filter(function(h){ return h.due===addD(t,1); });
+    else if(/\bweek\b/.test(low)) rows=all.filter(function(h){ return h.due&&h.due>=t&&h.due<=addD(t,7); });
+    else rows=all.filter(function(h){ return !h.due||h.due>=t; });
+    rows.sort(function(a,b){ return String(a.due||"9999").localeCompare(String(b.due||"9999")); });
+    var title=over?"Overdue homework":/\btoday\b/.test(low)?"Homework due today":/\btomorrow\b/.test(low)?"Homework due tomorrow":/\bweek\b/.test(low)?"Homework due this week":"Upcoming homework";
+    return A(title+(rows.length?" ("+rows.length+")":""),rows.length?rows.slice(0,8).map(function(h){ var late=h.due&&h.due<t; return item(esc(h.title)+(h.subject?" — "+esc(subjName(h.subject)):""),h.due?"Due "+esc(fmtD(h.due)):"No due date",late?'<span style="color:'+CORAL+';font-size:12px;font-weight:700;">overdue</span>':(h.priority&&/high/i.test(h.priority)?'<span style="color:'+AMBER+';font-size:12px;font-weight:700;">high</span>':"")); }).join(""):'<div class="mi-empty">Nothing here. 🎉</div>',"homework");
+  }
+  function ans_notices(){
+    var n=(db("notices")||[]).slice(-3).reverse();
+    return A("Latest notices",n.length?n.map(function(x){ return item(esc(x.title),esc(String(x.body||"").slice(0,110))+(String(x.body||"").length>110?"…":"")+" · "+esc(x.date||""),x.priority&&/high|urgent/i.test(x.priority)?'<span style="color:'+CORAL+';font-size:12px;font-weight:700;">'+esc(x.priority)+'</span>':""); }).join(""):'<div class="mi-empty">No notices have been posted yet.</div>',"notices");
+  }
+  function ans_leave_staff(low){
+    var L=db("leaveApplications")||[],t=todayISO();
+    if(/\bon leave\b|\bwho is on leave\b|\babsent on leave\b/.test(low)){ var on=L.filter(function(a){ return a.status==="approved"&&a.fromDate<=t&&a.toDate>=t; }); return A("On leave today"+(on.length?" ("+on.length+")":""),on.length?on.map(function(a){ return item(esc(a.studentName),esc(fmtD(a.fromDate))+" – "+esc(fmtD(a.toDate))); }).join(""):'<div class="mi-empty">Nobody is on approved leave today.</div>',"leave"); }
+    var p=L.filter(function(a){ return a.status==="pending"; });
+    return A("Pending leave requests"+(p.length?" ("+p.length+")":""),(p.length?p.slice(0,6).map(function(a){ return item(esc(a.studentName),esc(fmtD(a.fromDate))+" – "+esc(fmtD(a.toDate))+" · "+esc(String(a.reason||"").slice(0,60))); }).join(""):'<div class="mi-empty">No pending leave requests.</div>')+'<div class="mi-ans-acts">'+actBtn("Open leave requests",function(){ closeAsk(); goLabel(/leave/i); })+'</div>',"leave");
+  }
+  function ans_leave_self(me){
+    var L=(db("leaveApplications")||[]).filter(function(a){ return a.studentId===me.id; }).slice(-3).reverse(); var col={pending:AMBER,approved:TEAL,rejected:CORAL};
+    return A("Your leave applications",L.length?L.map(function(a){ return item(esc(fmtD(a.fromDate))+" – "+esc(fmtD(a.toDate)),esc(String(a.reason||"").slice(0,70)),'<span style="color:'+(col[a.status]||"#9AA8C4")+';font-size:12px;font-weight:700;text-transform:capitalize;">'+esc(a.status)+'</span>'); }).join(""):'<div class="mi-empty">You have not applied for any leave.</div>',"leave");
+  }
+
+  /* attendance */
+  function ans_absentwho(q,low){
+    var d=dateOfQuery(q,low)||todayISO(),att=(db("studentAttendance")||{})[d],st=students();
+    if(!att) return A("Attendance — "+fmtD(d),'<div class="mi-empty">Attendance was not marked for this date.</div>',"absent");
+    var ab=st.filter(function(s){ return att[s.id]==="absent"; }).map(function(s){ return s.name; }),pr=st.filter(function(s){ return att[s.id]==="present"; }).map(function(s){ return s.name; }),ho=st.filter(function(s){ return att[s.id]==="holiday"; }).length;
+    var wantP=/\bpresent\b/.test(low)&&!/\babsent|absentees?\b/.test(low);
+    return A((wantP?"Present":"Absent")+" — "+fmtD(d),'<div class="mi-ans-kpis">'+kpi("Present",pr.length,TEAL)+kpi("Absent",ab.length,ab.length?CORAL:"")+(ho?kpi("Holiday",ho,AMBER):"")+'</div><div class="mi-ans-sub">'+(wantP?(pr.length?nameList(pr,15):"Nobody marked present."):(ab.length?"<b>"+nameList(ab,15)+"</b>":"Nobody was absent. 🎉"))+'</div>',"absent");
+  }
+  function ans_mostabsent(low){
+    var att=db("studentAttendance")||{},from=/\blast month\b/.test(low)?monthStart(-1):/\bmonth\b/.test(low)?monthStart(0):"0000",to=/\blast month\b/.test(low)?addD(monthStart(0),-1):"9999",cnt={};
+    Object.keys(att).forEach(function(d){ if(d<from||d>to) return; Object.keys(att[d]).forEach(function(id){ if(att[d][id]==="absent") cnt[id]=(cnt[id]||0)+1; }); });
+    var nm=nameMap(),rows=Object.keys(cnt).map(function(id){ return {n:nm[id]?nm[id].name:id,c:cnt[id],id:id}; }).sort(function(a,b){ return b.c-a.c; }).slice(0,6);
+    return A("Most absent"+(/\blast month\b/.test(low)?" (last month)":/\bmonth\b/.test(low)?" (this month)":""),rows.length?rows.map(function(r){ return item(esc(r.n),"",'<b style="color:'+CORAL+'">'+r.c+' day'+(r.c>1?"s":"")+'</b>'); }).join(""):'<div class="mi-empty">No absences recorded in this period.</div>',"mostabsent");
+  }
+  function monthStart(off){ var d=new Date(); return new Date(Date.UTC(d.getUTCFullYear(),d.getUTCMonth()+(off||0),1)).toISOString().slice(0,10); }
+
+  /* marks-based class analytics */
+  function ans_failing(low,exams,subs){
+    var th=(low.match(/\b(?:below|under|less than)\s+(\d{1,2})\b/)||[])[1],lim=th?+th:PASSMARK,exam=exams.length?exams[0]:null,by={},nm=nameMap();
+    (db("results")||[]).forEach(function(r){ if((exam&&r.test!==exam)||(subs.length&&subs.indexOf(r.subject)<0)||isAdd(r)||!r.studentMarks||!r.max) return; r.studentMarks.forEach(function(m){ if(m.absent||m.marks==null) return; var p=m.marks/r.max*100; if(p<lim) (by[m.studentId]=by[m.studentId]||[]).push(subjName(r.subject)+" "+Math.round(p)+"%"); }); });
+    var ids=Object.keys(by),title="Below "+lim+"%"+(exam?" in "+exam:"")+(subs.length?" ("+subs.map(subjName).join(", ")+")":"");
+    return A(title+(ids.length?" ("+ids.length+")":""),ids.length?ids.slice(0,10).map(function(id){ return item(esc(nm[id]?nm[id].name:id),esc(by[id].slice(0,4).join(" · ")),actBtn("Report",function(){ openReport(id); closeAsk(); })); }).join(""):'<div class="mi-empty">Nobody scored below '+lim+'%. 🎉</div>',"failing");
+  }
+  function subjAvgByStudent(ids,exam){
+    var out={}; (db("results")||[]).forEach(function(r){ if(ids.indexOf(r.subject)<0||(exam&&r.test!==exam)||!r.studentMarks||!r.max) return; r.studentMarks.forEach(function(m){ if(m.absent||m.marks==null) return; (out[m.studentId]=out[m.studentId]||[]).push(m.marks/r.max*100); }); });
+    return Object.keys(out).map(function(id){ return {id:id,pct:Math.round(mean(out[id]))}; }).sort(function(a,b){ return b.pct-a.pct; });
+  }
+  function ans_subjtop(ids,low,exams){
+    var list=subjAvgByStudent(ids,exams[0]||null),sn=subjName(ids[0]),me=user(); if(!list.length) return A("Subject ranking",'<div class="mi-empty">No marks recorded for that subject yet.</div>',"subjtop");
+    if(!isStaff()){ var i=list.findIndex(function(x){ return me&&x.id===me.id; }); return A("Your position in "+esc(sn),i<0?'<div class="mi-empty">You have no marks in this subject yet.</div>':'<div class="mi-ans-kpis">'+kpi("Position","#"+(i+1)+"<small> of "+list.length+"</small>")+kpi("Your average",list[i].pct+"%")+'</div><div class="mi-ans-sub">Other students\' names and scores are private.</div>',"subjtop"); }
+    var n=+((low.match(/\btop (\d{1,2})\b/)||[])[1])||3,nm=nameMap();
+    return A("Top "+Math.min(n,list.length)+" in "+esc(sn)+(exams[0]?" — "+esc(exams[0]):""),list.slice(0,n).map(function(x,i){ return item("#"+(i+1)+" "+esc(nm[x.id]?nm[x.id].name:x.id),"Average "+x.pct+"%",actBtn("Report",function(){ openReport(x.id); closeAsk(); })); }).join(""),"subjtop");
+  }
+  function ans_movers(low){
+    var m=all(),arr=Object.keys(m).map(function(k){ return m[k]; }).filter(function(x){ return x.drop!==null&&x.drop!==undefined; });
+    if(!arr.length) return A("Movers",'<div class="mi-empty">I need at least two exams on different dates to see who moved.</div>',"movers");
+    var dropq=/\b(drop|dropped|declin\w*|fell|fallen|worst|decreas\w*)\b/.test(low);
+    arr.sort(function(a,b){ return dropq?b.drop-a.drop:a.drop-b.drop; });
+    var rows=arr.slice(0,3).filter(function(x){ return dropq?x.drop>0:x.drop<0; });
+    return A(dropq?"Dropped the most":"Most improved",rows.length?rows.map(function(x){ var d=Math.round(Math.abs(x.drop)); return item(esc(x.name),"since "+esc(x.prevName||"the previous exam"),'<b style="color:'+(dropq?CORAL:TEAL)+'">'+(dropq?"▼ ":"▲ ")+d+' pts</b>'); }).join(""):'<div class="mi-empty">Nobody '+(dropq?"dropped":"improved")+' noticeably between the last two exams.</div>',"movers");
+  }
+  function ans_threshold(low){
+    var mm=low.match(/\b(below|under|less than|lower than|above|over|more than|greater than|at least|at most)\s+(\d{1,3})\b/); if(!mm) return null;
+    var below=/below|under|less|lower|at most/.test(mm[1]),n=+mm[2],att=/\b(attendance|present)\b/.test(low),M=all();
+    var rows=Object.keys(M).map(function(k){ return M[k]; }).filter(function(x){ var v=att?x.att:x.avg; return v!==null&&(below?v<n:v>n); }).sort(function(a,b){ var va=att?a.att:a.avg,vb=att?b.att:b.avg; return below?va-vb:vb-va; });
+    return A((att?"Attendance ":"Average ")+(below?"below ":"above ")+n+"%"+(rows.length?" ("+rows.length+")":""),rows.length?rows.slice(0,10).map(function(x){ return item(esc(x.name),"",'<b style="color:'+(below?CORAL:TEAL)+'">'+(att?x.att:x.avg)+'%</b>'); }).join(""):'<div class="mi-empty">No students match.</div>',"threshold");
+  }
+  function ans_riskcount(){ var R=riskList(),c={High:0,Watch:0,Low:0}; R.forEach(function(x){ c[x.level]++; }); return A((c.High+c.Watch)+" student"+((c.High+c.Watch)===1?"":"s")+" need attention",'<div class="mi-ans-kpis">'+kpi("High risk",c.High,CORAL)+kpi("Watch",c.Watch,AMBER)+kpi("Low",c.Low,TEAL)+'</div>',"riskcount"); }
+  function ans_examavg(exam){
+    var cs=classSubj(exam); if(!cs.length) return A("Exam",'<div class="mi-empty">No results recorded for that exam.</div>',"examavg");
+    var core=cs.filter(function(x){ return !x.add; }),avg=core.length?Math.round(mean(core.map(function(x){ return x.pct; }))):null;
+    return A("Class average in "+esc(exam)+(avg!==null?": "+avg+"%":""),barRows(cs,function(r){ return r.add?AMBER:r.pct<50?CORAL:TEAL; }),"examavg");
+  }
+  function findMany(low){
+    var sw=subjectWords(),toks=low.split(" ").filter(function(t){ return t.length>=3&&!STOP[t]&&!sw[t]&&!/^\d+$/.test(t); }),st=students(),out=[];
+    toks.forEach(function(t){ var hit=st.filter(function(s){ return norm(s.name).split(" ").some(function(n){ return n===t||n.indexOf(t)===0||(t.length>=4&&lev(n,t)<=1); }); }); if(hit.length===1&&out.indexOf(hit[0])<0) out.push(hit[0]); });
+    return out;
+  }
+  function ans_cmpstudents(a,b){
+    var ma=metrics(a.id),mb=metrics(b.id); if(!ma||!mb) return A("Compare",'<div class="mi-empty">Not enough data for one of them yet.</div>',"cmpstudents");
+    var names={},rows=[]; ma.subj.concat(mb.subj).forEach(function(x){ names[x.name]=1; });
+    Object.keys(names).forEach(function(n){ var x=ma.subj.find(function(s){ return s.name===n; }),y=mb.subj.find(function(s){ return s.name===n; }); rows.push('<div class="mi-row"><span class="n">'+esc(n)+'</span><span style="width:48px;text-align:right;color:'+TEAL+';font-size:12px;">'+(x?x.pct+"%":"—")+'</span><div class="t"><i style="width:'+(x?x.pct:0)+'%;background:'+TEAL+'"></i></div><div class="t"><i style="width:'+(y?y.pct:0)+'%;background:'+VIOLET+'"></i></div><span style="width:48px;color:'+VIOLET+';font-size:12px;">'+(y?y.pct+"%":"—")+'</span></div>'); });
+    var k=function(m){ return '<div class="mi-ans-kpis">'+kpi("Average",m.avg===null?"—":m.avg+"%")+kpi("Attendance",m.att===null?"—":m.att+"%")+kpi("Risk",m.score===null?"—":m.score)+'</div>'; };
+    return A(esc(a.name)+" vs "+esc(b.name),'<div class="mi-ans-sub" style="color:'+TEAL+'"><b>'+esc(a.name)+'</b></div>'+k(ma)+'<div class="mi-ans-sub" style="color:'+VIOLET+';margin-top:10px"><b>'+esc(b.name)+'</b></div>'+k(mb)+'<div style="margin-top:12px">'+rows.join("")+'</div><div class="mi-ans-acts">'+actBtn(esc(a.name.split(" ")[0])+"'s report",function(){ openReport(a.id); closeAsk(); })+actBtn(esc(b.name.split(" ")[0])+"'s report",function(){ openReport(b.id); closeAsk(); })+'</div>',"cmpstudents");
+  }
+  function ans_studentsubject(s,subs){
+    var rows=[],cls=[]; (db("results")||[]).forEach(function(r){ if(subs.indexOf(r.subject)<0||!r.studentMarks||!r.max) return; var m=r.studentMarks.find(function(x){ return x.studentId===s.id; }); r.studentMarks.forEach(function(x){ if(!x.absent&&x.marks!=null) cls.push(x.marks/r.max*100); }); if(m&&!m.absent&&m.marks!=null) rows.push({t:r.test,d:iso(r.date),m:m.marks,x:r.max,p:Math.round(m.marks/r.max*100)}); });
+    rows.sort(function(a,b){ return a.d<b.d?-1:1; }); var sn=subjName(subs[0]);
+    return A(esc(s.name)+" in "+esc(sn),rows.length?rows.map(function(r){ return item(esc(r.t),r.m+" / "+r.x,'<b style="color:'+(r.p>=60?TEAL:r.p>=40?AMBER:CORAL)+'">'+r.p+'%</b>'); }).join("")+(cls.length?'<div class="mi-ans-sub">Class average in '+esc(sn)+': <b>'+Math.round(mean(cls))+'%</b></div>':""):'<div class="mi-empty">No marks recorded for this subject yet.</div>',"studentsubject");
+  }
+
+  /* student-only helpers */
+  function ownPcts(id){ var o=[]; (db("results")||[]).forEach(function(r){ if(isAdd(r)||!r.studentMarks||!r.max) return; var m=r.studentMarks.find(function(x){ return x.studentId===id; }); if(m&&!m.absent&&m.marks!=null) o.push(m.marks/r.max*100); }); return o; }
+  function ans_goal(id,target){
+    var e=ownPcts(id); if(!e.length) return A("Target "+target+"%",'<div class="mi-empty">I need some marks first. Ask again after your first result.</div>',"goal");
+    var sum=e.reduce(function(a,b){ return a+b; },0),n=e.length,cur=sum/n,order=examNames(),last=order[order.length-1],subs={};
+    (db("results")||[]).forEach(function(r){ if(r.test===last&&!isAdd(r)) subs[r.subject]=1; }); var k=Math.max(1,Object.keys(subs).length||5);
+    if(cur>=target) return A("Target "+target+"%",'<div class="mi-ans-kpis">'+kpi("Now",Math.round(cur)+"%",TEAL)+kpi("Target",target+"%")+'</div><div class="mi-ans-sub">You are already above your target. Keep your next exam at '+Math.max(0,Math.ceil(target*(n+k)-sum)/k>0?Math.ceil((target*(n+k)-sum)/k):0)+'%+ to stay there.</div>',"goal");
+    var need=(target*(n+k)-sum)/k;
+    if(need<=100) return A("Target "+target+"%",'<div class="mi-ans-kpis">'+kpi("Now",Math.round(cur)+"%",AMBER)+kpi("Target",target+"%")+kpi("Need next exam","≈ "+Math.ceil(need)+"%",need>85?CORAL:TEAL)+'</div><div class="mi-ans-sub">Score about <b>'+Math.ceil(need)+'%</b> on average across your next exam ('+k+' subjects) to reach '+target+'% overall.</div>',"goal");
+    var m=target<100?Math.ceil((target*n-sum)/(k*(100-target))):99;
+    return A("Target "+target+"%",'<div class="mi-ans-kpis">'+kpi("Now",Math.round(cur)+"%",AMBER)+kpi("Target",target+"%")+'</div><div class="mi-ans-sub">One exam is not enough: even 100% would leave you below '+target+'%. You would need about <b>'+m+'</b> exam'+(m>1?"s":"")+' scoring very high. Try a nearer target first.</div>',"goal");
+  }
+  function ans_mycompare(self){
+    var order=examNames(); if(order.length<2) return A("Compare my exams",'<div class="mi-empty">You need at least two exams to compare.</div>',"mycompare");
+    var a=order[order.length-2],b=order[order.length-1],mp=function(ex){ var o={}; (db("results")||[]).forEach(function(r){ if(r.test!==ex||!r.studentMarks||!r.max) return; var m=r.studentMarks.find(function(x){ return x.studentId===self.id; }); if(m&&!m.absent&&m.marks!=null) o[r.subject]={p:m.marks/r.max*100,add:isAdd(r)}; }); return o; },A1=mp(a),B1=mp(b),rows=[];
+    Object.keys(B1).forEach(function(k){ if(A1[k]){ var d=Math.round(B1[k].p-A1[k].p); rows.push({name:subjName(k),from:Math.round(A1[k].p),to:Math.round(B1[k].p),d:d,add:B1[k].add}); } });
+    if(!rows.length) return A(esc(a)+" → "+esc(b),'<div class="mi-empty">No common subjects with marks in both exams.</div>',"mycompare");
+    return A("You: "+esc(a)+" → "+esc(b),rows.map(function(r){ var c=r.d>0?TEAL:r.d<0?CORAL:"#9AA8C4"; return '<div class="mi-row"><span class="n">'+esc(r.name)+'</span><span style="width:78px;font-size:11px;color:var(--muted)">'+r.from+'% → '+r.to+'%</span><div class="t"><i style="width:'+r.to+'%;background:'+(r.add?AMBER:c)+'"></i></div><b style="width:46px;text-align:right;color:'+c+'">'+(r.d>0?"▲ "+r.d:r.d<0?"▼ "+(-r.d):"—")+'</b></div>'; }).join(""),"mycompare");
+  }
+  function ans_mybw(self,weak){
+    var m=metrics(self.id); if(!m||!m.subj.length) return A("Your subjects",'<div class="mi-empty">No marks yet.</div>',"mybw");
+    var s=weak?m.subj[m.subj.length-1]:m.subj[0];
+    return A((weak?"Your weakest subject: ":"Your strongest subject: ")+esc(s.name),'<div class="mi-ans-kpis">'+kpi("Average",s.pct+"%",weak?(s.pct<60?CORAL:AMBER):TEAL)+'</div>'+(weak?'<div class="mi-ans-sub">Try 20–30 minutes of focused practice on '+esc(s.name)+' each day. Ask me to “make a study plan”.</div>':""),"mybw");
+  }
+  function ans_mycopies(self){
+    var rows=(db("copySessions")||[]).filter(function(c){ return c.status&&c.status[self.id]==="not_submitted"; }).sort(function(a,b){ return String(b.date).localeCompare(String(a.date)); });
+    return A(rows.length?rows.length+" copies pending":"Copies",rows.length?rows.slice(0,8).map(function(c){ return item(esc(c.subject||"Copy"),esc(fmtD(c.date))); }).join("")+'<div class="mi-ans-sub">Please submit these to your teacher.</div>':'<div class="mi-empty">You have no pending copies. 🎉</div>',"mycopies");
+  }
+  function ans_myexam(self,exam){
+    var rows=[]; (db("results")||[]).forEach(function(r){ if(r.test!==exam||!r.studentMarks||!r.max) return; var m=r.studentMarks.find(function(x){ return x.studentId===self.id; }); if(m) rows.push({n:subjName(r.subject),m:m.marks,x:r.max,ab:m.absent,add:isAdd(r)}); });
+    if(!rows.length) return A(esc(exam),'<div class="mi-empty">You have no marks recorded in this exam.</div>',"myexam");
+    return A("Your marks — "+esc(exam),rows.map(function(r){ var p=r.ab||r.m==null?null:Math.round(r.m/r.x*100); return item(esc(r.n)+(r.add?" (extra)":""),r.ab?"Absent":r.m+" / "+r.x,p===null?"":'<b style="color:'+(p>=60?TEAL:p>=40?AMBER:CORAL)+'">'+p+'%</b>'); }).join(""),"myexam");
+  }
+  function ans_myrank(self){
+    var rk=rankOf(self.id); return A("Your position",rk?'<div class="mi-ans-kpis">'+kpi("Rank","#"+rk.rank+"<small> of "+rk.of+"</small>")+'</div><div class="mi-ans-sub">'+(rk.rank<=3?"You are in the top 3 — well done! ":"")+'Other students\' names and scores are private.</div>':'<div class="mi-empty">No ranking yet.</div>',"rank");
+  }
+  function ans_plan(self){
+    var m=metrics(self.id),subj=m&&m.subj?m.subj.slice().reverse():[]; if(!subj.length) return A("Study plan",'<div class="mi-empty">I need some marks to build a plan. Ask again after your first result.</div>',"plan");
+    var weak=subj.filter(function(x){ return x.pct<80; }).slice(0,3),focus=(weak.length?weak:subj.slice(0,2)).map(function(x){ return x.name; });
+    var ex=(db("examSchedules")||[]).filter(function(e){ return e.date>=todayISO(); }).sort(function(a,b){ return a.date.localeCompare(b.date); })[0],days=ex?Math.round((new Date(ex.date)-new Date(todayISO()))/86400000):null,items=[];
+    for(var i=0;i<7;i++){ var d=new Date(); d.setDate(d.getDate()+i); var nm=i===0?"Today":DAYS[d.getDay()];
+      items.push("<li><b>"+nm+"</b>: "+(i===6?"weekly review — attempt a mini test on "+esc(focus.join(", ")):esc(focus[i%focus.length])+" — 45 min concept revision + 15 min practice questions")+"; plus 15 min to revise the day's class notes.</li>"); }
+    return A("Your 7-day study plan",'<div class="mi-ans-sub">Focus subjects: <b>'+esc(focus.join(", "))+'</b>'+(ex?' · '+esc(ex.name)+' in '+days+' day'+(days===1?"":"s"):"")+'</div><ol class="mi-ans-ul">'+items.join("")+'</ol>'+(days!==null&&days<=14?'<div class="mi-ans-sub">Your exam is close: finish one past paper for each focus subject this week.</div>':""),"plan");
+  }
+
+  function moreIntents(q,low,x){
+    var staff=x.staff,me=x.me,subs=x.subs,exams=x.exams,stus=x.stus;
+    var self=(!staff&&me)?(db("students")||[]).find(function(s){ return s.id===me.id; }):null;
+    if(!exams.length&&/\b(last|latest|recent|this|current)\b[^.?!]*\b(exam|test|examination)\b/.test(low)){ var oo=examNames(); if(oo.length) exams=[oo[oo.length-1]]; }
+    var nv=low.match(/^(?:please )?(open|go to|goto|take me to|navigate to|show me|show|visit)\s+(?:the |my )?(.+)$/);
+    if(nv&&!(staff&&stus.length)){ var pm=pageMatch(nv[2]); if(pm) return A("Open "+esc(pm.label),'<div class="mi-ans-acts">'+actBtn(esc(pm.icon+" Open "+pm.label),function(){ closeAsk(); go(pm.id); })+'</div>',"navigate"); }
+    if(/\bwho (teaches|takes|is teaching|is the teacher)\b|\bwhich teacher\b|\bsubject teachers?\b|\bteachers? (of|for)\b/.test(low)) return ans_teacher(subs);
+    if(/\b(next|upcoming|current) (period|class|lecture)\b|\bwhat s next\b|\bwhich (period|class) (is )?(now|next)\b/.test(low)) return ans_nextperiod();
+    if((/\b(timetable|time table|periods?|lectures?|class schedule)\b/.test(low)||/\b(today|tomorrow|yesterday) s schedule\b|\bwhat do i have (today|tomorrow)\b/.test(low))&&!/\bexam/.test(low)) return ans_timetable(low);
+    if(/\bupcoming exams\b|\bexams? (this month|list|calendar|coming up)\b|\ball exams\b/.test(low)) return ans_examlist();
+    if(/\b(homework|home work|assignments?)\b/.test(low)) return ans_homework(low);
+    if(/\b(notices?|announcements?|circulars?)\b/.test(low)) return ans_notices();
+    if(/\bleaves?\b/.test(low)) return staff?ans_leave_staff(low):(me?ans_leave_self(me):null);
+    if(staff){
+      if(/\b(compare|vs|versus|difference between)\b/.test(low)){ var two=findMany(low); if(two.length>=2) return ans_cmpstudents(two[0],two[1]); }
+      if(/\bhow many\b.*\b(at risk|risk|need attention|struggling)\b/.test(low)) return ans_riskcount();
+      if(/\b(most absent|absent (the )?most|most irregular|frequently absent|irregular)\b/.test(low)) return ans_mostabsent(low);
+      if(/\b(who|which students?|list|names?)\b/.test(low)&&/\b(absent|present|absentees?)\b/.test(low)) return ans_absentwho(q,low);
+      if(/\b(failed|fail|failing|below pass|not passed)\b/.test(low)||(/\b(below|under|less than) \d{1,2}\b/.test(low)&&!/\b(attendance|present)\b/.test(low)&&!/\b(who|students?)\b.*\b(average|scor)/.test(low)&&exams.length)) return ans_failing(low,exams,subs);
+      if(/\b(most improved|improved the most|biggest improvement|biggest gain|who improved|dropped the most|dropped most|biggest drop|who dropped|declined)\b/.test(low)) return ans_movers(low);
+      if(subs.length&&/\b(top|topper|toppers|best|highest|first|leading)\b/.test(low)&&!stus.length) return ans_subjtop(subs,low,exams);
+      var th=ans_threshold(low); if(th) return th;
+      if(exams.length&&/\b(average|avg|result|results|performance|how did)\b/.test(low)&&!stus.length&&!/\bcompare\b/.test(low)) return ans_examavg(exams[0]);
+      if(stus.length===1&&subs.length) return ans_studentsubject(stus[0],subs);
+    }
+    if(self){
+      var mine=/\b(my|me|mine|i)\b/.test(low);
+      if(mine&&/\bcompare\b/.test(low)) return ans_mycompare(self);
+      if(/\b(study plan|revision plan|study schedule|plan for (the )?(next )?exam|make (me )?a plan|plan my study)\b/.test(low)) return ans_plan(self);
+      var g=low.match(/\b(?:need|reach|get|target|goal|aim|score|achieve)\b[^0-9]{0,40}(\d{2,3})\b/);
+      if(g&&/\b(need|reach|target|goal|aim|achieve|how much)\b/.test(low)&&+g[1]>=35&&+g[1]<=100) return ans_goal(self.id,+g[1]);
+      if(/\b(best|strongest|weakest|worst|strong|weak)\b.*\bsubjects?\b|\bwhich subject\b/.test(low)&&!subs.length) return ans_mybw(self,/\b(weak\w*|worst)\b/.test(low));
+      if(/\b(copy|copies|notebooks?)\b/.test(low)) return ans_mycopies(self);
+      if(exams.length&&/\b(marks?|score|result|results|how did i)\b/.test(low)) return ans_myexam(self,exams[0]);
+      if(subs.length&&/\b(top|rank|position|where do i stand)\b/.test(low)) return ans_subjtop(subs,low,exams);
+    }
+    return null;
+  }
+
+  function ask(q){
+    ACTS=[]; q=String(q||"").trim(); var low=norm(q); if(!low||(!isStaff()&&!isStudent())) return null;
+    var staff=isStaff(), subs=findSubjects(low,q), exams=findExams(low), stus=findStudents(low), me=user();
+    if(/\b(help|what can you do|what can you answer|commands|examples)\b/.test(low)) return ans_help();
+    if(exams.length) CTX.exam=exams[exams.length-1];
+    if(stus.length===1&&staff) CTX.student=stus[0].id;
+    if(window.miReport){ var rr=window.miReport.interpret(q,low,{staff:staff,me:me,subs:subs,exams:exams,stus:stus,ctx:CTX}); if(rr) return rr; }
+    var more=moreIntents(q,low,{staff:staff,me:me,subs:subs,exams:exams,stus:stus}); if(more) return more;
+    if(/\bhow many students\b/.test(low)){ var n=students().length; return A("Students",'<div class="mi-ans-kpis"><div><span>Registered</span><b data-count="'+n+'">'+n+'</b></div></div>',"count"); }
+    if(/\b(next|upcoming) (exam|test)\b|\bwhen is (the )?(next )?(exam|test)\b|\bexam (date|schedule)\b/.test(low)) return ans_exam();
+    if(/\b(compare|comparison|versus|vs|difference between)\b/.test(low)) return ans_compare(low,exams);
+    if(staff){
+      if(stus.length===1) return profile(stus[0],false);
+      if(stus.length>1&&stus.length<=4&&!/\b(risk|attention|top)\b/.test(low)) return A("Which student?",'<div class="mi-ans-sub">I found more than one match:</div><div class="mi-ans-acts">'+stus.map(function(s){ return actBtn(esc(s.name)+" (Roll "+esc(s.roll)+")",function(){ var p=profile(s,false); renderAnswerInto(p); }); }).join("")+'</div>',"ambiguous");
+      if(/\b(risk|struggl\w*|falling behind|needs? (attention|help)|weak students?|worried|danger)\b/.test(low)) return ans_risk();
+      if(/\b(health|how is the class|hows the class|class (doing|status|performance|summary|overview)|overall (class )?(status|performance)|summary)\b/.test(low)) return ans_health();
+      if(/\b(copy|copies|notebook|submission|submitted)\b/.test(low)) return ans_copies();
+      if(/\b(attendance|absent|absentee|irregular|bunk)\b/.test(low)) return ans_attendance(low);
+      if(subs.length||/\b(weakest|strongest|hardest|toughest|easiest)\b|\b(weak|strong|best|worst) subject\b/.test(low)) return ans_subject(subs,low);
+      if(/\b(top|topper|toppers|best|leading|first rank|rank 1|leaderboard|ranking)\b/.test(low)) return ans_top(3);
+      return null;
+    }
+    /* student: own data only */
+    var others=stus.filter(function(s){ return me&&s.id!==me.id; });
+    if(others.length&&!stus.some(function(s){ return me&&s.id===me.id; })) return A("Private",'<div class="mi-empty">I can only share your own results. Ask me about yourself — for example “How am I doing?”.</div>',"private");
+    var self=(db("students")||[]).find(function(s){ return me&&s.id===me.id; });
+    if(/\b(how am i|my (progress|performance|status|result|results|marks|score|scores)|am i doing|how i am|about me|summary)\b/.test(low)&&self) return profile(self,true);
+    if(/\b(improve|weak|study|focus|revise|revision|plan|where (should|do) i)\b/.test(low)&&self){ var m=metrics(self.id); if(!m) return null; return A("What to work on",'<ul class="mi-ans-ul">'+selfTips(m).map(function(x){ return "<li>"+esc(x)+"</li>"; }).join("")+'</ul>'+(m.subj.length?'<div style="margin-top:6px;">'+barRows(m.subj.slice().reverse().slice(0,3))+'</div>':""),"improve"); }
+    if(/\battendance\b/.test(low)&&self){ var mm=metrics(self.id); return A("Your attendance",'<div class="mi-ans-kpis"><div><span>Attendance</span><b data-count="'+(mm&&mm.att!==null?mm.att:0)+'">'+(mm&&mm.att!==null?mm.att+"%":"—")+'</b></div></div>',"attendance"); }
+    if(/\brank\b/.test(low)&&self){ var rk=rankOf(self.id); return A("Your rank",'<div class="mi-ans-kpis"><div><span>Rank</span><b>'+(rk?"#"+rk.rank+"<small> of "+rk.of+"</small>":"—")+'</b></div></div>',"rank"); }
+    if(/\b(top|topper|toppers|best|leaderboard|ranking)\b/.test(low)&&!subs.length) return self?ans_myrank(self):null;
+    if(subs.length&&self){ var mt=metrics(self.id),hit=mt&&mt.subj.filter(function(x){ return subs.indexOf(x.id)>-1; })[0]; return hit?A(hit.name,'<div class="mi-ans-kpis"><div><span>Your average</span><b>'+hit.pct+'%</b></div></div>',"subject"):A("Subject",'<div class="mi-empty">No marks for that subject yet.</div>',"subject"); }
+    return null;
+  }
+
+  /* ───────── command palette / assistant window (Ctrl+K) ───────── */
+  var _sel=0,_open=false,_timer=null,_ret=null;
+  function ensure(){
+    var o=$("miAsk"); if(o) return o;
+    o=document.createElement("div"); o.id="miAsk"; o.className="mi-ask"; o.setAttribute("role","dialog"); o.setAttribute("aria-modal","true"); o.setAttribute("aria-label","Smart assistant");
+    o.innerHTML='<div class="mi-ask-box"><div class="mi-ask-in"><span class="mi-ask-ic">✨</span><input id="miAskInput" autocomplete="off" spellcheck="false" aria-label="Ask a question or jump to a page" placeholder="Ask about your class, or jump to a page…"><kbd>Esc</kbd></div><div id="miAskBody" class="mi-ask-body"></div></div>';
+    document.body.appendChild(o);
+    o.addEventListener("mousedown",function(e){ if(e.target===o) closeAsk(); });
+    var inp=$("miAskInput");
+    inp.addEventListener("input",function(){ clearTimeout(_timer); _timer=setTimeout(render,70); });
+    inp.addEventListener("keydown",function(e){
+      var items=o.querySelectorAll(".mi-ask-item");
+      if(e.key==="ArrowDown"){ e.preventDefault(); if(items.length){ _sel=(_sel+1)%items.length; mark(items); } }
+      else if(e.key==="ArrowUp"){ e.preventDefault(); if(items.length){ _sel=(_sel-1+items.length)%items.length; mark(items); } }
+      else if(e.key==="Enter"){ e.preventDefault(); if(items[_sel]) items[_sel].click(); }
+    });
+    $("miAskBody").addEventListener("click",function(e){
+      if(window.miReport&&window.miReport.handle(e.target)) return;
+      var t=e.target.closest(".mi-act,.mi-ask-item,.mi-qchip"); if(!t) return;
+      if(t.classList.contains("mi-act")){ var f=ACTS[+t.getAttribute("data-act")]; if(f) f(); }
+      else if(t.classList.contains("mi-qchip")){ inp.value=t.getAttribute("data-q"); render(); inp.focus(); }
+      else { var k=t.getAttribute("data-k"),id=t.getAttribute("data-id"); closeAsk(); if(k==="student") openReport(id); else if(k==="page") go(id); }
+    });
+    return o;
+  }
+  function mark(items){ Array.prototype.forEach.call(items,function(el,i){ el.classList.toggle("sel",i===_sel); el.setAttribute("aria-selected",i===_sel?"true":"false"); if(i===_sel&&el.scrollIntoView) el.scrollIntoView({block:"nearest"}); }); }
+  function pages(){
+    return Array.prototype.filter.call(document.querySelectorAll(".nav-btn[data-page]"),function(b){ return b.offsetParent!==null; }).map(function(b){
+      var l=b.querySelector(".nav-label"),ic=b.querySelector(".nav-icon"); return {id:b.getAttribute("data-page"),label:l?l.textContent.trim():b.getAttribute("data-page"),icon:ic?ic.textContent.trim():""};
+    });
+  }
+  function renderAnswerInto(a){ var b=$("miAskBody"); if(!b) return; var h=a?'<div class="mi-ans"><div class="mi-ans-h">'+a.title+'</div>'+a.html+'</div>':""; var keep=b.querySelector(".mi-ask-list"); b.innerHTML=h+(keep?keep.outerHTML:""); Array.prototype.forEach.call(b.querySelectorAll("[data-count]"),function(){}); scanCounts(); }
+  function render(){
+    var inp=$("miAskInput"),b=$("miAskBody"); if(!inp||!b) return; var q=inp.value.trim(),low=norm(q),html="";
+    if(!q){
+      html='<div class="mi-ask-sec">Try asking</div>'+chips(isStaff()?HELP_STAFF:isStudent()?HELP_STU:[])+'<div class="mi-ask-sec">Jump to</div><div class="mi-ask-list">'+pages().slice(0,6).map(function(p){ return '<div class="mi-ask-item" role="option" data-k="page" data-id="'+esc(p.id)+'"><span>'+esc(p.icon)+" "+esc(p.label)+'</span><em>Go to page</em></div>'; }).join("")+'</div>';
+      b.innerHTML=html; _sel=0; mark(b.querySelectorAll(".mi-ask-item")); return;
+    }
+    var a=null; try{ a=ask(q); }catch(e){ a=null; }
+    if(a) html+='<div class="mi-ans"><div class="mi-ans-h">'+a.title+'</div>'+a.html+'</div>';
+    if(a&&a.report) html+='<div class="mi-ask-sec">Action</div><div class="mi-ask-list"><div class="mi-ask-item" role="option" data-k="report"><span>📄 Create this report</span><em>Press Enter</em></div></div>';
+    var items="", ql=low;
+    if(isStaff()){ var sm=findStudents(ql).slice(0,4); if(sm.length) items+=sm.map(function(s){ return '<div class="mi-ask-item" role="option" data-k="student" data-id="'+esc(s.id)+'"><span>👤 '+esc(s.name)+' <small>· Roll '+esc(s.roll)+'</small></span><em>Open report card</em></div>'; }).join(""); }
+    var toks=ql.split(" ").filter(Boolean), pm=pages().filter(function(p){ var h=(p.label+" "+p.id+" "+(PAGE_ALIAS[p.id]||"")).toLowerCase().replace(/_/g," "); return toks.every(function(t){ return h.indexOf(t)>-1; }); }).slice(0,5);
+    if(pm.length) items+=pm.map(function(p){ return '<div class="mi-ask-item" role="option" data-k="page" data-id="'+esc(p.id)+'"><span>'+esc(p.icon)+" "+esc(p.label)+'</span><em>Go to page</em></div>'; }).join("");
+    if(items) html+='<div class="mi-ask-sec">Go to</div><div class="mi-ask-list">'+items+'</div>';
+    if(!a&&!items&&!(a&&a.report)) html='<div class="mi-ans"><div class="mi-ans-h">I did not understand that</div><div class="mi-ans-sub">Try one of these:</div>'+chips(isStaff()?HELP_STAFF:HELP_STU)+'</div>';
+    b.innerHTML=html; _sel=0; mark(b.querySelectorAll(".mi-ask-item")); scanCounts();
+  }
+  function openAsk(){
+    if(!user()) return; var o=ensure(); _ret=document.activeElement; o.style.display="flex"; _open=true; var i=$("miAskInput"); i.value=""; render(); setTimeout(function(){ i.focus(); },20);
+  }
+  function closeAsk(){ var o=$("miAsk"); if(o) o.style.display="none"; _open=false; if(_ret&&_ret.focus){ try{ _ret.focus(); }catch(e){} } }
+  document.addEventListener("keydown",function(e){
+    if((e.ctrlKey||e.metaKey)&&String(e.key).toLowerCase()==="k"){ e.preventDefault(); if(_open) closeAsk(); else openAsk(); }
+    else if(e.key==="Escape"&&_open){ e.preventDefault(); closeAsk(); }
+  });
+
+  function mountButton(){
+    var bar=document.querySelector(".topbar-right"); if(!bar||$("miAskBtn")) return;
+    var b=document.createElement("div"); b.id="miAskBtn"; b.className="icon-btn mi-ask-btn"; b.setAttribute("role","button"); b.setAttribute("tabindex","0"); b.title="Ask the assistant (Ctrl+K)";
+    b.innerHTML='✨ <span>Ask</span><kbd>Ctrl K</kbd>'; b.addEventListener("click",openAsk); b.addEventListener("keydown",function(e){ if(e.key==="Enter"||e.key===" "){ e.preventDefault(); openAsk(); } });
+    var first=bar.querySelector(".icon-btn"); if(first) bar.insertBefore(b,first); else bar.appendChild(b);
+  }
+  function start(){ mountButton(); setInterval(scanCounts,400); setInterval(function(){ try{ mountRiskLb(); }catch(e){} },1500); }
+  if(document.readyState==="loading") document.addEventListener("DOMContentLoaded",start); else start();
+
+  window.miSmart={metrics:metrics,riskList:riskList,health:health,ask:function(q){ var a=ask(q); return a; },open:openAsk,close:closeAsk};
+})();
+
+</script>
+<script>
+/* ═══════════════════════════════════════════════════════════════════════
+   ASSISTANT REPORTS — builds multi-page PDF reports from the real data, on this device.
+   Student report · Exam analysis (all subjects or one) · Class report for a period.
+   Read-only: nothing here changes any data.
+   ═══════════════════════════════════════════════════════════════════════ */
+(function(){
+  "use strict";
+  function db(k){ try{ return DB.get(k)||null; }catch(e){ return null; } }
+  function user(){ try{ return currentUser; }catch(e){ return null; } }
+  function esc(s){ return String(s==null?"":s).replace(/[&<>"]/g,function(c){ return {"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]; }); }
+  function iso(d){ try{ return dmyToISO(d)||""; }catch(e){ return ""; } }
+  function isAdd(r){ try{ return isAdditionalResult(r); }catch(e){ return false; } }
+  function subjName(id){ try{ var s=subjLookup(id); return s?s.name:id; }catch(e){ return id; } }
+  function students(){ return (db("students")||[]).slice().sort(function(a,b){ return parseInt(a.roll)-parseInt(b.roll); }); }
+  function res(){ return db("results")||[]; }
+  function mean(a){ return a.length?a.reduce(function(x,y){ return x+y; },0)/a.length:null; }
+  function rd(v){ return v===null||v===undefined?null:Math.round(v); }
+  function pc(v){ return v===null||v===undefined?"—":Math.round(v)+"%"; }
+  function clamp(v,a,b){ return Math.max(a,Math.min(b,v)); }
+  function today(){ return new Date().toISOString().slice(0,10); }
+  function addDays(isoStr,n){ var d=new Date(isoStr+"T00:00:00Z"); d.setUTCDate(d.getUTCDate()+n); return d.toISOString().slice(0,10); }
+  function fmt(d){ return d?new Date(d+"T00:00:00Z").toLocaleDateString("en-IN",{day:"numeric",month:"short",year:"numeric",timeZone:"UTC"}):""; }
+  var PASS=33;
+  var INK="#0b1c36",MUTED="#5B6785",LINE="#E1E6F2",GOOD="#0F9D8A",WARN="#D9822B",BAD="#D64545",VIO="#6B5BD6",GOLD="#b07d12",SOFT="#F4F7FC";
+  function pcol(v){ return v===null||v===undefined?MUTED:v>=60?GOOD:v>=40?WARN:BAD; }
+  function sgn(d){ return d>0?"▲ "+d:d<0?"▼ "+(-d):"— 0"; }
+  function dcol(d){ return d>0?GOOD:d<0?BAD:MUTED; }
+
+  /* ───────── periods ───────── */
+  var MONTHS=["january","february","march","april","may","june","july","august","september","october","november","december"];
+  function monthRange(y,m){ var from=new Date(Date.UTC(y,m,1)).toISOString().slice(0,10), end=new Date(Date.UTC(y,m+1,0)).toISOString().slice(0,10), t=today(); return {from:from,to:(t>=from&&t<end)?t:end}; }
+  function monthLabel(y,m){ return new Date(Date.UTC(y,m,1)).toLocaleDateString("en-IN",{month:"long",year:"numeric",timeZone:"UTC"}); }
+  function examOrder(){ var f={}; res().forEach(function(r){ if(!r.test) return; var d=iso(r.date)||""; if(!(r.test in f)||d<f[r.test]) f[r.test]=d; }); return Object.keys(f).sort(function(a,b){ return f[a]<f[b]?-1:f[a]>f[b]?1:0; }); }
+  function periodOf(low,exams,deflt){
+    var now=new Date(), y=now.getUTCFullYear(), m=now.getUTCMonth(), P, r;
+    if(exams&&exams.length){ return {key:"exam",exam:exams[0],label:exams[0]}; }
+    var mm=low.match(new RegExp("\\b("+MONTHS.join("|")+")\\b"));
+    if(/\b(last|previous|past) month\b/.test(low)){ var pm=m===0?11:m-1, py=m===0?y-1:y; r=monthRange(py,pm); P={key:"lastmonth",from:r.from,to:r.to,label:monthLabel(py,pm)}; }
+    else if(/\b(this|current) month\b|\bmonthly\b/.test(low)){ r=monthRange(y,m); P={key:"month",from:r.from,to:r.to,label:monthLabel(y,m)+" (so far)"}; }
+    else if(mm){ var mi=MONTHS.indexOf(mm[1]), yy=mi>m?y-1:y; r=monthRange(yy,mi); P={key:"named",from:r.from,to:r.to,label:monthLabel(yy,mi)}; }
+    else if(/\b(last|past) (30|thirty) days\b/.test(low)){ P={key:"30d",from:addDays(today(),-29),to:today(),label:"Last 30 days"}; }
+    else if(/\b(this|last|past) week\b|\blast 7 days\b/.test(low)){ P={key:"week",from:addDays(today(),-6),to:today(),label:"Last 7 days"}; }
+    else if(/\b(this year|full year|whole year|all time|overall|till now|so far|entire|session)\b/.test(low)){ P={key:"all",label:"Full session (all records)"}; }
+    else if(deflt==="month"){ r=monthRange(y,m); P={key:"month",from:r.from,to:r.to,label:monthLabel(y,m)+" (so far)"}; }
+    else P={key:"all",label:"Full session (all records)"};
+    if(P.from) P.sub=fmt(P.from)+" – "+fmt(P.to);
+    return P;
+  }
+  function inP(d,P){ if(P.key==="all") return true; return !!d&&d>=P.from&&d<=P.to; }
+  function collect(P,sid){
+    var out=[];
+    res().forEach(function(r){
+      if(!r.studentMarks||!r.max) return; var d=iso(r.date);
+      if(P.exam){ if(r.test!==P.exam) return; } else if(!inP(d,P)) return;
+      r.studentMarks.forEach(function(m){ if(sid&&m.studentId!==sid) return; if(m.absent||m.marks==null) return; out.push({sid:m.studentId,subject:r.subject,test:r.test,date:d,marks:m.marks,max:r.max,pct:m.marks/r.max*100,add:isAdd(r)}); });
+    });
+    return out;
+  }
+  function prevPeriod(P){
+    if(P.exam){ var o=examOrder(),i=o.indexOf(P.exam); return i>0?{key:"exam",exam:o[i-1],label:o[i-1]}:null; }
+    if(P.key==="all"||!P.from) return null;
+    var len=Math.round((new Date(P.to)-new Date(P.from))/86400000)+1; return {key:"prev",from:addDays(P.from,-len),to:addDays(P.from,-1),label:"previous period"};
+  }
+  function attIn(P,sid){
+    var att=db("studentAttendance")||{},p=0,a=0,h=0,absent=[];
+    Object.keys(att).sort().forEach(function(d){ if(P.exam?false:!inP(d,P)) return; var v=att[d][sid]; if(v==="present")p++; else if(v==="absent"){ a++; absent.push(d); } else if(v==="holiday")h++; });
+    return {p:p,a:a,h:h,pct:(p+a)?p/(p+a)*100:null,absent:absent};
+  }
+  function copiesIn(P){ return (db("copySessions")||[]).filter(function(cs){ return P.exam||P.key==="all"||inP(cs.date,P); }).sort(function(a,b){ return String(a.date).localeCompare(String(b.date)); }); }
+  function coreAvg(entries){ var c=entries.filter(function(e){ return !e.add; }); return c.length?mean(c.map(function(e){ return e.pct; })):null; }
+  function subjectMap(entries){ var g={}; entries.forEach(function(e){ var o=g[e.subject]||(g[e.subject]={marks:0,max:0,n:0,add:false}); o.marks+=e.marks; o.max+=e.max; o.n++; if(e.add) o.add=true; }); return g; }
+
+  /* ───────── data: student report ───────── */
+  function studentData(sid,P){
+    var S=students().find(function(s){ return s.id===sid; }); if(!S) return null;
+    var all=collect(P), mine=all.filter(function(e){ return e.sid===sid; }), cls=subjectMap(all), my=subjectMap(mine);
+    var prevP=prevPeriod(P), prevMine=prevP?collect(prevP,sid):[], prevSub=subjectMap(prevMine);
+    var subj=Object.keys(my).map(function(k){
+      var o=my[k], pct=o.marks/o.max*100, c=cls[k], cp=c?c.marks/c.max*100:null, pv=prevSub[k]?prevSub[k].marks/prevSub[k].max*100:null;
+      return {id:k,name:subjName(k),tests:o.n,marks:Math.round(o.marks*10)/10,max:o.max,pct:pct,cls:cp,diff:cp===null?null:pct-cp,prev:pv,add:o.add};
+    }).sort(function(a,b){ return (a.add?1:0)-(b.add?1:0)||b.pct-a.pct; });
+    var ex={}; mine.forEach(function(e){ if(e.add) return; var k=e.test+"|"+e.date; (ex[k]=ex[k]||{test:e.test,date:e.date,v:[]}).v.push(e.pct); });
+    var exams=Object.keys(ex).map(function(k){ return {test:ex[k].test,date:ex[k].date,pct:mean(ex[k].v)}; }).sort(function(a,b){ return a.date<b.date?-1:1; });
+    var per={}; all.forEach(function(e){ if(e.add) return; (per[e.sid]=per[e.sid]||[]).push(e.pct); });
+    var rows=Object.keys(per).map(function(k){ return {id:k,v:mean(per[k])}; }).sort(function(a,b){ return b.v-a.v; }), rank=null;
+    rows.forEach(function(r,i){ if(r.id===sid) rank=1+rows.filter(function(x){ return x.v>r.v; }).length; });
+    var ci=copiesIn(P), cs=[]; ci.forEach(function(c){ var v=c.status&&c.status[sid]; if(v) cs.push({subject:c.subject||"",date:c.date,v:v}); });
+    var met=null; try{ met=miSmart.metrics(sid); }catch(e){}
+    return {S:S,P:P,subj:subj,exams:exams,overall:coreAvg(mine),prev:prevMine.length?coreAvg(prevMine):null,prevLabel:prevP?prevP.label:"",rank:rank,of:rows.length,att:attIn(P,sid),copies:cs,risk:met,n:mine.length};
+  }
+
+  /* ───────── data: exam analysis ───────── */
+  function examData(exam,subIds){
+    var rs=res().filter(function(r){ return r.test===exam&&r.studentMarks&&r.max&&(!subIds||!subIds.length||subIds.indexOf(r.subject)>-1); }), st=students(), nameOf={};
+    st.forEach(function(s){ nameOf[s.id]=s.name; });
+    var subj={}, per={}, dates=[];
+    rs.forEach(function(r){
+      var d=iso(r.date); if(d) dates.push(d);
+      var o=subj[r.subject]||(subj[r.subject]={v:[],add:false}); if(isAdd(r)) o.add=true;
+      r.studentMarks.forEach(function(m){ if(m.absent||m.marks==null) return; var p=m.marks/r.max*100; o.v.push({sid:m.studentId,pct:p}); if(!isAdd(r)) (per[m.studentId]=per[m.studentId]||[]).push({subject:r.subject,pct:p}); });
+    });
+    var subjects=Object.keys(subj).map(function(k){
+      var v=subj[k].v.slice().sort(function(a,b){ return b.pct-a.pct; }), ps=v.map(function(x){ return x.pct; }), n=v.length;
+      var med=n?(n%2?ps.slice().sort(function(a,b){ return a-b; })[(n-1)/2]:(ps.slice().sort(function(a,b){ return a-b; })[n/2-1]+ps.slice().sort(function(a,b){ return a-b; })[n/2])/2):null;
+      return {id:k,name:subjName(k),add:subj[k].add,n:n,avg:mean(ps),hi:n?v[0].pct:null,hiName:n?nameOf[v[0].sid]:"",lo:n?v[n-1].pct:null,loName:n?nameOf[v[n-1].sid]:"",med:med,pass:n?ps.filter(function(x){ return x>=PASS; }).length/n*100:null,top:v.slice(0,3).map(function(x){ return {name:nameOf[x.sid],pct:x.pct}; }),bottom:v.slice(-3).reverse().map(function(x){ return {name:nameOf[x.sid],pct:x.pct}; })};
+    }).sort(function(a,b){ return (a.add?1:0)-(b.add?1:0)||b.avg-a.avg; });
+    var ranking=Object.keys(per).map(function(k){ var a=per[k]; return {sid:k,name:nameOf[k]||k,avg:mean(a.map(function(x){ return x.pct; })),best:a.slice().sort(function(x,y){ return y.pct-x.pct; })[0],worst:a.slice().sort(function(x,y){ return x.pct-y.pct; })[0]}; }).sort(function(a,b){ return b.avg-a.avg; });
+    var bands=[["90+",90,101,GOOD],["75-89",75,90,GOOD],["60-74",60,75,VIO],["33-59",PASS,60,WARN],["Below 33",-1,PASS,BAD]].map(function(b){ return {label:b[0],value:ranking.filter(function(r){ return r.avg>=b[1]&&r.avg<b[2]; }).length,color:b[3]}; });
+    var failing=Object.keys(per).map(function(k){ var f=per[k].filter(function(x){ return x.pct<PASS; }).map(function(x){ return subjName(x.subject); }); return f.length?{name:nameOf[k],subs:f}:null; }).filter(Boolean);
+    var order=examOrder(), i=order.indexOf(exam), prevName=i>0?order[i-1]:null, prev=null;
+    if(prevName){ var pm={}; res().filter(function(r){ return r.test===prevName&&r.studentMarks&&r.max; }).forEach(function(r){ r.studentMarks.forEach(function(m){ if(m.absent||m.marks==null) return; (pm[r.subject]=pm[r.subject]||[]).push(m.marks/r.max*100); }); }); prev={name:prevName,map:pm}; }
+    var core=subjects.filter(function(s){ return !s.add; }), allCore=[]; core.forEach(function(s){ subj[s.id].v.forEach(function(x){ allCore.push(x.pct); }); });
+    dates.sort();
+    return {exam:exam,subjects:subjects,ranking:ranking,bands:bands,failing:failing,prev:prev,dateFrom:dates[0]||"",dateTo:dates[dates.length-1]||"",students:ranking.length,classAvg:mean(allCore),pass:allCore.length?allCore.filter(function(x){ return x>=PASS; }).length/allCore.length*100:null,filtered:!!(subIds&&subIds.length)};
+  }
+
+  /* ───────── data: class report for a period ───────── */
+  function classData(P){
+    var st=students(), all=collect(P), cls=subjectMap(all), per={};
+    all.forEach(function(e){ if(!e.add) (per[e.sid]=per[e.sid]||[]).push(e.pct); });
+    var rows=st.map(function(s){ var a=attIn(P,s.id), met=null; try{ met=miSmart.metrics(s.id); }catch(e){} var cs=copiesIn(P),sub=0,miss=0; cs.forEach(function(c){ var v=c.status&&c.status[s.id]; if(v==="submitted")sub++; else if(v==="not_submitted")miss++; }); return {id:s.id,name:s.name,roll:s.roll,avg:per[s.id]?mean(per[s.id]):null,att:a.pct,sub:sub,miss:miss,risk:met}; });
+    var subj=Object.keys(cls).map(function(k){ var o=cls[k]; return {name:subjName(k),pct:o.marks/o.max*100,add:o.add,n:o.n}; }).sort(function(a,b){ return (a.add?1:0)-(b.add?1:0)||b.pct-a.pct; });
+    var prevP=prevPeriod(P), prevAvg=prevP?coreAvg(collect(prevP)):null, withAvg=rows.filter(function(r){ return r.avg!==null; });
+    var attAvg=mean(rows.filter(function(r){ return r.att!==null; }).map(function(r){ return r.att; })), cT=0,cS=0; rows.forEach(function(r){ cS+=r.sub; cT+=r.sub+r.miss; });
+    var h=null; try{ h=miSmart.health(); }catch(e){}
+    return {P:P,rows:rows,subj:subj,avg:withAvg.length?mean(withAvg.map(function(r){ return r.avg; })):null,prevAvg:prevAvg,prevLabel:prevP?prevP.label:"",attAvg:attAvg,copyRate:cT?cS/cT*100:null,health:h,n:st.length,entries:all.length};
+  }
+
+  /* ───────── page renderer (canvas → A4 pages) ───────── */
+  var SANS='"DM Sans",Arial,Helvetica,sans-serif', SERIF='"Cormorant Garamond",Georgia,"Times New Roman",serif';
+  function makeDoc(meta,logo){
+    var W=1240,H=1754,M=72,CW=W-2*M,pages=[],cv,c,y;
+    function rr(x,yy,w,h,r){ c.beginPath(); c.moveTo(x+r,yy); c.arcTo(x+w,yy,x+w,yy+h,r); c.arcTo(x+w,yy+h,x,yy+h,r); c.arcTo(x,yy+h,x,yy,r); c.arcTo(x,yy,x+w,yy,r); c.closePath(); }
+    function T(s,x,yy,font,col,al){ c.font=font; c.fillStyle=col; c.textAlign=al||"left"; c.textBaseline="alphabetic"; c.fillText(s,x,yy); }
+    function fit(s,maxW,font){ c.font=font; s=String(s); if(c.measureText(s).width<=maxW) return s; while(s.length>1&&c.measureText(s+"…").width>maxW) s=s.slice(0,-1); return s+"…"; }
+    function wrap(s,maxW,font){ c.font=font; var out=[],line=""; String(s).split(" ").forEach(function(w){ var t=line?line+" "+w:w; if(c.measureText(t).width>maxW&&line){ out.push(line); line=w; } else line=t; }); if(line) out.push(line); return out; }
+    function logoAt(cx,cy,r){ if(!logo) return; c.save(); c.beginPath(); c.arc(cx,cy,r,0,Math.PI*2); c.clip(); c.drawImage(logo,cx-r,cy-r,r*2,r*2); c.restore(); c.strokeStyle=GOLD; c.lineWidth=3; c.beginPath(); c.arc(cx,cy,r+2,0,Math.PI*2); c.stroke(); }
+    function newPage(first){
+      cv=document.createElement("canvas"); cv.width=W; cv.height=H; c=cv.getContext("2d"); c.fillStyle="#fff"; c.fillRect(0,0,W,H); pages.push(cv);
+      c.fillStyle=INK; c.fillRect(0,0,W,first?16:10);
+      if(first){
+        logoAt(M+54,118,54); T("USCD DAV PUBLIC SCHOOL",M+130,112,"700 28px "+SANS,INK); T("Class X — SBS",M+130,148,"500 20px "+SANS,MUTED);
+        T(meta.title,M,262,"700 56px "+SERIF,INK); if(meta.sub) T(meta.sub,M,308,"600 30px "+SANS,GOLD);
+        var yy=348; (meta.lines||[]).forEach(function(l){ T(l,M,yy,"500 20px "+SANS,MUTED); yy+=30; });
+        c.fillStyle=LINE; c.fillRect(M,yy+6,CW,2); y=yy+40;
+      } else {
+        logoAt(M+26,58,26); T("USCD DAV PUBLIC SCHOOL",M+68,56,"700 20px "+SANS,INK); T(meta.title+(meta.sub?" — "+meta.sub:""),W-M,56,"500 18px "+SANS,MUTED,"right");
+        c.fillStyle=LINE; c.fillRect(M,100,CW,2); y=140;
+      }
+    }
+    function need(h){ if(y+h>H-110) newPage(false); }
+    var d={
+      pages:pages,
+      h2:function(t,k){ need(k||250); y+=14; T(t,M,y+30,"700 34px "+SERIF,INK); c.fillStyle=GOLD; c.fillRect(M,y+44,64,4); y+=76; },
+      p:function(t,o){ o=o||{}; var f=(o.f||"500 21px "+SANS), lines=wrap(t,CW-(o.indent||0),f), lh=o.lh||32; need(lines.length*lh+10); lines.forEach(function(l,i){ T(l,M+(o.indent||0),y+24+i*lh,f,o.c||INK); }); y+=lines.length*lh+(o.gap==null?12:o.gap); },
+      note:function(t){ d.p(t,{f:"italic 500 18px "+SANS,c:MUTED,lh:26,gap:16}); },
+      bullets:function(items,col){ items.forEach(function(t){ var lines=wrap(t,CW-34,"500 21px "+SANS); need(lines.length*32+8); c.fillStyle=col||GOLD; c.beginPath(); c.arc(M+8,y+17,5,0,Math.PI*2); c.fill(); lines.forEach(function(l,i){ T(l,M+30,y+24+i*32,"500 21px "+SANS,INK); }); y+=lines.length*32+8; }); y+=8; },
+      kpis:function(items){
+        var n=items.length,gap=18,w=(CW-gap*(n-1))/n,h=124; need(h+20);
+        items.forEach(function(k,i){ var x=M+i*(w+gap); c.fillStyle=SOFT; rr(x,y,w,h,14); c.fill(); c.strokeStyle=LINE; c.lineWidth=2; rr(x,y,w,h,14); c.stroke(); T(k.l,x+18,y+32,"600 16px "+SANS,MUTED); T(String(k.v),x+18,y+80,"700 40px "+SANS,k.c||INK); if(k.s) T(fit(k.s,w-30,"500 16px "+SANS),x+18,y+108,"500 16px "+SANS,k.sc||MUTED); });
+        y+=h+26;
+      },
+      table:function(cols,rows,o){
+        o=o||{}; var rh=o.rh||42,hh=44,fs=o.fs||19,ws=cols.reduce(function(a,k){ return a+k.w; },0),xs=[],x=M;
+        cols.forEach(function(k){ var w=CW*k.w/ws; xs.push({x:x,w:w}); x+=w; });
+        function pos(i,al){ return al==="r"?xs[i].x+xs[i].w-14:al==="c"?xs[i].x+xs[i].w/2:xs[i].x+14; }
+        function head(){ c.fillStyle=INK; rr(M,y,CW,hh,8); c.fill(); cols.forEach(function(k,i){ T(fit(k.h,xs[i].w-20,"700 16px "+SANS),pos(i,k.a),y+29,"700 16px "+SANS,"#fff",k.a==="r"?"right":k.a==="c"?"center":"left"); }); y+=hh; }
+        need(hh+rh*Math.min(rows.length||1,2)); head();
+        if(!rows.length){ c.fillStyle=SOFT; c.fillRect(M,y,CW,rh); T("No records",M+14,y+rh*0.66,"italic 500 "+fs+"px "+SANS,MUTED); y+=rh; }
+        rows.forEach(function(row,ri){
+          var txt=cols.map(function(k,i){ var cell=row[i],t=(cell&&typeof cell==="object")?cell.t:cell; return t==null?"":String(t); }),lns=1,wr={};
+          cols.forEach(function(k,i){ if(!k.wrap) return; var f="500 "+fs+"px "+SANS,L=wrap(txt[i],xs[i].w-24,f); if(L.length>3){ L=L.slice(0,3); L[2]=fit(L[2]+"…",xs[i].w-24,f); } wr[i]=L; lns=Math.max(lns,L.length); });
+          var rowH=lns>1?lns*(fs+9)+16:rh;
+          if(y+rowH>H-110){ newPage(false); head(); }
+          if(ri%2===0){ c.fillStyle="#F8FAFE"; c.fillRect(M,y,CW,rowH); }
+          cols.forEach(function(k,i){ var cell=row[i],col=(cell&&cell.c)||INK,b=cell&&cell.b,f=(b?"700 ":"500 ")+fs+"px "+SANS,al=k.a==="r"?"right":k.a==="c"?"center":"left";
+            if(wr[i]) wr[i].forEach(function(l,j){ T(l,pos(i,k.a),y+fs+10+j*(fs+9),f,col,al); }); else T(fit(txt[i],xs[i].w-24,f),pos(i,k.a),y+(lns>1?fs+10:rh*0.66),f,col,al); });
+          c.fillStyle=LINE; c.fillRect(M,y+rowH-1,CW,1); y+=rowH;
+        });
+        y+=26;
+      },
+      bars:function(rows,o){
+        o=o||{}; var lw=o.labelW||250,bh=26,rh=o.rh||46,tw=CW-lw-(o.textW||110); need(rows.length*rh+40);
+        if(o.legend){ T(o.legend,M,y+16,"500 16px "+SANS,MUTED); y+=28; }
+        rows.forEach(function(r){
+          T(fit(r.label,lw-14,"500 20px "+SANS),M,y+26,"500 20px "+SANS,r.dim?MUTED:INK);
+          c.fillStyle="#E9EEF7"; rr(M+lw,y+4,tw,bh,8); c.fill();
+          if(r.v!==null&&r.v!==undefined){ c.fillStyle=r.color||pcol(r.v); rr(M+lw,y+4,Math.max(8,tw*clamp(r.v,0,100)/100),bh,8); c.fill(); }
+          if(r.ref!==null&&r.ref!==undefined){ c.fillStyle=INK; c.fillRect(M+lw+tw*clamp(r.ref,0,100)/100-2,y,4,bh+8); }
+          T(r.text||pc(r.v),M+lw+tw+14,y+26,"700 20px "+SANS,r.color||pcol(r.v)); y+=rh;
+        });
+        y+=14;
+      },
+      columns:function(items,o){
+        o=o||{}; var h=o.h||230; need(h+90); var n=items.length,gw=CW/n,mx=Math.max(1,Math.max.apply(null,items.map(function(i){ return i.value; })));
+        c.fillStyle=LINE; c.fillRect(M,y+h,CW,2);
+        items.forEach(function(it,i){ var bh=it.value/mx*(h-50),x=M+i*gw+gw*0.2,w=gw*0.6; c.fillStyle=it.color; rr(x,y+h-bh,w,Math.max(bh,3),8); c.fill(); T(String(it.value),x+w/2,y+h-bh-10,"700 22px "+SANS,it.color,"center"); T(it.label,x+w/2,y+h+30,"500 18px "+SANS,MUTED,"center"); });
+        y+=h+56;
+      },
+      line:function(pts,o){
+        o=o||{}; var h=o.h||270,lw=60,w=CW-lw-20; need(h+90);
+        for(var g=0;g<=100;g+=25){ var gy=y+h-(g/100)*h; c.fillStyle=LINE; c.fillRect(M+lw,gy,w,1); T(String(g),M+lw-12,gy+6,"500 15px "+SANS,MUTED,"right"); }
+        var n=pts.length,xs=pts.map(function(p,i){ return M+lw+(n===1?w/2:i*w/(n-1)); }),ys=pts.map(function(p){ return y+h-(clamp(p.v,0,100)/100)*h; });
+        c.strokeStyle=GOOD; c.lineWidth=4; c.lineJoin="round"; c.beginPath(); pts.forEach(function(p,i){ if(i)c.lineTo(xs[i],ys[i]); else c.moveTo(xs[i],ys[i]); }); c.stroke();
+        pts.forEach(function(p,i){ c.fillStyle="#fff"; c.strokeStyle=GOOD; c.lineWidth=4; c.beginPath(); c.arc(xs[i],ys[i],8,0,Math.PI*2); c.fill(); c.stroke(); T(Math.round(p.v)+"%",xs[i],ys[i]-16,"700 18px "+SANS,INK,"center"); T(fit(p.l,w/Math.max(n,1)-6,"500 16px "+SANS),xs[i],y+h+30,"500 16px "+SANS,MUTED,"center"); });
+        y+=h+56;
+      },
+      gap:function(n){ y+=n||14; },
+      keep:function(h){ need(h); },
+      finish:function(){
+        var N=pages.length,stamp="Generated "+fmt(today())+" · Smart Assistant";
+        pages.forEach(function(p,i){ c=p.getContext("2d"); c.fillStyle=LINE; c.fillRect(M,H-78,CW,2); T(stamp,M,H-40,"500 16px "+SANS,MUTED); T("USCD DAV Public School — Class X SBS",W/2,H-40,"500 16px "+SANS,MUTED,"center"); T("Page "+(i+1)+" of "+N,W-M,H-40,"500 16px "+SANS,MUTED,"right"); });
+        return pages;
+      }
+    };
+    newPage(true); return d;
+  }
+
+  /* ───────── the three reports ───────── */
+  function buildStudent(D,doc){
+    var S=D.S, risk=D.risk, ov=D.overall, dl=(ov!==null&&D.prev!==null)?Math.round(ov-D.prev):null;
+    doc.p("Roll No. "+S.roll+"  ·  Admission No. "+(S.admNo||"—")+"  ·  Class X — SBS",{f:"600 22px "+SANS,c:MUTED,gap:20});
+    doc.kpis([
+      {l:"AVERAGE",v:pc(ov),c:pcol(ov),s:dl===null?"":sgn(dl)+" vs "+D.prevLabel,sc:dcol(dl||0)},
+      {l:"RANK IN PERIOD",v:D.rank?"#"+D.rank:"—",c:INK,s:D.rank?"of "+D.of+" students":"not enough data"},
+      {l:"ATTENDANCE",v:pc(D.att.pct),c:pcol(D.att.pct),s:D.att.p+" present · "+D.att.a+" absent"},
+      {l:"RISK SCORE",v:risk&&risk.score!==null?risk.score:"—",c:risk?(risk.level==="High"?BAD:risk.level==="Watch"?WARN:GOOD):INK,s:risk?risk.level:""}
+    ]);
+    doc.h2("Subject-wise performance");
+    if(!D.subj.length){ doc.p("No marks were recorded for this student in the selected period.",{c:MUTED}); }
+    else {
+      doc.table([{h:"Subject",w:2.1},{h:"Tests",w:0.8,a:"c"},{h:"Marks",w:1.3,a:"c"},{h:"Score",w:1,a:"r"},{h:"Class avg",w:1.1,a:"r"},{h:"vs class",w:1.1,a:"r"},{h:"vs previous",w:1.3,a:"r"}],
+        D.subj.map(function(s){ var dp=s.prev===null?null:Math.round(s.pct-s.prev); return [{t:s.name+(s.add?" (extra)":""),b:true,c:s.add?WARN:INK},s.tests,s.marks+"/"+s.max,{t:pc(s.pct),b:true,c:pcol(s.pct)},pc(s.cls),s.diff===null?"—":{t:sgn(Math.round(s.diff)),c:dcol(s.diff)},dp===null?"—":{t:sgn(dp),c:dcol(dp)}]; }));
+      doc.bars(D.subj.map(function(s){ return {label:s.name+(s.add?" (extra)":""),v:s.pct,ref:s.cls,dim:s.add,color:s.add?WARN:undefined}; }),{legend:"Bar = this student · black marker = class average"});
+      if(D.subj.some(function(s){ return s.add; })) doc.note("Subjects marked (extra) are shown for reference and are not counted in the average, rank or risk score.");
+    }
+    doc.h2("Exam-wise performance");
+    if(D.exams.length>=2) doc.line(D.exams.map(function(e){ return {l:e.test,v:e.pct}; }));
+    if(D.exams.length) doc.table([{h:"Exam",w:2},{h:"Date",w:1.4},{h:"Average",w:1,a:"r"}],D.exams.map(function(e){ return [{t:e.test,b:true},fmt(e.date),{t:pc(e.pct),b:true,c:pcol(e.pct)}]; })); else doc.p("No exam results in this period.",{c:MUTED});
+    doc.h2("Attendance");
+    doc.kpis([{l:"PRESENT",v:D.att.p,c:GOOD},{l:"ABSENT",v:D.att.a,c:D.att.a?BAD:INK},{l:"HOLIDAY / LEAVE",v:D.att.h,c:MUTED},{l:"ATTENDANCE",v:pc(D.att.pct),c:pcol(D.att.pct)}]);
+    if(D.att.absent.length) doc.p("Absent on: "+D.att.absent.slice(-12).map(fmt).join(", ")+(D.att.absent.length>12?" …":""),{f:"500 19px "+SANS,c:MUTED}); else doc.p("No absences recorded in this period.",{c:MUTED});
+    doc.h2("Copy submission");
+    if(!D.copies.length) doc.p("No copy-checking sessions were recorded in this period.",{c:MUTED});
+    else { var sub=D.copies.filter(function(x){ return x.v==="submitted"; }).length; doc.p(sub+" of "+D.copies.length+" copies submitted.",{f:"600 21px "+SANS});
+      doc.table([{h:"Subject",w:2},{h:"Date",w:1.4},{h:"Status",w:1.2,a:"r"}],D.copies.map(function(x){ return [x.subject||"—",fmt(x.date),{t:x.v==="submitted"?"Submitted":x.v==="absent"?"Absent":"Not submitted",b:true,c:x.v==="submitted"?GOOD:x.v==="absent"?MUTED:BAD}]; }),{rh:38}); }
+    doc.h2("Risk analysis");
+    if(risk&&risk.score!==null){ doc.bars([{label:"Risk score",v:risk.score,color:risk.level==="High"?BAD:risk.level==="Watch"?WARN:GOOD,text:risk.score+" / 100  "+risk.level}],{labelW:200,textW:210});
+      doc.bullets(risk.reasons.length?risk.reasons:["All indicators look healthy."],risk.level==="High"?BAD:risk.level==="Watch"?WARN:GOOD);
+      doc.note("Score = marks level 40% + marks trend 20% + attendance 25% + copy submission 15%. Higher means more attention is needed. Based on all records to date."); }
+    else doc.p("Not enough data to calculate a risk score yet.",{c:MUTED});
+    doc.h2("Insights and recommendations");
+    var core=D.subj.filter(function(s){ return !s.add; }), best=core.slice(0,2), weak=core.slice().reverse().slice(0,2).filter(function(s){ return s.pct<75; }), ins=[];
+    if(best.length) ins.push("Strongest: "+best.map(function(s){ return s.name+" ("+pc(s.pct)+")"; }).join(", ")+".");
+    if(weak.length) ins.push("Needs work: "+weak.map(function(s){ return s.name+" ("+pc(s.pct)+")"; }).join(", ")+".");
+    var ab=core.filter(function(s){ return s.diff!==null&&s.diff>0; }).length; if(core.length&&core.some(function(s){ return s.diff!==null; })) ins.push("Above the class average in "+ab+" of "+core.length+" subjects.");
+    var imp=core.filter(function(s){ return s.prev!==null; }).sort(function(a,b){ return (b.pct-b.prev)-(a.pct-a.prev); }); if(imp.length&&imp[0].pct-imp[0].prev>=3) ins.push("Most improved: "+imp[0].name+" ("+sgn(Math.round(imp[0].pct-imp[0].prev))+" points vs "+D.prevLabel+").");
+    if(imp.length&&imp[imp.length-1].pct-imp[imp.length-1].prev<=-3) ins.push("Dropped most: "+imp[imp.length-1].name+" ("+sgn(Math.round(imp[imp.length-1].pct-imp[imp.length-1].prev))+" points vs "+D.prevLabel+").");
+    if(D.att.pct!==null) ins.push(D.att.pct>=90?"Attendance is excellent at "+pc(D.att.pct)+".":D.att.pct>=75?"Attendance is acceptable at "+pc(D.att.pct)+", but can improve.":"Attendance is low at "+pc(D.att.pct)+" and needs attention.");
+    doc.bullets(ins.length?ins:["Not enough data to draw insights yet."],GOLD);
+    var rec=[]; if(weak.length) rec.push("Give "+weak.map(function(s){ return s.name; }).join(" and ")+" 20–30 minutes of focused revision daily, starting with the topics missed in recent tests.");
+    if(D.att.pct!==null&&D.att.pct<85) rec.push("Aim for attendance above 90%; missed classes are the quickest way to lose marks.");
+    if(D.copies.some(function(x){ return x.v==="not_submitted"; })) rec.push("Submit pending copies on time and keep notebooks complete.");
+    if(!rec.length) rec.push("Keep up the current routine and continue regular revision.");
+    doc.keep(170); doc.p("Recommended focus",{f:"700 22px "+SANS,gap:6}); doc.bullets(rec,GOOD);
+  }
+  function buildExam(D,doc){
+    doc.kpis([{l:"STUDENTS",v:D.students,c:INK},{l:"CLASS AVERAGE",v:pc(D.classAvg),c:pcol(D.classAvg)},{l:"PASS RATE",v:pc(D.pass),c:pcol(D.pass),s:"pass mark "+PASS+"%"},{l:"TOP SCORER",v:D.ranking.length?pc(D.ranking[0].avg):"—",c:GOOD,s:D.ranking.length?D.ranking[0].name:""}]);
+    doc.h2("Subject-wise analysis");
+    doc.table([{h:"Subject",w:2},{h:"Appeared",w:1,a:"c"},{h:"Average",w:1,a:"r"},{h:"Highest",w:1,a:"r"},{h:"Lowest",w:1,a:"r"},{h:"Median",w:1,a:"r"},{h:"Pass %",w:1,a:"r"}],
+      D.subjects.map(function(s){ return [{t:s.name+(s.add?" (extra)":""),b:true,c:s.add?WARN:INK},s.n,{t:pc(s.avg),b:true,c:pcol(s.avg)},pc(s.hi),pc(s.lo),pc(s.med),{t:pc(s.pass),c:pcol(s.pass)}]; }));
+    doc.bars(D.subjects.map(function(s){ return {label:s.name+(s.add?" (extra)":""),v:s.avg,dim:s.add,color:s.add?WARN:undefined}; }),{legend:"Class average by subject"});
+    if(D.subjects.some(function(s){ return s.add; })) doc.note("Subjects marked (extra) are shown for reference and are not counted in the class average, ranking or pass rate.");
+    doc.h2("Score distribution");
+    doc.columns(D.bands); doc.note("Number of students by their overall average in this exam.");
+    if(D.prev){ doc.h2("Comparison with "+D.prev.name);
+      var rows=D.subjects.map(function(s){ var pv=D.prev.map[s.id]; if(!pv||!pv.length) return null; var p=mean(pv),d=Math.round(s.avg-p); return [{t:s.name+(s.add?" (extra)":""),b:true},pc(p),{t:pc(s.avg),b:true},{t:sgn(d),b:true,c:dcol(d)}]; }).filter(Boolean);
+      if(rows.length) doc.table([{h:"Subject",w:2},{h:D.prev.name,w:1.2,a:"r"},{h:D.exam,w:1.2,a:"r"},{h:"Change",w:1,a:"r"}],rows); else doc.p("The two exams have no subject in common.",{c:MUTED}); }
+    doc.h2("Student ranking");
+    doc.table([{h:"Rank",w:0.7,a:"c"},{h:"Student",w:2.2},{h:"Average",w:1,a:"r"},{h:"Best subject",w:1.8},{h:"Weakest subject",w:1.8}],
+      D.ranking.slice(0,10).map(function(r,i){ return [i+1,{t:r.name,b:true},{t:pc(r.avg),b:true,c:pcol(r.avg)},r.best?subjName(r.best.subject)+" "+pc(r.best.pct):"—",r.worst?subjName(r.worst.subject)+" "+pc(r.worst.pct):"—"]; }));
+    if(D.ranking.length>10) doc.note("Top 10 of "+D.ranking.length+" students shown.");
+    doc.h2("Subject toppers");
+    doc.table([{h:"Subject",w:1.6},{h:"1st",w:1.8},{h:"2nd",w:1.8},{h:"3rd",w:1.8}],D.subjects.filter(function(s){ return !s.add; }).map(function(s){ return [{t:s.name,b:true}].concat([0,1,2].map(function(i){ return s.top[i]?s.top[i].name+" "+pc(s.top[i].pct):"—"; })); }));
+    doc.h2("Students needing support");
+    if(D.failing.length) doc.table([{h:"Student",w:2},{h:"Below "+PASS+"% in",w:3.6,wrap:true}],D.failing.map(function(f){ return [{t:f.name,b:true},{t:f.subs.join(", "),c:BAD}]; })); else doc.p("Nobody scored below "+PASS+"% in any counted subject. Well done!",{c:GOOD});
+    doc.h2("Key findings");
+    var core=D.subjects.filter(function(s){ return !s.add; }), f=[]; if(core.length){ f.push("Strongest subject: "+core[0].name+" (class average "+pc(core[0].avg)+")."); f.push("Weakest subject: "+core[core.length-1].name+" (class average "+pc(core[core.length-1].avg)+")."); }
+    if(D.pass!==null) f.push(D.failing.length?D.failing.length+" student"+(D.failing.length>1?"s":"")+" scored below the pass mark in at least one subject.":"Every student cleared the pass mark in all counted subjects.");
+    if(D.prev&&D.classAvg!==null){ var pa=[]; core.forEach(function(s){ var pv=D.prev.map[s.id]; if(pv&&pv.length) pa.push(mean(pv)); }); if(pa.length){ var dd=Math.round(D.classAvg-mean(pa)); f.push("Compared with "+D.prev.name+", the class average moved "+sgn(dd)+" points."); } }
+    doc.bullets(f.length?f:["Not enough data to draw findings yet."],GOLD);
+  }
+  function buildClass(D,doc){
+    var h=D.health, dl=(D.avg!==null&&D.prevAvg!==null)?Math.round(D.avg-D.prevAvg):null, risk=D.rows.filter(function(r){ return r.risk&&r.risk.score!==null; }).sort(function(a,b){ return b.risk.score-a.risk.score; });
+    doc.kpis([{l:"STUDENTS",v:D.n,c:INK},{l:"CLASS AVERAGE",v:pc(D.avg),c:pcol(D.avg),s:dl===null?"":sgn(dl)+" vs "+D.prevLabel,sc:dcol(dl||0)},{l:"ATTENDANCE",v:pc(D.attAvg),c:pcol(D.attAvg)},{l:"COPY SUBMISSION",v:pc(D.copyRate),c:pcol(D.copyRate)}]);
+    if(h&&h.score!==null) doc.kpis([{l:"CLASS HEALTH",v:h.score+" / 100",c:h.score>=75?GOOD:h.score>=55?WARN:BAD,s:h.delta===null?"":sgn(h.delta)+" vs last month",sc:dcol(h.delta||0)},{l:"HIGH RISK",v:risk.filter(function(r){ return r.risk.level==="High"; }).length,c:BAD},{l:"WATCH",v:risk.filter(function(r){ return r.risk.level==="Watch"; }).length,c:WARN},{l:"LOW RISK",v:risk.filter(function(r){ return r.risk.level==="Low"; }).length,c:GOOD}]);
+    doc.h2("Subject averages");
+    if(D.subj.length) { doc.bars(D.subj.map(function(s){ return {label:s.name+(s.add?" (extra)":""),v:s.pct,dim:s.add,color:s.add?WARN:undefined}; })); if(D.subj.some(function(s){ return s.add; })) doc.note("Subjects marked (extra) are not counted in averages or rankings."); } else doc.p("No marks were recorded in this period.",{c:MUTED});
+    doc.h2("Top performers");
+    var top=D.rows.filter(function(r){ return r.avg!==null; }).sort(function(a,b){ return b.avg-a.avg; }).slice(0,5);
+    doc.table([{h:"Rank",w:0.7,a:"c"},{h:"Student",w:2.4},{h:"Average",w:1,a:"r"},{h:"Attendance",w:1.1,a:"r"}],top.map(function(r,i){ return [i+1,{t:r.name,b:true},{t:pc(r.avg),b:true,c:pcol(r.avg)},pc(r.att)]; }));
+    doc.h2("Students needing attention");
+    var needs=risk.filter(function(r){ return r.risk.level!=="Low"; }).slice(0,10);
+    if(needs.length) doc.table([{h:"Student",w:1.6},{h:"Risk",w:0.9,a:"c"},{h:"Reasons",w:4,wrap:true}],needs.map(function(r){ return [{t:r.name,b:true},{t:r.risk.level+" "+r.risk.score,b:true,c:r.risk.level==="High"?BAD:WARN},r.risk.reasons.slice(0,3).join(" · ")]; }),{rh:46,fs:17}); else doc.p("Nobody needs attention right now.",{c:GOOD});
+    doc.h2("Attendance and copies");
+    var low=D.rows.filter(function(r){ return r.att!==null; }).sort(function(a,b){ return a.att-b.att; }).slice(0,5);
+    doc.table([{h:"Lowest attendance",w:2.2},{h:"Attendance",w:1,a:"r"},{h:"Copies submitted",w:1.5,a:"r"}],low.map(function(r){ return [{t:r.name,b:true},{t:pc(r.att),b:true,c:pcol(r.att)},r.sub+" / "+(r.sub+r.miss)]; }));
+    doc.h2("Key findings");
+    var core=D.subj.filter(function(s){ return !s.add; }), f=[];
+    if(core.length){ f.push("Strongest subject: "+core[0].name+" ("+pc(core[0].pct)+"); weakest: "+core[core.length-1].name+" ("+pc(core[core.length-1].pct)+")."); }
+    if(D.attAvg!==null) f.push("Average attendance is "+pc(D.attAvg)+(D.attAvg<85?", below the 85% comfort level.":"."));
+    if(needs.length) f.push(needs.length+" student"+(needs.length>1?"s":"")+" need attention — see the table above."); 
+    if(h&&h.score!==null) f.push("Class health is "+h.score+"/100"+(h.delta===null?".":" ("+sgn(h.delta)+" vs last month)."));
+    doc.bullets(f.length?f:["Not enough data to draw findings yet."],GOLD);
+  }
+
+  /* ───────── build, PDF, preview ───────── */
+  function loadImg(src){ return new Promise(function(r){ if(!src){ r(null); return; } var i=new Image(); i.onload=function(){ r(i); }; i.onerror=function(){ r(null); }; i.src=src; }); }
+  function build(spec){
+    return Promise.all([document.fonts?Promise.all([document.fonts.load('700 40px "Cormorant Garamond"'),document.fonts.load('500 20px "DM Sans"'),document.fonts.load('700 20px "DM Sans"')]).catch(function(){}):null,loadImg((document.querySelector(".auth-logo")||{}).src)]).then(function(x){
+      var logo=x[1], gen="Generated "+fmt(today()), meta, doc, name;
+      if(spec.kind==="student"){ var D=studentData(spec.studentId,spec.period); meta={title:"Student Performance Report",sub:D.S.name,lines:["Period: "+spec.period.label+(spec.period.sub?"  ("+spec.period.sub+")":""),gen]}; doc=makeDoc(meta,logo); buildStudent(D,doc); name="Report_Student_"+D.S.name+"_"+spec.period.label; }
+      else if(spec.kind==="exam"){ var E=examData(spec.exam,spec.subjectIds); meta={title:"Exam Analysis Report",sub:spec.exam,lines:[(E.filtered?"Selected subject(s)":"All subjects")+(E.dateFrom?"  ·  "+fmt(E.dateFrom)+(E.dateTo!==E.dateFrom?" – "+fmt(E.dateTo):""):""),gen]}; doc=makeDoc(meta,logo); buildExam(E,doc); name="Report_Exam_"+spec.exam; }
+      else { var C=classData(spec.period); meta={title:"Class Performance Report",sub:"Class X — SBS",lines:["Period: "+spec.period.label+(spec.period.sub?"  ("+spec.period.sub+")":""),gen]}; doc=makeDoc(meta,logo); buildClass(C,doc); name="Report_Class_"+spec.period.label; }
+      var pages=doc.finish();
+      return {pages:pages,name:name.replace(/[^A-Za-z0-9]+/g,"-").replace(/-+$/,"")+".pdf",spec:spec};
+    });
+  }
+  function pdf(pages){
+    var enc=new TextEncoder(),parts=[],offs=[],off=0,n=pages.length,total=2+n*3;
+    function push(u){ parts.push(u); off+=u.length; } function str(s){ push(enc.encode(s)); }
+    function obj(i,b){ offs[i]=off; str(i+" 0 obj\n"+b+"\nendobj\n"); }
+    str("%PDF-1.4\n"); obj(1,"<< /Type /Catalog /Pages 2 0 R >>");
+    var kids=[]; for(var i=0;i<n;i++) kids.push((3+i*3)+" 0 R"); obj(2,"<< /Type /Pages /Kids ["+kids.join(" ")+"] /Count "+n+" >>");
+    for(var k=0;k<n;k++){
+      var po=3+k*3,co=po+1,io=po+2, bin=atob(pages[k].toDataURL("image/jpeg",0.9).split(",")[1]), jpg=new Uint8Array(bin.length); for(var j=0;j<bin.length;j++) jpg[j]=bin.charCodeAt(j);
+      obj(po,"<< /Type /Page /Parent 2 0 R /MediaBox [0 0 595 842] /Resources << /XObject << /Im0 "+io+" 0 R >> >> /Contents "+co+" 0 R >>");
+      var ct="q 595 0 0 842 0 0 cm /Im0 Do Q"; obj(co,"<< /Length "+ct.length+" >>\nstream\n"+ct+"\nendstream");
+      offs[io]=off; str(io+" 0 obj\n<< /Type /XObject /Subtype /Image /Width "+pages[k].width+" /Height "+pages[k].height+" /ColorSpace /DeviceRGB /BitsPerComponent 8 /Filter /DCTDecode /Length "+jpg.length+" >>\nstream\n"); push(jpg); str("\nendstream\nendobj\n");
+    }
+    var xref=off,x="xref\n0 "+(total+1)+"\n0000000000 65535 f \n"; for(var q=1;q<=total;q++) x+=String(offs[q]).padStart(10,"0")+" 00000 n \n";
+    str(x+"trailer\n<< /Size "+(total+1)+" /Root 1 0 R >>\nstartxref\n"+xref+"\n%%EOF"); return new Blob(parts,{type:"application/pdf"});
+  }
+  var LAST=null;
+  function download(r){
+    r=r||LAST; if(!r) return; var blob=pdf(r.pages),url=URL.createObjectURL(blob),a=document.createElement("a"); a.href=url; a.download=r.name; document.body.appendChild(a); a.click(); setTimeout(function(){ URL.revokeObjectURL(url); a.remove(); },2000);
+    try{ logAudit("Report","record",r.name,null,"Report downloaded via the assistant"); }catch(e){} try{ showToast("⬇️ Report downloaded"); }catch(e){}
+  }
+  function overlay(){
+    var o=document.getElementById("miRepOverlay"); if(o) return o;
+    o=document.createElement("div"); o.id="miRepOverlay"; o.style.cssText="position:fixed;inset:0;background:rgba(5,9,18,.86);z-index:100002;display:none;flex-direction:column;align-items:center;padding:16px;";
+    o.innerHTML='<div style="width:min(820px,100%);display:flex;justify-content:space-between;align-items:center;gap:10px;margin-bottom:10px;"><div id="miRepTitle" style="font-weight:600;font-size:14px;"></div><div style="display:flex;gap:8px;"><button class="btn btn-gold btn-sm" id="miRepOvDl">⬇️ Download PDF</button><button class="btn btn-outline btn-sm" id="miRepOvClose">Close</button></div></div><div id="miRepPages" style="width:min(820px,100%);overflow:auto;display:flex;flex-direction:column;gap:14px;"></div>';
+    document.body.appendChild(o); document.getElementById("miRepOvClose").onclick=function(){ o.style.display="none"; }; document.getElementById("miRepOvDl").onclick=function(){ download(); };
+    o.addEventListener("mousedown",function(e){ if(e.target===o) o.style.display="none"; }); return o;
+  }
+  function view(){ if(!LAST) return; var o=overlay(); document.getElementById("miRepTitle").textContent=LAST.name.replace(/\.pdf$/,"").replace(/-/g," "); document.getElementById("miRepPages").innerHTML=LAST.pages.map(function(p){ return '<img alt="Report page" style="width:100%;background:#fff;border-radius:6px;" src="'+p.toDataURL("image/jpeg",0.8)+'">'; }).join(""); o.style.display="flex"; }
+
+  /* ───────── understanding "create a report …" ───────── */
+  var REPORT_RE=/\b(create|make|generate|prepare|build|produce|give|get|download|export|need|want|write|print)\b[^.?!]*\b(report|analysis|analytics|analytic)\b|^(a )?(detailed? )?(analytic |analytical )?report\b|\b(report|analysis|analytics)\b[^.?!]*\b(of|for|on)\b/;
+  var _pending=null;
+  function selectedReportStudent(){ try{ var pg=document.getElementById("page-report_card"); var s=document.getElementById("rcStudentSelect"); if(pg&&pg.classList.contains("active")&&s&&s.value) return s.value; }catch(e){} return null; }
+  function latestExam(){ var o=examOrder(); return o.length?o[o.length-1]:null; }
+  function chipsHTML(list){ return '<div class="mi-chipset">'+list.map(function(x){ return '<button class="mi-qchip" data-q="'+esc(x)+'">'+esc(x)+'</button>'; }).join("")+'</div>'; }
+  function card(title,body,spec){ return {intent:"report",title:title,html:body,report:spec||null}; }
+  function describe(spec){
+    if(spec.kind==="student"){ var D=studentData(spec.studentId,spec.period); if(!D) return {have:"",empty:true,what:""}; return {have:D.n+(D.n===1?" mark entry":" mark entries")+" · "+(D.att.p+D.att.a)+" attendance days",empty:D.n===0&&(D.att.p+D.att.a)===0&&!D.copies.length,what:"marks by subject against the class average, exam trend, attendance, copy submission, risk analysis, insights and recommendations"}; }
+    if(spec.kind==="exam"){ var E=examData(spec.exam,spec.subjectIds); return {have:E.students+" students · "+E.subjects.length+" subject"+(E.subjects.length===1?"":"s"),empty:!E.subjects.length,what:"subject-wise statistics, score distribution, comparison with the previous exam, ranking, subject toppers, students needing support and key findings"}; }
+    var C=classData(spec.period); return {have:C.entries+" mark entries · "+C.n+" students",empty:C.entries===0&&!C.rows.some(function(r){ return r.att!==null; }),what:"subject averages, top performers, students needing attention, attendance, copy submission and class health"};
+  }
+  function interpret(q,low,x){
+    if(!REPORT_RE.test(low)) return null;
+    if(/\breport cards?\b/.test(low)&&!/\b(analytic|analysis|detail|detailed|analytical)\b/.test(low)) return null;
+    var staff=x.staff,me=x.me,spec=null,why="";
+    var thisStu=/\b(this|that|same|current) (student|child|kid|one|person)\b|\b(him|her)\b/.test(low)||/\bthe student\b/.test(low);
+    var sid=null;
+    if(!staff){
+      if(x.stus.length&&me&&x.stus.some(function(s){ return s.id!==me.id; })&&!x.stus.some(function(s){ return s.id===me.id; })) return card("Private",'<div class="mi-empty">I can only create reports about your own results. Try “Create my report for this month”.</div>');
+      sid=me&&me.id;
+    } else {
+      if(x.stus.length===1) sid=x.stus[0].id;
+      else if(x.stus.length>1) return card("Which student?",'<div class="mi-ans-sub">I found more than one match. Please type the full name, for example:</div>'+chipsHTML(x.stus.slice(0,4).map(function(s){ return "Create report of "+s.name+" for this month"; })));
+      else if(thisStu) sid=selectedReportStudent()||(x.ctx&&x.ctx.student)||null;
+      if(!sid&&thisStu) return card("Which student?",'<div class="mi-ans-sub">I do not know which student you mean yet. Ask about a student first, or name them, for example “Create report of Riya for this month”.</div>');
+    }
+    var wantExam=/\b(exam|examination|test|assessment)\b/.test(low)||x.exams.length>0, wantClass=/\b(class|whole|everyone|all students|entire)\b/.test(low);
+    var exName=x.exams.length?x.exams[0]:null;
+    if(!exName&&wantExam){ try{ if(typeof _rcExamFilter!=="undefined"&&_rcExamFilter&&_rcExamFilter!=="all"&&examOrder().indexOf(_rcExamFilter)>-1) exName=_rcExamFilter; }catch(e){} if(!exName&&x.ctx&&x.ctx.exam&&/\b(this|that|same|current)\b/.test(low)) exName=x.ctx.exam; if(!exName) exName=latestExam(); }
+    if(sid){ var P=periodOf(low,exName&&x.exams.length?[exName]:null,"all"); if(!x.exams.length&&/\b(this|current|latest|last) (exam|examination|test)\b/.test(low)&&exName) P={key:"exam",exam:exName,label:exName}; spec={kind:"student",studentId:sid,period:P}; }
+    else if(staff&&wantExam&&!wantClass||(staff&&x.exams.length&&!/\bmonth\b/.test(low))){ if(!exName) return card("No exams yet",'<div class="mi-empty">There are no exam results to analyse yet.</div>'); spec={kind:"exam",exam:exName,subjectIds:/\ball subjects?\b/.test(low)?[]:x.subs}; }
+    else if(staff){ var hasPeriod=/\b(month|week|year|days|session|so far|overall|all time)\b/.test(low)||MONTHS.some(function(m){ return low.indexOf(m)>-1; });
+      if(!wantClass&&!hasPeriod) return card("What should the report cover?",'<div class="mi-ans-sub">Tell me who or what it is about. For example:</div>'+chipsHTML(["Create report of this student for current month","Create class report for this month","Create a detailed analytic report of all subjects for this examination"]));
+      spec={kind:"class",period:periodOf(low,null,"month")}; }
+    else return null;
+    var info=describe(spec), title, subj;
+    if(spec.kind==="student"){ var S=students().find(function(s){ return s.id===spec.studentId; }); title="Student report"; subj=(S?S.name:"")+" · "+spec.period.label; }
+    else if(spec.kind==="exam"){ title="Exam analysis report"; subj=spec.exam+(spec.subjectIds&&spec.subjectIds.length?" · "+spec.subjectIds.map(subjName).join(", "):" · all subjects"); }
+    else { title="Class report"; subj=spec.period.label; }
+    if(info.empty) return card(title+" — nothing to report",'<div class="mi-ans-sub"><b>'+esc(subj)+'</b></div><div class="mi-empty" style="margin-top:8px;">No marks, attendance or copy records were found for this selection. Try another period, for example “this year” or an exam name.</div>');
+    _pending=spec;
+    return card(title,'<div class="mi-ans-sub"><b>'+esc(subj)+'</b></div><div class="mi-ans-sub" style="color:var(--muted)">Found: '+esc(info.have)+'</div><div class="mi-ans-sub">The report will include '+esc(info.what)+'.</div><div class="mi-ans-acts"><button class="btn btn-gold btn-sm mi-rep-go">📄 Create report</button><span style="font-size:11px;color:var(--muted);align-self:center;">or press Enter</span></div><div id="miRepOut" style="margin-top:12px;"></div>',spec);
+  }
+  function run(){
+    var out=document.getElementById("miRepOut"); if(!_pending){ return; } var spec=_pending;
+    if(out) out.innerHTML='<div class="mi-empty">Preparing your report…</div>';
+    build(spec).then(function(r){
+      LAST=r; var o=document.getElementById("miRepOut"); if(!o) return;
+      o.innerHTML='<div class="mi-rep-done"><img alt="Report preview" src="'+r.pages[0].toDataURL("image/jpeg",0.55)+'"><div><b>Report ready</b><div class="mi-ans-sub">'+r.pages.length+' page'+(r.pages.length>1?"s":"")+' · A4 PDF</div><div class="mi-ans-acts"><button class="btn btn-gold btn-sm mi-rep-dl">⬇️ Download PDF</button><button class="btn btn-outline btn-sm mi-rep-view">👁️ View all pages</button></div></div></div>';
+    }).catch(function(e){ var o=document.getElementById("miRepOut"); if(o) o.innerHTML='<div class="mi-empty" style="color:#FF7A7A;">Could not create the report. Please try again.</div>'; try{ console.error(e); }catch(_){} });
+  }
+  function handle(t){
+    var b=t.closest&&t.closest(".mi-rep-go,.mi-rep-dl,.mi-rep-view,.mi-ask-item[data-k='report']"); if(!b) return false;
+    if(b.classList.contains("mi-rep-dl")) download(); else if(b.classList.contains("mi-rep-view")) view(); else run(); return true;
+  }
+  window.miReport={interpret:interpret,build:build,pdf:pdf,download:download,view:view,handle:handle,run:run,_data:{student:studentData,exam:examData,cls:classData}};
+})();
+
+</script>
+<script>
+/* ═══════════════════════════════════════════════════════════════════════
+   STUDENT PRIVACY — a student sees their own results; other students' names and scores are masked and blurred.
+   Public recognition stays visible: dashboard Spotlight, Student of the Month and Spotlight History.
+   Display-only: teachers / admin are not affected, and no stored data is changed.
+   ═══════════════════════════════════════════════════════════════════════ */
+(function(){
+  "use strict";
+  var EXEMPT="#weeklySpotlight,#sotmCardWrap,#pastSOTMModal,#page-spotlight_history,#miAsk,#miRepOverlay,#somCertOverlay,#miRepPages";
+  function $(id){ return document.getElementById(id); }
+  function me(){ try{ var u=currentUser; return (u&&u.role==="student")?u:null; }catch(e){ return null; } }
+  function masked(s){ return String(s).replace(/[A-Z]/g,"X").replace(/[a-z]/g,"x").replace(/[0-9]/g,"0"); }
+  function esc(s){ return String(s).replace(/[.*+?^${}()|[\]\\]/g,"\\$&"); }
+  function maskNodes(root){
+    var w=document.createTreeWalker(root,NodeFilter.SHOW_TEXT,null),n,list=[];
+    while((n=w.nextNode())) list.push(n);
+    list.forEach(function(t){ if(t.nodeValue&&/\S/.test(t.nodeValue)) t.nodeValue=masked(t.nodeValue); });
+  }
+  /* Leaderboard rows other than the student's own */
+  function isOwnRow(tr,u){
+    var tx=tr.textContent||"";
+    if(tx.indexOf("(You)")>-1) return true;
+    var r=tr.children[1]; return !!(r&&String(r.textContent).trim()===String(u.roll));
+  }
+  function leaderboard(u){
+    var host=$("leaderboardContent"); if(!host) return;
+    Array.prototype.forEach.call(host.querySelectorAll("table.students-table tbody tr"),function(tr){
+      if(tr.getAttribute("data-mi-priv")||isOwnRow(tr,u)) return;
+      tr.setAttribute("data-mi-priv","1"); tr.classList.add("mi-priv-row");
+      Array.prototype.forEach.call(tr.children,function(td,i){ if(i>0) maskNodes(td); });
+    });
+    Array.prototype.forEach.call(host.querySelectorAll(".mi-pod"),function(p){
+      var nm=p.querySelector(".nm"); if(!nm||p.getAttribute("data-mi-priv")) return;
+      if(nm.textContent.trim()===u.name) return;
+      p.setAttribute("data-mi-priv","1"); nm.classList.add("mi-priv"); maskNodes(nm); var sc=p.querySelector(".sc"); if(sc){ sc.classList.add("mi-priv"); maskNodes(sc); }
+    });
+    var best=host.querySelector(".mi-best b");
+    if(best&&!best.getAttribute("data-mi-priv")&&best.textContent.trim()!==u.name){ best.setAttribute("data-mi-priv","1"); best.classList.add("mi-priv"); maskNodes(best); }
+    if(!host.querySelector(".mi-privnote")){
+      var n=document.createElement("div"); n.className="mi-privnote"; n.textContent="🔒 Other students' names and scores are private. You can see your own row.";
+      host.insertBefore(n,host.firstChild);
+    }
+  }
+  /* any other place where another student's full name appears (outside the public-recognition areas) */
+  function names(u){
+    var all=(DB.get("students")||[]).filter(function(s){ return s.id!==u.id&&s.name&&String(s.name).trim().length>=4&&String(s.name).trim().toLowerCase()!==String(u.name).trim().toLowerCase(); }).map(function(s){ return esc(String(s.name).trim()); });
+    all.sort(function(a,b){ return b.length-a.length; });
+    return all.length?new RegExp("("+all.join("|")+")","gi"):null;
+  }
+  function generic(u){
+    var re=names(u); if(!re) return;
+    var root=$("appScreen"); if(!root) return;
+    var w=document.createTreeWalker(root,NodeFilter.SHOW_TEXT,{acceptNode:function(n){
+      var p=n.parentNode; if(!p||!n.nodeValue||n.nodeValue.length<4) return NodeFilter.FILTER_REJECT;
+      var tag=p.nodeName; if(/^(SCRIPT|STYLE|OPTION|SELECT|TEXTAREA|INPUT|TITLE|NOSCRIPT)$/.test(tag)) return NodeFilter.FILTER_REJECT;
+      if(p.closest&&(p.closest(EXEMPT)||p.closest(".mi-priv")||p.closest("[data-mi-priv]"))) return NodeFilter.FILTER_REJECT;
+      var pg=p.closest&&p.closest(".page"); if(pg&&!pg.classList.contains("active")) return NodeFilter.FILTER_REJECT;
+      re.lastIndex=0; return re.test(n.nodeValue)?NodeFilter.FILTER_ACCEPT:NodeFilter.FILTER_REJECT;
+    }}),n,list=[];
+    while((n=w.nextNode())) list.push(n);
+    list.forEach(function(t){
+      var frag=document.createDocumentFragment(),s=t.nodeValue,last=0,m; re.lastIndex=0;
+      while((m=re.exec(s))){ if(m.index>last) frag.appendChild(document.createTextNode(s.slice(last,m.index))); var sp=document.createElement("span"); sp.className="mi-priv"; sp.setAttribute("aria-hidden","true"); sp.textContent=masked(m[0]); frag.appendChild(sp); last=m.index+m[0].length; if(m[0].length===0) re.lastIndex++; }
+      if(last<s.length) frag.appendChild(document.createTextNode(s.slice(last)));
+      t.parentNode.replaceChild(frag,t);
+    });
+  }
+  var _obs=null,_t=null,_busy=false;
+  function run(){
+    var u=me(); if(!u||_busy) return; _busy=true;
+    try{ if(_obs) _obs.disconnect(); leaderboard(u); generic(u); }catch(e){}
+    finally{ _busy=false; attach(); }
+  }
+  function attach(){
+    var pages=document.querySelector(".pages"); if(!pages) return;
+    if(!_obs) _obs=new MutationObserver(function(){ clearTimeout(_t); _t=setTimeout(run,120); });
+    _obs.observe(pages,{childList:true,subtree:true,characterData:true,attributes:true,attributeFilter:["class"]});
+  }
+  function start(){ attach(); run(); setInterval(function(){ if(me()) run(); },2000); }
+  if(document.readyState==="loading") document.addEventListener("DOMContentLoaded",start); else start();
+  window.miPrivacy={run:run};
 })();
 
 </script>
