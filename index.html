@@ -1038,6 +1038,12 @@ html,body{font-family:'Sora','DM Sans',sans-serif}
 .mi-priv-row td:not(:first-child){filter:blur(5px);user-select:none;pointer-events:none}
 .mi-privnote{font-size:12px;color:var(--muted);margin:0 0 12px;padding:8px 12px;border:1px dashed #2A3957;border-radius:10px}
 
+/* ── Sunday holiday + automatic absences ── */
+.mi-sunday{padding:22px;border:1px dashed #FFB84D;border-radius:14px;background:rgba(255,184,77,.06);text-align:center}
+.mi-sunday-t{font-size:16px;font-weight:700;color:#FFB84D;margin-bottom:6px}
+.mi-sunday-s{font-size:12px;color:var(--muted);line-height:1.6;margin-bottom:14px}
+.mi-autonote{display:flex;align-items:center;gap:10px;flex-wrap:wrap;font-size:12px;line-height:1.5;padding:10px 14px;margin:0 0 12px;border:1px solid rgba(61,219,180,.35);background:rgba(61,219,180,.06);border-radius:12px}
+
 }
 @media print{.site-footer{display:none !important}}
 </style>
@@ -10608,7 +10614,7 @@ function _ttSubjectOptions(row){
         '<div class="mi-grid mi-g4">'+
           stat("Students",n,"#3DDBB4",null)+
           stat("Class average",classAvg===null?"—":classAvg+"%","#8B7CFF",classAvg)+
-          stat("Present today",marked?present:"—","#FFB84D",null,marked?("of "+n):"")+
+          stat("Present today",(!marked&&window.miAuto&&miAuto.isAutoHoliday(today()))?"Holiday":marked?present:"—","#FFB84D",null,(!marked&&window.miAuto&&miAuto.isAutoHoliday(today()))?"Sunday":marked?("of "+n):"")+
           stat("Copies pending",pend===null?"—":pend,"#FF7A7A",null)+
         '</div><div class="mi-grid mi-g3h">'+(window.miSmartTop?window.miSmartTop():"")+'<div class="mi-box"><div class="mi-h">Class average by subject</div>'+bars(subjAverages(db("results")||[],null))+
         '</div><div class="mi-box"><div class="mi-h">Needs attention</div>'+att+'</div></div>'/* +heatmap()+compareExams() — disabled (ideas #6 and #10); see the DISABLED blocks above */);
@@ -10638,6 +10644,7 @@ function _ttSubjectOptions(row){
     var page=$("page-manage_attendance"); if(!page) return;
     var anchor=page.querySelector(".card"); if(!anchor) return;
     var list=students(), date=($("attDate")||{}).value||today();
+    if(window.miAuto&&miAuto.isAutoHoliday(date)){ mount("miAttCounts",anchor,'<div class="mi-chips"><span class="mi-chip" style="color:#FFB84D;border-color:#FFB84D">🏖️ Sunday — automatic holiday</span></div>'); return; }
     var day=(db("studentAttendance")||{})[date]||{}, pend={};
     try{ pend=pendingStudentAtt||{}; }catch(e){}
     var p=0,a=0,h=0,m=0;
@@ -11064,7 +11071,7 @@ function _ttSubjectOptions(row){
   }
   function ans_attendance(low){
     var st=students(),att=db("studentAttendance")||{};
-    if(/\btoday\b/.test(low)){ var d=att[todayISO()]; if(!d) return A("Attendance today",'<div class="mi-empty">Attendance has not been marked today.</div>',"attendance"); var ab=st.filter(function(s){ return d[s.id]==="absent"; }), pr=st.filter(function(s){ return d[s.id]==="present"; }).length;
+    if(/\btoday\b/.test(low)){ if(window.miAuto&&miAuto.isAutoHoliday(todayISO())) return A("Attendance today",'<div class="mi-ans-sub" style="color:'+AMBER+'"><b>🏖️ Sunday — automatic holiday.</b> No attendance is needed.</div>',"attendance"); var d=att[todayISO()]; if(!d) return A("Attendance today",'<div class="mi-empty">Attendance has not been marked today.</div>',"attendance"); var ab=st.filter(function(s){ return d[s.id]==="absent"; }), pr=st.filter(function(s){ return d[s.id]==="present"; }).length;
       return A("Attendance today",'<div class="mi-ans-kpis"><div><span>Present</span><b style="color:'+TEAL+'">'+pr+'</b></div><div><span>Absent</span><b style="color:'+CORAL+'">'+ab.length+'</b></div></div>'+(ab.length?'<div class="mi-ans-sub">Absent: '+ab.map(function(s){ return esc(s.name); }).join(", ")+'</div>':""),"attendance"); }
     var rows=Object.keys(all()).map(function(k){ return all()[k]; }).filter(function(x){ return x.att!==null; }).sort(function(a,b){ return a.att-b.att; }).slice(0,6);
     if(!rows.length) return A("Attendance",'<div class="mi-empty">No attendance recorded yet.</div>',"attendance");
@@ -11104,8 +11111,8 @@ function _ttSubjectOptions(row){
   }
   var HELP_STAFF=["Who is at risk?","How is the class doing?","Who was absent today?","Who improved the most?","Who failed in the last exam?","Today's timetable","Pending leave requests","Create class report for this month"];
   var HELP_STU=["How am I doing?","What should I improve?","Make a study plan","What do I need to score to get 85%?","Today's timetable","Homework due","Compare my last two exams","Create my report for this month"];
-  var HELP_GROUPS_STAFF=[["Class",["Who is at risk?","How is the class doing?","Weakest subject","Compare the last two exams","Who improved the most?","Who dropped the most?"]],["Students",["Who was absent today?","Who is absent the most this month?","Who failed in the last exam?","Students with attendance below 75","Top 3 in maths","Compare two students: “Compare Riya and Aarav”"]],["Schedule & school",["Today's timetable","Who teaches maths?","Upcoming exams","Pending leave requests","Homework due this week","Latest notices"]],["Reports & pages",["Create class report for this month","Create a detailed analytic report of all subjects for this examination","Open marks entry","Go to attendance"]]];
-  var HELP_GROUPS_STU=[["About me",["How am I doing?","What should I improve?","My best subject","My weakest subject","My attendance","My rank","My pending copies","My marks in the last exam"]],["Plan & goals",["Make a study plan","What do I need to score to get 85%?","Compare my last two exams"]],["School",["Today's timetable","What is my next period?","Who teaches science?","Homework due","Upcoming exams","Latest notices","Next exam"]],["Reports",["Create my report for this month"]]];
+  var HELP_GROUPS_STAFF=[["Insights",["Brief me","What should I focus on?","Why is Rohan at risk?","House standings","Which day has the most absences?","How is the risk score calculated?"]],["Class",["Who is at risk?","How is the class doing?","Weakest subject","Compare the last two exams","Who improved the most?","Who dropped the most?","Grade distribution in the last exam","Who topped the last exam?"]],["Students",["Who was absent today?","Who is absent 3 days in a row?","Who has 100% attendance?","Class attendance this month","Who missed more than 2 copies?","Parent mobile of Riya","Who is absent the most this month?","Who failed in the last exam?","Students with attendance below 75","Top 3 in maths","Compare two students: “Compare Riya and Aarav”"]],["Schedule & school",["Today's timetable","Who teaches maths?","Upcoming exams","Pending leave requests","Homework due this week","Latest notices","Latest uploads","Student of the Month","Who is the class teacher?"]],["Tools",["What percentage is 45 out of 60?","Average of 72, 80 and 91","What grade is 72%?","What is the date today?"]],["Reports & pages",["Create class report for this month","Create a detailed analytic report of all subjects for this examination","Open marks entry","Go to attendance"]]];
+  var HELP_GROUPS_STU=[["About me",["Brief me","How am I doing?","Am I improving?","What should I improve?","Why is my risk what it is?","My best subject","My weakest subject","My attendance this month","My rank","My pending copies","My marks in the last exam","How am I doing in maths compared to the class?"]],["Plan & goals",["Make a study plan","What do I need to score to get 85%?","Compare my last two exams"]],["School",["Today's timetable","What is my next period?","Who teaches science?","Homework due","Upcoming exams","Latest notices","Latest uploads","Student of the Month","House standings","Who is my class teacher?"]],["Tools",["What percentage is 45 out of 60?","Average of 72, 80 and 91","What grade is 72%?","What is the grading scale?"]],["Reports",["Create my report for this month"]]];
   function chips(list){ return '<div class="mi-chipset">'+list.map(function(x){ return '<button class="mi-qchip" data-q="'+esc(x)+'">'+esc(x)+'</button>'; }).join("")+'</div>'; }
   function ans_help(){ var g=isStaff()?HELP_GROUPS_STAFF:HELP_GROUPS_STU; return A("What I can do",'<div class="mi-ans-sub">I answer from your class data, instantly and offline. Tap one to try it:</div>'+g.map(function(x){ return '<div class="mi-ask-sec" style="padding-left:0">'+x[0]+'</div>'+chips(x[1].filter(function(t){ return t.indexOf("“")<0; })); }).join("")+'<div class="mi-ans-sub" style="margin-top:10px;">You can also type a student name or a page name to jump straight there.</div>',"help"); }
 
@@ -11129,6 +11136,7 @@ function _ttSubjectOptions(row){
     pages().forEach(function(p){ var h=(p.label+" "+p.id.replace(/_/g," ")+" "+(PAGE_ALIAS[p.id]||"")).toLowerCase(); if(toks.every(function(t){ return h.indexOf(t)>-1; })&&(!best||p.label.length<best.label.length)) best=p; });
     return best;
   }
+  function nameList(arr,max){ var m=max||12,s=arr.slice(0,m).map(function(x){ return esc(x); }).join(", "); return s+(arr.length>m?" …and "+(arr.length-m)+" more":""); }
   function kpi(label,val,color){ return '<div><span>'+label+'</span><b'+(color?' style="color:'+color+'"':'')+'>'+val+'</b></div>'; }
   function item(title,sub,right){ return '<div class="mi-ans-row"><div><b>'+title+'</b>'+(sub?'<div class="mi-risk-why">'+sub+'</div>':'')+'</div>'+(right||"")+'</div>'; }
 
@@ -11190,6 +11198,7 @@ function _ttSubjectOptions(row){
   /* attendance */
   function ans_absentwho(q,low){
     var d=dateOfQuery(q,low)||todayISO(),att=(db("studentAttendance")||{})[d],st=students();
+    if(window.miAuto&&miAuto.isAutoHoliday(d)) return A("Attendance — "+fmtD(d),'<div class="mi-ans-sub" style="color:'+AMBER+'"><b>🏖️ Sunday — automatic holiday.</b> Nobody is counted absent.</div>',"absent");
     if(!att) return A("Attendance — "+fmtD(d),'<div class="mi-empty">Attendance was not marked for this date.</div>',"absent");
     var ab=st.filter(function(s){ return att[s.id]==="absent"; }).map(function(s){ return s.name; }),pr=st.filter(function(s){ return att[s.id]==="present"; }).map(function(s){ return s.name; }),ho=st.filter(function(s){ return att[s.id]==="holiday"; }).length;
     var wantP=/\bpresent\b/.test(low)&&!/\babsent|absentees?\b/.test(low);
@@ -11229,6 +11238,7 @@ function _ttSubjectOptions(row){
     return A(dropq?"Dropped the most":"Most improved",rows.length?rows.map(function(x){ var d=Math.round(Math.abs(x.drop)); return item(esc(x.name),"since "+esc(x.prevName||"the previous exam"),'<b style="color:'+(dropq?CORAL:TEAL)+'">'+(dropq?"▼ ":"▲ ")+d+' pts</b>'); }).join(""):'<div class="mi-empty">Nobody '+(dropq?"dropped":"improved")+' noticeably between the last two exams.</div>',"movers");
   }
   function ans_threshold(low){
+    if(/\b(cop(y|ies)|notebooks?|attendance (rate|percentage)|class attendance)\b/.test(low)) return null;
     var mm=low.match(/\b(below|under|less than|lower than|above|over|more than|greater than|at least|at most)\s+(\d{1,3})\b/); if(!mm) return null;
     var below=/below|under|less|lower|at most/.test(mm[1]),n=+mm[2],att=/\b(attendance|present)\b/.test(low),M=all();
     var rows=Object.keys(M).map(function(k){ return M[k]; }).filter(function(x){ var v=att?x.att:x.avg; return v!==null&&(below?v<n:v>n); }).sort(function(a,b){ var va=att?a.att:a.avg,vb=att?b.att:b.avg; return below?va-vb:vb-va; });
@@ -11320,12 +11330,13 @@ function _ttSubjectOptions(row){
       if(/\b(compare|vs|versus|difference between)\b/.test(low)){ var two=findMany(low); if(two.length>=2) return ans_cmpstudents(two[0],two[1]); }
       if(/\bhow many\b.*\b(at risk|risk|need attention|struggling)\b/.test(low)) return ans_riskcount();
       if(/\b(most absent|absent (the )?most|most irregular|frequently absent|irregular)\b/.test(low)) return ans_mostabsent(low);
+      if(/\b(in a row|consecutive|continuous|continuously|back to back|straight)\b/.test(low)||/\babsent for \d+ days?\b/.test(low)) return ans_streak(low);
       if(/\b(who|which students?|list|names?)\b/.test(low)&&/\b(absent|present|absentees?)\b/.test(low)) return ans_absentwho(q,low);
       if(/\b(failed|fail|failing|below pass|not passed)\b/.test(low)||(/\b(below|under|less than) \d{1,2}\b/.test(low)&&!/\b(attendance|present)\b/.test(low)&&!/\b(who|students?)\b.*\b(average|scor)/.test(low)&&exams.length)) return ans_failing(low,exams,subs);
       if(/\b(most improved|improved the most|biggest improvement|biggest gain|who improved|dropped the most|dropped most|biggest drop|who dropped|declined)\b/.test(low)) return ans_movers(low);
       if(subs.length&&/\b(top|topper|toppers|best|highest|first|leading)\b/.test(low)&&!stus.length) return ans_subjtop(subs,low,exams);
       var th=ans_threshold(low); if(th) return th;
-      if(exams.length&&/\b(average|avg|result|results|performance|how did)\b/.test(low)&&!stus.length&&!/\bcompare\b/.test(low)) return ans_examavg(exams[0]);
+      if(exams.length&&/\b(average|avg|result|results|performance|how did)\b/.test(low)&&!stus.length&&!/\b(compare|topped|topper|toppers|top scorer|highest|lowest|distribution|passed|pass)\b/.test(low)) return ans_examavg(exams[0]);
       if(stus.length===1&&subs.length) return ans_studentsubject(stus[0],subs);
     }
     if(self){
@@ -11342,6 +11353,234 @@ function _ttSubjectOptions(row){
     return null;
   }
 
+
+  /* ───────── even more commands ───────── */
+  function gradeOf(p){ try{ return rcGradeInfo(p).grade; }catch(e){ return p>=90?"A+":p>=80?"A":p>=70?"B+":p>=60?"B":p>=50?"C":p>=33?"D":"F"; } }
+  function teacherName(){ try{ return SOM_CERT_TEACHER; }catch(e){ return "Mr. Ajit Kumar Singh"; } }
+  function attRange(from,to){
+    var att=db("studentAttendance")||{},p=0,a=0,days={},byDay={0:0,1:0,2:0,3:0,4:0,5:0,6:0},absDates=[];
+    Object.keys(att).sort().forEach(function(d){ if(d<from||d>to) return; Object.keys(att[d]).forEach(function(id){ var v=att[d][id]; if(v==="present") p++; else if(v==="absent"){ a++; byDay[new Date(d+"T00:00:00Z").getUTCDay()]++; } }); days[d]=1; });
+    return {p:p,a:a,pct:(p+a)?p/(p+a)*100:null,days:Object.keys(days).length,byDay:byDay};
+  }
+  function periodOfLow(low){
+    var t=todayISO();
+    if(/\blast month\b/.test(low)) return {from:monthStart(-1),to:addD(monthStart(0),-1),label:"last month"};
+    if(/\b(this month|month)\b/.test(low)) return {from:monthStart(0),to:t,label:"this month"};
+    if(/\b(this week|week)\b/.test(low)) return {from:addD(t,-6),to:t,label:"the last 7 days"};
+    if(/\btoday\b/.test(low)) return {from:t,to:t,label:"today"};
+    return {from:"0000-00-00",to:"9999-99-99",label:"so far this session"};
+  }
+  function examRanking(exam){
+    var per={}; (db("results")||[]).forEach(function(r){ if(r.test!==exam||isAdd(r)||!r.studentMarks||!r.max) return; r.studentMarks.forEach(function(m){ if(m.absent||m.marks==null) return; (per[m.studentId]=per[m.studentId]||[]).push(m.marks/r.max*100); }); });
+    var nm=nameMap(); return Object.keys(per).map(function(id){ return {id:id,name:nm[id]?nm[id].name:id,avg:mean(per[id])}; }).sort(function(a,b){ return b.avg-a.avg; });
+  }
+  function latestExam(){ var o=examNames(); return o.length?o[o.length-1]:null; }
+  function streaks(){
+    var att=db("studentAttendance")||{},dates=Object.keys(att).sort().reverse(),out=[];
+    students().forEach(function(s){ var n=0; for(var i=0;i<dates.length;i++){ var v=att[dates[i]][s.id]; if(v==="absent") n++; else if(v==="present") break; } if(n>0) out.push({id:s.id,name:s.name,n:n}); });
+    return out.sort(function(a,b){ return b.n-a.n; });
+  }
+  function sevenDay(){ var out=[]; for(var i=0;i<7;i++){ var d=new Date(); d.setDate(d.getDate()+i); out.push({i:i,name:i===0?"Today":DAYS[d.getDay()]}); } return out; }
+  function row2(icon,label,detail,color){ return '<div class="mi-ans-row"><div><b>'+icon+" "+esc(label)+'</b><div class="mi-risk-why"'+(color?' style="color:'+color+'"':"")+'>'+detail+'</div></div></div>'; }
+
+  /* daily briefing */
+  function ans_brief(){
+    var t=todayISO(),dn=DAYS[new Date().getDay()],staff=isStaff(),me=user(),rows=[],holiday=!!(window.miAuto&&miAuto.isAutoHoliday(t));
+    var tt=ttRows(dn);
+    rows.push(row2("📅",dn+", "+fmtD(t),holiday?"Sunday — automatic holiday. Enjoy the day off!":"Here is what is going on today."));
+    if(staff){
+      var rec=(db("studentAttendance")||{})[t],st=students();
+      if(!holiday) rows.push(row2("✅","Attendance",rec?(st.filter(function(s){ return rec[s.id]==="present"; }).length+" present · "+st.filter(function(s){ return rec[s.id]==="absent"; }).length+" absent"):"Not marked yet today"+'',rec?"":AMBER));
+      if(tt.length) rows.push(row2("🗓️",tt.length+" period"+(tt.length>1?"s":"")+" today","First: "+esc(subjName(tt[0].subject))+" at "+esc(tt[0].startTime)));
+      var pl=(db("leaveApplications")||[]).filter(function(a){ return a.status==="pending"; }).length; if(pl) rows.push(row2("🏖️",pl+" pending leave request"+(pl>1?"s":""),"Waiting for your decision",AMBER));
+      var R=riskList(),hi=R.filter(function(x){ return x.level==="High"; }),wa=R.filter(function(x){ return x.level==="Watch"; });
+      rows.push(row2("🎯",hi.length+" high risk · "+wa.length+" watch",hi.length?"Start with "+nameList(hi.map(function(x){ return x.name; }),3):"Nobody is at high risk.",hi.length?CORAL:TEAL));
+      var ses=(db("copySessions")||[]).slice().sort(function(a,b){ return String(a.date).localeCompare(String(b.date)); }),last=ses[ses.length-1];
+      if(last){ var pend=st.filter(function(s){ var v=(last.status||{})[s.id]; return v!=="submitted"&&v!=="absent"; }).length; if(pend) rows.push(row2("📓",pend+" copies pending","Latest check: "+esc(last.subject||"")+" ("+esc(fmtD(iso(last.date)))+")")); }
+    } else if(me){
+      var m=metrics(me.id),hw=(db("homework")||[]).filter(function(h){ return h.due===t||h.due===addD(t,1); }),pc=(db("copySessions")||[]).filter(function(c){ return c.status&&c.status[me.id]==="not_submitted"; }).length;
+      if(tt.length) rows.push(row2("🗓️",tt.length+" period"+(tt.length>1?"s":"")+" today",tt.slice(0,3).map(function(r){ return esc(subjName(r.subject))+" "+esc(r.startTime); }).join(" · ")));
+      rows.push(row2("📝",hw.length+" homework due today/tomorrow",hw.length?hw.slice(0,3).map(function(h){ return esc(h.title); }).join(" · "):"Nothing due. 🎉",hw.length?AMBER:TEAL));
+      if(pc) rows.push(row2("📓",pc+" pending cop"+(pc>1?"ies":"y"),"Please submit them soon.",AMBER));
+      if(m&&m.score!==null) rows.push(row2("🎯","Your risk radar: "+(m.level==="Low"?"On track":m.level==="Watch"?"Needs a little attention":"Needs attention"),m.reasons.length?esc(m.reasons[0]):"Everything looks healthy.",lvlColor(m.level)));
+    }
+    var ex=(db("examSchedules")||[]).filter(function(e){ return e.date>=t; }).sort(function(a,b){ return a.date.localeCompare(b.date); })[0];
+    if(ex){ var dd=Math.round((new Date(ex.date)-new Date(t))/86400000); rows.push(row2("📣",esc(ex.name)+" in "+dd+" day"+(dd===1?"":"s"),esc(fmtD(ex.date)),dd<=14?AMBER:""));}
+    var n=(db("notices")||[]).slice(-1)[0]; if(n) rows.push(row2("📌","Latest notice: "+n.title,esc(String(n.body||"").slice(0,90))));
+    return A("Your briefing",rows.join(""),"brief");
+  }
+  /* what should I do / focus on */
+  function ans_suggest(){
+    var staff=isStaff(),me=user(),t=todayISO(),items=[];
+    if(staff){
+      var R=riskList(),hi=R.filter(function(x){ return x.level==="High"; }); if(hi.length) items.push([1,"Talk to "+nameList(hi.map(function(x){ return x.name; }),3)+" — high risk ("+hi.slice(0,2).map(function(x){ return x.reasons[0]||""; }).filter(Boolean).join("; ")+").",hi[0].id]);
+      var st=streaks().filter(function(s){ return s.n>=3; }); if(st.length) items.push([1,st.map(function(s){ return s.name+" ("+s.n+" days)"; }).slice(0,3).join(", ")+" absent several days in a row — contact the parents.",st[0].id]);
+      var pl=(db("leaveApplications")||[]).filter(function(a){ return a.status==="pending"; }); if(pl.length) items.push([2,pl.length+" leave request"+(pl.length>1?"s":"")+" waiting for approval.",null,function(){ closeAsk(); goLabel(/leave/i); }]);
+      var cs=classSubj(null).filter(function(x){ return !x.add; }); if(cs.length){ var w=cs[cs.length-1]; if(w.pct<65) items.push([3,"Plan extra revision for "+w.name+" — class average is only "+w.pct+"%."]); }
+      var ses=(db("copySessions")||[]).slice().sort(function(a,b){ return String(a.date).localeCompare(String(b.date)); }),last=ses[ses.length-1];
+      if(last){ var pend=students().filter(function(s){ return (last.status||{})[s.id]==="not_submitted"; }); if(pend.length) items.push([3,pend.length+" student"+(pend.length>1?"s have":" has")+" not submitted the latest copy ("+nameList(pend.map(function(x){ return x.name; }),3)+").",pend[0].id]); }
+      var ex=(db("examSchedules")||[]).filter(function(e){ return e.date>=t; }).sort(function(a,b){ return a.date.localeCompare(b.date); })[0]; if(ex){ var dd=Math.round((new Date(ex.date)-new Date(t))/86400000); if(dd<=21) items.push([2,ex.name+" is in "+dd+" days — schedule revision and mock tests."]); }
+      var low=Object.keys(all()).map(function(k){ return all()[k]; }).filter(function(x){ return x.att!==null&&x.att<75; }); if(low.length) items.push([3,low.length+" student"+(low.length>1?"s have":" has")+" attendance below 75%."]);
+      if(!items.length) items.push([9,"Nothing urgent. Class health looks good — keep it up!"]);
+    } else if(me){
+      var m=metrics(me.id),hw=(db("homework")||[]).filter(function(h){ return h.due&&h.due>=t&&h.due<=addD(t,2); });
+      if(hw.length) items.push([1,"Finish homework: "+hw.slice(0,3).map(function(h){ return h.title; }).join(", ")+"."]);
+      if(m&&m.subj.length){ var wk=m.subj[m.subj.length-1]; if(wk.pct<80) items.push([2,"Spend 30 minutes on "+wk.name+" today — it is your weakest subject ("+wk.pct+"%)."]); }
+      var pc=(db("copySessions")||[]).filter(function(c){ return c.status&&c.status[me.id]==="not_submitted"; }).length; if(pc) items.push([2,"Submit your "+pc+" pending cop"+(pc>1?"ies":"y")+"."]);
+      var ex2=(db("examSchedules")||[]).filter(function(e){ return e.date>=t; }).sort(function(a,b){ return a.date.localeCompare(b.date); })[0]; if(ex2){ var d2=Math.round((new Date(ex2.date)-new Date(t))/86400000); if(d2<=21) items.push([2,ex2.name+" is in "+d2+" days — start revising now."]); }
+      if(m&&m.att!==null&&m.att<85) items.push([3,"Keep your attendance up — it is "+m.att+"% right now."]);
+      if(!items.length) items.push([9,"You are on track. Revise one topic you enjoy and keep the routine going!"]);
+    }
+    items.sort(function(a,b){ return a[0]-b[0]; });
+    return A("What to focus on",items.slice(0,6).map(function(x,i){ var btn=x[3]?actBtn("Open",x[3]):(x[2]?actBtn("Report",function(){ openReport(x[2]); closeAsk(); }):""); return '<div class="mi-ans-row"><div style="display:flex;gap:10px;"><b style="color:'+(x[0]===1?CORAL:x[0]===2?AMBER:TEAL)+'">'+(i+1)+'.</b><span style="font-size:13px;line-height:1.5;">'+esc(x[1])+'</span></div>'+btn+'</div>'; }).join(""),"suggest");
+  }
+  /* explanations (explainable analytics) */
+  function ans_explain(low){
+    if(/\brisk\b/.test(low)) return A("How the risk score works",'<div class="mi-ans-sub">A 0–100 score where <b>higher means more attention is needed</b>. It combines four things:</div><ul class="mi-ans-ul"><li><b>Marks level (40%)</b> — average score; 75% or more is no risk, 30% or less is full risk.</li><li><b>Marks trend (20%)</b> — a fall since the previous exam, or in one subject.</li><li><b>Attendance (25%)</b> — 90% or more is no risk; a recent drop counts too.</li><li><b>Copy submission (15%)</b> — the share of copies not submitted.</li></ul><div class="mi-ans-sub">Levels: <b style="color:'+TEAL+'">Low</b> under 30 · <b style="color:'+AMBER+'">Watch</b> 30–54 · <b style="color:'+CORAL+'">High</b> 55 and above. IT (extra) is never counted.</div>',"explain");
+    if(/\bhealth\b/.test(low)) return A("How class health works",'<div class="mi-ans-sub">One 0–100 score for the class over the <b>last 30 days</b>, compared with the 30 days before:</div><ul class="mi-ans-ul"><li>Average marks — 40%</li><li>Attendance — 30%</li><li>Copy submission — 15%</li><li>Students passing (average 40% or more) — 15%</li></ul><div class="mi-ans-sub">75+ is Healthy, 55–74 Fair, below 55 Needs attention.</div>',"explain");
+    if(/\b(blur\w*|hidden|private|masked|see others)\b/.test(low)) return A("Why other students are blurred",'<div class="mi-ans-sub">To protect everyone\'s privacy, students see only their <b>own</b> results. Other students\' names and scores are hidden. Public recognition such as the Spotlight and Student of the Month stays visible.</div>',"explain");
+    return A("Grades and the pass mark",'<div class="mi-ans-sub">Pass mark: <b>'+PASSMARK+'%</b> in each subject.</div><ul class="mi-ans-ul"><li>A+ — 90% and above</li><li>A — 80–89%</li><li>B+ — 70–79%</li><li>B — 60–69%</li><li>C — 50–59%</li><li>D — 33–49%</li><li>F — below 33%</li></ul>',"explain");
+  }
+  /* calculator */
+  function ans_calc(q,low){
+    var m=q.match(/(\d+(?:\.\d+)?)\s*(?:out of|\/|over)\s*(\d+(?:\.\d+)?)/i);
+    if(m&&+m[2]>0&&(/\b(percent|percentage|grade|score|marks?|convert|calculate|what is|how much)\b|%/.test(low+" "+q)||/^\s*[\d.]+\s*(\/|out of|over)\s*[\d.]+\s*\??\s*$/i.test(q))){ var p=+m[1]/+m[2]*100; return A(m[1]+" out of "+m[2],'<div class="mi-ans-kpis">'+kpi("Percentage",Math.round(p*10)/10+"%",p>=60?TEAL:p>=33?AMBER:CORAL)+kpi("Grade",gradeOf(p))+'</div>'+(p<PASSMARK?'<div class="mi-ans-sub">The pass mark is '+PASSMARK+'%.</div>':""),"calc"); }
+    var av=q.match(/\b(?:average|mean|avg)\b[^0-9]*((?:\d+(?:\.\d+)?[\s,]*(?:and\s*)?){2,})/i);
+    if(av){ var nums=(av[1].match(/\d+(?:\.\d+)?/g)||[]).map(Number); if(nums.length>=2){ var sum=nums.reduce(function(a,b){ return a+b; },0); return A("Average of "+nums.join(", "),'<div class="mi-ans-kpis">'+kpi("Average",Math.round(sum/nums.length*100)/100)+kpi("Total",Math.round(sum*100)/100)+kpi("Highest",Math.max.apply(null,nums))+kpi("Lowest",Math.min.apply(null,nums))+'</div>',"calc"); } }
+    var g=low.match(/\b(?:what|which) grade\b.*?\b(\d{1,3}(?:\.\d+)?)\b|\bgrade (?:for|of|is)\b.*?\b(\d{1,3}(?:\.\d+)?)\b/);
+    if(g){ var v=+(g[1]||g[2]); if(v<=100) return A(v+"% is grade "+gradeOf(v),'<div class="mi-ans-kpis">'+kpi("Percentage",v+"%")+kpi("Grade",gradeOf(v),v>=60?TEAL:v>=33?AMBER:CORAL)+'</div>',"calc"); }
+    return null;
+  }
+  function ans_today(){ var d=new Date(),t=todayISO(); return A(DAYS[d.getDay()]+", "+fmtD(t),(window.miAuto&&miAuto.isAutoHoliday(t))?'<div class="mi-ans-sub" style="color:'+AMBER+'"><b>🏖️ Sunday — automatic holiday.</b></div>':'<div class="mi-ans-sub">'+d.toLocaleTimeString("en-IN",{hour:"2-digit",minute:"2-digit"})+'</div>',"date"); }
+  function ans_files(subs){
+    var f=(db("files")||[]).slice(),rows=f.filter(function(x){ return !subs.length||subs.indexOf(x.subject)>-1; }).slice(-5).reverse();
+    return A(subs.length?"Latest "+subjName(subs[0])+" uploads":"Latest uploads",rows.length?rows.map(function(x){ return item(esc(x.title),(x.subject?esc(subjName(x.subject))+" · ":"")+esc(x.type||"file")+" · "+esc(x.uploader||"")+" · "+esc(x.date||""),""); }).join("")+'<div class="mi-ans-acts">'+actBtn("Open Subjects",function(){ closeAsk(); goLabel(/subject/i); })+'</div>':'<div class="mi-empty">No files have been uploaded yet.</div>',"files");
+  }
+  function ans_sotm(){
+    var r=(db("studentOfMonth")||[]).slice().sort(function(a,b){ return String(b.monthKey).localeCompare(String(a.monthKey)); });
+    if(!r.length) return A("Student of the Month",'<div class="mi-empty">No winner has been announced yet.</div>',"sotm");
+    return A("Student of the Month",r.slice(0,5).map(function(x,i){ return item((i===0?"🏆 ":"")+esc(x.name),esc(x.monthLabel||x.monthKey)+" · average "+(x.marksAvgPct==null?"—":x.marksAvgPct+"%")+(x.attendancePct==null?"":" · attendance "+x.attendancePct+"%"),(typeof somCertificate==="function")?actBtn("📜 Certificate",function(){ somCertificate(x.id); }):""); }).join(""),"sotm");
+  }
+  function ans_classteacher(){ return A("Class teacher",'<div class="mi-ans-kpis">'+kpi("Class teacher",esc(teacherName()))+kpi("Class","X — SBS")+'</div><div class="mi-ans-sub">USCD DAV Public School</div>',"classteacher"); }
+  /* staff: attendance analytics */
+  function ans_streak(low){
+    var n=+((low.match(/\b(\d{1,2}) (?:days|day)\b/)||[])[1])||2,list=streaks().filter(function(s){ return s.n>=n; });
+    return A("Absent "+n+"+ days in a row"+(list.length?" ("+list.length+")":""),list.length?list.slice(0,10).map(function(s){ return item(esc(s.name),"",'<b style="color:'+CORAL+'">'+s.n+' days</b>')+""; }).join(""):'<div class="mi-empty">Nobody has been absent '+n+' or more days in a row.</div>',"streak");
+  }
+  function ans_bestatt(){
+    var M=all(),rows=Object.keys(M).map(function(k){ return M[k]; }).filter(function(x){ return x.att!==null; }).sort(function(a,b){ return b.att-a.att; }),perfect=rows.filter(function(x){ return x.att===100; });
+    return A(perfect.length?perfect.length+" student"+(perfect.length>1?"s have":" has")+" 100% attendance":"Best attendance",(perfect.length?'<div class="mi-ans-sub">'+nameList(perfect.map(function(x){ return x.name; }),15)+'</div>':rows.slice(0,3).map(function(x){ return item(esc(x.name),"",'<b style="color:'+TEAL+'">'+x.att+'%</b>'); }).join("")),"bestatt");
+  }
+  function ans_classatt(low){
+    var P=periodOfLow(low),a=attRange(P.from,P.to); if(a.pct===null) return A("Class attendance",'<div class="mi-empty">No attendance recorded for '+P.label+'.</div>',"classatt");
+    return A("Class attendance — "+P.label,'<div class="mi-ans-kpis">'+kpi("Attendance",Math.round(a.pct)+"%",a.pct>=90?TEAL:a.pct>=75?AMBER:CORAL)+kpi("Days recorded",a.days)+kpi("Absences",a.a,CORAL)+'</div>',"classatt");
+  }
+  function ans_weekday(){
+    var a=attRange("0000-00-00","9999-99-99"),rows=[1,2,3,4,5,6].map(function(d){ return {name:DAYS[d],c:a.byDay[d]}; }),mx=Math.max.apply(null,rows.map(function(r){ return r.c; }));
+    if(!mx) return A("Absences by weekday",'<div class="mi-empty">No absences recorded yet.</div>',"weekday");
+    var worst=rows.slice().sort(function(x,y){ return y.c-x.c; })[0];
+    return A("Most absences fall on "+worst.name+"s",rows.map(function(r,i){ return '<div class="mi-row"><span class="n">'+r.name+'</span><div class="t"><i style="width:'+Math.round(r.c/mx*100)+'%;background:'+(r===worst?CORAL:AMBER)+';animation-delay:'+(0.2+i*0.07)+'s"></i></div><span class="p" style="color:'+(r===worst?CORAL:AMBER)+'">'+r.c+'</span></div>'; }).join(""),"weekday");
+  }
+  /* staff: exam analytics */
+  function ans_gradedist(exam){
+    var r=examRanking(exam); if(!r.length) return A("Grade distribution",'<div class="mi-empty">No results for that exam.</div>',"gradedist");
+    var order=["A+","A","B+","B","C","D","F"],cnt={}; order.forEach(function(g){ cnt[g]=0; }); r.forEach(function(x){ cnt[gradeOf(x.avg)]++; });
+    return A("Grade distribution — "+esc(exam),order.map(function(g,i){ var c=cnt[g],col=g==="F"?CORAL:g==="D"?AMBER:TEAL; return '<div class="mi-row"><span class="n">Grade '+g+'</span><div class="t"><i style="width:'+Math.round(c/r.length*100)+'%;background:'+col+';animation-delay:'+(0.2+i*0.07)+'s"></i></div><span class="p" style="color:'+col+'">'+c+'</span></div>'; }).join("")+'<div class="mi-ans-sub">Based on each student\'s overall average ('+r.length+' students).</div>',"gradedist");
+  }
+  function ans_examtop(exam,low){
+    var r=examRanking(exam); if(!r.length) return A("Exam",'<div class="mi-empty">No results recorded for that exam.</div>',"examtop");
+    var me=user();
+    if(!isStaff()){ var i=r.findIndex(function(x){ return me&&x.id===me.id; }); return A("Your position in "+esc(exam),i<0?'<div class="mi-empty">You have no marks in this exam.</div>':'<div class="mi-ans-kpis">'+kpi("Position","#"+(i+1)+"<small> of "+r.length+"</small>")+kpi("Average",Math.round(r[i].avg)+"%")+'</div><div class="mi-ans-sub">Other students\' names and scores are private.</div>',"examtop"); }
+    var lowq=/\b(lowest|bottom|weakest student|last)\b/.test(low),list=lowq?r.slice(-3).reverse():r.slice(0,3);
+    return A((lowq?"Lowest scorers":"Toppers")+" — "+esc(exam),list.map(function(x,i){ return item("#"+(lowq?r.length-i:i+1)+" "+esc(x.name),"Average "+Math.round(x.avg)+"%",actBtn("Report",function(){ openReport(x.id); closeAsk(); })); }).join(""),"examtop");
+  }
+  function ans_passrate(exam,subs){
+    var rs=(db("results")||[]).filter(function(r){ return r.test===exam&&r.studentMarks&&r.max&&(!subs.length||subs.indexOf(r.subject)>-1); }),by={};
+    rs.forEach(function(r){ r.studentMarks.forEach(function(m){ if(m.absent||m.marks==null) return; var o=by[r.subject]||(by[r.subject]={n:0,p:0,add:isAdd(r)}); o.n++; if(m.marks/r.max*100>=PASSMARK) o.p++; }); });
+    var rows=Object.keys(by).map(function(k){ return {name:subjName(k),pct:Math.round(by[k].p/by[k].n*100),n:by[k].n,p:by[k].p,add:by[k].add}; });
+    if(!rows.length) return A("Pass percentage",'<div class="mi-empty">No results for that selection.</div>',"passrate");
+    return A("Pass percentage — "+esc(exam),barRows(rows,function(r){ return r.add?AMBER:r.pct<80?CORAL:TEAL; })+'<div class="mi-ans-sub">Pass mark '+PASSMARK+'%.</div>',"passrate");
+  }
+  function ans_houses(){
+    var M=all(),by={}; students().forEach(function(s){ var m=M[s.id]; if(!s.house||!m) return; var o=by[s.house]||(by[s.house]={a:[],t:[],n:0}); o.n++; if(m.avg!==null) o.a.push(m.avg); if(m.att!==null) o.t.push(m.att); });
+    var H=[]; try{ H=HOUSES; }catch(e){}
+    var rows=Object.keys(by).map(function(id){ var h=H.find(function(x){ return x.id===id; })||{name:id,color:TEAL},o=by[id]; return {name:h.name,color:h.color,avg:o.a.length?Math.round(mean(o.a)):null,att:o.t.length?Math.round(mean(o.t)):null,n:o.n,id:id}; }).sort(function(a,b){ return (b.avg||0)-(a.avg||0); });
+    if(!rows.length) return A("House standings",'<div class="mi-empty">Houses have not been assigned yet.</div>',"houses");
+    var me=(db("students")||[]).find(function(s){ return user()&&s.id===user().id; });
+    return A("House standings",rows.map(function(h,i){ return item("#"+(i+1)+" "+'<span style="color:'+h.color+'">'+esc(h.name)+'</span>'+(me&&me.house===h.id?" (your house)":""),h.n+(h.n===1?" student":" students")+" · attendance "+(h.att===null?"—":h.att+"%"),'<b style="color:'+h.color+'">'+(h.avg===null?"—":h.avg+"%")+'</b>'); }).join("")+'<div class="mi-ans-sub">Ranked by average marks.</div>',"houses");
+  }
+  function ans_parent(stus,low){
+    if(/\b(no|without|missing)\b/.test(low)){ var miss=students().filter(function(s){ return !s.parentMobile; }); return A("Parent mobile missing"+(miss.length?" ("+miss.length+")":""),miss.length?'<div class="mi-ans-sub">'+nameList(miss.map(function(s){ return s.name; }),15)+'</div>':'<div class="mi-empty">Every student has a parent mobile number. 🎉</div>',"parent"); }
+    if(!stus.length) return A("Parent contact",'<div class="mi-ans-sub">Tell me whose parent, for example “Parent mobile of Riya”.</div>',"parent");
+    var s=stus[0],p=s.parentMobile;
+    return A("Parent of "+esc(s.name),p?'<div class="mi-ans-kpis">'+kpi("Mobile",'<a href="tel:'+esc(p)+'" style="color:'+TEAL+'">'+esc(p)+'</a>')+'</div>':'<div class="mi-empty">No parent mobile is saved for '+esc(s.name)+'.</div>',"parent");
+  }
+  function ans_whyrisk(s,self){
+    var m=metrics(s.id); if(!m||m.score===null) return A("Risk breakdown",'<div class="mi-empty">Not enough data yet.</div>',"whyrisk");
+    var rows=m.comps.map(function(c){ var col=c.risk<30?TEAL:c.risk<55?AMBER:CORAL; return '<div class="mi-row"><span class="n">'+esc(c.n)+'</span><div class="t"><i style="width:'+c.risk+'%;background:'+col+'"></i></div><span class="p" style="color:'+col+'">'+c.risk+'</span></div>'; }).join("");
+    return A((self?"Your risk":esc(s.name)+" — risk")+": "+m.score+" ("+m.level+")",rows+(m.reasons.length?'<ul class="mi-ans-ul">'+m.reasons.map(function(x){ return "<li>"+esc(x)+"</li>"; }).join("")+'</ul>':'<div class="mi-ans-sub">Everything looks healthy.</div>')+'<div class="mi-ans-sub">Each bar is 0–100; the score is a weighted mix (marks 40%, trend 20%, attendance 25%, copies 15%).</div>',"whyrisk");
+  }
+  function ans_copydef(low){
+    var n=+((low.match(/\b(\d{1,2})\b/)||[])[1])||2,M=all(),rows=Object.keys(M).map(function(k){ return M[k]; }).filter(function(x){ return x.miss>=n; }).sort(function(a,b){ return b.miss-a.miss; });
+    return A("Missed "+n+"+ copies"+(rows.length?" ("+rows.length+")":""),rows.length?rows.slice(0,10).map(function(x){ return item(esc(x.name),"",'<b style="color:'+CORAL+'">'+x.miss+' of '+x.copies+'</b>'); }).join(""):'<div class="mi-empty">Nobody has missed '+n+' or more copies.</div>',"copydef");
+  }
+  /* student-only */
+  function ans_myprogress(self){
+    var order=examNames(),rows=[]; order.forEach(function(ex){ var v=[]; (db("results")||[]).forEach(function(r){ if(r.test!==ex||isAdd(r)||!r.studentMarks||!r.max) return; var m=r.studentMarks.find(function(x){ return x.studentId===self.id; }); if(m&&!m.absent&&m.marks!=null) v.push(m.marks/r.max*100); }); if(v.length) rows.push({name:ex,pct:Math.round(mean(v))}); });
+    if(rows.length<1) return A("Your progress",'<div class="mi-empty">No marks yet.</div>',"myprogress");
+    var d=rows.length>1?rows[rows.length-1].pct-rows[0].pct:null;
+    return A("Your progress over time",barRows(rows,function(r){ return r.pct>=60?TEAL:r.pct>=40?AMBER:CORAL; })+(d===null?"":'<div class="mi-ans-sub">'+(d>0?'You have improved by <b style="color:'+TEAL+'">'+d+' points</b> since '+esc(rows[0].name)+'. Keep going!':d<0?'Your average is <b style="color:'+CORAL+'">'+(-d)+' points lower</b> than in '+esc(rows[0].name)+'. Let us work on it — ask me for a study plan.':'Your average is steady.')+'</div>'),"myprogress");
+  }
+  function ans_myatt(self,low){
+    var P=periodOfLow(low),att=db("studentAttendance")||{},p=0,a=0,abs=[];
+    Object.keys(att).sort().forEach(function(d){ if(d<P.from||d>P.to) return; var v=att[d][self.id]; if(v==="present") p++; else if(v==="absent"){ a++; abs.push(d); } });
+    return A("Your attendance — "+P.label,(p+a)?'<div class="mi-ans-kpis">'+kpi("Attendance",Math.round(p/(p+a)*100)+"%",p/(p+a)>=.9?TEAL:p/(p+a)>=.75?AMBER:CORAL)+kpi("Present",p,TEAL)+kpi("Absent",a,a?CORAL:"")+'</div>'+(abs.length?'<div class="mi-ans-sub">Absent on: '+abs.slice(-10).map(function(d){ return esc(fmtD(d)); }).join(", ")+'</div>':'<div class="mi-ans-sub">No absences. 🎉</div>'):'<div class="mi-empty">No attendance recorded for '+P.label+'.</div>',"myatt");
+  }
+  function ans_subjvsclass(self,subs){
+    var mine=[],cls=[]; (db("results")||[]).forEach(function(r){ if(subs.indexOf(r.subject)<0||!r.studentMarks||!r.max) return; r.studentMarks.forEach(function(m){ if(m.absent||m.marks==null) return; var p=m.marks/r.max*100; cls.push(p); if(m.studentId===self.id) mine.push(p); }); });
+    if(!mine.length) return A(subjName(subs[0]),'<div class="mi-empty">You have no marks in this subject yet.</div>',"subjvsclass");
+    var a=Math.round(mean(mine)),c=Math.round(mean(cls)),d=a-c;
+    return A("You vs the class — "+esc(subjName(subs[0])),'<div class="mi-ans-kpis">'+kpi("You",a+"%",TEAL)+kpi("Class average",c+"%",VIOLET)+kpi("Difference",(d>0?"▲ ":d<0?"▼ ":"")+Math.abs(d),d>=0?TEAL:CORAL)+'</div><div class="mi-ans-sub">'+(d>=5?"You are ahead of the class average here. 👏":d<=-5?"You are below the class average — a little extra practice will help.":"You are about level with the class average.")+'</div>',"subjvsclass");
+  }
+
+  function moreIntents2(q,low,x){
+    var staff=x.staff,me=x.me,subs=x.subs,exams=x.exams,stus=x.stus;
+    var self=(!staff&&me)?(db("students")||[]).find(function(s){ return s.id===me.id; }):null;
+    if(!exams.length&&/\b(last|latest|recent|this|current)\b[^.?!]*\b(exam|test|examination)\b/.test(low)){ var oo=examNames(); if(oo.length) exams=[oo[oo.length-1]]; }
+    /* both roles */
+    if(/\b(brief me|briefing|daily brief|good (morning|afternoon|evening)|what s (happening|up|new)|what is happening|my day|plan my day|today s summary|summary of today|catch me up)\b/.test(low)) return ans_brief();
+    if(/\b(what should i (do|focus|work on)|suggest\w*|priorit\w*|action items?|to do list|todo|what needs (my )?attention|recommend\w*|what to do)\b/.test(low)&&!/\breport\b/.test(low)) return ans_suggest();
+    var c=ans_calc(q,low); if(c) return c;
+    if(/\b(explain|how (is|does|are|do)|what (is|does|are)|meaning|calculated|works?|why)\b/.test(low)&&((/\brisk\b/.test(low)&&!stus.length&&!/\b(my|me)\b/.test(low))||(/\bhealth\b/.test(low)&&!stus.length)||/\b(pass mark|passing marks?|grading (scale|system)|grade scale|what are the grades)\b/.test(low)||(!staff&&/\b(blur\w*|hidden|private|masked)\b/.test(low)))) return ans_explain(low);
+    if(/\b(who is (my|the|our) class teacher|class teacher)\b/.test(low)&&!/\b(report|leave)\b/.test(low)) return ans_classteacher();
+    if(/\b(what (is )?(the )?(date|day)|today s date|which day is it|what day is (it|today)|current date)\b/.test(low)) return ans_today();
+    if(/\b(latest|recent|new)\b[^.?!]*\b(files?|uploads?|notes|materials?|resources?|pdfs?)\b/.test(low)||/\b(study )?(material|notes)s? (for|of) \w+/.test(low)) return ans_files(subs);
+    if(/\bstudent of (the )?month\b|\bsotm\b|\bmonthly (winner|topper)\b|\bpast winners\b/.test(low)) return ans_sotm();
+    if(/\bhouse\b|\bhouses\b/.test(low)&&/\b(standing|standings|ranking|rank|leading|winning|points|score|best|top|which|compare)\b/.test(low)) return ans_houses();
+    if(/\b(passed|pass (percentage|percent|rate)|how many (students )?(passed|failed))\b/.test(low)&&!/\bpass mark\b/.test(low)){ var ex0=exams[0]||latestExam(); if(ex0) return ans_passrate(ex0,subs); }
+    if(/\b(who|which)\b[^.?!]*\b(topped|topper|toppers|top scorer|highest score|lowest score|lowest scorer|came first|scored (the )?(most|highest|least|lowest))\b|\b(topper|toppers|top scorer|lowest scorer) (of|in)\b/.test(low)&&exams.length&&!subs.length) return ans_examtop(exams[0],low);
+    if(!staff&&exams.length&&/\b(my )?(position|rank|where do i stand)\b/.test(low)) return ans_examtop(exams[0],low);
+    /* staff */
+    if(staff){
+      if(/\b(consecutive|continuous|continuously|in a row|back to back|straight)\b/.test(low)&&/\b(absent|absence|absences|days)\b/.test(low)||/\babsent for \d+ days\b/.test(low)) return ans_streak(low);
+      if(/\b(perfect|full|best|highest|hundred|100)\b[^.?!]*\battendance\b|\bnever (been )?absent\b/.test(low)) return ans_bestatt();
+      if(/\b(class|overall|average|total|whole)\b[^.?!]*\battendance\b|\battendance (rate|percentage|percent)\b/.test(low)&&!/\b(below|under|above|over)\b/.test(low)) return ans_classatt(low);
+      if(/\b(which|what) day\b[^.?!]*\b(absent|absences|absence|attendance)\b|\b(absent|absences?) by (day|weekday)\b|\bworst day\b/.test(low)) return ans_weekday();
+      if(/\b(grade|grades|score|marks|result|results)\b[^.?!]*\b(distribution|breakdown|spread)\b|\bdistribution\b/.test(low)){ var e1=exams[0]||latestExam(); if(e1) return ans_gradedist(e1); }
+      if(/\b(parent|guardian|father|mother)\b[^.?!]*\b(mobile|phone|number|contact)\b|\b(mobile|phone|contact)\b[^.?!]*\b(parent|guardian)\b/.test(low)) return ans_parent(stus,low);
+      if(/\bwhy\b[^.?!]*\b(risk|flagged|attention|worried)\b/.test(low)&&stus.length===1) return ans_whyrisk(stus[0],false);
+      if(/\b(missed|not submitted|pending|defaulters?|not submit\w*)\b[^.?!]*\bcop(y|ies)\b|\bcopy defaulters\b/.test(low)&&/\b(more than|at least|over|above|\d)\b|\bdefaulters?\b/.test(low)) return ans_copydef(low);
+    }
+    /* students (own data only) */
+    if(self){
+      if(/\bwhy\b[^.?!]*\b(risk|attention|flagged)\b|\bmy risk\b/.test(low)) return ans_whyrisk(self,true);
+      if(/\b(am i improving|my progress|how (has|have) my (marks|average|score|results?) (changed|been)|my (marks )?trend|improving|improved)\b/.test(low)&&!subs.length) return ans_myprogress(self);
+      if((/\battendance\b/.test(low)&&/\b(month|week|today|details|absent|absences|days)\b/.test(low))||/\bwhen (was|were) i absent\b|\bdays (i )?(was|were) absent\b/.test(low)) return ans_myatt(self,low);
+      if(subs.length&&/\b(compare\w*|class|others|classmates|average|vs|versus)\b/.test(low)&&!/\bmy marks\b/.test(low)) return ans_subjvsclass(self,subs);
+    }
+    return null;
+  }
+
   function ask(q){
     ACTS=[]; q=String(q||"").trim(); var low=norm(q); if(!low||(!isStaff()&&!isStudent())) return null;
     var staff=isStaff(), subs=findSubjects(low,q), exams=findExams(low), stus=findStudents(low), me=user();
@@ -11350,6 +11589,7 @@ function _ttSubjectOptions(row){
     if(stus.length===1&&staff) CTX.student=stus[0].id;
     if(window.miReport){ var rr=window.miReport.interpret(q,low,{staff:staff,me:me,subs:subs,exams:exams,stus:stus,ctx:CTX}); if(rr) return rr; }
     var more=moreIntents(q,low,{staff:staff,me:me,subs:subs,exams:exams,stus:stus}); if(more) return more;
+    var more2=moreIntents2(q,low,{staff:staff,me:me,subs:subs,exams:exams,stus:stus}); if(more2) return more2;
     if(/\bhow many students\b/.test(low)){ var n=students().length; return A("Students",'<div class="mi-ans-kpis"><div><span>Registered</span><b data-count="'+n+'">'+n+'</b></div></div>',"count"); }
     if(/\b(next|upcoming) (exam|test)\b|\bwhen is (the )?(next )?(exam|test)\b|\bexam (date|schedule)\b/.test(low)) return ans_exam();
     if(/\b(compare|comparison|versus|vs|difference between)\b/.test(low)) return ans_compare(low,exams);
@@ -11947,6 +12187,138 @@ function _ttSubjectOptions(row){
   function start(){ attach(); run(); setInterval(function(){ if(me()) run(); },2000); }
   if(document.readyState==="loading") document.addEventListener("DOMContentLoaded",start); else start();
   window.miPrivacy={run:run};
+})();
+
+</script>
+<script>
+/* ═══════════════════════════════════════════════════════════════════════
+   1) SUNDAY = AUTOMATIC HOLIDAY — no attendance is needed on a Sunday that has no records.
+      (A teacher can still take attendance on a Sunday, e.g. a special class — it is then treated like any other day.)
+   2) AUTO-ABSENT — students marked absent on a date are set to Absent automatically in
+      marks entry (AB) and in copy collection for that date. Every automatic change can be undone:
+      tap the entry again, use "Undo all", or change the attendance — copy records follow the attendance.
+   Nothing here changes how attendance percentages, marks or ranks are calculated.
+   ═══════════════════════════════════════════════════════════════════════ */
+(function(){
+  "use strict";
+  function $(id){ return document.getElementById(id); }
+  function db(k){ try{ return DB.get(k)||null; }catch(e){ return null; } }
+  function iso(d){ try{ return dmyToISO(d)||""; }catch(e){ return ""; } }
+  function esc(s){ return String(s==null?"":s).replace(/[&<>"]/g,function(c){ return {"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]; }); }
+  function students(){ return (db("students")||[]).slice(); }
+  function fmt(d){ return d?new Date(d+"T00:00:00Z").toLocaleDateString("en-IN",{day:"numeric",month:"short",year:"numeric",timeZone:"UTC"}):""; }
+
+  /* ───────── Sunday holiday ───────── */
+  var _over={};
+  function isSunday(d){ return !!d&&new Date(d+"T00:00:00Z").getUTCDay()===0; }
+  function hasRecord(d){ var a=(db("studentAttendance")||{})[d]; return !!(a&&Object.keys(a).length); }
+  function isAutoHoliday(d){ return isSunday(d)&&!hasRecord(d)&&!_over[d]; }
+  function absentOn(d){ var a=(db("studentAttendance")||{})[d]; return a?Object.keys(a).filter(function(id){ return a[id]==="absent"; }):[]; }
+
+  var _busy=false,_obs=null;
+  function sundayUI(){
+    var rc=$("studentRollCall"),dEl=$("attDate"); if(!rc||!dEl||_busy) return;
+    var d=dEl.value, save=document.querySelector('button[onclick="saveStudentAttendance()"]');
+    _busy=true; if(_obs) _obs.disconnect();
+    try{
+      if(isAutoHoliday(d)){
+        if(!rc.querySelector(".mi-sunday")) rc.innerHTML='<div class="mi-sunday"><div class="mi-sunday-t">🏖️ Sunday — automatic holiday</div><div class="mi-sunday-s">'+esc(fmt(d))+' is a Sunday, so attendance is not needed. It is not counted as present or absent for anyone.</div><button class="btn btn-outline btn-sm" onclick="miAuto.takeAnyway()">Take attendance anyway (special class)</button></div>';
+        if(save) save.style.display="none";
+      } else if(save) save.style.display="";
+    }finally{ _busy=false; if(_obs&&rc) _obs.observe(rc,{childList:true}); }
+  }
+  function takeAnyway(){ var d=($("attDate")||{}).value; if(d){ _over[d]=true; try{ renderStudentRollCall(); }catch(e){} } }
+
+  /* ───────── notes shown above the sheets ───────── */
+  function note(hostId,n,date,kind){
+    var host=$(hostId); if(!host||!host.parentNode) return;
+    var old=host.parentNode.querySelector('.mi-autonote[data-kind="'+kind+'"]'); if(old) old.parentNode.removeChild(old);
+    if(!n) return;
+    var el=document.createElement("div"); el.className="mi-autonote"; el.setAttribute("data-kind",kind); el.setAttribute("data-mi","");
+    el.innerHTML='<span>🤖 <b>'+n+' student'+(n>1?"s were":" was")+' absent on '+esc(fmt(date))+'</b> and '+(n>1?"are":"is")+' marked absent automatically. Change any entry to undo it, or</span> <button class="btn btn-outline btn-sm" onclick="miAuto.undo(\''+kind+'\')">↩️ Undo all</button>';
+    host.parentNode.insertBefore(el,host);
+  }
+
+  /* ───────── marks entry: single subject ───────── */
+  function autoSingle(){
+    var t; try{ t=currentResTest; }catch(e){ return; } if(!t||t._miAuto) return; t._miAuto=true;
+    var d=iso(t.date); if(!d) return; var n=0;
+    absentOn(d).forEach(function(sid){ var inp=$("marks_"+sid); if(inp&&!inp.disabled&&inp.value===""){ toggleAbsent(sid); var b=$("absBtn_"+sid); if(b) b.setAttribute("data-auto","1"); n++; } });
+    note("studentMarksGrid",n,d,"single");
+  }
+  /* ───────── marks entry: multi-subject exam ───────── */
+  function autoMulti(){
+    var st; try{ st=multiExamState; }catch(e){ return; } if(!st||st._miAuto) return; st._miAuto=true;
+    var d=iso(st.date); if(!d) return; var who={};
+    absentOn(d).forEach(function(sid){ (st.subjects||[]).forEach(function(sub){ var inp=$("mmk_"+sid+"_"+sub.id); if(inp&&inp.value===""&&!isSubjAbsent(sid,sub.id)){ toggleMultiSubjAbsent(sid,sub.id); var b=$("mab_"+sid+"_"+sub.id); if(b) b.setAttribute("data-auto","1"); who[sid]=1; } }); });
+    note("multiMarksGrid",Object.keys(who).length,d,"multi");
+  }
+  /* ───────── copy collection ───────── */
+  var _autoCopy={};
+  function autoCopy(id){
+    var s=(db("copySessions")||[]).find(function(x){ return x.id===id; }); if(!s) return;
+    var d=iso(s.date); _autoCopy={}; if(!d){ note("copyStudentGrid",0,d,"copy"); return; }
+    var n=0; absentOn(d).forEach(function(sid){ if((s.status||{})[sid]===undefined&&pendingCopyStatus[sid]===undefined){ pendingCopyStatus[sid]="absent"; _autoCopy[sid]=1; n++; } });
+    if(n){ try{ renderCopyStudentGrid(s); }catch(e){} try{ updateCopyStats(); }catch(e){} }
+    note("copyStudentGrid",n,d,"copy");
+  }
+  function markSavedCopy(id){
+    var sessions=db("copySessions")||[],s=sessions.find(function(x){ return x.id===id; }); if(!s||!s.status) return; var ch=false;
+    Object.keys(_autoCopy).forEach(function(sid){ if(s.status[sid]==="absent"){ (s.autoAbsent=s.autoAbsent||{})[sid]=true; ch=true; } });
+    if(ch) DB.set("copySessions",sessions);
+  }
+  /* copy records follow the attendance: newly absent → Absent (when nothing was marked); no longer absent → the automatic Absent is removed */
+  function syncCopy(date){
+    if(!date) return; var sessions=db("copySessions")||[],absent={},ch=0; absentOn(date).forEach(function(id){ absent[id]=1; });
+    sessions.forEach(function(s){
+      if(iso(s.date)!==date) return; s.status=s.status||{}; s.autoAbsent=s.autoAbsent||{};
+      students().forEach(function(st){ var id=st.id;
+        if(absent[id]){ if(s.status[id]===undefined){ s.status[id]="absent"; s.autoAbsent[id]=true; ch++; } }
+        else if(s.autoAbsent[id]){ if(s.status[id]==="absent") delete s.status[id]; delete s.autoAbsent[id]; ch++; }
+      });
+    });
+    if(ch){ DB.set("copySessions",sessions); try{ logAudit("Attendance","edit",date,null,"Copy records updated automatically from attendance ("+ch+" change"+(ch>1?"s":"")+")"); }catch(e){} }
+  }
+
+  function undo(kind){
+    if(kind==="single"||kind==="multi"){
+      var root=$(kind==="single"?"studentMarksGrid":"multiMarksGrid"); if(!root) return;
+      Array.prototype.forEach.call(root.querySelectorAll('[data-auto="1"]'),function(b){
+        var on=kind==="single"?(($("marks_"+b.id.replace("absBtn_",""))||{}).disabled):b.getAttribute("data-absent")==="1";
+        b.removeAttribute("data-auto"); if(on) b.click();
+      });
+      var nt=root.parentNode&&root.parentNode.querySelector('.mi-autonote[data-kind="'+kind+'"]'); if(nt&&nt.parentNode) nt.parentNode.removeChild(nt);
+    } else if(kind==="copy"){
+      Object.keys(_autoCopy).forEach(function(sid){ if(pendingCopyStatus[sid]==="absent") delete pendingCopyStatus[sid]; });
+      _autoCopy={}; var s=(db("copySessions")||[]).find(function(x){ return x.id===currentCopySessionId; }); if(s){ try{ renderCopyStudentGrid(s); updateCopyStats(); }catch(e){} }
+      var n2=document.querySelector('.mi-autonote[data-kind="copy"]'); if(n2&&n2.parentNode) n2.parentNode.removeChild(n2);
+    }
+    try{ showToast("↩️ Automatic absences undone"); }catch(e){}
+  }
+
+  /* ───────── hook into the existing functions without changing them ───────── */
+  function wrap(name,after){
+    var o=window[name]; if(typeof o!=="function"||o._miWrapped) return;
+    var w=function(){ var r=o.apply(this,arguments); try{ after.apply(this,arguments); }catch(e){} return r; }; w._miWrapped=true; window[name]=w;
+  }
+  function wrapAsync(name,dateOf){
+    var o=window[name]; if(typeof o!=="function"||o._miWrapped) return;
+    var w=async function(){ var d=dateOf.apply(this,arguments), r=await o.apply(this,arguments); try{ syncCopy(d); }catch(e){} return r; }; w._miWrapped=true; window[name]=w;
+  }
+  function install(){
+    wrap("renderStudentMarksGrid",autoSingle);
+    wrap("renderMultiMarksGrid",autoMulti);
+    wrap("openCopyDetail",function(id){ autoCopy(id); });
+    wrap("saveCopySession",function(){ markSavedCopy(currentCopySessionId); });
+    wrap("markAllAtt",function(){ var d=($("attDate")||{}).value; if(d&&isSunday(d)&&!hasRecord(d)){ _over[d]=true; } });
+    wrapAsync("saveStudentAttendance",function(){ return ($("attDate")||{}).value; });
+    wrapAsync("saveEditedAtt",function(){ return ($("editAttDate")||{}).value; });
+    wrapAsync("delDayAtt",function(d){ return d; });
+    var rc=$("studentRollCall"); if(rc){ _obs=new MutationObserver(function(){ sundayUI(); }); _obs.observe(rc,{childList:true}); sundayUI(); }
+    var de=$("attDate"); if(de) de.addEventListener("change",function(){ setTimeout(sundayUI,0); });
+  }
+  if(document.readyState==="loading") document.addEventListener("DOMContentLoaded",install); else install();
+  window.miAuto={isSunday:isSunday,isAutoHoliday:isAutoHoliday,absentOn:absentOn,takeAnyway:takeAnyway,undo:undo,syncCopy:syncCopy};
 })();
 
 </script>
