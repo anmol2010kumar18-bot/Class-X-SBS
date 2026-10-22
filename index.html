@@ -1047,6 +1047,105 @@ html,body{font-family:'Sora','DM Sans',sans-serif}
 }
 @media print{.site-footer{display:none !important}}
 </style>
+<style id="miaStyles">
+/* ===== AI Assistant page ===== */
+#page-ai_assistant.active>.mia-wrap{animation:none}
+.mia-wrap{display:grid;grid-template-columns:292px minmax(0,1fr);gap:14px;height:calc(100vh - 124px);height:calc(100dvh - 124px);min-height:480px}
+.mia-side{display:flex;flex-direction:column;gap:10px;min-height:0;padding:12px;background:var(--card);border:1px solid var(--border);border-radius:var(--r)}
+.mia-side-top{display:flex;gap:8px;align-items:center}
+.mia-new{flex:1;justify-content:center;padding:10px 14px !important;font-size:13px !important}
+.mia-x{display:none;background:transparent;border:1px solid rgba(255,255,255,.12);color:var(--off);border-radius:9px;width:38px;height:38px;cursor:pointer;font-size:14px}
+.mia-tabs{display:grid;grid-template-columns:1fr 1fr;gap:4px;padding:4px;border-radius:11px;background:rgba(255,255,255,.04)}
+.mia-tabs button{border:0;background:transparent;color:var(--off);font:600 12px Sora,"DM Sans",sans-serif;padding:8px 6px;border-radius:8px;cursor:pointer;display:flex;gap:6px;justify-content:center;align-items:center}
+.mia-tabs button.on{background:rgba(61,219,180,.14);color:var(--gold)}
+.mia-tabs b{font-size:10px;background:rgba(61,219,180,.2);color:var(--gold);border-radius:99px;padding:1px 7px}
+.mia-tabs b:empty{display:none}
+.mia-search{padding:9px 12px !important;font-size:12px !important}
+.mia-list{flex:1;min-height:0;overflow-y:auto;display:flex;flex-direction:column;gap:3px;scrollbar-width:thin;scrollbar-color:rgba(61,219,180,.25) transparent;padding-right:2px}
+.mia-grp{font-size:10px;letter-spacing:.12em;text-transform:uppercase;color:#9AA8C4;padding:12px 6px 4px}
+.mia-item{display:flex;align-items:center;gap:9px;padding:9px 6px 9px 10px;border-radius:11px;cursor:pointer;border:1px solid transparent;transition:background .15s ease,border-color .15s ease}
+.mia-item:hover{background:rgba(255,255,255,.05)}
+.mia-item.on{background:rgba(61,219,180,.1);border-color:rgba(61,219,180,.3)}
+.mia-ic{font-size:15px;flex:0 0 auto}
+.mia-it{display:flex;flex-direction:column;min-width:0;flex:1}
+.mia-it b{font-size:12.5px;font-weight:600;color:var(--white);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.mia-it small{font-size:10.5px;color:#9AA8C4;margin-top:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.mia-item-del{opacity:0;border:0;background:transparent;color:#9AA8C4;cursor:pointer;font-size:12px;padding:5px 7px;border-radius:6px;flex:0 0 auto}
+.mia-item:hover .mia-item-del,.mia-item:focus-within .mia-item-del{opacity:1}
+.mia-item-del:hover{color:#FF7A7A;background:rgba(255,122,122,.1)}
+@media(hover:none){.mia-item-del{opacity:.7}}
+.mia-empty{font-size:12px;color:#9AA8C4;text-align:center;line-height:1.7;padding:26px 10px}
+.mia-foot{display:flex;justify-content:space-between;align-items:center;gap:8px;font-size:10.5px;color:#9AA8C4;border-top:1px solid var(--border);padding-top:9px}
+.mia-link{background:transparent;border:0;color:#FF7A7A;cursor:pointer;font:600 11px Sora,"DM Sans",sans-serif;padding:2px 0;white-space:nowrap}
+.mia-scrim{display:none}
+.mia-main{display:flex;flex-direction:column;min-height:0;min-width:0;overflow:hidden;background:var(--card);border:1px solid var(--border);border-radius:var(--r)}
+.mia-head{display:flex;align-items:center;gap:10px;padding:11px 14px;border-bottom:1px solid var(--border);flex:0 0 auto}
+.mia-title{flex:1;min-width:0;font:700 14.5px Sora,"DM Sans",sans-serif;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.mia-head-acts{display:flex;gap:6px}
+.mia-head button{background:transparent;border:1px solid rgba(255,255,255,.12);color:var(--off);border-radius:9px;padding:6px 10px;cursor:pointer;font-size:12px}
+.mia-head button:hover{border-color:var(--gold);color:var(--gold)}
+.mia-hist{display:none}
+.mia-thread{flex:1;min-height:0;overflow-y:auto;padding:18px 18px 8px;display:flex;flex-direction:column;gap:14px;scrollbar-width:thin;scrollbar-color:rgba(61,219,180,.25) transparent}
+.mia-msg{display:flex;gap:10px;min-width:0}
+.mia-u{flex-direction:column;align-items:flex-end;gap:3px}
+.mia-bub{background:rgba(61,219,180,.14);border:1px solid rgba(61,219,180,.3);color:var(--white);padding:9px 14px;border-radius:14px 14px 4px 14px;max-width:min(560px,88%);font-size:13px;line-height:1.55;word-break:break-word;white-space:pre-wrap}
+.mia-time{font-size:10px;color:var(--muted)}
+.mia-av{flex:0 0 30px;height:30px;border-radius:50%;background:linear-gradient(135deg,var(--gold),var(--gold2));color:var(--navy);display:grid;place-items:center;font-size:14px;margin-top:2px}
+.mia-body{min-width:0;flex:1;max-width:780px}
+.mia-body .mi-ans{margin:0}
+.mia-tools{display:flex;gap:6px;margin-top:6px;opacity:.55;transition:opacity .2s}
+.mia-a:hover .mia-tools,.mia-tools:focus-within{opacity:1}
+@media(hover:none){.mia-tools{opacity:1}}
+.mia-tool{font:600 10.5px Sora,"DM Sans",sans-serif;padding:4px 9px;border-radius:8px;border:1px solid rgba(255,255,255,.12);background:transparent;color:#9AA8C4;cursor:pointer}
+.mia-tool:hover{border-color:var(--gold);color:var(--gold)}
+.mia-file{display:flex;gap:12px;align-items:flex-start;background:rgba(61,219,180,.06);border:1px solid rgba(61,219,180,.25);border-radius:12px;padding:10px;margin-top:8px}
+.mia-file img,.mia-fi img{width:54px;height:76px;object-fit:cover;object-position:top;border-radius:5px;background:#fff;flex:0 0 auto;box-shadow:0 4px 14px rgba(0,0,0,.35)}
+.mia-fi{display:flex;gap:10px;padding:9px;border-radius:11px;border:1px solid transparent}
+.mia-fi:hover{background:rgba(255,255,255,.04);border-color:var(--border)}
+.mia-fi-t{min-width:0;display:flex;flex-direction:column;gap:3px;flex:1}
+.mia-fi-t b{font-size:12.5px;line-height:1.35;overflow:hidden;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;word-break:break-word}
+.mia-fi-t small{font-size:10.5px;color:#9AA8C4;line-height:1.5}
+.mia-fi-a{display:flex;flex-wrap:wrap;gap:6px;margin-top:6px}
+.mia-fi-a button{font:600 11px Sora,"DM Sans",sans-serif;padding:5px 10px;border-radius:8px;border:1px solid rgba(61,219,180,.4);background:transparent;color:var(--gold);cursor:pointer}
+.mia-fi-a button:hover{background:rgba(61,219,180,.12)}
+.mia-fi-a .danger{border-color:rgba(255,122,122,.4);color:#FF7A7A}
+.mia-busy{display:flex;align-items:center;gap:10px;font-size:12px;color:#9AA8C4;margin-top:10px}
+.mia-busy i{width:16px;height:16px;border-radius:50%;border:2px solid rgba(61,219,180,.25);border-top-color:var(--gold);animation:miaSpin .8s linear infinite}
+@keyframes miaSpin{to{transform:rotate(360deg)}}
+.mia-welcome{margin:auto;max-width:860px;width:100%;text-align:center;padding:8px 0 18px}
+.mia-wl-ic{width:54px;height:54px;border-radius:16px;background:linear-gradient(135deg,var(--gold),var(--gold2));display:grid;place-items:center;font-size:26px;margin:0 auto 12px;box-shadow:0 10px 30px rgba(61,219,180,.25)}
+.mia-welcome h2{font:700 22px Sora,"DM Sans",sans-serif;margin:0 0 6px}
+.mia-welcome p{font-size:13px;color:#9AA8C4;max-width:520px;margin:0 auto 18px;line-height:1.6}
+.mia-wl-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(250px,1fr));gap:12px;text-align:left}
+.mia-wl-card{background:rgba(255,255,255,.03);border:1px solid var(--border);border-radius:14px;padding:12px 12px 8px}
+.mia-wl-h{font-size:10px;letter-spacing:.12em;text-transform:uppercase;color:var(--gold);margin:0 6px 8px}
+.mia-wl-card .mi-chipset{padding:0}
+.mia-wl-card .mi-qchip{text-align:left;font-size:11.5px;padding:6px 11px}
+.mia-compose{border-top:1px solid var(--border);padding:10px 14px 12px;flex:0 0 auto;display:flex;flex-direction:column;gap:8px}
+.mia-chips:empty{display:none}
+.mia-chips .mi-chipset{flex-wrap:nowrap;overflow-x:auto;padding:0 0 4px;scrollbar-width:none}
+.mia-chips .mi-qchip{white-space:nowrap;flex:0 0 auto}
+.mia-box{display:flex;align-items:flex-end;gap:8px;background:rgba(255,255,255,.05);border:1px solid var(--border);border-radius:14px;padding:6px 6px 6px 14px;transition:border-color .2s,box-shadow .2s}
+.mia-box:focus-within{border-color:var(--gold);box-shadow:0 0 0 3px rgba(61,219,180,.12)}
+.mia-box textarea{flex:1;min-width:0;resize:none;background:transparent;border:0;outline:0;color:var(--white);font:400 14px Sora,"DM Sans",sans-serif;line-height:1.5;padding:8px 0;max-height:130px}
+.mia-box .btn{width:38px;height:38px;padding:0 !important;justify-content:center;border-radius:11px;font-size:15px !important}
+.mia-box .btn:disabled{opacity:.35;cursor:default}
+.mia-hint{font-size:10.5px;color:var(--muted);text-align:center}
+.mi-full{font:600 11px Sora,sans-serif;padding:5px 10px;border-radius:8px;border:1px solid #2A3957;background:transparent;color:#9AA8C4;cursor:pointer;white-space:nowrap}
+.mi-full:hover{border-color:#3DDBB4;color:#3DDBB4}
+@media(max-width:820px){
+  .mia-wrap{grid-template-columns:minmax(0,1fr);height:calc(100vh - 112px);height:calc(100dvh - 112px)}
+  .mia-side{position:fixed;top:0;bottom:0;left:0;width:min(88vw,340px);z-index:420;border-radius:0 16px 16px 0;background:#121C32;transform:translateX(-105%);transition:transform .25s ease;box-shadow:0 0 40px rgba(0,0,0,.5);padding-top:calc(12px + env(safe-area-inset-top,0px))}
+  .mia-side.open{transform:none}
+  .mia-scrim.open{display:block;position:fixed;inset:0;background:rgba(5,9,18,.6);z-index:410}
+  .mia-x,.mia-hist{display:inline-flex;align-items:center;justify-content:center}
+  .mia-thread{padding:14px 12px 6px}
+  .mia-welcome h2{font-size:19px}
+  .mia-wl-grid{grid-template-columns:1fr}
+  .mia-hint{display:none}
+  .mia-file{flex-direction:row}
+}
+</style>
 </head>
 <body>
 
@@ -1125,6 +1224,7 @@ html,body{font-family:'Sora','DM Sans',sans-serif}
     </div>
     <div class="sb-section">Main</div>
     <button class="nav-btn active" data-page="dashboard" onclick="nav(this)"><span class="nav-icon">🏠</span><span class="nav-label sb-text">Dashboard</span></button>
+    <button class="nav-btn" data-page="ai_assistant" onclick="nav(this)"><span class="nav-icon">✨</span><span class="nav-label sb-text">AI Assistant</span></button>
     <button class="nav-btn" data-page="subjects" onclick="nav(this)"><span class="nav-icon">📚</span><span class="nav-label sb-text">Subjects</span><span class="nav-badge sb-text" id="totalBadge">0</span></button>
     <button class="nav-btn" data-page="notices" onclick="nav(this)"><span class="nav-icon">📌</span><span class="nav-label sb-text">Notice Board</span><span class="nav-badge sb-text" id="noticeBadge">0</span></button>
     <button class="nav-btn" data-page="polls" onclick="nav(this)"><span class="nav-icon">🗳️</span><span class="nav-label sb-text">Polls</span><span class="nav-badge sb-text" id="pollBadge" style="display:none;background:#e8a020;">!</span></button>
@@ -2078,6 +2178,36 @@ html,body{font-family:'Sora','DM Sans',sans-serif}
           <button class="btn btn-outline btn-sm" onclick="printReportCard()">🖨️ Print / Save PDF</button>
         </div>
         <div id="reportCardContent"></div>
+      </div>
+
+      <!-- AI ASSISTANT PAGE -->
+      <div class="page" id="page-ai_assistant">
+        <div class="mia-wrap" id="miaWrap">
+          <aside class="mia-side" id="miaSide" aria-label="Assistant history">
+            <div class="mia-side-top">
+              <button class="btn btn-gold mia-new" id="miaNew">＋ New chat</button>
+              <button class="mia-x" id="miaSideClose" aria-label="Close history">✕</button>
+            </div>
+            <div class="mia-tabs" role="tablist"><button class="on" data-tab="chats" role="tab">💬 Chats</button><button data-tab="files" role="tab">📄 Files <b id="miaFileCount"></b></button></div>
+            <input class="form-input mia-search" id="miaSearch" placeholder="🔍 Search…" aria-label="Search history" autocomplete="off">
+            <div class="mia-list" id="miaList"></div>
+            <div class="mia-foot"><span id="miaStore">Saved on this device only</span><button class="mia-link" id="miaClear">Clear all</button></div>
+          </aside>
+          <div class="mia-scrim" id="miaScrim"></div>
+          <section class="mia-main" aria-label="Assistant chat">
+            <div class="mia-head">
+              <button class="mia-hist" id="miaHist" aria-label="Open history">☰ History</button>
+              <div class="mia-title" id="miaTitle">✨ Smart Assistant</div>
+              <div class="mia-head-acts"><button id="miaRename" title="Rename chat" aria-label="Rename chat" style="display:none">✏️</button><button id="miaDel" title="Delete chat" aria-label="Delete chat" style="display:none">🗑️</button></div>
+            </div>
+            <div class="mia-thread" id="miaThread" aria-live="polite"></div>
+            <div class="mia-compose">
+              <div class="mia-chips" id="miaChips"></div>
+              <div class="mia-box"><textarea id="miaInput" rows="1" placeholder="Ask about your class, or ask for a PDF report…" aria-label="Message the assistant" maxlength="500"></textarea><button class="btn btn-gold" id="miaSend" aria-label="Send">➤</button></div>
+              <div class="mia-hint">Enter to send · Shift+Enter for a new line · Answers use your portal data on this device</div>
+            </div>
+          </section>
+        </div>
       </div>
 
       <!-- MY DUTIES PAGE (Student View) -->
@@ -3989,7 +4119,7 @@ function toggleMobSidebar(){ const sb=document.getElementById("sidebar"),ov=docu
 function closeMobSidebar(){ document.getElementById("sidebar").classList.remove("mob-open"); document.getElementById("mobOverlay").classList.remove("open"); document.getElementById("mobToggle").textContent="☰"; }
 function goHome(){ nav(document.querySelector("[data-page=dashboard]")); closeFolder(); }
 
-const PAGE_TITLES={dashboard:"Dashboard",subjects:"Subjects",notices:"Notice Board",polls:"Polls",gallery:"Gallery",timetable:"Timetable",exam_schedule:"Exam Schedule",attendance:"Attendance Record",results:"Results & Marks",leaderboard:"Class Leaderboard",report_card:"Report Card",hw_view:"Homework Board",upload:"Upload Files",post_notice:"Post Notice",manage_timetable:"Set Timetable",manage_results:"Enter Results",manage_attendance:"Mark Attendance",manage_students:"Students",copy_checking:"Copy Checking",homework:"Homework Manager",complain:"Complaints & Reports",student_info:"Student Information",assign_duty:"Assign Duty",my_duties:"My Duties",apply_leave:"Apply for Leave",manage_leaves:"Leave Requests",my_copy:"My Copy Records",manage_fees:"Fee Tracking",my_fees:"My Fees",audit_log:"Audit Log",certificates:"Certificates",my_avatar:"Profile Picture",my_achievements:"My Achievements",manage_achievements:"Achievements",spotlight_history:"Spotlight History",admin_panel:"Admin Panel"};
+const PAGE_TITLES={dashboard:"Dashboard",subjects:"Subjects",notices:"Notice Board",polls:"Polls",gallery:"Gallery",timetable:"Timetable",exam_schedule:"Exam Schedule",attendance:"Attendance Record",results:"Results & Marks",leaderboard:"Class Leaderboard",report_card:"Report Card",hw_view:"Homework Board",upload:"Upload Files",post_notice:"Post Notice",manage_timetable:"Set Timetable",manage_results:"Enter Results",manage_attendance:"Mark Attendance",manage_students:"Students",copy_checking:"Copy Checking",homework:"Homework Manager",complain:"Complaints & Reports",student_info:"Student Information",assign_duty:"Assign Duty",my_duties:"My Duties",apply_leave:"Apply for Leave",manage_leaves:"Leave Requests",my_copy:"My Copy Records",manage_fees:"Fee Tracking",my_fees:"My Fees",audit_log:"Audit Log",certificates:"Certificates",my_avatar:"Profile Picture",my_achievements:"My Achievements",manage_achievements:"Achievements",spotlight_history:"Spotlight History",admin_panel:"Admin Panel",ai_assistant:"AI Assistant"};
 
 function nav(btn){
   if(!btn) return;
@@ -4036,6 +4166,7 @@ function nav(btn){
   if(pid==="my_achievements") renderMyAchievements();
   if(pid==="manage_achievements") renderManageAchievements();
   if(pid==="spotlight_history") renderSpotlightHistory();
+  if(pid==="ai_assistant"&&window.miPage) window.miPage.show();
   _refreshNotifDot();
 }
 function handleBack(){ nav(document.querySelector("[data-page=dashboard]")); }
@@ -11111,7 +11242,7 @@ function _ttSubjectOptions(row){
   }
   var HELP_STAFF=["Who is at risk?","How is the class doing?","Who was absent today?","Who improved the most?","Who failed in the last exam?","Today's timetable","Pending leave requests","Create class report for this month"];
   var HELP_STU=["How am I doing?","What should I improve?","Make a study plan","What do I need to score to get 85%?","Today's timetable","Homework due","Compare my last two exams","Create my report for this month"];
-  var HELP_GROUPS_STAFF=[["Insights",["Brief me","What should I focus on?","Why is Rohan at risk?","House standings","Which day has the most absences?","How is the risk score calculated?"]],["Class",["Who is at risk?","How is the class doing?","Weakest subject","Compare the last two exams","Who improved the most?","Who dropped the most?","Grade distribution in the last exam","Who topped the last exam?"]],["Students",["Who was absent today?","Who is absent 3 days in a row?","Who has 100% attendance?","Class attendance this month","Who missed more than 2 copies?","Parent mobile of Riya","Who is absent the most this month?","Who failed in the last exam?","Students with attendance below 75","Top 3 in maths","Compare two students: “Compare Riya and Aarav”"]],["Schedule & school",["Today's timetable","Who teaches maths?","Upcoming exams","Pending leave requests","Homework due this week","Latest notices","Latest uploads","Student of the Month","Who is the class teacher?"]],["Tools",["What percentage is 45 out of 60?","Average of 72, 80 and 91","What grade is 72%?","What is the date today?"]],["Reports & pages",["Create class report for this month","Create a detailed analytic report of all subjects for this examination","Open marks entry","Go to attendance"]]];
+  var HELP_GROUPS_STAFF=[["Insights",["Brief me","What should I focus on?","Why is Rohan at risk?","House standings","Which day has the most absences?","How is the risk score calculated?"]],["Class",["Who is at risk?","How is the class doing?","Weakest subject","Compare the last two exams","Who improved the most?","Who dropped the most?","Grade distribution in the last exam","Who topped the last exam?"]],["Students",["Who was absent today?","Who is absent 3 days in a row?","Who has 100% attendance?","Class attendance this month","Who missed more than 2 copies?","Parent mobile of Riya","Who is absent the most this month?","Who failed in the last exam?","Students with attendance below 75","Top 3 in maths","Compare two students: “Compare Riya and Aarav”"]],["Schedule & school",["Today's timetable","Who teaches maths?","Upcoming exams","Pending leave requests","Homework due this week","Latest notices","Latest uploads","Student of the Month","Who is the class teacher?"]],["Tools",["What percentage is 45 out of 60?","Average of 72, 80 and 91","What grade is 72%?","What is the date today?"]],["Reports & pages",["Create class report for this month","Create a detailed comparison report of Riya and Aarav","Create a detailed analytic report of all subjects for this examination","Open marks entry","Go to attendance"]]];
   var HELP_GROUPS_STU=[["About me",["Brief me","How am I doing?","Am I improving?","What should I improve?","Why is my risk what it is?","My best subject","My weakest subject","My attendance this month","My rank","My pending copies","My marks in the last exam","How am I doing in maths compared to the class?"]],["Plan & goals",["Make a study plan","What do I need to score to get 85%?","Compare my last two exams"]],["School",["Today's timetable","What is my next period?","Who teaches science?","Homework due","Upcoming exams","Latest notices","Latest uploads","Student of the Month","House standings","Who is my class teacher?"]],["Tools",["What percentage is 45 out of 60?","Average of 72, 80 and 91","What grade is 72%?","What is the grading scale?"]],["Reports",["Create my report for this month"]]];
   function chips(list){ return '<div class="mi-chipset">'+list.map(function(x){ return '<button class="mi-qchip" data-q="'+esc(x)+'">'+esc(x)+'</button>'; }).join("")+'</div>'; }
   function ans_help(){ var g=isStaff()?HELP_GROUPS_STAFF:HELP_GROUPS_STU; return A("What I can do",'<div class="mi-ans-sub">I answer from your class data, instantly and offline. Tap one to try it:</div>'+g.map(function(x){ return '<div class="mi-ask-sec" style="padding-left:0">'+x[0]+'</div>'+chips(x[1].filter(function(t){ return t.indexOf("“")<0; })); }).join("")+'<div class="mi-ans-sub" style="margin-top:10px;">You can also type a student name or a page name to jump straight there.</div>',"help"); }
@@ -11119,7 +11250,7 @@ function _ttSubjectOptions(row){
 
   /* ───────── more commands (all answered from the real data, offline) ───────── */
   var DAYS=["Sunday","Monday","Tuesday","Wednesday","Thursday","Friday","Saturday"], PASSMARK=33;
-  var PAGE_ALIAS={manage_results:"marks entry enter marks enter results results entry declare results",manage_attendance:"mark attendance attendance entry roll call",student_info:"students list student list directory",manage_students:"manage students student management",report_card:"report card reportcard",copy_checking:"copy check copies notebooks",manage_timetable:"set timetable edit timetable",leaderboard:"rank ranking leaders toppers",spotlight_history:"spotlight",admin_panel:"admin passwords"};
+  var PAGE_ALIAS={ai_assistant:"ai assistant smart chat history conversations pdf reports files full page",manage_results:"marks entry enter marks enter results results entry declare results",manage_attendance:"mark attendance attendance entry roll call",student_info:"students list student list directory",manage_students:"manage students student management",report_card:"report card reportcard",copy_checking:"copy check copies notebooks",manage_timetable:"set timetable edit timetable",leaderboard:"rank ranking leaders toppers",spotlight_history:"spotlight",admin_panel:"admin passwords"};
   function pad2(n){ return String(n).padStart(2,"0"); }
   function fmtD(d){ return d?new Date(d+"T00:00:00Z").toLocaleDateString("en-IN",{day:"numeric",month:"short",year:"numeric",timeZone:"UTC"}):""; }
   function addD(d,n){ var x=new Date(d+"T00:00:00Z"); x.setUTCDate(x.getUTCDate()+n); return x.toISOString().slice(0,10); }
@@ -11260,7 +11391,7 @@ function _ttSubjectOptions(row){
     var names={},rows=[]; ma.subj.concat(mb.subj).forEach(function(x){ names[x.name]=1; });
     Object.keys(names).forEach(function(n){ var x=ma.subj.find(function(s){ return s.name===n; }),y=mb.subj.find(function(s){ return s.name===n; }); rows.push('<div class="mi-row"><span class="n">'+esc(n)+'</span><span style="width:48px;text-align:right;color:'+TEAL+';font-size:12px;">'+(x?x.pct+"%":"—")+'</span><div class="t"><i style="width:'+(x?x.pct:0)+'%;background:'+TEAL+'"></i></div><div class="t"><i style="width:'+(y?y.pct:0)+'%;background:'+VIOLET+'"></i></div><span style="width:48px;color:'+VIOLET+';font-size:12px;">'+(y?y.pct+"%":"—")+'</span></div>'); });
     var k=function(m){ return '<div class="mi-ans-kpis">'+kpi("Average",m.avg===null?"—":m.avg+"%")+kpi("Attendance",m.att===null?"—":m.att+"%")+kpi("Risk",m.score===null?"—":m.score)+'</div>'; };
-    return A(esc(a.name)+" vs "+esc(b.name),'<div class="mi-ans-sub" style="color:'+TEAL+'"><b>'+esc(a.name)+'</b></div>'+k(ma)+'<div class="mi-ans-sub" style="color:'+VIOLET+';margin-top:10px"><b>'+esc(b.name)+'</b></div>'+k(mb)+'<div style="margin-top:12px">'+rows.join("")+'</div><div class="mi-ans-acts">'+actBtn(esc(a.name.split(" ")[0])+"'s report",function(){ openReport(a.id); closeAsk(); })+actBtn(esc(b.name.split(" ")[0])+"'s report",function(){ openReport(b.id); closeAsk(); })+'</div>',"cmpstudents");
+    return A(esc(a.name)+" vs "+esc(b.name),'<div class="mi-ans-sub" style="color:'+TEAL+'"><b>'+esc(a.name)+'</b></div>'+k(ma)+'<div class="mi-ans-sub" style="color:'+VIOLET+';margin-top:10px"><b>'+esc(b.name)+'</b></div>'+k(mb)+'<div style="margin-top:12px">'+rows.join("")+'</div><div class="mi-ans-acts">'+actBtn(esc(a.name.split(" ")[0])+"'s report",function(){ openReport(a.id); closeAsk(); })+actBtn(esc(b.name.split(" ")[0])+"'s report",function(){ openReport(b.id); closeAsk(); })+actBtn("📄 Detailed comparison report",function(){ if(window.miReport&&window.miReport.startCompare) window.miReport.startCompare(a.id,b.id); })+'</div><div id="miRepOut" style="margin-top:12px;"></div>',"cmpstudents");
   }
   function ans_studentsubject(s,subs){
     var rows=[],cls=[]; (db("results")||[]).forEach(function(r){ if(subs.indexOf(r.subject)<0||!r.studentMarks||!r.max) return; var m=r.studentMarks.find(function(x){ return x.studentId===s.id; }); r.studentMarks.forEach(function(x){ if(!x.absent&&x.marks!=null) cls.push(x.marks/r.max*100); }); if(m&&!m.absent&&m.marks!=null) rows.push({t:r.test,d:iso(r.date),m:m.marks,x:r.max,p:Math.round(m.marks/r.max*100)}); });
@@ -11618,20 +11749,21 @@ function _ttSubjectOptions(row){
   }
 
   /* ───────── command palette / assistant window (Ctrl+K) ───────── */
-  var _sel=0,_open=false,_timer=null,_ret=null;
+  var _sel=0,_open=false,_timer=null,_ret=null,_lastQ="",_lastA=null,_lastLogged="";
   function ensure(){
     var o=$("miAsk"); if(o) return o;
     o=document.createElement("div"); o.id="miAsk"; o.className="mi-ask"; o.setAttribute("role","dialog"); o.setAttribute("aria-modal","true"); o.setAttribute("aria-label","Smart assistant");
-    o.innerHTML='<div class="mi-ask-box"><div class="mi-ask-in"><span class="mi-ask-ic">✨</span><input id="miAskInput" autocomplete="off" spellcheck="false" aria-label="Ask a question or jump to a page" placeholder="Ask about your class, or jump to a page…"><kbd>Esc</kbd></div><div id="miAskBody" class="mi-ask-body"></div></div>';
+    o.innerHTML='<div class="mi-ask-box"><div class="mi-ask-in"><span class="mi-ask-ic">✨</span><input id="miAskInput" autocomplete="off" spellcheck="false" aria-label="Ask a question or jump to a page" placeholder="Ask about your class, or jump to a page…"><button type="button" class="mi-full" id="miAskFull" title="Open as a full page with history" aria-label="Open as a full page">⤢ Full page</button><kbd>Esc</kbd></div><div id="miAskBody" class="mi-ask-body"></div></div>';
     document.body.appendChild(o);
     o.addEventListener("mousedown",function(e){ if(e.target===o) closeAsk(); });
     var inp=$("miAskInput");
+    $("miAskFull").addEventListener("click",function(){ var q=inp.value.trim(); closeAsk(); go("ai_assistant"); if(q&&window.miPage) window.miPage.ask(q); });
     inp.addEventListener("input",function(){ clearTimeout(_timer); _timer=setTimeout(render,70); });
     inp.addEventListener("keydown",function(e){
       var items=o.querySelectorAll(".mi-ask-item");
       if(e.key==="ArrowDown"){ e.preventDefault(); if(items.length){ _sel=(_sel+1)%items.length; mark(items); } }
       else if(e.key==="ArrowUp"){ e.preventDefault(); if(items.length){ _sel=(_sel-1+items.length)%items.length; mark(items); } }
-      else if(e.key==="Enter"){ e.preventDefault(); if(items[_sel]) items[_sel].click(); }
+      else if(e.key==="Enter"){ e.preventDefault(); quickLog(); if(items[_sel]) items[_sel].click(); }
     });
     $("miAskBody").addEventListener("click",function(e){
       if(window.miReport&&window.miReport.handle(e.target)) return;
@@ -11642,20 +11774,21 @@ function _ttSubjectOptions(row){
     });
     return o;
   }
+  function quickLog(){ try{ if(_lastQ&&_lastA&&_lastQ.length>=3&&_lastQ!==_lastLogged&&window.miHistory){ _lastLogged=_lastQ; window.miHistory.logQuick(_lastQ,_lastA); } }catch(e){} }
   function mark(items){ Array.prototype.forEach.call(items,function(el,i){ el.classList.toggle("sel",i===_sel); el.setAttribute("aria-selected",i===_sel?"true":"false"); if(i===_sel&&el.scrollIntoView) el.scrollIntoView({block:"nearest"}); }); }
   function pages(){
     return Array.prototype.filter.call(document.querySelectorAll(".nav-btn[data-page]"),function(b){ return b.offsetParent!==null; }).map(function(b){
       var l=b.querySelector(".nav-label"),ic=b.querySelector(".nav-icon"); return {id:b.getAttribute("data-page"),label:l?l.textContent.trim():b.getAttribute("data-page"),icon:ic?ic.textContent.trim():""};
     });
   }
-  function renderAnswerInto(a){ var b=$("miAskBody"); if(!b) return; var h=a?'<div class="mi-ans"><div class="mi-ans-h">'+a.title+'</div>'+a.html+'</div>':""; var keep=b.querySelector(".mi-ask-list"); b.innerHTML=h+(keep?keep.outerHTML:""); Array.prototype.forEach.call(b.querySelectorAll("[data-count]"),function(){}); scanCounts(); }
+  function renderAnswerInto(a){ if(window.miPageSink&&window.miPageSink(a)) return; var b=$("miAskBody"); if(!b) return; var h=a?'<div class="mi-ans"><div class="mi-ans-h">'+a.title+'</div>'+a.html+'</div>':""; var keep=b.querySelector(".mi-ask-list"); b.innerHTML=h+(keep?keep.outerHTML:""); Array.prototype.forEach.call(b.querySelectorAll("[data-count]"),function(){}); scanCounts(); }
   function render(){
-    var inp=$("miAskInput"),b=$("miAskBody"); if(!inp||!b) return; var q=inp.value.trim(),low=norm(q),html="";
+    var inp=$("miAskInput"),b=$("miAskBody"); if(!inp||!b) return; var q=inp.value.trim(),low=norm(q),html=""; _lastQ=q; _lastA=null;
     if(!q){
       html='<div class="mi-ask-sec">Try asking</div>'+chips(isStaff()?HELP_STAFF:isStudent()?HELP_STU:[])+'<div class="mi-ask-sec">Jump to</div><div class="mi-ask-list">'+pages().slice(0,6).map(function(p){ return '<div class="mi-ask-item" role="option" data-k="page" data-id="'+esc(p.id)+'"><span>'+esc(p.icon)+" "+esc(p.label)+'</span><em>Go to page</em></div>'; }).join("")+'</div>';
       b.innerHTML=html; _sel=0; mark(b.querySelectorAll(".mi-ask-item")); return;
     }
-    var a=null; try{ a=ask(q); }catch(e){ a=null; }
+    var a=null; try{ a=ask(q); }catch(e){ a=null; } _lastA=a;
     if(a) html+='<div class="mi-ans"><div class="mi-ans-h">'+a.title+'</div>'+a.html+'</div>';
     if(a&&a.report) html+='<div class="mi-ask-sec">Action</div><div class="mi-ask-list"><div class="mi-ask-item" role="option" data-k="report"><span>📄 Create this report</span><em>Press Enter</em></div></div>';
     var items="", ql=low;
@@ -11669,7 +11802,7 @@ function _ttSubjectOptions(row){
   function openAsk(){
     if(!user()) return; var o=ensure(); _ret=document.activeElement; o.style.display="flex"; _open=true; var i=$("miAskInput"); i.value=""; render(); setTimeout(function(){ i.focus(); },20);
   }
-  function closeAsk(){ var o=$("miAsk"); if(o) o.style.display="none"; _open=false; if(_ret&&_ret.focus){ try{ _ret.focus(); }catch(e){} } }
+  function closeAsk(){ quickLog(); var o=$("miAsk"); if(o) o.style.display="none"; _open=false; if(_ret&&_ret.focus){ try{ _ret.focus(); }catch(e){} } }
   document.addEventListener("keydown",function(e){
     if((e.ctrlKey||e.metaKey)&&String(e.key).toLowerCase()==="k"){ e.preventDefault(); if(_open) closeAsk(); else openAsk(); }
     else if(e.key==="Escape"&&_open){ e.preventDefault(); closeAsk(); }
@@ -11684,7 +11817,7 @@ function _ttSubjectOptions(row){
   function start(){ mountButton(); setInterval(scanCounts,400); setInterval(function(){ try{ mountRiskLb(); }catch(e){} },1500); }
   if(document.readyState==="loading") document.addEventListener("DOMContentLoaded",start); else start();
 
-  window.miSmart={metrics:metrics,riskList:riskList,health:health,ask:function(q){ var a=ask(q); return a; },open:openAsk,close:closeAsk};
+  window.miSmart={metrics:metrics,riskList:riskList,health:health,ask:function(q){ var a=ask(q); return a; },acts:function(){ return ACTS.slice(); },help:function(){ return {quick:(isStaff()?HELP_STAFF:HELP_STU),groups:(isStaff()?HELP_GROUPS_STAFF:HELP_GROUPS_STU)}; },quickLog:quickLog,open:openAsk,close:closeAsk};
 })();
 
 </script>
@@ -11896,6 +12029,47 @@ function _ttSubjectOptions(row){
         pts.forEach(function(p,i){ c.fillStyle="#fff"; c.strokeStyle=GOOD; c.lineWidth=4; c.beginPath(); c.arc(xs[i],ys[i],8,0,Math.PI*2); c.fill(); c.stroke(); T(Math.round(p.v)+"%",xs[i],ys[i]-16,"700 18px "+SANS,INK,"center"); T(fit(p.l,w/Math.max(n,1)-6,"500 16px "+SANS),xs[i],y+h+30,"500 16px "+SANS,MUTED,"center"); });
         y+=h+56;
       },
+      legend:function(items){
+        need(44); var x=M;
+        items.forEach(function(it){ c.fillStyle=it.c; rr(x,y+2,18,18,4); c.fill(); T(it.n,x+28,y+18,"600 18px "+SANS,INK); x+=28+c.measureText(it.n).width+34; });
+        y+=38;
+      },
+      pairs:function(rows,o){
+        o=o||{}; var lw=o.labelW||230,bh=20,gp=6,rh=bh*2+gp+24,tw=CW-lw-(o.textW||110),ca=o.ca||VIO,cb=o.cb||GOLD,fm=o.fmt||pc;
+        if(o.names) d.legend([{n:o.names[0],c:ca},{n:o.names[1],c:cb}]);
+        rows.forEach(function(r){
+          need(rh+10);
+          T(fit(r.label,lw-14,"500 20px "+SANS),M,y+bh+8,"500 20px "+SANS,r.dim?MUTED:INK);
+          [[r.a,ca,0],[r.b,cb,1]].forEach(function(s){
+            var by=y+4+s[2]*(bh+gp);
+            c.fillStyle="#E9EEF7"; rr(M+lw,by,tw,bh,7); c.fill();
+            if(s[0]!==null&&s[0]!==undefined){ c.fillStyle=s[1]; rr(M+lw,by,Math.max(8,tw*clamp(s[0],0,100)/100),bh,7); c.fill(); }
+            T(fm(s[0]),M+lw+tw+14,by+bh-3,"700 18px "+SANS,s[1]);
+          });
+          y+=rh;
+        });
+        y+=10;
+      },
+      line2:function(labels,sa,sb,o){
+        o=o||{}; var h=o.h||270,lw=60,w=CW-lw-20,ca=o.ca||VIO,cb=o.cb||GOLD; need(h+140);
+        if(o.names) d.legend([{n:o.names[0],c:ca},{n:o.names[1],c:cb}]);
+        for(var g=0;g<=100;g+=25){ var gy=y+h-(g/100)*h; c.fillStyle=LINE; c.fillRect(M+lw,gy,w,1); T(String(g),M+lw-12,gy+6,"500 15px "+SANS,MUTED,"right"); }
+        var n=labels.length, xs=labels.map(function(l,i){ return M+lw+(n===1?w/2:i*w/(n-1)); });
+        function yv(v){ return y+h-(clamp(v,0,100)/100)*h; }
+        function has(v){ return v!==null&&v!==undefined; }
+        [[sa,ca],[sb,cb]].forEach(function(s){
+          c.strokeStyle=s[1]; c.lineWidth=4; c.lineJoin="round"; c.beginPath(); var st=false;
+          s[0].forEach(function(v,i){ if(!has(v)) return; if(st) c.lineTo(xs[i],yv(v)); else { c.moveTo(xs[i],yv(v)); st=true; } }); c.stroke();
+          s[0].forEach(function(v,i){ if(!has(v)) return; c.fillStyle="#fff"; c.strokeStyle=s[1]; c.lineWidth=4; c.beginPath(); c.arc(xs[i],yv(v),8,0,Math.PI*2); c.fill(); c.stroke(); });
+        });
+        labels.forEach(function(l,i){
+          var a=sa[i],b=sb[i];
+          if(has(a)) T(Math.round(a)+"%",xs[i],yv(a)+((has(b)&&b>a)?30:-16),"700 17px "+SANS,ca,"center");
+          if(has(b)) T(Math.round(b)+"%",xs[i],yv(b)+((has(a)&&a>=b)?30:-16),"700 17px "+SANS,cb,"center");
+          T(fit(l,w/Math.max(n,1)-6,"500 16px "+SANS),xs[i],y+h+30,"500 16px "+SANS,MUTED,"center");
+        });
+        y+=h+56;
+      },
       gap:function(n){ y+=n||14; },
       keep:function(h){ need(h); },
       finish:function(){
@@ -12005,6 +12179,181 @@ function _ttSubjectOptions(row){
     doc.bullets(f.length?f:["Not enough data to draw findings yet."],GOLD);
   }
 
+  /* ───────── comparison report: two students side by side ───────── */
+  var CA=VIO, CB=GOLD;
+  function short1(n){ return String(n||"").split(" ")[0]||"—"; }
+  function leadOf(a,b,tol,lowerBetter){
+    if(a===null||a===undefined||b===null||b===undefined) return null;
+    if(Math.abs(a-b)<(tol==null?1:tol)) return 0;
+    return ((a>b)!==!!lowerBetter)?1:-1;
+  }
+  function spread(v){ if(v.length<3) return null; var m=mean(v); return Math.sqrt(mean(v.map(function(x){ return (x-m)*(x-m); }))); }
+  function cmpModel(A,B){
+    var mapA={},mapB={},ids=[];
+    A.subj.forEach(function(s){ mapA[s.id]=s; ids.push(s.id); });
+    B.subj.forEach(function(s){ mapB[s.id]=s; if(!mapA[s.id]) ids.push(s.id); });
+    var rows=ids.map(function(id){ var a=mapA[id]||null,b=mapB[id]||null,r=a||b; return {id:id,name:r.name,a:a,b:b,add:!!((a&&a.add)||(b&&b.add)),gap:(a&&b)?a.pct-b.pct:null}; });
+    var common=rows.filter(function(r){ return r.a&&r.b; }), core=common.filter(function(r){ return !r.add; });
+    var winsA=0,winsB=0,ties=0; core.forEach(function(r){ var l=leadOf(r.a.pct,r.b.pct,1); if(l===1) winsA++; else if(l===-1) winsB++; else ties++; });
+    var em={}; 
+    function put(list,side){ list.forEach(function(e){ var o=em[e.test]||(em[e.test]={test:e.test,date:e.date,a:null,b:null}); o[side]=e.pct; if(e.date&&(!o.date||e.date<o.date)) o.date=e.date; }); }
+    put(A.exams,"a"); put(B.exams,"b");
+    var exams=Object.keys(em).map(function(k){ return em[k]; }).sort(function(x,y){ return (x.date||"")<(y.date||"")?-1:(x.date||"")>(y.date||"")?1:0; });
+    var bothE=exams.filter(function(e){ return e.a!==null&&e.b!==null; }), exA=0,exB=0;
+    bothE.forEach(function(e){ var l=leadOf(e.a,e.b,1); if(l===1) exA++; else if(l===-1) exB++; });
+    function cp(D){ var s=D.copies.filter(function(x){ return x.v==="submitted"; }).length, t=D.copies.filter(function(x){ return x.v!=="absent"; }).length; return {s:s,t:t,rate:t?s/t*100:null}; }
+    return {rows:rows,core:core,winsA:winsA,winsB:winsB,ties:ties,
+      cavgA:core.length?mean(core.map(function(r){ return r.a.pct; })):null, cavgB:core.length?mean(core.map(function(r){ return r.b.pct; })):null,
+      exams:exams,bothE:bothE,exA:exA,exB:exB,cpA:cp(A),cpB:cp(B),
+      sameAbs:A.att.absent.filter(function(dd){ return B.att.absent.indexOf(dd)>-1; }),
+      sdA:spread(core.map(function(r){ return r.a.pct; })), sdB:spread(core.map(function(r){ return r.b.pct; }))};
+  }
+  function buildCompare(A,B,doc){
+    var K=cmpModel(A,B), nA=A.S.name, nB=B.S.name, sA=short1(nA), sB=short1(nB);
+    if(sA.toLowerCase()===sB.toLowerCase()){ sA=nA; sB=nB; }
+    function col(l){ return l===1?CA:l===-1?CB:INK; }
+    function edge(l){ return l===null?"—":l===0?{t:"Level",c:MUTED}:{t:l===1?sA:sB,b:true,c:l===1?CA:CB}; }
+    function vc(t,l,side){ return {t:t,b:l===side,c:l===side?(side===1?CA:CB):INK}; }
+    function who(l){ return l===1?sA:sB; }
+    function num(v){ return v===null||v===undefined?"—":String(Math.round(v)); }
+
+    doc.p(nA+"  ·  Roll "+A.S.roll+"  ·  Adm. "+(A.S.admNo||"—"),{f:"700 22px "+SANS,c:CA,gap:4});
+    doc.p(nB+"  ·  Roll "+B.S.roll+"  ·  Adm. "+(B.S.admNo||"—"),{f:"700 22px "+SANS,c:CB,gap:20});
+    if(A.n===0||B.n===0) doc.note("No marks were recorded for "+(A.n===0&&B.n===0?"either student":(A.n===0?nA:nB))+" in this period, so the subject and exam comparisons are limited.");
+
+    var ovL=leadOf(A.overall,B.overall,1), dOv=(A.overall!==null&&B.overall!==null)?Math.round(A.overall-B.overall):null;
+    var atL=leadOf(A.att.pct,B.att.pct,1), dAt=(A.att.pct!==null&&B.att.pct!==null)?Math.round(A.att.pct-B.att.pct):null;
+    doc.kpis([
+      {l:"AVERAGE GAP",v:dOv===null?"—":Math.abs(dOv)+" pts",c:ovL===null?INK:col(ovL),s:ovL===null?"not enough data":ovL===0?"evenly matched":who(ovL)+" ahead",sc:ovL===null||ovL===0?MUTED:col(ovL)},
+      {l:"SUBJECTS LED",v:K.core.length?K.winsA+" – "+K.winsB:"—",c:INK,s:K.core.length?sA+" – "+sB+(K.ties?" · "+K.ties+" level":""):"no common subject"},
+      {l:"EXAMS LED",v:K.bothE.length?K.exA+" – "+K.exB:"—",c:INK,s:K.bothE.length?sA+" – "+sB:"no common exam"},
+      {l:"ATTENDANCE GAP",v:dAt===null?"—":Math.abs(dAt)+" pts",c:atL===null?INK:col(atL),s:atL===null?"not enough data":atL===0?"about the same":who(atL)+" higher",sc:atL===null||atL===0?MUTED:col(atL)}
+    ]);
+
+    /* at a glance */
+    doc.h2("At a glance");
+    var cavL=leadOf(K.cavgA,K.cavgB,1), rkL=(A.rank&&B.rank)?leadOf(A.rank,B.rank,0.5,true):null, cpL=leadOf(K.cpA.rate,K.cpB.rate,1);
+    var rsA=A.risk&&A.risk.score!==null?A.risk.score:null, rsB=B.risk&&B.risk.score!==null?B.risk.score:null, rsL=leadOf(rsA,rsB,3,true);
+    var sLead=K.core.length?leadOf(K.winsA,K.winsB,0.5):null, eLead=K.bothE.length?leadOf(K.exA,K.exB,0.5):null;
+    doc.table([{h:"Measure",w:2.5},{h:sA,w:1.5,a:"c"},{h:sB,w:1.5,a:"c"},{h:"Edge",w:1.2,a:"c"}],[
+      ["Overall average",vc(pc(A.overall),ovL,1),vc(pc(B.overall),ovL,-1),edge(ovL)],
+      ["Average on common subjects",vc(pc(K.cavgA),cavL,1),vc(pc(K.cavgB),cavL,-1),edge(cavL)],
+      ["Rank in period",vc(A.rank?"#"+A.rank+" of "+A.of:"—",rkL,1),vc(B.rank?"#"+B.rank+" of "+B.of:"—",rkL,-1),edge(rkL)],
+      ["Attendance",vc(pc(A.att.pct),atL,1),vc(pc(B.att.pct),atL,-1),edge(atL)],
+      ["Copies submitted",vc(K.cpA.t?K.cpA.s+" / "+K.cpA.t:"—",cpL,1),vc(K.cpB.t?K.cpB.s+" / "+K.cpB.t:"—",cpL,-1),edge(cpL)],
+      ["Risk score (lower is better)",vc(rsA===null?"—":rsA+" · "+A.risk.level,rsL,1),vc(rsB===null?"—":rsB+" · "+B.risk.level,rsL,-1),edge(rsL)],
+      ["Subjects led",vc(K.core.length?K.winsA+" of "+K.core.length:"—",sLead,1),vc(K.core.length?K.winsB+" of "+K.core.length:"—",sLead,-1),edge(sLead)],
+      ["Exams led",vc(K.bothE.length?K.exA+" of "+K.bothE.length:"—",eLead,1),vc(K.bothE.length?K.exB+" of "+K.bothE.length:"—",eLead,-1),edge(eLead)]
+    ]);
+    doc.note("“Level” means the two are within 1 point (3 for risk score). Rank is among the whole class in the selected period.");
+
+    /* subjects */
+    doc.h2("Subject-by-subject comparison");
+    if(!K.rows.length) doc.p("No marks were recorded for either student in this period.",{c:MUTED});
+    else {
+      doc.table([{h:"Subject",w:2.1},{h:sA,w:1.2,a:"r"},{h:sB,w:1.2,a:"r"},{h:"Gap ("+sA+" − "+sB+")",w:1.7,a:"r"},{h:"Edge",w:1.2,a:"c"}],
+        K.rows.map(function(r){ var l=r.gap===null?null:leadOf(r.a.pct,r.b.pct,1);
+          return [{t:r.name+(r.add?" (extra)":""),b:true,c:r.add?WARN:INK},r.a?vc(pc(r.a.pct),r.add?null:l,1):"—",r.b?vc(pc(r.b.pct),r.add?null:l,-1):"—",
+            r.gap===null?"—":{t:sgn(Math.round(r.gap)),b:true,c:Math.abs(r.gap)<1?MUTED:(r.gap>0?CA:CB)},r.add?{t:"—",c:MUTED}:edge(l)]; }));
+      doc.pairs(K.rows.map(function(r){ return {label:r.name+(r.add?" (extra)":""),a:r.a?r.a.pct:null,b:r.b?r.b.pct:null,dim:r.add}; }),{names:[nA,nB],ca:CA,cb:CB});
+      if(K.rows.some(function(r){ return r.add; })) doc.note("Subjects marked (extra) are shown for reference and are not counted in averages, ranks or lead counts.");
+      if(K.rows.some(function(r){ return !(r.a&&r.b); })) doc.note("A “—” means that student has no marks in that subject in this period; it is not counted in the lead count.");
+    }
+
+    /* exams */
+    doc.h2("Exam-by-exam trend");
+    if(!K.exams.length) doc.p("No exam results in this period.",{c:MUTED});
+    else {
+      if(K.exams.length>=2) doc.line2(K.exams.map(function(e){ return e.test; }),K.exams.map(function(e){ return e.a; }),K.exams.map(function(e){ return e.b; }),{names:[nA,nB],ca:CA,cb:CB});
+      doc.table([{h:"Exam",w:2},{h:"Date",w:1.4},{h:sA,w:1,a:"r"},{h:sB,w:1,a:"r"},{h:"Edge",w:1.2,a:"c"}],
+        K.exams.map(function(e){ var l=leadOf(e.a,e.b,1); return [{t:e.test,b:true},fmt(e.date),e.a===null?"—":vc(pc(e.a),l,1),e.b===null?"—":vc(pc(e.b),l,-1),edge(l)]; }));
+    }
+
+    /* strengths and weaknesses */
+    doc.h2("Strengths and weaknesses");
+    function prof(D){
+      var core=D.subj.filter(function(s){ return !s.add; }), best=core[0]||null, worst=core.length?core[core.length-1]:null, withCls=core.filter(function(s){ return s.diff!==null; });
+      var imp=core.filter(function(s){ return s.prev!==null; }).sort(function(a,b){ return (b.pct-b.prev)-(a.pct-a.prev); })[0]||null;
+      return {core:core,best:best,worst:worst,above:withCls.filter(function(s){ return s.diff>0; }).length,of:withCls.length,imp:imp};
+    }
+    var pA=prof(A),pB=prof(B);
+    function sub(s){ return s?s.name+" ("+pc(s.pct)+")":"—"; }
+    function impt(p){ return p.imp&&p.imp.pct-p.imp.prev>=3?p.imp.name+" ("+sgn(Math.round(p.imp.pct-p.imp.prev))+")":"—"; }
+    doc.table([{h:"Measure",w:1.7},{h:sA,w:2,wrap:true},{h:sB,w:2,wrap:true}],[
+      ["Strongest subject",{t:sub(pA.best),c:CA,b:true},{t:sub(pB.best),c:CB,b:true}],
+      ["Weakest subject",{t:sub(pA.worst),c:CA,b:true},{t:sub(pB.worst),c:CB,b:true}],
+      ["Above class average in",pA.of?pA.above+" of "+pA.of+" subjects":"—",pB.of?pB.above+" of "+pB.of+" subjects":"—"],
+      ["Most improved",impt(pA),impt(pB)],
+      ["Spread across subjects (smaller = more even)",K.sdA===null?"—":"±"+num(K.sdA)+" pts",K.sdB===null?"—":"±"+num(K.sdB)+" pts"]
+    ]);
+
+    /* attendance */
+    doc.h2("Attendance");
+    doc.table([{h:"Measure",w:2},{h:sA,w:1.4,a:"c"},{h:sB,w:1.4,a:"c"}],[
+      ["Days present",A.att.p,B.att.p],
+      ["Days absent",{t:A.att.a,c:A.att.a?BAD:INK},{t:B.att.a,c:B.att.a?BAD:INK}],
+      ["Holiday / leave",A.att.h,B.att.h],
+      ["Attendance",vc(pc(A.att.pct),atL,1),vc(pc(B.att.pct),atL,-1)]
+    ]);
+    if(K.sameAbs.length) doc.p("They were absent on the same "+K.sameAbs.length+" day"+(K.sameAbs.length>1?"s":"")+": "+K.sameAbs.slice(-6).map(fmt).join(", ")+(K.sameAbs.length>6?" …":"")+".",{f:"500 19px "+SANS,c:MUTED});
+
+    /* copies */
+    doc.h2("Copy submission");
+    if(!K.cpA.t&&!K.cpB.t) doc.p("No copy-checking sessions were recorded for either student in this period.",{c:MUTED});
+    else doc.table([{h:"Measure",w:2},{h:sA,w:1.4,a:"c"},{h:sB,w:1.4,a:"c"}],[
+      ["Copies submitted",K.cpA.t?K.cpA.s+" of "+K.cpA.t:"—",K.cpB.t?K.cpB.s+" of "+K.cpB.t:"—"],
+      ["Not submitted",{t:K.cpA.t?K.cpA.t-K.cpA.s:"—",c:K.cpA.t&&K.cpA.t>K.cpA.s?BAD:INK},{t:K.cpB.t?K.cpB.t-K.cpB.s:"—",c:K.cpB.t&&K.cpB.t>K.cpB.s?BAD:INK}],
+      ["Submission rate",vc(pc(K.cpA.rate),cpL,1),vc(pc(K.cpB.rate),cpL,-1)]
+    ]);
+
+    /* risk */
+    doc.h2("Risk analysis");
+    if(rsA!==null||rsB!==null){
+      doc.pairs([{label:"Risk score",a:rsA,b:rsB}],{names:[nA,nB],ca:CA,cb:CB,fmt:num,labelW:200});
+      [[A,nA,CA],[B,nB,CB]].forEach(function(z){ var r=z[0].risk;
+        doc.p(z[1]+" — "+(r&&r.score!==null?r.level+" risk ("+r.score+" / 100)":"not enough data"),{f:"700 21px "+SANS,c:z[2],gap:4});
+        if(r&&r.score!==null) doc.bullets(r.reasons&&r.reasons.length?r.reasons:["All indicators look healthy."],z[2]); });
+      doc.note("Risk score = marks level 40% + marks trend 20% + attendance 25% + copy submission 15%, using all records to date. Higher means more attention is needed.");
+    } else doc.p("Not enough data to calculate a risk score for either student yet.",{c:MUTED});
+
+    /* head-to-head */
+    doc.h2("Head-to-head analysis");
+    var f=[];
+    if(ovL!==null) f.push(ovL===0?sA+" and "+sB+" are evenly matched overall ("+pc(A.overall)+" and "+pc(B.overall)+").":who(ovL)+" leads overall by "+Math.abs(dOv)+" point"+(Math.abs(dOv)===1?"":"s")+" ("+pc(A.overall)+" vs "+pc(B.overall)+").");
+    if(K.core.length){
+      f.push(sA+" leads in "+K.winsA+" of "+K.core.length+" common subjects and "+sB+" in "+K.winsB+(K.ties?"; "+K.ties+" "+(K.ties===1?"is":"are")+" level":"")+".");
+      var byGap=K.core.slice().sort(function(x,y){ return y.gap-x.gap; }), topA=byGap[0], topB=byGap[byGap.length-1];
+      if(topA&&topA.gap>=3) f.push("Biggest edge for "+sA+": "+topA.name+" ("+Math.round(topA.gap)+" points ahead).");
+      if(topB&&topB.gap<=-3) f.push("Biggest edge for "+sB+": "+topB.name+" ("+Math.round(-topB.gap)+" points ahead).");
+    } else if(K.rows.length) f.push("The two students have no counted subject in common, so a direct subject comparison is not possible.");
+    if(K.sdA!==null&&K.sdB!==null&&Math.abs(K.sdA-K.sdB)>=3){ var evenA=K.sdA<K.sdB; f.push((evenA?sA:sB)+" is more consistent across subjects (spread ±"+num(evenA?K.sdA:K.sdB)+" vs ±"+num(evenA?K.sdB:K.sdA)+" points)."); }
+    if(A.exams.length>=2&&B.exams.length>=2){ var tA=Math.round(A.exams[A.exams.length-1].pct-A.exams[0].pct), tB=Math.round(B.exams[B.exams.length-1].pct-B.exams[0].pct); f.push("Trend from first to latest exam: "+sA+" "+sgn(tA)+" points, "+sB+" "+sgn(tB)+" points."); }
+    if(K.bothE.length>=2){ var e0=K.bothE[0], e1=K.bothE[K.bothE.length-1], g0=e0.a-e0.b, g1=e1.a-e1.b;
+      if(g0*g1<0&&Math.abs(g0)>=1&&Math.abs(g1)>=1) f.push("The lead has switched: "+(g0>0?sA:sB)+" led in "+e0.test+", "+(g1>0?sA:sB)+" led in "+e1.test+".");
+      else if(Math.abs(g1)<Math.abs(g0)-2) f.push("The gap has narrowed from "+Math.round(Math.abs(g0))+" to "+Math.round(Math.abs(g1))+" points between "+e0.test+" and "+e1.test+".");
+      else if(Math.abs(g1)>Math.abs(g0)+2) f.push("The gap has widened from "+Math.round(Math.abs(g0))+" to "+Math.round(Math.abs(g1))+" points between "+e0.test+" and "+e1.test+".");
+      else f.push("The gap between them has stayed about the same across the common exams."); }
+    if(atL!==null&&atL!==0) f.push(who(atL)+" has the better attendance ("+pc(atL===1?A.att.pct:B.att.pct)+" vs "+pc(atL===1?B.att.pct:A.att.pct)+").");
+    var helpA=K.core.filter(function(r){ return r.gap>=10; }), helpB=K.core.filter(function(r){ return r.gap<=-10; });
+    if(helpA.length||helpB.length) f.push("Peer-study idea: "+[helpA.length?sA+" could help "+sB+" with "+helpA.map(function(r){ return r.name; }).join(", "):"",helpB.length?sB+" could help "+sA+" with "+helpB.map(function(r){ return r.name; }).join(", "):""].filter(Boolean).join("; ")+".");
+    doc.bullets(f.length?f:["Not enough data to draw a comparison yet."],GOLD);
+
+    /* recommendations */
+    doc.h2("Recommendations");
+    function recs(D,p,side,name,other){
+      var out=[], weak=p.core.slice().reverse().slice(0,2).filter(function(s){ return s.pct<75; });
+      weak.forEach(function(s){ var row=K.rows.filter(function(r){ return r.id===s.id; })[0], o=row?(side===1?row.b:row.a):null;
+        out.push("Revise "+s.name+" ("+pc(s.pct)+")"+(o&&o.pct>=s.pct+8&&!o.add?" — "+other+" scored "+pc(o.pct)+" here, so studying together could help":"")+"."); });
+      if(D.att.pct!==null&&D.att.pct<85) out.push("Raise attendance from "+pc(D.att.pct)+" towards 90% — missed classes are the quickest way to lose marks.");
+      var cpx=side===1?K.cpA:K.cpB; if(cpx.t&&cpx.t>cpx.s) out.push("Submit the "+(cpx.t-cpx.s)+" pending cop"+(cpx.t-cpx.s===1?"y":"ies")+" and keep notebooks complete.");
+      if(!out.length) out.push("Keep up the current routine and continue regular revision.");
+      doc.keep(150); doc.p(name,{f:"700 22px "+SANS,c:side===1?CA:CB,gap:4}); doc.bullets(out,side===1?CA:CB);
+    }
+    recs(A,pA,1,nA,sB); recs(B,pB,-1,nB,sA);
+    doc.note("This comparison uses only recorded marks, attendance and copy-checking data. It is meant to guide support for each student, not to rank children against each other.");
+  }
+  function startCompare(aid,bid){ var sp={kind:"compare",a:aid,b:bid,period:periodOf("",null,"all")}; if(window.miPageReport&&window.miPageReport.active()){ window.miPageReport.run(sp); return; } _pending=sp; run(); }
+
   /* ───────── build, PDF, preview ───────── */
   function loadImg(src){ return new Promise(function(r){ if(!src){ r(null); return; } var i=new Image(); i.onload=function(){ r(i); }; i.onerror=function(){ r(null); }; i.src=src; }); }
   function build(spec){
@@ -12012,6 +12361,7 @@ function _ttSubjectOptions(row){
       var logo=x[1], gen="Generated "+fmt(today()), meta, doc, name;
       if(spec.kind==="student"){ var D=studentData(spec.studentId,spec.period); meta={title:"Student Performance Report",sub:D.S.name,lines:["Period: "+spec.period.label+(spec.period.sub?"  ("+spec.period.sub+")":""),gen]}; doc=makeDoc(meta,logo); buildStudent(D,doc); name="Report_Student_"+D.S.name+"_"+spec.period.label; }
       else if(spec.kind==="exam"){ var E=examData(spec.exam,spec.subjectIds); meta={title:"Exam Analysis Report",sub:spec.exam,lines:[(E.filtered?"Selected subject(s)":"All subjects")+(E.dateFrom?"  ·  "+fmt(E.dateFrom)+(E.dateTo!==E.dateFrom?" – "+fmt(E.dateTo):""):""),gen]}; doc=makeDoc(meta,logo); buildExam(E,doc); name="Report_Exam_"+spec.exam; }
+      else if(spec.kind==="compare"){ var S1=studentData(spec.a,spec.period),S2=studentData(spec.b,spec.period); meta={title:"Student Comparison Report",sub:S1.S.name+" vs "+S2.S.name,lines:["Period: "+spec.period.label+(spec.period.sub?"  ("+spec.period.sub+")":""),gen]}; doc=makeDoc(meta,logo); buildCompare(S1,S2,doc); name="Report_Compare_"+S1.S.name+"_vs_"+S2.S.name+"_"+spec.period.label; }
       else { var C=classData(spec.period); meta={title:"Class Performance Report",sub:"Class X — SBS",lines:["Period: "+spec.period.label+(spec.period.sub?"  ("+spec.period.sub+")":""),gen]}; doc=makeDoc(meta,logo); buildClass(C,doc); name="Report_Class_"+spec.period.label; }
       var pages=doc.finish();
       return {pages:pages,name:name.replace(/[^A-Za-z0-9]+/g,"-").replace(/-+$/,"")+".pdf",spec:spec};
@@ -12054,11 +12404,57 @@ function _ttSubjectOptions(row){
   function chipsHTML(list){ return '<div class="mi-chipset">'+list.map(function(x){ return '<button class="mi-qchip" data-q="'+esc(x)+'">'+esc(x)+'</button>'; }).join("")+'</div>'; }
   function card(title,body,spec){ return {intent:"report",title:title,html:body,report:spec||null}; }
   function describe(spec){
+    if(spec.kind==="compare"){ var DA=studentData(spec.a,spec.period),DB=studentData(spec.b,spec.period); if(!DA||!DB) return {have:"",empty:true,what:""};
+      return {have:short1(DA.S.name)+": "+DA.n+(DA.n===1?" mark entry":" mark entries")+" · "+short1(DB.S.name)+": "+DB.n+(DB.n===1?" mark entry":" mark entries"),empty:DA.n===0&&DB.n===0,what:"an at-a-glance table, subject-by-subject and exam-by-exam comparison with charts, strengths and weaknesses, attendance, copy submission, risk, a head-to-head analysis and recommendations for both students"}; }
     if(spec.kind==="student"){ var D=studentData(spec.studentId,spec.period); if(!D) return {have:"",empty:true,what:""}; return {have:D.n+(D.n===1?" mark entry":" mark entries")+" · "+(D.att.p+D.att.a)+" attendance days",empty:D.n===0&&(D.att.p+D.att.a)===0&&!D.copies.length,what:"marks by subject against the class average, exam trend, attendance, copy submission, risk analysis, insights and recommendations"}; }
     if(spec.kind==="exam"){ var E=examData(spec.exam,spec.subjectIds); return {have:E.students+" students · "+E.subjects.length+" subject"+(E.subjects.length===1?"":"s"),empty:!E.subjects.length,what:"subject-wise statistics, score distribution, comparison with the previous exam, ranking, subject toppers, students needing support and key findings"}; }
     var C=classData(spec.period); return {have:C.entries+" mark entries · "+C.n+" students",empty:C.entries===0&&!C.rows.some(function(r){ return r.att!==null; }),what:"subject averages, top performers, students needing attention, attendance, copy submission and class health"};
   }
+  /* ───────── understanding “detailed comparison report of A and B” ───────── */
+  var CMP_RE=/\b(compare|compared|comparison|comparing|versus|vs|v\/s|against|head to head|side by side|difference between)\b/;
+  var RPT_RE=/\b(report|detailed|detail|analysis|analyse|analyze|analytic|analytical|pdf|download|export|full)\b/;
+  var CSTOP={}; ("a an the of is are was were am be been to from with and or but not no yes its this that these those please tell show give list find get open go take about me my we you your who what which when where how why do does did has have had at in on for compare compared comparison comparing versus vs against between difference head side by report reports detailed detail details analysis analyse analyze analytic analytical pdf download export full create make generate prepare build produce need want write print marks mark result results score scores performance better stronger weaker than their his her them both class student students exam exams examination test tests unit term month months year week session overall all subject subjects roll number current last previous latest first second final half yearly annual").split(" ").forEach(function(w){ if(w) CSTOP[w]=1; });
+  function lev1(a,b){ if(Math.abs(a.length-b.length)>1) return 2; var d=[],i,j; for(i=0;i<=a.length;i++) d[i]=[i]; for(j=0;j<=b.length;j++) d[0][j]=j; for(i=1;i<=a.length;i++) for(j=1;j<=b.length;j++) d[i][j]=Math.min(d[i-1][j]+1,d[i][j-1]+1,d[i-1][j-1]+(a[i-1]===b[j-1]?0:1)); return d[a.length][b.length]; }
+  function extraStops(){ var o={}; MONTHS.forEach(function(m){ o[m]=1; }); try{ examOrder().forEach(function(e){ String(e).toLowerCase().split(/[^a-z0-9]+/).forEach(function(t){ if(t) o[t]=1; }); }); }catch(e){} return o; }
+  function splitSegs(ql){ return ql.replace(/[^a-z0-9&,\/ ]+/g," ").split(/\s+(?:and|with|vs|versus|v\/s|against|or|to|aur|ya)\s+|\s+v\s+s\s+|\s*[&,\/]\s*/).map(function(s){ return s.trim(); }).filter(Boolean); }
+  function matchSeg(sg,st,extra){
+    var m=sg.match(/\broll\s*(?:no\.?|number)?\s*(\d{1,3})\b/);
+    if(m){ var byRoll=st.filter(function(s){ return String(parseInt(s.roll))===String(parseInt(m[1])); }); if(byRoll.length) return byRoll; }
+    var tk=sg.split(/[^a-z0-9]+/).filter(function(t){ return t&&!CSTOP[t]&&!extra[t]&&!/^\d+$/.test(t); }); if(!tk.length) return [];
+    var sc=[]; st.forEach(function(s){ var nt=String(s.name||"").toLowerCase().split(/[^a-z0-9]+/).filter(Boolean),n=0;
+      tk.forEach(function(t){ if(nt.some(function(w){ return w===t||(t.length>=3&&w.indexOf(t)===0)||(t.length>=5&&w.length>=5&&lev1(w,t)<=1); })) n++; });
+      if(n) sc.push({s:s,n:n}); });
+    if(!sc.length) return [];
+    var mx=Math.max.apply(null,sc.map(function(z){ return z.n; })); return sc.filter(function(z){ return z.n===mx; }).map(function(z){ return z.s; });
+  }
+  function goCard(title,subj,info,spec){
+    return card(title,'<div class="mi-ans-sub"><b>'+esc(subj)+'</b></div><div class="mi-ans-sub" style="color:var(--muted)">Found: '+esc(info.have)+'</div><div class="mi-ans-sub">The report will include '+esc(info.what)+'.</div><div class="mi-ans-acts"><button class="btn btn-gold btn-sm mi-rep-go">📄 Create report</button><span style="font-size:11px;color:var(--muted);align-self:center;">or press Enter</span></div><div id="miRepOut" style="margin-top:12px;"></div>',spec);
+  }
+  function compareIntent(q,low,x){
+    if(!x.staff) return null;
+    var ql=String(q||"").toLowerCase(); if(!CMP_RE.test(ql)||!RPT_RE.test(ql)) return null;
+    var st=students(); if(st.length<2) return null;
+    var segs=splitSegs(ql); if(segs.length<2) return null;
+    var extra=extraStops(), found=[], amb=[], dup=false;
+    segs.forEach(function(sg){ var r=matchSeg(sg,st,extra); if(r.length===1){ if(found.some(function(f){ return f.id===r[0].id; })) dup=true; else found.push(r[0]); } else if(r.length>1) amb.push(r); });
+    if(!found.length&&!amb.length) return null;
+    var T0="Compare two students";
+    if(found.length>2){ var pr=[[0,1],[0,2],[1,2]].map(function(p){ return "Create comparison report of "+found[p[0]].name+" and "+found[p[1]].name; });
+      return card(T0,'<div class="mi-ans-sub">I found '+found.length+' students. I compare two at a time — which pair?</div>'+chipsHTML(pr)); }
+    if(found.length===2){
+      var P=periodOf(low,x.exams&&x.exams.length?[x.exams[0]]:null,"all"), spec={kind:"compare",a:found[0].id,b:found[1].id,period:P}, info=describe(spec);
+      var title="Student comparison report", subj=found[0].name+" vs "+found[1].name+" · "+P.label;
+      if(info.empty) return card(title+" — nothing to compare",'<div class="mi-ans-sub"><b>'+esc(subj)+'</b></div><div class="mi-empty" style="margin-top:8px;">No marks, attendance or copy records were found for these two students in this selection. Try another period, for example “this year” or an exam name.</div>');
+      _pending=spec; return goCard(title,subj,info,spec);
+    }
+    if(found.length===1&&amb.length){ return card(T0,'<div class="mi-ans-sub">More than one student matches the second name. Which one do you mean?</div>'+chipsHTML(amb[0].slice(0,4).map(function(s){ return "Create comparison report of "+found[0].name+" and "+s.name; }))); }
+    if(found.length===1) return card(T0,'<div class="mi-ans-sub">'+(dup?"Please pick two different students.":"Who is the second student?")+' For example:</div>'+chipsHTML(["Create comparison report of "+found[0].name+" and "+(st.filter(function(s){ return s.id!==found[0].id; })[0]||{name:"another student"}).name]));
+    var ex1=amb[0][0].name, ex2=(amb[1]?amb[1][0]:amb[0][1]||amb[0][0]).name;
+    return card(T0,'<div class="mi-ans-sub">More than one student matches. Please type the full names, for example “Create comparison report of '+esc(ex1)+' and '+esc(ex2)+'”.</div>');
+  }
+
   function interpret(q,low,x){
+    var cmp=compareIntent(q,low,x); if(cmp) return cmp;
     if(!REPORT_RE.test(low)) return null;
     if(/\breport cards?\b/.test(low)&&!/\b(analytic|analysis|detail|detailed|analytical)\b/.test(low)) return null;
     var staff=x.staff,me=x.me,spec=null,why="";
@@ -12094,7 +12490,7 @@ function _ttSubjectOptions(row){
     var out=document.getElementById("miRepOut"); if(!_pending){ return; } var spec=_pending;
     if(out) out.innerHTML='<div class="mi-empty">Preparing your report…</div>';
     build(spec).then(function(r){
-      LAST=r; var o=document.getElementById("miRepOut"); if(!o) return;
+      LAST=r; try{ if(window.miSmart&&window.miSmart.quickLog) window.miSmart.quickLog(); if(window.miHistory) window.miHistory.addFile(r,spec,{quick:true}); }catch(e){} var o=document.getElementById("miRepOut"); if(!o) return;
       o.innerHTML='<div class="mi-rep-done"><img alt="Report preview" src="'+r.pages[0].toDataURL("image/jpeg",0.55)+'"><div><b>Report ready</b><div class="mi-ans-sub">'+r.pages.length+' page'+(r.pages.length>1?"s":"")+' · A4 PDF</div><div class="mi-ans-acts"><button class="btn btn-gold btn-sm mi-rep-dl">⬇️ Download PDF</button><button class="btn btn-outline btn-sm mi-rep-view">👁️ View all pages</button></div></div></div>';
     }).catch(function(e){ var o=document.getElementById("miRepOut"); if(o) o.innerHTML='<div class="mi-empty" style="color:#FF7A7A;">Could not create the report. Please try again.</div>'; try{ console.error(e); }catch(_){} });
   }
@@ -12102,7 +12498,325 @@ function _ttSubjectOptions(row){
     var b=t.closest&&t.closest(".mi-rep-go,.mi-rep-dl,.mi-rep-view,.mi-ask-item[data-k='report']"); if(!b) return false;
     if(b.classList.contains("mi-rep-dl")) download(); else if(b.classList.contains("mi-rep-view")) view(); else run(); return true;
   }
-  window.miReport={interpret:interpret,build:build,pdf:pdf,download:download,view:view,handle:handle,run:run,_data:{student:studentData,exam:examData,cls:classData}};
+  window.miReport={startCompare:startCompare,compareIntent:compareIntent,interpret:interpret,build:build,pdf:pdf,download:download,view:view,handle:handle,run:run,_data:{student:studentData,exam:examData,cls:classData}};
+})();
+
+</script>
+<script>
+/* ═══════════════════════════════════════════════════════════════════════
+   AI ASSISTANT PAGE — a full page for the Smart Assistant, with every conversation saved
+   and a library of the PDF reports it created. Stored on this device only (IndexedDB),
+   separately for each signed-in user. It reads answers from window.miSmart and builds PDFs
+   with window.miReport — it never changes any class data.
+   ═══════════════════════════════════════════════════════════════════════ */
+(function(){
+  "use strict";
+  var DB_NAME="miAssistantHistory", persist=true, _db=null, BL={}, LIVE={}, ACTX=null;
+  var S={owner:"",convs:[],files:[],lp:null};
+  var cur=null, tab="chats", qry="", built=false, _srch=null;
+
+  function $(id){ return document.getElementById(id); }
+  function esc(s){ return String(s==null?"":s).replace(/[&<>"']/g,function(c){ return {"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]; }); }
+  function uid(){ return Date.now().toString(36)+Math.random().toString(36).slice(2,8); }
+  function me(){ try{ return currentUser; }catch(e){ return null; } }
+  function owner(){ var u=me(); return u?String(u.role||"")+":"+String(u.id||u.username||u.name||""):""; }
+  function toast(m){ try{ showToast(m); }catch(e){} }
+  function pageActive(){ var p=$("page-ai_assistant"); return !!(p&&p.classList.contains("active")); }
+  function shorten(s,n){ s=String(s||"").replace(/\s+/g," ").trim(); return s.length>n?s.slice(0,n-1)+"…":s; }
+  function stripTags(h){ return String(h||"").replace(/<[^>]*>/g,"").replace(/&amp;/g,"&").replace(/&lt;/g,"<").replace(/&gt;/g,">").replace(/&quot;/g,'"').replace(/&#39;/g,"'"); }
+  function tLabel(ms){ return new Date(ms).toLocaleTimeString("en-IN",{hour:"numeric",minute:"2-digit"}); }
+  function dLabel(ms){ return new Date(ms).toLocaleDateString("en-IN",{day:"numeric",month:"short"}); }
+  function day0(ms){ var d=new Date(ms); d.setHours(0,0,0,0); return d.getTime(); }
+  function when(ms){ return day0(ms)===day0(Date.now())?tLabel(ms):dLabel(ms)+", "+tLabel(ms); }
+  function groupOf(ms){ var diff=Math.round((day0(Date.now())-day0(ms))/86400000); return diff<=0?"Today":diff===1?"Yesterday":diff<7?"Previous 7 days":"Older"; }
+  function kb(n){ return n>=1048576?(n/1048576).toFixed(1)+" MB":Math.max(1,Math.round(n/1024))+" KB"; }
+  function help(){ try{ return window.miSmart.help(); }catch(e){ return {quick:[],groups:[]}; } }
+  function chipsHtml(list){ return '<div class="mi-chipset">'+list.map(function(x){ return '<button class="mi-qchip" data-q="'+esc(x)+'">'+esc(x)+'</button>'; }).join("")+'</div>'; }
+
+  /* ───────── storage (IndexedDB; falls back to memory if the browser blocks it) ───────── */
+  function openDB(){
+    if(_db) return Promise.resolve(_db);
+    return new Promise(function(res,rej){
+      if(!window.indexedDB){ rej(new Error("no-idb")); return; }
+      var r; try{ r=indexedDB.open(DB_NAME,1); }catch(e){ rej(e); return; }
+      r.onupgradeneeded=function(){ var d=r.result;
+        if(!d.objectStoreNames.contains("convs")) d.createObjectStore("convs",{keyPath:"id"}).createIndex("owner","owner");
+        if(!d.objectStoreNames.contains("files")) d.createObjectStore("files",{keyPath:"id"}).createIndex("owner","owner");
+        if(!d.objectStoreNames.contains("blobs")) d.createObjectStore("blobs",{keyPath:"id"}); };
+      r.onsuccess=function(){ _db=r.result; _db.onversionchange=function(){ try{ _db.close(); }catch(e){} _db=null; }; res(_db); };
+      r.onerror=function(){ rej(r.error||new Error("idb")); };
+      r.onblocked=function(){ rej(new Error("blocked")); };
+    });
+  }
+  function idb(store,mode,fn){
+    return openDB().then(function(d){ return new Promise(function(res,rej){
+      var t=d.transaction(store,mode),st=t.objectStore(store),req=fn(st);
+      t.oncomplete=function(){ res(req&&("result" in req)?req.result:undefined); };
+      t.onerror=function(){ rej(t.error); }; t.onabort=function(){ rej(t.error||new Error("abort")); };
+    }); });
+  }
+  function byOwner(store,o){
+    return openDB().then(function(d){ return new Promise(function(res,rej){
+      var out=[],c=d.transaction(store,"readonly").objectStore(store).index("owner").openCursor(IDBKeyRange.only(o));
+      c.onsuccess=function(){ var cur=c.result; if(cur){ out.push(cur.value); cur.continue(); } else res(out); };
+      c.onerror=function(){ rej(c.error); };
+    }); });
+  }
+  function fail(e){ persist=false; try{ console.warn("Assistant history cannot be saved in this browser:",e); }catch(_){} paintStore(); }
+  function put(store,v){ if(!persist) return Promise.resolve(); return idb(store,"readwrite",function(s){ return s.put(v); }).catch(fail); }
+  function remove(store,k){ if(!persist) return Promise.resolve(); return idb(store,"readwrite",function(s){ return s.delete(k); }).catch(fail); }
+  function readAB(blob){
+    if(blob.arrayBuffer) return blob.arrayBuffer();
+    return new Promise(function(res,rej){ var fr=new FileReader(); fr.onload=function(){ res(fr.result); }; fr.onerror=function(){ rej(fr.error); }; fr.readAsArrayBuffer(blob); });
+  }
+  function load(){
+    var o=owner(); if(!o) return Promise.resolve(false);
+    if(S.lp&&S.owner===o) return S.lp;
+    S.owner=o; S.convs=[]; S.files=[]; cur=null; LIVE={}; BL={};
+    var pc=persist?byOwner("convs",o):Promise.resolve([]), pf=persist?byOwner("files",o):Promise.resolve([]);
+    S.lp=Promise.all([pc,pf]).then(function(r){
+      S.convs=r[0].concat(S.convs.filter(function(c){ return r[0].every(function(x){ return x.id!==c.id; }); })).sort(function(a,b){ return b.updated-a.updated; });
+      S.files=r[1].sort(function(a,b){ return b.created-a.created; }); return true;
+    }).catch(function(e){ fail(e); return true; });
+    return S.lp;
+  }
+
+  /* ───────── conversations ───────── */
+  function getConv(id){ return S.convs.filter(function(c){ return c.id===id; })[0]||null; }
+  function saveConv(c){ if(S.convs.indexOf(c)<0) S.convs.push(c); S.convs.sort(function(a,b){ return b.updated-a.updated; }); return put("convs",c); }
+  function forPage(h){ return String(h||"").replace(/id="miRepOut"/g,'class="mia-repout"').replace(/<span[^>]*>or press Enter<\/span>/g,""); }
+  function forStore(h){ return forPage(h).replace(/<button[^>]*class="[^"]*\bmi-act\b[^"]*"[^>]*>[\s\S]*?<\/button>/g,"").replace(/<div class="mi-ans-acts"><\/div>/g,""); }
+  function mkTurn(q,a){
+    var spec=null; try{ spec=a.report?JSON.parse(JSON.stringify(a.report)):null; }catch(e){}
+    return {id:uid(),t:Date.now(),q:String(q),title:String(a.title||""),html:forStore(a.html),intent:a.intent||"",spec:spec,fileIds:[]};
+  }
+  function dayKey(){ var d=new Date(); return d.getFullYear()+"-"+(d.getMonth()+1)+"-"+d.getDate(); }
+  function quickConv(){
+    var k=dayKey(), c=S.convs.filter(function(x){ return x.source==="quick"&&x.day===k; })[0];
+    if(!c) c={id:uid(),owner:S.owner,title:"Quick asks · "+dLabel(Date.now()),created:Date.now(),updated:Date.now(),source:"quick",day:k,turns:[]};
+    return c;
+  }
+  function logQuick(q,a){
+    return load().then(function(){
+      if(!S.owner) return null; var c=quickConv(), last=c.turns[c.turns.length-1]; if(last&&last.q===q) return last;
+      var t=mkTurn(q,a); c.turns.push(t); c.updated=Date.now(); saveConv(c); if(pageActive()) renderSide(); return t;
+    });
+  }
+
+  /* ───────── PDF library ───────── */
+  function titleOf(spec,name){
+    var n=String(name||"").replace(/\.pdf$/i,"").replace(/^Report-/,"").replace(/-/g," ").trim();
+    var k=spec&&spec.kind; var lead=k==="compare"?"Comparison":k==="student"?"Student":k==="exam"?"Exam analysis":k==="class"?"Class":"Report";
+    return lead+" · "+n.replace(/^(Compare|Student|Exam|Class) /,"");
+  }
+  function addFile(r,spec,opt){
+    opt=opt||{};
+    return load().then(function(){
+      if(!S.owner||!window.miReport) return null;
+      var blob=window.miReport.pdf(r.pages), id=uid();
+      var meta={id:id,owner:S.owner,convId:opt.convId||null,turnId:opt.turnId||null,name:r.name,title:titleOf(spec,r.name),kind:(spec&&spec.kind)||"report",pages:r.pages.length,size:blob.size,created:Date.now(),thumb:r.pages[0].toDataURL("image/jpeg",0.5)};
+      if(opt.quick){ var qc=quickConv(), qt=qc.turns[qc.turns.length-1]; if(qt){ meta.convId=qc.id; meta.turnId=qt.id; qt.fileIds=(qt.fileIds||[]).concat(id); qc.updated=Date.now(); saveConv(qc); } }
+      else if(meta.convId){ var cv=getConv(meta.convId), tt=cv&&cv.turns.filter(function(x){ return x.id===meta.turnId; })[0]; if(tt){ tt.fileIds=(tt.fileIds||[]).concat(id); cv.updated=Date.now(); saveConv(cv); } }
+      S.files.unshift(meta); BL[id]=blob;
+      readAB(blob).then(function(ab){
+        if(!persist) return;
+        return idb("blobs","readwrite",function(s){ return s.put({id:id,ab:ab}); }).then(function(){ return put("files",meta); }).catch(function(e){ meta.unsaved=true; try{ console.warn("PDF kept for this session only:",e); }catch(_){} if(pageActive()) renderSide(); });
+      });
+      if(pageActive()) renderSide();
+      return meta;
+    });
+  }
+  function getBlob(id){
+    if(BL[id]) return Promise.resolve(BL[id]); if(!persist) return Promise.resolve(null);
+    return idb("blobs","readonly",function(s){ return s.get(id); }).then(function(rec){ if(!rec||!rec.ab) return null; var b=new Blob([rec.ab],{type:"application/pdf"}); BL[id]=b; return b; }).catch(function(){ return null; });
+  }
+  function dl(meta){
+    getBlob(meta.id).then(function(b){
+      if(!b){ toast("That file is no longer available on this device"); return; }
+      var url=URL.createObjectURL(b),a=document.createElement("a"); a.href=url; a.download=meta.name; document.body.appendChild(a); a.click();
+      setTimeout(function(){ URL.revokeObjectURL(url); a.remove(); },2000);
+      try{ logAudit("Report","record",meta.name,null,"Report downloaded via the assistant"); }catch(e){} toast("⬇️ Report downloaded");
+    });
+  }
+  function openFile(meta){
+    getBlob(meta.id).then(function(b){
+      if(!b){ toast("That file is no longer available on this device"); return; }
+      var url=URL.createObjectURL(b), w=null; try{ w=window.open(url,"_blank"); }catch(e){}
+      if(!w) dl(meta); setTimeout(function(){ URL.revokeObjectURL(url); },120000);
+    });
+  }
+  function delFile(id){
+    var m=S.files.filter(function(f){ return f.id===id; })[0]; if(!m) return;
+    S.files=S.files.filter(function(f){ return f.id!==id; }); delete BL[id]; remove("files",id); remove("blobs",id);
+    var c=m.convId&&getConv(m.convId); if(c){ c.turns.forEach(function(t){ t.fileIds=(t.fileIds||[]).filter(function(x){ return x!==id; }); }); saveConv(c); }
+  }
+
+  /* ───────── rendering ───────── */
+  function paintStore(){ var e=$("miaStore"); if(e) e.innerHTML=persist?"Saved on this device only":"⚠️ Can’t save in this browser mode — history is lost when you close the tab"; }
+  function filesByConv(){ var m={}; S.files.forEach(function(f){ if(f.convId) m[f.convId]=(m[f.convId]||0)+1; }); return m; }
+  function renderSide(){
+    var L=$("miaList"); if(!L) return; var qs=qry.trim().toLowerCase(), h="", btns=document.querySelectorAll(".mia-tabs button");
+    Array.prototype.forEach.call(btns,function(b){ b.classList.toggle("on",b.getAttribute("data-tab")===tab); });
+    var fc=$("miaFileCount"); if(fc) fc.textContent=S.files.length?String(S.files.length):"";
+    if(tab==="chats"){
+      var fm=filesByConv(), list=S.convs.filter(function(c){ return c.turns&&c.turns.length; });
+      if(qs) list=list.filter(function(c){ return (c.title+" "+c.turns.map(function(t){ return t.q; }).join(" ")).toLowerCase().indexOf(qs)>-1; });
+      if(!list.length) h='<div class="mia-empty">'+(qs?"No chats match your search.":"No conversations yet.<br>Ask something and it will be saved here.")+'</div>';
+      else { var g=""; list.forEach(function(c){ var gl=groupOf(c.updated); if(gl!==g){ g=gl; h+='<div class="mia-grp">'+gl+'</div>'; } var n=c.turns.length;
+        h+='<div class="mia-item'+(cur&&cur.id===c.id?" on":"")+'" data-id="'+esc(c.id)+'" role="button" tabindex="0"><span class="mia-ic">'+(c.source==="quick"?"⚡":"💬")+'</span><span class="mia-it"><b>'+esc(c.title)+'</b><small>'+n+' message'+(n===1?"":"s")+' · '+when(c.updated)+(fm[c.id]?' · 📄 '+fm[c.id]:'')+'</small></span><button class="mia-item-del" data-del="'+esc(c.id)+'" aria-label="Delete chat" title="Delete chat">✕</button></div>'; }); }
+    } else {
+      var fl=S.files.slice(); if(qs) fl=fl.filter(function(f){ return (f.title+" "+f.name).toLowerCase().indexOf(qs)>-1; });
+      if(!fl.length) h='<div class="mia-empty">'+(qs?"No reports match your search.":"No PDF reports yet.<br>Try “Create class report for this month”.")+'</div>';
+      else h=fl.map(function(f){ return '<div class="mia-fi" data-fid="'+esc(f.id)+'"><img src="'+f.thumb+'" alt=""><div class="mia-fi-t"><b title="'+esc(f.name)+'">'+esc(f.title)+'</b><small>'+f.pages+' page'+(f.pages===1?"":"s")+' · '+kb(f.size)+' · '+when(f.created)+(f.unsaved?' · this session only':'')+'</small><div class="mia-fi-a"><button data-do="dl">⬇️ Download</button><button data-do="open">👁️ Open</button>'+(f.convId&&getConv(f.convId)?'<button data-do="chat">💬 Chat</button>':'')+'<button data-do="del" class="danger" aria-label="Delete file">🗑️</button></div></div></div>'; }).join("");
+    }
+    L.innerHTML=h; paintStore();
+  }
+  function welcomeHtml(){
+    var hp=help(), u=me(), first=u&&u.name?String(u.name).trim().split(/\s+/)[0]:"";
+    return '<div class="mia-welcome"><div class="mia-wl-ic">✨</div><h2>How can I help'+(first?", "+esc(first):"")+'?</h2><p>Ask about attendance, marks, risk, rankings or the timetable — or ask for a PDF report. Every chat and report is saved here.</p><div class="mia-wl-grid">'+
+      (hp.groups||[]).map(function(g){ return '<div class="mia-wl-card"><div class="mia-wl-h">'+esc(g[0])+'</div>'+chipsHtml((g[1]||[]).slice(0,6))+'</div>'; }).join("")+'</div></div>';
+  }
+  function msgHtml(t){
+    var lv=LIVE[t.id], body=lv?lv.html:t.html;
+    return '<div class="mia-msg mia-u"><div class="mia-bub">'+esc(t.q)+'</div><div class="mia-time">'+tLabel(t.t)+'</div></div>'+
+      '<div class="mia-msg mia-a" data-turn="'+esc(t.id)+'"><div class="mia-av">✨</div><div class="mia-body"><div class="mi-ans"><div class="mi-ans-h">'+t.title+'</div>'+body+'</div><div class="mia-files"></div><div class="mia-tools"><button class="mia-tool" data-do="again" title="Ask again with the latest data">↻ Ask again</button><button class="mia-tool" data-do="copy" title="Copy this answer">⧉ Copy</button></div></div></div>';
+  }
+  function fileCard(f){ return '<div class="mia-file" data-fid="'+esc(f.id)+'"><img src="'+f.thumb+'" alt=""><div class="mia-fi-t"><b>'+esc(f.title)+'</b><small>'+f.pages+' page'+(f.pages===1?"":"s")+' · '+kb(f.size)+' · '+when(f.created)+'</small><div class="mia-fi-a"><button data-do="dl">⬇️ Download PDF</button><button data-do="open">👁️ Open</button></div></div></div>'; }
+  function renderFilesIn(msgEl,t){
+    var box=msgEl&&msgEl.querySelector(".mia-files"); if(!box) return;
+    box.innerHTML=(t.fileIds||[]).map(function(id){ return S.files.filter(function(f){ return f.id===id; })[0]; }).filter(Boolean).map(fileCard).join("");
+  }
+  function scrollEnd(){ var T=$("miaThread"); if(T) setTimeout(function(){ T.scrollTop=T.scrollHeight; },30); }
+  function setHead(){
+    var t=$("miaTitle"),has=cur&&cur.turns.length; if(t) t.textContent=has?cur.title:"✨ Smart Assistant";
+    var r=$("miaRename"),d=$("miaDel"); if(r) r.style.display=has?"":"none"; if(d) d.style.display=has?"":"none";
+    var ch=$("miaChips"); if(ch) ch.innerHTML=has?chipsHtml((help().quick||[]).slice(0,5)):"";
+  }
+  function renderThread(){
+    var T=$("miaThread"); if(!T) return;
+    if(!cur||!cur.turns.length){ T.innerHTML=welcomeHtml(); setHead(); return; }
+    T.innerHTML=cur.turns.map(msgHtml).join("");
+    var els=T.querySelectorAll(".mia-a"); cur.turns.forEach(function(t,i){ renderFilesIn(els[i],t); });
+    setHead(); scrollEnd();
+  }
+  function appendTurn(t){
+    var T=$("miaThread"); if(!T) return; if(T.querySelector(".mia-welcome")) T.innerHTML="";
+    T.insertAdjacentHTML("beforeend",msgHtml(t)); var els=T.querySelectorAll(".mia-a"); renderFilesIn(els[els.length-1],t); setHead(); scrollEnd();
+  }
+
+  /* ───────── actions ───────── */
+  function ensureConv(q){
+    if(cur) return cur;
+    cur={id:uid(),owner:S.owner,title:shorten(q,60),created:Date.now(),updated:Date.now(),source:"page",turns:[]}; return cur;
+  }
+  function send(q){
+    q=String(q||"").trim(); if(!q) return;
+    if(!window.miSmart||!window.miSmart.ask){ toast("The assistant is not ready yet"); return; }
+    load().then(function(){
+      if(!S.owner) return;
+      var c=ensureConv(q), a=null, acts=[];
+      try{ a=window.miSmart.ask(q); acts=window.miSmart.acts?window.miSmart.acts():[]; }catch(e){ a=null; }
+      if(!a) a={title:"I did not understand that",html:'<div class="mi-ans-sub">Try one of these:</div>'+chipsHtml(help().quick||[]),intent:"none"};
+      var t=mkTurn(q,a); LIVE[t.id]={html:forPage(a.html),acts:acts};
+      c.turns.push(t); c.updated=Date.now(); saveConv(c); appendTurn(t); renderSide();
+    });
+  }
+  function makeReport(t,msgEl,spec){
+    spec=spec||t.spec; if(!spec||!window.miReport||!cur) return;
+    var out=msgEl.querySelector(".mia-repout"); if(!out){ out=document.createElement("div"); out.className="mia-repout"; msgEl.querySelector(".mia-body").insertBefore(out,msgEl.querySelector(".mia-files")); }
+    out.innerHTML='<div class="mia-busy"><i></i> Preparing your report…</div>'; var cid=cur.id;
+    window.miReport.build(spec).then(function(r){ return addFile(r,spec,{convId:cid,turnId:t.id}); }).then(function(meta){
+      out.innerHTML=""; if(meta){ renderFilesIn(msgEl,t); toast("📄 Report ready"); } else out.innerHTML='<div class="mi-empty">Could not save the report.</div>';
+      scrollEnd();
+    }).catch(function(e){ out.innerHTML='<div class="mi-empty" style="color:#FF7A7A;">Could not create the report. Please try again.</div>'; try{ console.error(e); }catch(_){} });
+  }
+  function openConv(id){ var c=getConv(id); if(!c) return; cur=c; tab="chats"; renderSide(); renderThread(); closeDrawer(); }
+  function newChat(){ cur=null; renderThread(); renderSide(); closeDrawer(); var i=$("miaInput"); if(i&&window.innerWidth>820) i.focus(); }
+  function deleteConv(id){
+    var c=getConv(id); if(!c) return; if(!window.confirm("Delete this chat?\n\nPDF reports made in it stay in the Files tab.")) return;
+    S.convs=S.convs.filter(function(x){ return x.id!==id; }); remove("convs",id); if(cur&&cur.id===id) cur=null;
+    S.files.forEach(function(f){ if(f.convId===id){ f.convId=null; f.turnId=null; put("files",f); } });
+    renderSide(); renderThread();
+  }
+  function clearAll(){
+    if(!(S.convs.length||S.files.length)) return;
+    if(!window.confirm("Delete ALL chats and saved PDF reports on this device?\nThis cannot be undone.")) return;
+    S.convs.forEach(function(c){ remove("convs",c.id); }); S.files.forEach(function(f){ remove("files",f.id); remove("blobs",f.id); });
+    S.convs=[]; S.files=[]; BL={}; LIVE={}; cur=null; renderSide(); renderThread(); toast("History cleared");
+  }
+  function renameConv(){
+    if(!cur) return; var n=window.prompt("Rename this chat",cur.title); if(n===null) return; n=shorten(n,80); if(!n) return;
+    cur.title=n; saveConv(cur); setHead(); renderSide();
+  }
+  function openDrawer(){ var s=$("miaSide"),c=$("miaScrim"); if(s) s.classList.add("open"); if(c) c.classList.add("open"); }
+  function closeDrawer(){ var s=$("miaSide"),c=$("miaScrim"); if(s) s.classList.remove("open"); if(c) c.classList.remove("open"); }
+  function grow(i){ i.style.height="auto"; i.style.height=Math.min(i.scrollHeight,130)+"px"; }
+  function submit(){ var i=$("miaInput"); if(!i) return; var q=i.value; if(!q.trim()) return; i.value=""; grow(i); syncSend(); send(q); }
+  function syncSend(){ var i=$("miaInput"),b=$("miaSend"); if(b&&i) b.disabled=!i.value.trim(); }
+
+  function onThreadClick(e){
+    var t=e.target; if(!t.closest) return;
+    var chip=t.closest(".mi-qchip"); if(chip){ send(chip.getAttribute("data-q")); return; }
+    var act=t.closest(".mi-act");
+    if(act){
+      var m=act.closest(".mia-a"), tid=m&&m.getAttribute("data-turn"), lv=LIVE[tid], f=lv&&lv.acts[+act.getAttribute("data-act")];
+      if(!f){ toast("Use “Ask again” to refresh this answer"); return; }
+      ACTX={turnId:tid,el:m,label:(act.textContent||"").trim()}; try{ f(); }catch(err){ try{ console.error(err); }catch(_){} } finally{ ACTX=null; } return;
+    }
+    var go=t.closest(".mi-rep-go");
+    if(go){ var mm=go.closest(".mia-a"), id=mm&&mm.getAttribute("data-turn"), tr=cur&&cur.turns.filter(function(x){ return x.id===id; })[0]; if(tr) makeReport(tr,mm); return; }
+    var b=t.closest("[data-do]"); if(!b) return;
+    var op=b.getAttribute("data-do"), fc=b.closest(".mia-file"), ms=b.closest(".mia-a");
+    if(fc){ var fm=S.files.filter(function(x){ return x.id===fc.getAttribute("data-fid"); })[0]; if(fm){ if(op==="dl") dl(fm); else if(op==="open") openFile(fm); } return; }
+    if(ms&&cur){ var tid2=ms.getAttribute("data-turn"), t2=cur.turns.filter(function(x){ return x.id===tid2; })[0]; if(!t2) return;
+      if(op==="again") send(t2.q);
+      else if(op==="copy"){ var txt=(ms.querySelector(".mi-ans")||ms).innerText||""; try{ navigator.clipboard.writeText(txt).then(function(){ toast("Copied"); }); }catch(err){ toast("Copy is not available here"); } } }
+  }
+  function onListClick(e){
+    var t=e.target; if(!t.closest) return;
+    var d=t.closest("[data-del]"); if(d){ e.stopPropagation(); deleteConv(d.getAttribute("data-del")); return; }
+    var fi=t.closest(".mia-fi");
+    if(fi){ var f=S.files.filter(function(x){ return x.id===fi.getAttribute("data-fid"); })[0]; var b=t.closest("[data-do]"); if(!f||!b) return; var op=b.getAttribute("data-do");
+      if(op==="dl") dl(f); else if(op==="open") openFile(f); else if(op==="chat"){ if(f.convId) openConv(f.convId); }
+      else if(op==="del"){ if(window.confirm("Delete this PDF from your saved reports?")){ delFile(f.id); renderSide(); renderThread(); } } return; }
+    var it=t.closest(".mia-item"); if(it) openConv(it.getAttribute("data-id"));
+  }
+  function bind(){
+    if(built) return; built=true;
+    $("miaNew").addEventListener("click",newChat);
+    $("miaSend").addEventListener("click",submit);
+    $("miaClear").addEventListener("click",clearAll);
+    $("miaRename").addEventListener("click",renameConv);
+    $("miaDel").addEventListener("click",function(){ if(cur) deleteConv(cur.id); });
+    $("miaHist").addEventListener("click",openDrawer); $("miaScrim").addEventListener("click",closeDrawer); $("miaSideClose").addEventListener("click",closeDrawer);
+    $("miaThread").addEventListener("click",onThreadClick);
+    $("miaChips").addEventListener("click",function(e){ var c=e.target.closest&&e.target.closest(".mi-qchip"); if(c) send(c.getAttribute("data-q")); });
+    $("miaList").addEventListener("click",onListClick);
+    $("miaList").addEventListener("keydown",function(e){ if((e.key==="Enter"||e.key===" ")&&e.target.classList&&e.target.classList.contains("mia-item")){ e.preventDefault(); openConv(e.target.getAttribute("data-id")); } });
+    Array.prototype.forEach.call(document.querySelectorAll(".mia-tabs button"),function(b){ b.addEventListener("click",function(){ tab=b.getAttribute("data-tab"); renderSide(); }); });
+    $("miaSearch").addEventListener("input",function(e){ var v=e.target.value; clearTimeout(_srch); _srch=setTimeout(function(){ qry=v; renderSide(); },120); });
+    var i=$("miaInput");
+    i.addEventListener("input",function(){ grow(i); syncSend(); });
+    i.addEventListener("keydown",function(e){ if(e.key==="Enter"&&!e.shiftKey&&!e.isComposing){ e.preventDefault(); submit(); } });
+    syncSend();
+  }
+  function show(){
+    bind(); var o=owner(); if(S.owner&&S.owner!==o) cur=null;
+    load().then(function(){ renderSide(); renderThread(); var i=$("miaInput"); if(i&&window.innerWidth>820) setTimeout(function(){ i.focus(); },60); });
+  }
+
+  /* hooks used by the Ctrl+K window and the report module */
+  window.miPageSink=function(a){
+    if(!ACTX||!cur||!a) return false;
+    var acts=window.miSmart&&window.miSmart.acts?window.miSmart.acts():[], t=mkTurn(ACTX.label||"Selected option",a);
+    LIVE[t.id]={html:forPage(a.html),acts:acts}; cur.turns.push(t); cur.updated=Date.now(); saveConv(cur); appendTurn(t); renderSide(); return true;
+  };
+  window.miPageReport={
+    active:function(){ return !!(ACTX&&cur); },
+    run:function(spec){ var ctx=ACTX; if(!ctx||!cur) return; var t=cur.turns.filter(function(x){ return x.id===ctx.turnId; })[0]; if(t) makeReport(t,ctx.el,spec); }
+  };
+  window.miHistory={logQuick:logQuick,addFile:addFile,load:load};
+  window.miPage={show:show,ask:function(q){ bind(); load().then(function(){ if(S.owner&&cur&&cur.source==="quick") cur=null; send(q); }); }};
 })();
 
 </script>
